@@ -1,0 +1,16 @@
+{
+  "name": "ipcba",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Indice de Precios al Consumidor",
+  "dependencies": {
+    "backend-plus": "~0.29.32",
+    "pg-triggers": "~0.2.3"
+  },
+  "devDependencies": {
+    "types.d.ts": "~0.4.1"
+  },
+  "scripts": {
+    "start": "node server/server-ipcba.js"
+  }
+}

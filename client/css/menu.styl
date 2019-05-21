@@ -1,0 +1,67 @@
+body
+  font-family arial
+  padding 0px
+ 
+#metadatos
+  font-family arial
+  margin 5px
+
+#main-logo
+  height 24px
+  margin-right 16px
+  
+#barra_superior 
+  padding 4px
+  border-bottom 1px solid #AAA
+
+#barra_superior *
+  vertical-align top
+  margin-left 8px
+
+#usuario-activo
+  vertical-align center
+  color #666
+  
+#menu-derecha  
+  float right
+  height 20px
+
+input.group
+  display none
+
+.barra_intermedia
+  display none
+  padding-top 3px
+
+#group-administracion:checked ~ .barra_intermedia[id-grupo='administracion']
+  display block
+
+label.group
+  height 24px
+  padding 4px
+  background-color #DDD
+  border-top    1px solid #EEE
+  border-left   1px solid #EEE
+  border-bottom 1px solid #CCC
+  border-right  1px solid #CCC
+  margin-top 4px
+
+button.tables
+  height 24px
+  padding 3px
+  font-size 90%
+  background-color #DDD
+  border-top    1px solid #EEE
+  border-left   1px solid #EEE
+  border-bottom 1px solid #CCC
+  border-right  1px solid #CCC
+  margin-top 4px
+
+button[menu-selected=yes]
+  border-radius 2px
+  background-color #FFF
+  
+input.group:checked + label.group
+  border-radius 2px
+  background-color #FFF
+ 

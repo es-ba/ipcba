@@ -1,0 +1,436 @@
+.mobile-main-layout
+  max-width 768px
+  -webkit-user-select none  /* Chrome all / Safari all */
+  -moz-user-select none     /* Firefox all */
+  -ms-user-select none      /* IE 10+ */
+  user-select none          /* Likely future */ 
+  
+[contenteditable="true"]
+  -webkit-user-select auto  /* Chrome all / Safari all */
+  -moz-user-select auto     /* Firefox all */
+  -ms-user-select auto      /* IE 10+ */
+  user-select auto          /* Likely future */ 
+
+/* #### Tablet samsung A6 10 pulgadas*/
+/*@media screen and (min-device-width: 800px) and (max-device-width: 800px) and (orientation: portrait){
+  .mobile-main-layout{
+    max-width 800px
+    //transform: scale(1.05)
+  }
+}*/
+
+.mobile-main-layout #header-information
+    background-color #d4cdc8
+    border-bottom 1px solid #a9aeb9
+    border-left 1px solid #a9aeb9
+    border-right 1px solid #a9aeb9
+    color #35353d
+    font-family Helvetica
+    font-weight bold
+    font-size 75%
+    padding 5px 0px
+    margin: 0px 0px 5px
+
+.mobile-main-layout #header-information[set-fixed=true]
+  position fixed
+  width 651px
+  margin-left 92px
+  top 0px
+    
+.mobile-main-layout #header-information[set-fixed=true] .back-button
+  display none
+
+.mobile-main-layout #header-information #search-product
+    float right
+    padding 0 3px 0 0
+
+.mobile-main-layout #header-information #search-product input
+    padding 3px 6px
+    width 200px
+
+#header-information #panel, #header-information #tarea, #header-information #encuestador
+    padding 5px 8px
+
+.mobile-main-layout .grid-mobile .my-grid
+    table-layout fixed
+    
+.mobile-main-layout .grid-mobile .my-grid .grid-th-actions, .mobile-main-layout .grid-mobile .my-grid .head-info-empty-col, .mobile-main-layout .grid-mobile .my-grid .foot-info-empty-col, .mobile-main-layout .grid-mobile .my-grid .foot-info-insert-col
+    display none
+
+.mobile-main-layout .grid-mobile .my-grid .grid-caption
+    display none
+
+.mobile-main-layout #title
+    font-family Helvetica
+    font-weight bold
+    font-size 75%
+    letter-spacing 1px
+    border-bottom 1px solid #a9aeb9
+    border-top 1px solid #a9aeb9
+    border-left 1px solid #a9aeb9
+    border-right 0px solid #a9aeb9
+    margin 0px
+    border-spacing 0px
+    border-collapse collapse
+    border-right 1px solid #a9aeb9
+    background #456b71
+    padding 6px
+    color #ececec
+
+button[delete=true]
+    background-color #cb3837
+    color #ffffff
+
+[is-collapsed=false] [my-collapsable=true]
+    display block
+
+[is-collapsed=false] .extra-row [my-collapsable=true]
+    display table-cell
+
+[is-collapsed=true] [my-collapsable=true]
+    display none
+
+td[selected-from-collapsed=true]
+    background-color:  #ebe1ca !important
+
+#formularios-sidebar
+    float left
+    width 92px
+
+#formularios-sidebar .formulario
+    padding 5px
+    margin 5px 5px 5px 0px
+    border-bottom 1px solid #a9aeb9
+    border-top 1px solid #a9aeb9
+    border-left 1px solid #a9aeb9
+    border-right 1px solid #a9aeb9
+    font-family Helvetica
+    background-color #d4cdc8
+    color #444
+    text-align center
+    max-width 100%
+#formularios-sidebar .formulario[formulario-seleccionado=true]
+    background-color #456b71
+    color #ececec
+
+#formularios-sidebar .formulario .nombre-formulario
+    font-size 70%
+    padding 5px 0
+
+#floating-grid
+    float left
+    margin-top 5px
+        
+[id^=mobile-layout]
+  font-size 120%
+  .my-grid tr td
+    vertical-align top
+    white-space normal
+  .nombre-informante
+    font-weight bold
+    font-size 110%
+    margin-bottom 2px
+  .comentarios-informante
+    margin 8px
+    color #008
+  .my-grid
+    .formularios-table
+      td
+        border 0px !important
+        padding 16px
+    .prod-formulario
+      text-align center
+  .nombre-producto
+    font-weight bold
+    font-size 110%
+    margin-bottom 2px
+  .precio-anterior
+    font-weight bold
+    font-size 110%
+    margin-bottom 2px
+    padding 6px
+    .tipoprecioanterior
+      margin-right 40px
+      margin-left 100px
+    border-bottom 1px solid #CCC
+  .detalles
+    .nombre-atributo
+      font-size: 90%
+      margin-right 8px
+  #header-information
+    button, input
+      font-size 160%
+  button.change-attr-button
+    font-size 120%
+  button.add-observation-button
+    font-size 100%
+    width 65px
+  .my-grid tr td.botonera-precios
+    white-space nowrap
+  .my-grid tr td[my-colname=precio], .my-grid tr td[my-colname=precioanterior]
+    font-size 120%
+  .my-grid tr td[my-colname=tipoprecio], .my-grid tr td[my-colname=tipoprecioanterior]
+    font-size 120%
+  tfoot
+    display none
+  .head-info-row
+    display none
+  .my-grid[my-table^=mobile_at]
+    td
+      padding 16px
+    td[my-colname=copiar_atributo]
+      text-align center
+  .bp-input
+    font-size 100%
+    margin 0px
+    padding 0px
+
+#attributes-observations-title
+  text-align left
+
+#attributes-observations
+  margin-top 10px
+  width 750px
+  //text-transform uppercase
+
+#attributes-observations td
+  border 1px solid #CCC
+  width 768px
+  height 60px
+
+.dialog-promise[device=mobile]
+  font-size 150%
+
+.dialog-promise[my-alert-promise=atributos]
+  max-width 100%
+  max-height none
+
+.dialog-promise[device=mobile] button
+  font-size 90%
+
+.dialog-promise[device=mobile] textarea
+  font-size 90%
+  font-family Helvetica
+  width 600px
+  //text-transform uppercase
+  
+.dialog-promise[device=mobile] .dialog-menu td
+  padding 8px
+  margin 8px
+  border-bottom 1px solid #CCC
+
+.dialog-menu td
+  font-size 150%
+  padding 8px
+  margin 8px
+  border-bottom 1px solid #CCC
+
+[my-skin=default] .th-name
+  padding 3px 0 !important
+
+[my-skin=default] .my-grid td
+  padding 4px 3px !important
+
+[my-skin=default] .my-grid td[my-colname=faltan_div], [my-skin=default] .my-grid td[my-colname=prod_div], [my-skin=default] .my-grid td[my-colname=adv]
+  padding 0 !important
+  height 15px
+
+td[my-colname=faltan_div] span, td[my-colname=prod_div] span, td[my-colname=adv] span
+  display block
+  height 100%
+  overflow auto
+  padding 5px
+
+td[my-colname=faltan_div] span[faltan=true]
+  background-color #DAA
+
+td[my-colname=faltan_div] span[faltan=false]
+  background-color #ADA
+
+td[my-colname=adv] span[adv=true]
+  background-color rgb(255, 147, 51)
+
+td[my-colname=adv] span[adv=false]
+  background-color #ADA
+
+[my-table^=mobile_hoja_de_ruta] [my-colname=formularios_div] td, [my-table^=mobile_hoja_de_ruta] [my-colname=prod_div] td,
+[my-table^=mobile_hoja_de_ruta] [my-colname=formularios_div] td, [my-table^=mobile_hoja_de_ruta] [my-colname=faltan_div] td
+  border-style hidden !important
+
+.back-button
+  font-size 160%
+
+[my-table^=mobile_hoja_de_ruta] [my-colname=formularios_div]
+  min-width 258px
+  max-width 258px !important
+  width 258px
+  overflow hidden
+
+#mobile-layout-hoja-de-ruta
+  [my-table^=mobile_hoja_de_ruta] [my-colname=informante_div]
+    min-width 265px
+    max-width 265px !important
+    width 265px
+    overflow hidden
+
+  [my-table^=mobile_hoja_de_ruta] [my-colname=formularios_div]
+    min-width 350px
+    max-width 350px !important
+    width 350px
+    overflow hidden
+
+#mobile-layout-precios
+  [my-table^=mobile_precios] [my-colname=producto_div]
+    min-width 208px
+    max-width 208px !important
+    width 208px
+    overflow hidden
+  
+  [my-table^=mobile_precios] [my-colname=observacion_div]
+    min-width 15px
+    max-width 15px !important
+    width 15px
+    overflow hidden
+  
+  [my-table^=mobile_precios] [my-colname=atributos]
+    min-width 62px
+    max-width 62px !important
+    width 62px
+    overflow hidden
+
+  [my-table^=mobile_precios] [my-colname=atributos] td
+    font-size 100% !important
+  
+  [my-table^=mobile_precios] [my-colname=copiar_tipoprecio]
+    min-width 34px
+    max-width 34px !important
+    width 34px
+    overflow hidden
+    
+  [my-table^=mobile_precios] [my-colname=copiar_tipoprecio] span.text, .flecha-copiar
+    font-size 150%
+
+  [my-table^=mobile_precios] [my-colname=tipoprecio], [my-table^=mobile_precios] [my-colname=tipoprecioanterior]
+    min-width 20px
+    max-width 20px !important
+    width 20px
+    overflow hidden
+
+  [my-table^=mobile_precios] [my-colname=precio], [my-table^=mobile_precios] [my-colname=precioanterior]
+    min-width 119px
+    max-width 119px !important
+    width 119px
+    overflow hidden
+
+  [my-table^=mobile_precios] [my-colname=atributo_actual], [my-table^=mobile_precios] [my-colname=atributo_anterior]
+    min-width 144px
+    max-width 144px !important
+    width 144px
+    overflow hidden
+    //text-transform uppercase
+
+  [my-table^=mobile_visita] [my-colname=razon]
+    min-width 83px
+    max-width 83px !important
+    width 83px !important
+    overflow hidden
+  
+  [my-table^=mobile_visita] td
+    padding 16px 2px !important
+
+#mobile-layout-atributos
+  [my-table^=precio-from-atributos] [my-colname=producto_div]
+    min-width 428px
+    max-width 428px !important
+    width 428px
+    overflow hidden
+  
+  [my-table^=precio-from-atributos] [my-colname=tipoprecio], [my-table^=precio-from-atributos] [my-colname=tipoprecioanterior]
+    min-width 20px
+    max-width 20px !important
+    width 20px
+    overflow hidden
+
+  [my-table^=precio-from-atributos] [my-colname=precio], [my-table^=precio-from-atributos] [my-colname=precioanterior]
+    min-width 122px
+    max-width 122px !important
+    width 122px
+    overflow hidden
+
+  [my-table^=mobile_atributos] [my-colname=nombreatributo]
+    min-width 228px
+    max-width 228px !important
+    width 228px !important
+    overflow hidden  
+
+  [my-table^=mobile_atributos]
+    margin-top 6px !important
+
+  [my-table^=mobile_atributos] [my-colname=copiar_atributo]
+    min-width 35px
+    max-width 35px !important
+    width 35px !important
+    overflow hidden    
+
+  [my-table^=mobile_atributos] [my-colname=valoranterior], [my-table^=mobile_atributos] [my-colname=valor]
+    min-width 228px
+    max-width 228px !important
+    width 228px !important
+    overflow hidden
+    //text-transform uppercase
+
+.danger
+  padding 0 5px
+  background-color #cb3837
+  color #ffffff
+
+.warning
+  padding 0 5px
+  background-color #FFD700
+  color #000000
+.all-ok
+  padding 0 5px
+  background-color #46C115
+  color #000000
+  
+/* #### Tablet samsung A6 7 pulgadas*/
+/*@media screen and (min-device-width: 601px) and (max-device-width: 601px) and (orientation: portrait){
+  body{
+    max-width 600px !important
+  }
+  .mobile-main-layout{
+    width 585px !important
+    max-width 585px !important
+  }
+  #mobile-layout-precios [my-table^=mobile_precios] [my-colname=producto_div]{
+    min-width 138px
+    max-width 138px !important
+    width 138px
+    overflow hidden
+  }
+
+  #mobile-layout-precios [my-table^=mobile_precios] [my-colname=atributos]{
+    min-width 42px
+    max-width 42px !important
+    width 42px
+    overflow hidden
+  }
+
+  #mobile-layout-precios [my-table^=mobile_precios] [my-colname=precio], #mobile-layout-precios [my-table^=mobile_precios] [my-colname=precioanterior]{
+    min-width 95px
+    max-width 95px !important
+    width 95px
+    overflow hidden
+  }
+
+  #mobile-layout-precios [my-table^=mobile_precios] [my-colname=atributo_actual], #mobile-layout-precios [my-table^=mobile_precios] [my-colname=atributo_anterior]{
+    min-width 115px
+    max-width 115px !important
+    width 115px
+    overflow hidden
+  }
+  #formularios-sidebar{
+    float left
+    width 80px
+  }
+}*/
