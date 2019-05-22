@@ -1,24 +1,26 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='migracion';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
+    var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'formularios',
+        editable:puedeEditar||puedeEditarMigracion,
         allow:{
-            insert:puedeEditar,
-            delete:puedeEditar,
-            update:puedeEditar,
+            insert:puedeEditarMigracion,
+            delete:puedeEditarMigracion,
+            update:puedeEditar||puedeEditarMigracion,
         },                
         fields:[
-            {name:'formulario'                  , typeName:'integer' , nullable:false      , allow:{update:puedeEditar}},
-            {name:'nombreformulario'            , typeName:'text'    , isName:true         , allow:{update:puedeEditar}},
-            {name:'soloparatipo'                , typeName:'text'                          , allow:{update:puedeEditar}},
-            {name:'operativo'                   , typeName:'text'    , nullable:false      , allow:{update:puedeEditar}},
-            {name:'activo'                      , typeName:'text'    , defaultValue:'S'    , allow:{update:puedeEditar}},
-            {name:'despacho'                    , typeName:'text'                          , allow:{update:puedeEditar}},
-            {name:'altamanualdesdeperiodo'      , typeName:'text'                          , allow:{update:puedeEditar}},
-            {name:'orden'                       , typeName:'integer'                       , allow:{update:puedeEditar}},
-            {name:'pie'                         , typeName:'text'                          , allow:{update:puedeEditar}},
+            {name:'formulario'                  , typeName:'integer' , nullable:false      , allow:{update:puedeEditarMigracion}},
+            {name:'nombreformulario'            , typeName:'text'    , isName:true         , allow:{update:puedeEditarMigracion}},
+            {name:'soloparatipo'                , typeName:'text'                          , allow:{update:puedeEditarMigracion}},
+            {name:'operativo'                   , typeName:'text'    , nullable:false      , allow:{update:puedeEditarMigracion}},
+            {name:'activo'                      , typeName:'text'    , defaultValue:'S'    , allow:{update:puedeEditarMigracion}},
+            {name:'despacho'                    , typeName:'text'                          , allow:{update:puedeEditarMigracion}},
+            {name:'altamanualdesdeperiodo'      , typeName:'text'                          , allow:{update:puedeEditarMigracion}},
+            {name:'orden'                       , typeName:'integer'                       , allow:{update:puedeEditarMigracion}},
+            {name:'pie'                         , typeName:'text'                          , allow:{update:puedeEditar||puedeEditarMigracion}},
         ],
         primaryKey:['formulario'],
         foreignKeys:[

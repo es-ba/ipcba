@@ -118,8 +118,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'vaciar', name:'vaciar_dm', label:'vaciar ipad', showInOfflineMode: false},
             ], showInOfflineMode: true},
             {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
-            {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista], menuContent:[
-                {menuType:'table', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista], selectedByDefault:true},
+            {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
+                {menuType:'table', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
                 {menuType:'copia_calculo', name:'copias', label:'copias', onlyVisibleFor:[programador,coordinador,analista]},
             ]},
             {menuType:'menu', name:'administracion', label:'administración', menuContent:[

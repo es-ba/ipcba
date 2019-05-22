@@ -19,6 +19,7 @@ module.exports = function(context){
             {name:'unidaddemedida'              , typeName:'text'      },
             {name:'es_vigencia'                 , typeName:'boolean'   },
             {name:'valorinicial'                , typeName:'text'      },
+            {name:'visible'                     , typeName:'text', default:'S', defaultValue:'S'},
         ],
         primaryKey:['atributo'],
         foreignKeys:[

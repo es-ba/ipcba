@@ -28,9 +28,9 @@ module.exports = function(context){
                                 WHEN MIN(r.tarea) = max(r.tarea) then min(r.tarea)::text
                                 ELSE MIN(r.tarea)||'-'||MAX(r.tarea) end as tareas
                    FROM conjuntomuestral c 
-                   INNER JOIN informantes i ON c.conjuntomuestral = i.conjuntomuestral
-                   INNER JOIN relvis r ON i.informante=r.informante
-                   WHERE r.periodo>='` + context.be.internalData.filterUltimoPeriodo + `' group by c.conjuntomuestral, c.encuestador, c.panel, c.tiponegociomuestra)`,
+                   LEFT JOIN informantes i ON c.conjuntomuestral = i.conjuntomuestral
+                   LEFT JOIN relvis r ON i.informante=r.informante
+                   WHERE r.periodo is null or r.periodo>='` + context.be.internalData.filterUltimoPeriodo + `' group by c.conjuntomuestral, c.encuestador, c.panel, c.tiponegociomuestra)`,
 
         }
     },context);
