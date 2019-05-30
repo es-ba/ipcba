@@ -1,35 +1,37 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='admin' || context.user.usu_rol ==='programador';
+    var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete';
+	var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'relvis',
         title:'Relvis',
-        editable:true, //puedeEditar,
+        editable:puedeEditar||puedeEditarMigracion,
         allow:{
-            insert:false,
-            delete:false,
-            update:true,
+            insert:puedeEditar||puedeEditarMigracion,
+            delete:puedeEditarMigracion,
+            update:puedeEditar||puedeEditarMigracion,
         },
         fields:[
-            {name:'periodo'                   , typeName:'text'    , nullable:false            , allow:{update:false}               },
-            {name:'informante'                , typeName:'integer' , nullable:false            , allow:{update:false}, title:'inf' /*, label:'informante'*/},
-            {name:'visita'                    , typeName:'integer' , nullable:false , default:1, allow:{update:false}, title:'vis' /*, label:'visita'*/},
-            {name:'formulario'                , typeName:'integer' , nullable:false            , allow:{update:false}, title:'for' /*, label:'formulario'*/},
-            {name:'panel'                     , typeName:'integer' , nullable:false            , allow:{update:true}                },
-            {name:'tarea'                     , typeName:'integer' , nullable:false            , allow:{update:true}                },
-            {name:'fechasalida'               , typeName:'date'                                , allow:{update:true}, title:'salida' /*, label:'fecha salida'*/},
-            {name:'fechaingreso'              , typeName:'date'                                , allow:{update:true}, title:'ingreso' /*, label:'fecha ingreso'*/},
-            {name:'encuestador'               , typeName:'text'                                , allow:{update:true}, title:'enc' /*, label:'encuestador'*/},
-            {name:'ingresador'                , typeName:'text'                                , allow:{update:true}, title:'ing' /*, label:'ingresador'*/},
-            {name:'recepcionista'             , typeName:'text'                                , allow:{update:true}, title:'rec' /*, label:'recepcionista'*/},
-            {name:'razon'                     , typeName:'integer'                             , allow:{update:true}, clientSide:'control_razones', serverSide:true},
-            {name:'ultimavisita'              , typeName:'integer' , nullable:false , default:1, allow:{select:false}               },
-            {name:'comentarios'               , typeName:'text'                                , allow:{update:true}                },
-            {name:'supervisor'                , typeName:'text'                                , allow:{select:false}               },
-            {name:'informantereemplazante'    , typeName:'integer'                             , allow:{select:false}               },
-            {name:'ultima_visita'             , typeName:'boolean'                             , allow:{select:false}               },
-            {name:'verificado_rec'            , typeName:'text'                                , allow:{update:true}                },
+            {name:'periodo'                   , typeName:'text'    , nullable:false            , allow:{update:puedeEditarMigracion}               },
+            {name:'informante'                , typeName:'integer' , nullable:false            , allow:{update:puedeEditarMigracion}, title:'inf'  },
+            {name:'visita'                    , typeName:'integer' , nullable:false , default:1, allow:{update:puedeEditarMigracion}, title:'vis'  },
+            {name:'formulario'                , typeName:'integer' , nullable:false            , allow:{update:puedeEditarMigracion}, title:'for'  },
+            {name:'panel'                     , typeName:'integer' , nullable:false            , allow:{update:puedeEditar||puedeEditarMigracion}                 },
+            {name:'tarea'                     , typeName:'integer' , nullable:false            , allow:{update:puedeEditar||puedeEditarMigracion}                 },
+            {name:'fechasalida'               , typeName:'date'                                , allow:{update:puedeEditar||puedeEditarMigracion}, title:'salida' },
+            {name:'fechaingreso'              , typeName:'date'                                , allow:{update:puedeEditar||puedeEditarMigracion}, title:'ingreso'},
+            {name:'encuestador'               , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}, title:'enc'    },
+            {name:'ingresador'                , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}, title:'ing'    },
+            {name:'recepcionista'             , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}, title:'rec'    },
+            {name:'razon'                     , typeName:'integer'                             , allow:{update:puedeEditar||puedeEditarMigracion}, clientSide:'control_razones', serverSide:true},
+            {name:'ultimavisita'              , typeName:'integer' , nullable:false , default:1, allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'comentarios'               , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}                 },
+            {name:'supervisor'                , typeName:'text'                                , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'informantereemplazante'    , typeName:'integer'                             , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'ultima_visita'             , typeName:'boolean'                             , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'verificado_rec'            , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}                 },
+            {name:'fechageneracion'           , typeName:'timestamp'                           , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'orden'                     , typeName:'integer'                             , allow:{update:false}, visible:false},
             {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false},
@@ -66,7 +68,7 @@ module.exports = function(context){
             from:`(
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                  f.orden, i.direccion                  
+                  v.fechageneracion, f.orden, i.direccion                  
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario

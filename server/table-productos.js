@@ -8,7 +8,7 @@ module.exports = function(context){
         //title:'Productos',
         allow:{
             insert:puedeEditarMigracion,
-            delete:false,
+            delete:puedeEditarMigracion,
             update:puedeEditar||puedeEditarMigracion,
         },        
         fields:[

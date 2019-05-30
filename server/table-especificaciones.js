@@ -16,7 +16,7 @@ module.exports = function(context){
             {name:'especificacion'            , typeName:'integer', nullable:false            , allow:{update:puedeEditarMigracion}},
             {name:'nombreespecificacion'      , typeName:'text'   , isName:true               , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'tamannonormal'             , typeName:'decimal'                            , allow:{update:puedeEditarMigracion}},
-            {name:'ponderadoresp'             , typeName:'decimal', nullable:false, default:1, defaultValue:1, allow:{select:false}},
+            {name:'ponderadoresp'             , typeName:'decimal', nullable:false, default:1, defaultValue:1, allow:{update:puedeEditarMigracion}},
             {name:'envase'                    , typeName:'text'                               , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'excluir'                   , typeName:'text'                               , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'cantidad'                  , typeName:'decimal'                            , allow:{update:puedeEditarMigracion}},

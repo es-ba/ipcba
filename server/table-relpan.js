@@ -1,24 +1,24 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='admin' || context.user.usu_rol ==='programador';
+    var puedeEditar = context.user.usu_rol ==='admin' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'relpan',
         title:'paneles',
         editable:puedeEditar,
         allow:{
-            insert:false,
+            insert:puedeEditar,
             delete:false,
             update:puedeEditar,
         },
         fields:[
-            {name:'periodo'                 , typeName:'text'   , nullable:false},
-            {name:'panel'                   , typeName:'integer', nullable:false},
-            {name:'fechasalida'             , typeName:'date'},
-            {name: "generar"                , typeName: "bigint"  , editable:false, clientSide:'generarPanel'},
-            {name:'fechageneracionpanel'    , typeName:'timestamp'},
-            {name:'periodoparapanelrotativo', typeName:'text', allow:{select:false}},
-            {name:'generacionsupervisiones' , typeName:'timestamp'},
+            {name:'periodo'                 , typeName:'text'   , nullable:false, allow:{update:puedeEditar}},
+            {name:'panel'                   , typeName:'integer', nullable:false, allow:{update:puedeEditar}},
+            {name:'fechasalida'             , typeName:'date'                   , allow:{update:puedeEditar}},
+            {name: "generar"                , typeName: "bigint", editable:false, clientSide:'generarPanel'},
+            {name:'fechageneracionpanel'    , typeName:'timestamp'              , allow:{update:puedeEditar}},
+            {name:'periodoparapanelrotativo', typeName:'text'                   , allow:{update:puedeEditar}},
+            {name:'generacionsupervisiones' , typeName:'timestamp'              , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','panel'],
         foreignKeys:[

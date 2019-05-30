@@ -2,27 +2,28 @@
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo'|| context.user.usu_rol ==='supervisor';
+    var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'reltar',
-        editable:puedeEditar,
+        editable:puedeEditar||puedeEditarMigracion,
         allow:{
-            insert:false,
+            insert:puedeEditarMigracion,
             delete:false,
-            update:puedeEditar,
+            update:puedeEditar||puedeEditarMigracion,
         },
         fields:[
-            {name:'periodo'                    , typeName:'text'     , nullable:false            , allow:{update:false}},
-            {name:'panel'                      , typeName:'integer'  , nullable:false            , allow:{update:false}},
-            {name:'tarea'                      , typeName:'integer'  , nullable:false            , allow:{update:false}},
-            {name:'supervisor'                 , typeName:'text'                                 , allow:{update:puedeEditar}},
-            {name:'encuestador'                , typeName:'text'                                 , allow:{update:false}},
-            {name:'realizada'                  , typeName:'text'                                 , allow:{update:puedeEditar}},
-            {name:'resultado'                  , typeName:'text'                                 , allow:{update:puedeEditar}},
-            {name:'observaciones'              , typeName:'text'                                 , allow:{update:puedeEditar}},
-            {name:'token_instalacion'          , typeName:'text'                                 , allow:{update:false}},
-            {name:'cargado'                    , typeName:'timestamp', title: 'cargado a dm'     , allow:{update:false}},
-            {name:'descargado'                 , typeName:'timestamp', title: 'descargado de dm' , allow:{update:false}},
-            {name:'vencimiento_sincronizacion' , typeName:'timestamp'                            , allow:{update:false}},
+            {name:'periodo'                    , typeName:'text'     , nullable:false            , allow:{update:puedeEditarMigracion}},
+            {name:'panel'                      , typeName:'integer'  , nullable:false            , allow:{update:puedeEditarMigracion}},
+            {name:'tarea'                      , typeName:'integer'  , nullable:false            , allow:{update:puedeEditarMigracion}},
+            {name:'supervisor'                 , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'encuestador'                , typeName:'text'                                 , allow:{update:puedeEditarMigracion}},
+            {name:'realizada'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'resultado'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'observaciones'              , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'token_instalacion'          , typeName:'text'                                 , allow:{update:puedeEditarMigracion}},
+            {name:'cargado'                    , typeName:'timestamp', title: 'cargado a dm'     , allow:{update:puedeEditarMigracion}},
+            {name:'descargado'                 , typeName:'timestamp', title: 'descargado de dm' , allow:{update:puedeEditarMigracion}},
+            {name:'vencimiento_sincronizacion' , typeName:'timestamp'                            , allow:{update:puedeEditarMigracion}},
             {name:'habilitar_sincronizacion'   , typeName:'text'     , editable:false            , clientSide:'habilitarSincronizacion'},
         ],
         primaryKey:['periodo','panel','tarea'],

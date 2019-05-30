@@ -243,7 +243,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'infreemp'                                           , onlyVisibleFor:[programador]},
             ], onlyVisibleFor:[programador,coordinador,analista]},
             {menuType:'menu', name:'migracion', label:'migracion', menuContent:[
-                {menuType:'table', name:'agrupaciones'                                       , onlyVisibleFor:[programador,migracion,analista]},
+                {menuType:'table', name:'agrupaciones'                                       },
                 {menuType:'table', name:'atributos'                                          },
                 {menuType:'table', name:'calculos_def'                                       },
                 {menuType:'table', name:'conjuntomuestral'                                   },
@@ -259,11 +259,15 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'muestras'                                           },
                 {menuType:'table', name:'pantar'                                             },
                 {menuType:'table', name:'parametros'                                         },
+                {menuType:'table', name:'periodos'                                           },
                 {menuType:'table', name:'personal'                                           },
                 {menuType:'table', name:'prodatr'                                            },
                 {menuType:'table', name:'proddiv'                                            },
                 {menuType:'table', name:'productos'                                          },
                 {menuType:'table', name:'razones'                                            },
+                {menuType:'table', name:'relpan'                                             },
+                {menuType:'table', name:'reltar'                                             },
+                {menuType:'table', name:'relvis'                                             },
                 {menuType:'table', name:'rubfor'                                             },
                 {menuType:'table', name:'rubros'                                             },
                 {menuType:'table', name:'tareas'                                             },
@@ -271,7 +275,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'tipopre'                                            },
                 {menuType:'table', name:'unidades'                                           },
                 {menuType:'table', name:'valvalatr'                                          },
-            ]},
+            ], onlyVisibleFor:[programador,migracion]},
         ]}
     }
     clientIncludes(req, hideBEPlusInclusions) {

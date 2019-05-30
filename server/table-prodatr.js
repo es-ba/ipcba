@@ -33,8 +33,9 @@ module.exports = function(context){
             {name:'unidaddemedida'            , typeName:'text'                                   , allow:{update:puedeEditarMigracion}},
             {name:'es_vigencia'               , typeName:'boolean'                                , allow:{update:puedeEditarMigracion}},
             {name:'valorinicial'              , typeName:'text'                                   , allow:{update:puedeEditarMigracion}},
+            {name:'visiblenombreatributo'     , typeName:'text'                                   , allow:{update:puedeEditarMigracion}},
+            {name:'otraunidaddemedida'        , typeName:'text'                                   , allow:{update:puedeEditarMigracion}},
             {name:'opciones'                  , typeName:'text'                                   , allow:{update:puedeEditarMigracion}},
-
         ],
         primaryKey:['producto','atributo'],
         foreignKeys:[
@@ -44,7 +45,7 @@ module.exports = function(context){
         sql:{
             from:`(select p.producto, p.atributo, p.valornormal, p.orden, p.normalizable, p.tiponormalizacion, 
 		           p.alterable, p.prioridad, p.operacion, p.rangodesde, p.rangohasta, p.orden_calculo_especial, p.tipo_promedio, p.esprincipal,
-		           a.tipodato, a.abratributo, a.escantidad, a.unidaddemedida, a.es_vigencia, a.valorinicial, p.opciones 
+		           a.tipodato, a.abratributo, a.escantidad, a.unidaddemedida, a.es_vigencia, a.valorinicial, p.opciones, p.visiblenombreatributo, p.otraunidaddemedida 
                    from prodatr p left join atributos a on p.atributo = a.atributo
                 )`
         }       

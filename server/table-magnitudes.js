@@ -7,14 +7,14 @@ module.exports = function(context){
         editable:puedeEditar,
 		allow:{
             insert:puedeEditar,
-            delete:false,
+            delete:puedeEditar,
             update:puedeEditar,
         },
         fields:[
             {name:'magnitud'                  , typeName:'text'    , nullable:false, allow:{update:puedeEditar}},
             {name:'nombremagnitud'            , typeName:'text'    , isName:true   , allow:{update:puedeEditar}},
             {name:'unidadprincipalsingular'   , typeName:'text'                    , allow:{update:puedeEditar}},
-            {name:'unidadprincipalsingular'   , typeName:'text'                    , allow:{update:puedeEditar}},
+            {name:'unidadprincipalplural'     , typeName:'text'                    , allow:{update:puedeEditar}},
         ],
         primaryKey:['magnitud'],
 

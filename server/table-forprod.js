@@ -5,10 +5,11 @@ module.exports = function(context){
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'forprod',
+        editable:puedeEditar||puedeEditarMigracion,
         allow:{
             insert:puedeEditarMigracion,
             delete:puedeEditarMigracion,
-            update:puedeEditar,
+            update:puedeEditar||puedeEditarMigracion,
         },        
         fields:[
             {name:'formulario'                  , typeName:'integer' , nullable:false, allow:{update:puedeEditarMigracion}},

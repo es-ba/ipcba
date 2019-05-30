@@ -9,7 +9,7 @@ module.exports = function(context){
         allow:{
             insert:puedeEditarMigracion,
             delete:puedeEditarMigracion,
-            update:puedeEditar,
+            update:puedeEditar||puedeEditarMigracion,
         },
 
         fields:[
@@ -24,6 +24,7 @@ module.exports = function(context){
             {name:'agrupacionorigen'             , typeName:'text'                    , allow:{update:puedeEditarMigracion}},
             {name:'detallarcanasta'              , typeName:'text'                    , allow:{update:puedeEditarMigracion}},
             {name:'explicaciongrupo'             , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'responsable'                  , typeName:'text'                    , allow:{update:puedeEditarMigracion}},
         ],
         filterColumns:[
             {column:'esproducto', operator:'=', value:'N'},
