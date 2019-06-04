@@ -109,7 +109,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var migracion = {role:'migracion'};
         return {menu:[
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
-            {menuType:'menu', name:'ipad', onlyVisibleFor:[programador, analista], menuContent:[
+            {menuType:'menu', name:'ipad', onlyVisibleFor:[programador, analista, coordinador, jefe_campo], menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
                 {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
