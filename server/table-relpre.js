@@ -41,6 +41,8 @@ module.exports = function(context){
             {name:'fueraderango'                 , typeName:'text'                                 , visible:false                          },
             {name:'sinpreciohace4meses'          , typeName:'text'                                 , visible:false                          },
             {name:'orden'                        , typeName:'integer'                              , visible:false                          },
+            //{name:'puedeagregarvisita'           , typeName:'text'                                 , allow:{update:false}                   },
+            //{name:'agregarvisita'                , typeName:'bigint'                               , allow:{update:false}, clientSide:'agregar_visita'},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -67,6 +69,7 @@ module.exports = function(context){
                         END AS masdatos,
                     c_1.antiguedadsinprecio as antiguedadsinprecioant, c_1.promobs as promobs_1, r_1.precionormalizado_1, normsindato, fueraderango,
                     CASE WHEN s.periodo is not null THEN 'S' ELSE null END as sinpreciohace4meses, fp.orden
+                    , CASE WHEN aa.puedeagregarvisita like '%S%' and r.ultima_visita THEN 'S' ELSE 'N' END as puedeagregarvisita
                     from relpre r
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
@@ -77,7 +80,11 @@ module.exports = function(context){
                     r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.visita = n.visita and r.producto = n.producto                    
                     left join (select distinct periodo, producto, observacion, informante, visita, 'S' as fueraderango from control_atributos) a on
                     r.periodo = a.periodo and r.informante = a.informante and r.observacion = a.observacion and r.visita = a.visita and r.producto = a.producto
-                    left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto
+                    left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto,
+                    lateral (select ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita, string_agg(distinct CASE WHEN es_vigencia THEN 'S' ELSE 'N' END,'') as puedeagregarvisita   
+                    from cvp.relatr ra join cvp.atributos at on ra.atributo = at.atributo 
+                    where ra.periodo = r.periodo and ra.producto = r.producto and ra.observacion = r.observacion and ra.informante = r.informante and ra.visita = r.visita --and es_vigencia
+                    group by ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita) aa
                     )`,
         }        
     },context);

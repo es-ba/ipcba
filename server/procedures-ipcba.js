@@ -322,6 +322,38 @@ ProceduresIpcba = [
         }
     },
     {
+        action:'visita_agregar',
+        parameters:[
+            {name:'periodo'    , typeName:'text', references:'periodos'},
+            {name:'producto'   , typeName:'text', references:'productos'},
+            {name:'observacion', typeName:'integer'},
+            {name:'informante' , typeName:'integer'},
+            {name:'visita'     , typeName:'integer'},
+        ],
+        roles:['programador','coordinador','analista'],
+        coreFunction: async function(context, parameters){
+            try{
+                var result = await context.client.query(
+                    `UPDATE relpre p SET ultima_visita = null
+                       FROM (SELECT ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita, 
+                                string_agg(distinct CASE WHEN es_vigencia THEN 'S' ELSE 'N' END,'') as puedeagregarvisita   
+                                FROM cvp.relatr ra join cvp.atributos at on ra.atributo = at.atributo 
+                                GROUP BY ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita) aa					
+                       WHERE aa.periodo = p.periodo and aa.producto = p.producto and aa.observacion = p.observacion	and aa.informante = p.informante 
+                       and aa.visita = p.visita and p.periodo=$1 AND p.producto=$2 AND p.observacion=$3 AND p.informante=$4 AND p.visita=$5 
+                       and p.ultima_visita and aa.puedeagregarvisita like '%S%'
+                       RETURNING p.producto, precio`,
+                    [parameters.periodo,parameters.producto,parameters.observacion,parameters.informante,parameters.visita]
+                ).fetchUniqueRow();
+                return 'ok'
+            }catch(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            }
+        }
+    },
+    {
         action:'calculo_copiar',
         parameters:[
             {name:'periodo'    , typeName:'text', references:'periodos'},

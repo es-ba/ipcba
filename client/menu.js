@@ -729,3 +729,16 @@ myOwn.clientSides.parseCelda={
     }
 };
 /*Fin Pantalla Matriz de precios e imputados de un producto */
+
+my.clientSides.agregar_visita = botonClientSideEnGrilla({
+    nombreBoton:'AgregarVisita',
+    llamada:function(depot){
+        return my.ajax.visita_agregar({
+            periodo: depot.row.periodo,
+            producto: depot.row.producto,
+            observacion: depot.row.observacion,
+            informante: depot.row.informante,
+            visita: depot.row.visita,
+        });
+    }
+});
