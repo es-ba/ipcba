@@ -15,6 +15,8 @@ module.exports = function(context){
             {name:'razonant'                     ,typeName:'integer'},
             {name:'razon'                        ,typeName:'integer'},
             {name:'descripcion'                  ,typeName:'text'   },
+            {name:'panelactual'                  ,typeName:'integer'},
+            {name:'tareaactual'                  ,typeName:'integer'},
         ],
         primaryKey:['periodo','informante','formulario','visita'],
         foreignKeys:[
