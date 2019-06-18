@@ -56,6 +56,7 @@ module.exports = function(context){
             {name:'varsinaltasbajas'     , typeName:'decimal'  },
             {name:'promrealesexcluidos'  , typeName:'decimal'  },
             {name:'publicado'            , typeName:'boolean'  },
+            {name:'responsable'          , typeName:'text'     },
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},

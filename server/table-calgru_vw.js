@@ -36,6 +36,7 @@ module.exports = function(context){
             {name:'ponderadorimplicito'               , typeName:'decimal'},
             {name:'ordenpor'                          , typeName:'text'   , sortMethod: 'charbychar'},
             {name:'publicado'                         , typeName:'boolean'},
+            {name:'responsable'                       , typeName:'text'   },
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
