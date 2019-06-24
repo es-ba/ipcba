@@ -184,6 +184,7 @@ var atributos_de_elemento_segun_formato_fila={
     'N':{tipox:"tr", className:'niv_gen'},
     'D':{tipox:"tr"},
     'U':{tipox:"tr", className:'encabezadou'},
+    'G':{tipox:"tr", className:'niv_pad'}, /*para las filas grupo-padre*/
 }
 
 DomCreator.prototype.create_tabla=function(target_element,tagName,content,context){
