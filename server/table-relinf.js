@@ -24,16 +24,17 @@ module.exports = function(context){
             {name:'maxperiodoinformado'    , typeName:'text'                                },
             {name:'observaciones'          , typeName:'text'    , allow:{update:puedeEditar}},
         ],
-        primaryKey:['periodo','informante','visita'],
+        primaryKey:['periodo','informante','visita','panel','tarea'],
         foreignKeys:[
             {references:'periodos'   , fields:['periodo']},
             {references:'informantes', fields:['informante']},
         ],
         sql:{
-            from:`(select r.periodo, h.panel, h.tarea, r.informante, h.razon, h.visita, h.direccion,
+            from:`(select r.periodo, r.panel, r.tarea, r.informante, h.razon, h.visita, h.direccion,
                   h.formularioshdr as formularios, h.contacto, h.ordenhdr, h.maxperiodoinformado, r.observaciones
                 from relinf r 
-                left join hdrexportarteorica h on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita)
+                left join hdrexportarteorica h on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita
+				and r.panel = h.panel and r.tarea = h.tarea)
                 `,
         }
     },context);

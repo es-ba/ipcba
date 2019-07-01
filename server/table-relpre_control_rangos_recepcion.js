@@ -5,13 +5,14 @@ module.exports = function(context){
     var esRecepcionista = context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='coordinador';
     var esAnalista = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
-        name:'relpre',
-        title:'control de inconsistencias de precios recepción',
-        editable:puedeEditar,
+        name:'relpre_control_rangos_recepcion',
+        tableName:'relpre',
+        title:'control de inconsistencias de precios',
+        editable:esAnalista||esRecepcionista,
         allow:{
             insert:false,
             delete:false,
-            update:puedeEditar,
+            update:esAnalista||esRecepcionista,
         },
         fields:[
             {name:'periodo'                , typeName:'text'    , nullable:false             , allow:{update:false}                              },
@@ -32,12 +33,13 @@ module.exports = function(context){
             {name:'tipoprecioant'          , typeName:'text'                                 , allow:{update:false}                              },
             {name:'antiguedadsinprecioant' , typeName:'integer'                              , allow:{update:false}                              },
             {name:'variac'                 , typeName:'decimal'                              , allow:{update:false}, width:75                    },
-            {name:'comentariosrelpre'      , typeName:'text'                                 , allow:{update:esAnalista||esRecepcionista}        },
+            {name:'comentariosrelpre'      , typeName:'text'                                 , allow:{update:esRecepcionista}                    },
             {name:'observaciones'          , typeName:'text'                                 , allow:{update:esAnalista}                         },
             {name:'promvar'                , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
             {name:'desvvar'                , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
             {name:'promrotativo'           , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
             {name:'desvprot'               , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
+            {name:'atrnormalizables'       , typeName:'text'                                 , allow:{update:false}                              },
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -53,9 +55,19 @@ module.exports = function(context){
                     cr.tarea, cr.visita, cr.tipoprecioant, cr.antiguedadsinprecioant, round(cr.variac::decimal,2) variac, 
                     round(cr.precionormalizado::decimal,2) precionormalizadored, round(cr.promvar::decimal,2) promvar,
                     round(cr.desvvar::decimal,2) desvvar, round(cr.promrotativo::decimal,2) promrotativo, round(cr.desvprot::decimal,2) desvprot, 
-                    rp.observaciones
+                    rp.observaciones, ra.atrnormalizables
                     FROM relpre rp join control_rangos cr on rp.periodo = cr.periodo and rp.producto = cr.producto and 
-                                rp.observacion = cr.observacion and rp.informante = cr.informante and rp.visita = cr.visita)`,
+                                rp.observacion = cr.observacion and rp.informante = cr.informante and rp.visita = cr.visita
+                         left join (select r.periodo, r.informante, r.producto, r.visita, r.observacion, 
+                                    string_agg(a.nombreatributo||'('||a.unidaddemedida||')'||':'||r.valor, '; ') atrnormalizables
+                                    from relatr r
+                                    left join prodatr pa on r.producto = pa.producto and r.atributo = pa.atributo 
+                                    left join atributos a on pa.atributo = a.atributo
+                                    where pa.normalizable = 'S' 
+                                    group by r.periodo, r.informante, r.producto, r.visita, r.observacion) ra
+                         on cr.periodo = ra.periodo and  cr.informante = ra.informante and  cr.producto = ra.producto and
+                         cr.visita = ra.visita and  cr.observacion = ra.observacion
+					WHERE not(upper(rp.observaciones) like '%OK%') or rp.observaciones is null)`,
         }    
     },context);
 }
