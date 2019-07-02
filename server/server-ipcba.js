@@ -436,6 +436,7 @@ class AppIpcba extends backendPlus.AppBackend{
             //'relpre_control_rangos',
 			'relpre_control_rangos_analisis',
 			'relpre_control_rangos_recepcion',
+			'relpre_control_rangos_atrnorm',
             'valvalatr',
             'relatr',
             'relsup',

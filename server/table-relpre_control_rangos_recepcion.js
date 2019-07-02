@@ -39,7 +39,7 @@ module.exports = function(context){
             {name:'desvvar'                , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
             {name:'promrotativo'           , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
             {name:'desvprot'               , typeName:'decimal'                              , allow:{update:false}, width:75 ,visible:esAnalista},
-            {name:'atrnormalizables'       , typeName:'text'                                 , allow:{update:false}                              },
+            //{name:'atrnormalizables'       , typeName:'text'                                 , allow:{update:false}                              },
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -49,16 +49,19 @@ module.exports = function(context){
             {references:'relvis'     , fields:['periodo', 'informante', 'visita', 'formulario']},            
             {references:'tipopre'    , fields:['tipoprecio']},            
         ],
+        detailTables:[
+            {table:'relpre_control_rangos_atrnorm', fields:['periodo','informante','producto','visita','observacion'], abr:'Atr'}
+        ],
         sql:{
             from: `(SELECT cr.periodo, cr.producto, cr.informante, rp.formulario, rp.tipoprecio, rp.cambio, rp.comentariosrelpre, 
                     cr.observacion, cr.repregunta, round(cr.precioant::decimal,2) precioant, cr.panel, cr.encuestador, cr.recepcionista, 
                     cr.tarea, cr.visita, cr.tipoprecioant, cr.antiguedadsinprecioant, round(cr.variac::decimal,2) variac, 
                     round(cr.precionormalizado::decimal,2) precionormalizadored, round(cr.promvar::decimal,2) promvar,
                     round(cr.desvvar::decimal,2) desvvar, round(cr.promrotativo::decimal,2) promrotativo, round(cr.desvprot::decimal,2) desvprot, 
-                    rp.observaciones, ra.atrnormalizables
+                    rp.observaciones /*, ra.atrnormalizables*/
                     FROM relpre rp join control_rangos cr on rp.periodo = cr.periodo and rp.producto = cr.producto and 
                                 rp.observacion = cr.observacion and rp.informante = cr.informante and rp.visita = cr.visita
-                         left join (select r.periodo, r.informante, r.producto, r.visita, r.observacion, 
+                         /*left join (select r.periodo, r.informante, r.producto, r.visita, r.observacion, 
                                     string_agg(a.nombreatributo||'('||a.unidaddemedida||')'||':'||r.valor, '; ') atrnormalizables
                                     from relatr r
                                     left join prodatr pa on r.producto = pa.producto and r.atributo = pa.atributo 
@@ -66,7 +69,7 @@ module.exports = function(context){
                                     where pa.normalizable = 'S' 
                                     group by r.periodo, r.informante, r.producto, r.visita, r.observacion) ra
                          on cr.periodo = ra.periodo and  cr.informante = ra.informante and  cr.producto = ra.producto and
-                         cr.visita = ra.visita and  cr.observacion = ra.observacion
+                         cr.visita = ra.visita and  cr.observacion = ra.observacion*/
 					WHERE not(upper(rp.observaciones) like '%OK%') or rp.observaciones is null)`,
         }    
     },context);
