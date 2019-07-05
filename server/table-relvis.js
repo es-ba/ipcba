@@ -30,7 +30,7 @@ module.exports = function(context){
             {name:'supervisor'                , typeName:'text'                                , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'informantereemplazante'    , typeName:'integer'                             , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'ultima_visita'             , typeName:'boolean'                             , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
-            {name:'verificado_rec'            , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}                 },
+            {name:'verificado_rec'            , typeName:'text'                                , allow:{update:puedeEditar||puedeEditarMigracion}, postInput:'upperSpanish'},
             {name:'fechageneracion'           , typeName:'timestamp'                           , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'orden'                     , typeName:'integer'                             , allow:{update:false}, visible:false},
             {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false},

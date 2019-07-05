@@ -26,8 +26,9 @@ module.exports = function(context){
             {name:'recepcionista'          , typeName:'text'                                 , allow:{update:false}, visible:esRecepcionista     },
             {name:'formulario'             , typeName:'integer' , nullable:false             , allow:{update:false}, visible:esRecepcionista     },  
             {name:'precionormalizadored'   , typeName:'decimal'                              , allow:{update:false}                              },
-            {name:'tipoprecio'             , typeName:'text'                                 , allow:{update:false}, title:'TP'                  },
-            {name:'cambio'                 , typeName:'text'                                 , allow:{update:false}                              },
+            {name:'precio'                 , typeName:'decimal'                              , allow:{update:esRecepcionista||esAnalista}                          },
+            {name:'tipoprecio'             , typeName:'text'                                 , allow:{update:esRecepcionista||esAnalista}, title:'TP'              },
+            {name:'cambio'                 , typeName:'text'                                 , allow:{update:esRecepcionista||esAnalista}, postInput:'upperSpanish'},
             {name:'repregunta'             , typeName:'text'                                 , allow:{update:false}                              },
             {name:'precioant'              , typeName:'decimal'                              , allow:{update:false}, width:75                    },
             {name:'tipoprecioant'          , typeName:'text'                                 , allow:{update:false}                              },
@@ -50,10 +51,10 @@ module.exports = function(context){
             {references:'tipopre'    , fields:['tipoprecio']},            
         ],
         detailTables:[
-            {table:'relpre_control_rangos_atrnorm', fields:['periodo','informante','producto','visita','observacion'], abr:'Atr'}
+            {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita']},
         ],
         sql:{
-            from: `(SELECT cr.periodo, cr.producto, cr.informante, rp.formulario, rp.tipoprecio, rp.cambio, rp.comentariosrelpre, 
+            from: `(SELECT cr.periodo, cr.producto, cr.informante, rp.formulario, rp.precio, rp.tipoprecio, rp.cambio, rp.comentariosrelpre, 
                     cr.observacion, cr.repregunta, round(cr.precioant::decimal,2) precioant, cr.panel, cr.encuestador, cr.recepcionista, 
                     cr.tarea, cr.visita, cr.tipoprecioant, cr.antiguedadsinprecioant, round(cr.variac::decimal,2) variac, 
                     round(cr.precionormalizado::decimal,2) precionormalizadored, round(cr.promvar::decimal,2) promvar,
