@@ -69,7 +69,7 @@ module.exports = function(context){
                         END AS masdatos,
                     c_1.antiguedadsinprecio as antiguedadsinprecioant, c_1.promobs as promobs_1, r_1.precionormalizado_1, normsindato, fueraderango,
                     CASE WHEN s.periodo is not null THEN 'S' ELSE null END as sinpreciohace4meses, fp.orden
-                    , CASE WHEN aa.puedeagregarvisita like '%S%' and r.ultima_visita THEN 'S' ELSE 'N' END as puedeagregarvisita
+                    , max(CASE WHEN coalesce(at.es_vigencia,false) THEN 'S' ELSE 'N' END) as puedeagregarvisita
                     from relpre r
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
@@ -80,11 +80,18 @@ module.exports = function(context){
                     r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.visita = n.visita and r.producto = n.producto                    
                     left join (select distinct periodo, producto, observacion, informante, visita, 'S' as fueraderango from control_atributos) a on
                     r.periodo = a.periodo and r.informante = a.informante and r.observacion = a.observacion and r.visita = a.visita and r.producto = a.producto
-                    left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto,
-                    lateral (select ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita, string_agg(distinct CASE WHEN es_vigencia THEN 'S' ELSE 'N' END,'') as puedeagregarvisita   
-                    from cvp.relatr ra join cvp.atributos at on ra.atributo = at.atributo 
-                    where ra.periodo = r.periodo and ra.producto = r.producto and ra.observacion = r.observacion and ra.informante = r.informante and ra.visita = r.visita --and es_vigencia
-                    group by ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita) aa
+                    left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto
+                    left join prodatr pa on r.producto = pa.producto 
+					left join atributos at on pa.atributo = at.atributo 
+					GROUP BY r.periodo, r.producto, r.informante, r.formulario, r.visita, r.observacion, r.precio, r.tipoprecio, r.cambio, CASE WHEN p.periodo is not null THEN 'R' ELSE null END, 
+					CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END, r_1.precio_1, r_1.tipoprecio_1, r.comentariosrelpre, r.precionormalizado, r.especificacion, 
+					r.ultima_visita, r.observaciones, r_1.comentariosrelpre_1,                  
+					CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
+					ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
+						 ELSE NULL 
+						 END 
+					END, c_1.antiguedadsinprecio, c_1.promobs, r_1.precionormalizado_1, normsindato, fueraderango, CASE WHEN s.periodo is not null THEN 'S' ELSE null END, fp.orden
+
                     )`,
         }        
     },context);
