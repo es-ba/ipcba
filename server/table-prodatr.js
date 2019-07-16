@@ -9,7 +9,7 @@ module.exports = function(context){
         editable:puedeEditar||puedeEditarMigracion,
         allow:{
             insert:puedeEditarMigracion,
-            delete:false,
+            delete:puedeEditarMigracion,
             update:puedeEditar||puedeEditarMigracion,
         },
         fields:[
