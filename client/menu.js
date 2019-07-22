@@ -737,18 +737,17 @@ myOwn.clientSides.parseCelda={
 };
 /*Fin Pantalla Matriz de precios e imputados de un producto */
 
-my.clientSides.agregar_visita = botonClientSideEnGrilla({
-    nombreBoton:'AgregarVisita',
-    llamada:function(depot){
-        return my.ajax.visita_agregar({
-            periodo: depot.row.periodo,
-            producto: depot.row.producto,
-            observacion: depot.row.observacion,
-            informante: depot.row.informante,
-            visita: depot.row.visita,
+my.clientSides.agregar_visita = {
+    update:true,
+    prepare:function(depot, fieldName){
+        depot.rowControls[fieldName].addEventListener('update', function(){
+            var valor = depot.rowControls[fieldName].getTypedValue();
+            if(valor==true){
+                depot.rowControls.ultima_visita.setTypedValue(null, true);
+            }
         });
     }
-});
+}
 
 my.clientSides.agregar_visita_por_visita = botonClientSideEnGrilla({
     nombreBoton:'AgregarVisita',

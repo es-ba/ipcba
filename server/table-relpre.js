@@ -33,7 +33,7 @@ module.exports = function(context){
             {name:'comentariosanterior'          , typeName:'text'                                 , allow:{update:false}                   },
             {name:'precionormalizado'            , typeName:'decimal'                              , allow:{update:false}, visible:false    },
             {name:'especificacion'               , typeName:'integer'                              , visible:false                          },
-            {name:'ultima_visita'                , typeName:'boolean'                              , visible:false                          },
+            {name:'ultima_visita'                , typeName:'boolean'                              ,                                        },
             {name:'observaciones'                , typeName:'text'                                 , visible:false                          },
             {name:'promobs_1'                    , typeName:'decimal'                              , width:75, visible:false                },
             {name:'precionormalizado_1'          , typeName:'decimal'                              , width:75, visible:false                },
@@ -41,8 +41,7 @@ module.exports = function(context){
             {name:'fueraderango'                 , typeName:'text'                                 , visible:false                          },
             {name:'sinpreciohace4meses'          , typeName:'text'                                 , visible:false                          },
             {name:'orden'                        , typeName:'integer'                              , visible:false                          },
-            {name:'puedeagregarvisita'           , typeName:'text'                                 , allow:{update:false}                   },
-            {name:'agregarvisita'                , typeName:'bigint'                               , allow:{update:false}, clientSide:'agregar_visita'},
+            {name:'agregarvisita'                , typeName:'bigint'                               , allow:{update:false}, serverSide:true, inTable:false, clientSide:'agregar_visita'},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -68,8 +67,8 @@ module.exports = function(context){
                                 END 
                         END AS masdatos,
                     c_1.antiguedadsinprecio as antiguedadsinprecioant, c_1.promobs as promobs_1, r_1.precionormalizado_1, normsindato, fueraderango,
-                    CASE WHEN s.periodo is not null THEN 'S' ELSE null END as sinpreciohace4meses, fp.orden
-                    , max(CASE WHEN coalesce(at.es_vigencia,false) THEN 'S' ELSE 'N' END) as puedeagregarvisita
+                    CASE WHEN s.periodo is not null THEN 'S' ELSE null END as sinpreciohace4meses, fp.orden,
+                    case when r.ultima_visita is true then null else true end as agregar_visita
                     from relpre r
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
@@ -82,17 +81,9 @@ module.exports = function(context){
                     r.periodo = a.periodo and r.informante = a.informante and r.observacion = a.observacion and r.visita = a.visita and r.producto = a.producto
                     left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto
                     left join prodatr pa on r.producto = pa.producto 
-					left join atributos at on pa.atributo = at.atributo 
-					GROUP BY r.periodo, r.producto, r.informante, r.formulario, r.visita, r.observacion, r.precio, r.tipoprecio, r.cambio, CASE WHEN p.periodo is not null THEN 'R' ELSE null END, 
-					CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END, r_1.precio_1, r_1.tipoprecio_1, r.comentariosrelpre, r.precionormalizado, r.especificacion, 
-					r.ultima_visita, r.observaciones, r_1.comentariosrelpre_1,                  
-					CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
-					ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
-						 ELSE NULL 
-						 END 
-					END, c_1.antiguedadsinprecio, c_1.promobs, r_1.precionormalizado_1, normsindato, fueraderango, CASE WHEN s.periodo is not null THEN 'S' ELSE null END, fp.orden
-
+					left join atributos at on pa.atributo = at.atributo
                     )`,
-        }        
+        },
+        hiddenColumns:['ultima_visita']
     },context);
 }
