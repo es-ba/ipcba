@@ -41,8 +41,8 @@ module.exports = function(context){
             {name:'fueraderango'                 , typeName:'text'                                 , visible:false                          },
             {name:'sinpreciohace4meses'          , typeName:'text'                                 , visible:false                          },
             {name:'orden'                        , typeName:'integer'                              , visible:false                          },
-            //{name:'puedeagregarvisita'           , typeName:'text'                                 , allow:{update:false}                   },
-            //{name:'agregarvisita'                , typeName:'bigint'                               , allow:{update:false}, clientSide:'agregar_visita'},
+            {name:'puedeagregarvisita'           , typeName:'text'                                 , allow:{update:false}                   },
+            {name:'agregarvisita'                , typeName:'bigint'                               , allow:{update:false}, clientSide:'agregar_visita'},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[

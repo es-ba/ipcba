@@ -36,6 +36,8 @@ module.exports = function(context){
             {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'direccion'                 , typeName:'text'                                , allow:{update:false}, visible:false},
+            {name:'puedeagregarvisita'        , typeName:'text'                                , allow:{update:false}               },
+            {name:'agregarvisita'             , typeName:'bigint'                              , allow:{update:false}, clientSide:'agregar_visita_por_visita'},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sortColumns:[{column:'direccion'},{column:'orden'},{column:'visita'}],
@@ -68,10 +70,11 @@ module.exports = function(context){
             from:`(
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                  v.fechageneracion, f.orden, i.direccion                  
+                  v.fechageneracion, f.orden, i.direccion, par.puedeagregarvisita                   
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario
+				  left join parametros par on unicoregistro
                   )`,
         }        
     },context);

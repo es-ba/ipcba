@@ -248,7 +248,14 @@ my.clientSides.control_precio = {
         }
         var normsindato;
         var fueraderango;
-        
+        /*
+        var agregarVisitaTd = depot.rowControls['agregarvisita'];
+        if (depot.row.puedeagregarvisita === 'N'){
+            agregarVisitaTd.disabled = "true";
+        }else{
+            agregarVisitaTd.disabled = "false";
+		}
+        */
         var myPromise = Promise.resolve();
         if(my.offline.mode){
             var key = ['periodo','informante','visita', 'formulario', 'producto','observacion'].map(function(fname){
@@ -739,6 +746,18 @@ my.clientSides.agregar_visita = botonClientSideEnGrilla({
             observacion: depot.row.observacion,
             informante: depot.row.informante,
             visita: depot.row.visita,
+        });
+    }
+});
+
+my.clientSides.agregar_visita_por_visita = botonClientSideEnGrilla({
+    nombreBoton:'AgregarVisita',
+    llamada:function(depot){
+        return my.ajax.visita_agregar_por_visita({
+            periodo: depot.row.periodo,
+            informante: depot.row.informante,
+            visita: depot.row.visita,
+            formulario: depot.row.formulario,
         });
     }
 });

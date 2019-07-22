@@ -288,7 +288,7 @@ ProceduresIpcba = [
             {name:'informante' , typeName:'integer'},
             {name:'visita'     , typeName:'integer'},
         ],
-        roles:['programador','coordinador','analista'],
+        roles:['programador','coordinador','analista','recepcionista'],
         coreFunction: async function(context, parameters){
             try{
                 var result = await context.client.query(
@@ -345,6 +345,32 @@ ProceduresIpcba = [
                        RETURNING p.producto, precio`,
                     [parameters.periodo,parameters.producto,parameters.observacion,parameters.informante,parameters.visita]
                 ).fetchUniqueRow();
+                return 'ok'
+            }catch(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            }
+        }
+    },
+    {
+        action:'visita_agregar_por_visita',
+        parameters:[
+            {name:'periodo'    , typeName:'text', references:'periodos'},
+            {name:'informante' , typeName:'integer'},
+            {name:'visita'     , typeName:'integer'},
+            {name:'formulario' , typeName:'integer', references:'formularios'},
+        ],
+        roles:['programador','coordinador','analista'],
+        coreFunction: async function(context, parameters){
+            try{
+                var result = await context.client.query(
+                    `UPDATE relpre p SET ultima_visita = null
+                       FROM parametros par					
+                       WHERE par.unicoregistro AND p.periodo=$1 AND p.informante=$2 AND p.visita=$3 AND p.formulario=$4 
+                       AND p.ultima_visita AND par.puedeagregarvisita='S'`,
+                    [parameters.periodo,parameters.informante,parameters.visita,parameters.formulario]
+                ).execute();
                 return 'ok'
             }catch(err){
                 console.log(err);
@@ -695,7 +721,7 @@ ProceduresIpcba = [
             {name:'token_instalacion'   , typeName:'text'                       },
         ],
         progress:true,
-        roles:['programador','coordinador','analista','jefe_campo'],
+        roles:['programador','coordinador','analista','jefe_campo','recepcionista'],
         coreFunction:async function(context, params){
             var be = context.be;
             var informantesArray = await context.client.query(

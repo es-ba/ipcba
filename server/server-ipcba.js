@@ -109,7 +109,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var migracion = {role:'migracion'};
         return {menu:[
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
-            {menuType:'menu', name:'ipad', onlyVisibleFor:[programador, analista, coordinador, jefeCampo], menuContent:[
+            {menuType:'menu', name:'ipad', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
                 {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
@@ -223,12 +223,12 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'relenc', label:'titulares de panel-tarea', selectedByDefault:true},
             ], onlyVisibleFor:[programador,coordinador,jefeCampo]},
             {menuType:'menu', name:'supervisiones', menuContent:[
-                {menuType:'table', name:'periodos_hojaderutasupervisor'  , label:'hoja de ruta del supervisor'},
-                {menuType:'table', name:'periodos_reltar', label:'observaciones de paneles-tareas'},
-                {menuType:'seleccion_supervision', name:'seleccion', label:'selección'},
-                {menuType:'table', name:'pantar', label:'tamaño de supervisiones'},
-                {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador, analista]},
-            ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                {menuType:'table', name:'periodos_hojaderutasupervisor'  , label:'hoja de ruta del supervisor', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                {menuType:'table', name:'periodos_reltar', label:'observaciones de paneles-tareas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador, analista, recepcionista]},
+            ]},
             {menuType:'menu', name:'vista_tablas', label:'vista tablas', menuContent:[
                 {menuType:'table', name:'periodos_matrizresultados', label:'matrizresultados', onlyVisibleFor:[programador]},
                 {menuType:'table', name:'calculos_canasta_producto', label:'canasta_producto', onlyVisibleFor:[programador]},
