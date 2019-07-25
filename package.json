@@ -4,7 +4,7 @@
   "private": true,
   "description": "Indice de Precios al Consumidor",
   "dependencies": {
-    "backend-plus": "~0.29.36",
+    "backend-plus": "~0.30.6",
     "pg-triggers": "~0.2.3"
   },
   "devDependencies": {
