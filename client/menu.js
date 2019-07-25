@@ -738,7 +738,7 @@ myOwn.clientSides.parseCelda={
 /*Fin Pantalla Matriz de precios e imputados de un producto */
 
 my.clientSides.agregar_visita = {
-    update:true,
+    update:false,
     prepare:function(depot, fieldName){
         depot.rowControls[fieldName].addEventListener('update', function(){
             var valor = depot.rowControls[fieldName].getTypedValue();

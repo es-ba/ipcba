@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador'|| context.user.usu_rol ==='recepcionista';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador'|| context.user.usu_rol ==='recepcionista' || context.forDump;
     return context.be.tableDefAdapt({
         name:'control_anulados_recep',
         tableName:'relpre',
