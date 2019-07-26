@@ -221,6 +221,26 @@ my.clientSides.control_razones = {
     }
 };
 
+my.clientSides.navegar_cambio = {
+    prepare: function (depot, fieldName) {
+        depot.rowControls[fieldName].addEventListener('blur', function(){
+            var cambio = depot.rowControls[fieldName].getTypedValue();
+            if(cambio=='C'){
+                var detailDef=depot.detailControls.relatr;
+                if(!detailDef.show){
+                    var gridReady = detailDef.displayDetailGrid({fixedFields:detailDef.calculateFixedFields(), detailing:{}},{});
+                    gridReady.then(function(grid){
+                        if(grid.depots.length){
+                            grid.depots[0].rowControls.valor.focus();
+                        }
+                    })
+                }
+            }
+        })
+    },
+    update: true
+};
+
 my.clientSides.control_razones_mobile = {
     prepare: function (depot, fieldName) {
         var td = depot.rowControls[fieldName];

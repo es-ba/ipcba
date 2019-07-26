@@ -22,8 +22,7 @@ module.exports = function(context){
             {name:'observacion'                  , typeName:'integer' , nullable:false             , allow:{update:false}, title:'obs'      },
             {name:'precio'                       , typeName:'decimal' , allow:{update:puedeEditar} ,width:75,clientSide:'control_precio' , serverSide:true},
             {name:'tipoprecio'                   , typeName:'text'                                 , allow:{update:puedeEditar} ,title:'TP', postInput:'upperSpanish', clientSide:'ingreso_tipoprecio', serverSide:true },
-            {name:'cambio'                       , typeName:'text'                                 , allow:{update:puedeEditar}            , postInput:'upperSpanish' },            
-            {name:'repregunta'                   , typeName:'text'                                 , allow:{import:false, update:false}, title:'R'        },            
+            {name:'cambio'                       , typeName:'text'                                 , allow:{update:puedeEditar}            , postInput:'upperSpanish', clientSide:'navegar_cambio' },            
             {name:'excluido'                     , typeName:'text'                                 , allow:{import:false, update:false}, title:'X'        },            
             {name:'antiguedadsinprecioant'       , typeName:'integer'                              , allow:{import:false, update:false}, title:'Aspa'     },            
             {name:'precioanterior'               , typeName:'decimal'                              , allow:{import:false, update:false}                   },
@@ -82,6 +81,6 @@ module.exports = function(context){
                     left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto
                     )`,
         },
-        hiddenColumns:['ultima_visita']
+        hiddenColumns:['agregarvisita','ultima_visita']
     },context);
 }
