@@ -208,6 +208,9 @@ my.clientSides.control_razones = {
     prepare: function (depot, fieldName) {
         var td = depot.rowControls[fieldName];
         td.style.width='80px';
+        depot.rowControls[fieldName].addEventListener('update', function(){
+            depot.detailControls.relpre.divDetail=null;            
+        })
     },
     update: function (depot, fieldName) {
         var td = depot.rowControls[fieldName];
@@ -744,6 +747,19 @@ my.clientSides.agregar_visita = {
             var valor = depot.rowControls[fieldName].getTypedValue();
             if(valor==true){
                 depot.rowControls.ultima_visita.setTypedValue(null, true);
+            }
+        });
+    }
+}
+
+my.clientSides.ingreso_tipoprecio = {
+    update:false,
+    prepare:function(depot, fieldName){
+        depot.rowControls[fieldName].addEventListener('blur', function(){
+            var valor = depot.rowControls[fieldName].getTypedValue();
+            var precio = depot.rowControls.precio.getTypedValue();
+            if(valor==null && precio){
+                depot.rowControls[fieldName].setTypedValue('P', true);
             }
         });
     }

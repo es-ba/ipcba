@@ -21,7 +21,7 @@ module.exports = function(context){
             {name:'visita'                       , typeName:'integer' , nullable:false , default:1 , allow:{update:false}, title:'vis'      },
             {name:'observacion'                  , typeName:'integer' , nullable:false             , allow:{update:false}, title:'obs'      },
             {name:'precio'                       , typeName:'decimal' , allow:{update:puedeEditar} ,width:75,clientSide:'control_precio' , serverSide:true},
-            {name:'tipoprecio'                   , typeName:'text'                                 , allow:{update:puedeEditar} ,title:'TP', postInput:'upperSpanish' },
+            {name:'tipoprecio'                   , typeName:'text'                                 , allow:{update:puedeEditar} ,title:'TP', postInput:'upperSpanish', clientSide:'ingreso_tipoprecio', serverSide:true },
             {name:'cambio'                       , typeName:'text'                                 , allow:{update:puedeEditar}            , postInput:'upperSpanish' },            
             {name:'repregunta'                   , typeName:'text'                                 , allow:{import:false, update:false}, title:'R'        },            
             {name:'excluido'                     , typeName:'text'                                 , allow:{import:false, update:false}, title:'X'        },            
