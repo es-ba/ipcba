@@ -518,7 +518,7 @@ myOwn.wScreens.precios={
 
             collapseButton.addEventListener('click', function(){
                 myOwn.collapseElements();
-                window.scrollTo(0,0);
+                // window.scrollTo(0,0);
             });
             showAllButton.addEventListener('click', function(){
                 showAllButton.disabled = true;
@@ -579,6 +579,7 @@ myOwn.wScreens.precios={
                 }
                 cambiarTimeout=setTimeout(cambiar,200);
             })
+            searchProductInput.styleElement = style;
 
             var fixedFields = [];
             likeAr(params).forEach(function(value, attrName, object){
@@ -650,9 +651,21 @@ myOwn.clientSides.parseProducto={
         depot.rowControls[fieldName].addEventListener('click', function(){
             if(my.isPreciosGridCollapsed){
                 my.collapseElements();
-                window.scrollTo(0,(my.getRect(depot.rowControls[fieldName])).top);
-                paintSelectedRow(depot,1000);
             }
+            var searchProductInput = document.getElementById('search-product-input');
+            if(searchProductInput.value){
+                searchProductInput.value='';
+                searchProductInput.styleElement.textContent='';
+            }
+            setTimeout(function(){
+                var top = (my.getRect(depot.rowControls[fieldName])).top;
+                window.scrollTo(0,Math.max(top-96,0));
+                paintSelectedRow(depot,1000);
+            },200)
+            setTimeout(function(){
+                var top = (my.getRect(depot.rowControls[fieldName])).top;
+                window.scrollTo(0,Math.max(top-96,0));
+            },400)
         })
     }
 };

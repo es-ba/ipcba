@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Version 0.3.12
+# Version 0.3.12u
 
 CACHE:
 #--------------------------- JS ------------------------------------
@@ -21,6 +21,7 @@ CACHE:
 ../lib/type-store.js
 ../lib/typed-controls.js
 ../lib/ajax-best-promise.js
+../my-ajax.js
 ../lib/my-localdb.js
 ../lib/my-websqldb.js
 ../lib/my-localdb.js.map

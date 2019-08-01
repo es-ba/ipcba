@@ -19,7 +19,7 @@ module.exports = function(context){
             {name:'username'                   , typeName:'text'                               , allow:{update:puedeEditar}},
             {name:'activo'                     , typeName:'text' , nullable:false, default:'S', defaultValue:'S', allow:{update:puedeEditar}},
             {name:'super_labor'                , typeName:'text' , default:'N', defaultValue:'N'                , allow:{update:puedeEditar}},
-            {name:'token_instalacion'          , typeName:'text' , editable:false              , allow:{update:puedeEditar}},
+            {name:'token_instalacion'          , typeName:'text' , editable:false              , allow:{select:context.forDump, update:context.forDump}},
             {name:'ipad'                       , typeName:'text' , editable:false              , allow:{update:puedeEditar}},
         ],
         primaryKey:['persona'],
