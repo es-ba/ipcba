@@ -772,24 +772,50 @@ my.clientSides.agregar_visita = {
     }
 }
 
+my.setPlaceHolder = function setPlaceHolderWithDefault(typedControl, valueOrCondition){
+    var getValue = function(){
+        if(typeof valueOrCondition == "function"){
+            return valueOrCondition();
+        }else{
+            return valueOrCondition;
+        }
+    }
+    typedControl.addEventListener('focus', function(){
+        var value=getValue();
+        if(value){
+            typedControl.setAttribute('placeholder', value);
+        }
+    });
+    typedControl.addEventListener('blur', function(){
+        var actualValue=this.textContent;
+        if(!actualValue || !actualValue.trim()){
+            var value=getValue();
+            if(value){
+                typedControl.setTypedValue(value, true);
+            }
+            typedControl.removeAttribute('placeholder');
+        }
+    });
+}
+
 my.clientSides.ingreso_tipoprecio = {
     update:false,
     prepare:function(depot, fieldName){
-        depot.rowControls[fieldName].addEventListener('focus', function(){
-            var valor = depot.rowControls[fieldName].getTypedValue();
-            var precio = depot.rowControls.precio.getTypedValue();
-            if(precio){
-                depot.rowControls[fieldName].setAttribute('placeholder','P');
+        my.setPlaceHolder(depot.rowControls[fieldName], function(){
+            return depot.rowControls.precio.getTypedValue() && 'P';
+        })
+        depot.rowControls[fieldName].addEventListener('blur',function(){
+            var translate={
+                '0':'O',
+                '5':'S',
+                '9':'N'
             }
-        });
-        depot.rowControls[fieldName].addEventListener('blur', function(){
-            var valor = depot.rowControls[fieldName].getTypedValue();
-            var precio = depot.rowControls.precio.getTypedValue();
-            if(valor==null && precio){
-                depot.rowControls[fieldName].setTypedValue('P', true);
+            value = depot.rowControls[fieldName].textContent;
+            if(value in translate){
+                depot.rowControls[fieldName].textContent=translate[value];
+                depot.rowControls[fieldName].setTypedValue(translate[value], true);
             }
-            depot.rowControls[fieldName].removeAttribute('placeholder');
-        });
+        })
     }
 }
 
