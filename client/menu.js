@@ -775,12 +775,20 @@ my.clientSides.agregar_visita = {
 my.clientSides.ingreso_tipoprecio = {
     update:false,
     prepare:function(depot, fieldName){
+        depot.rowControls[fieldName].addEventListener('focus', function(){
+            var valor = depot.rowControls[fieldName].getTypedValue();
+            var precio = depot.rowControls.precio.getTypedValue();
+            if(precio){
+                depot.rowControls[fieldName].setAttribute('placeholder','P');
+            }
+        });
         depot.rowControls[fieldName].addEventListener('blur', function(){
             var valor = depot.rowControls[fieldName].getTypedValue();
             var precio = depot.rowControls.precio.getTypedValue();
             if(valor==null && precio){
                 depot.rowControls[fieldName].setTypedValue('P', true);
             }
+            depot.rowControls[fieldName].removeAttribute('placeholder');
         });
     }
 }

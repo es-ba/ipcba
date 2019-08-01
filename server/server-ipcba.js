@@ -288,8 +288,10 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', src: 'client/imp-formularios.js' },
             { type: 'css', file: 'hoja-de-ruta.css' },
             { type: 'css', file: 'imp-formularios.css' },
+            { type: 'css', file: 'menu.css' },
             { type: 'css', file: '../../css/hoja-de-ruta.css' },
             { type: 'css', file: '../../css/imp-formularios.css' },
+            { type: 'css', file: '../../css/menu.css' },
         ]);
     }
     getVisibleMenu(menu, context){
