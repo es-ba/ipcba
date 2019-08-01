@@ -285,7 +285,11 @@ class AppIpcba extends backendPlus.AppBackend{
         var be = this;
         return super.clientIncludes(req, hideBEPlusInclusions).concat([
             { type: 'js', src: 'client/hoja-de-ruta.js' },
+            { type: 'js', src: 'client/imp-formularios.js' },
             { type: 'css', file: 'hoja-de-ruta.css' },
+            { type: 'css', file: 'imp-formularios.css' },
+            { type: 'css', file: '../../css/hoja-de-ruta.css' },
+            { type: 'css', file: '../../css/imp-formularios.css' },
         ]);
     }
     getVisibleMenu(menu, context){

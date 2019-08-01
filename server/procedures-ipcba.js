@@ -1003,7 +1003,26 @@ ProceduresIpcba = [
                 throw err;
             }
         }
-    }
+    },
+    {
+        action: 'para_formulario_imprimir',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , defaultValue:'a2019m07', references:'periodos'},
+            {name:'panel'             , typeName:'integer' , defaultValue:1},
+            {name:'tarea'             , typeName:'integer' , defaultValue:3},
+            {name:'informante'        , typeName:'integer' , defaultValue:4737},
+        ],
+        resultOk:'imprimir_formulario_con_precios',
+        coreFunction:async function(context, params){
+            var result = await context.client.query(
+                `select * 
+                    from paraImpresionFormulariosPrecios 
+                    where periodo = $1 and panel = $2 and tarea = $3`,
+                [params.periodo, params.panel, params.tarea]
+            ).fetchAll();
+            return result.rows;
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
