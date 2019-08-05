@@ -4,11 +4,11 @@
   "private": true,
   "description": "Indice de Precios al Consumidor",
   "dependencies": {
-    "backend-plus": "~0.30.12",
+    "backend-plus": "~0.30.22",
     "pg-triggers": "~0.2.3"
   },
   "devDependencies": {
-    "types.d.ts": "~0.4.1"
+    "types.d.ts": "~0.4.8"
   },
   "scripts": {
     "start": "node server/server-ipcba.js"
