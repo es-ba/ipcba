@@ -10,7 +10,7 @@ module.exports = function(context){
             insert: puedeEditar,
             delete: false,
             update: puedeEditar,
-            import: false,
+            import: puedeEditar,
         },
         fields:[
             {name:'periodo'                          , typeName:'text'    , nullable:false                       },
@@ -29,6 +29,8 @@ module.exports = function(context){
             {name:'infopreant'                       , typeName:'text'                     , allow:{update:false}},
             {name:'confirma'                         , typeName:'boolean' , nullable:false                       },
             {name:'comentarios'                      , typeName:'text'                                           },
+            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                                        },
+            {name:'comentarios_recep', title:'Recepcion', typeName:'text'                                        },
         ],
         /*
         filterColumns:[
@@ -55,7 +57,7 @@ module.exports = function(context){
                            NULLIF((coalesce(rp.precio::text||';','')||coalesce(rp.tipoprecio||';','')||coalesce(rp.cambio,'')),'') as infopre,
                            NULLIF((coalesce(rpa.precio_1::text||';','')||coalesce(rpa.tipoprecio_1||';','')||coalesce(rpa.cambio_1,'')),'') as infopreant,
                            n.confirma,
-                           n.comentarios
+                           n.comentarios, n.revisar_recep, n.comentarios_recep
                     from 
                            novpre n 
                             join relpre r on r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.producto = n.producto

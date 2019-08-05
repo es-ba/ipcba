@@ -24,7 +24,6 @@ module.exports = function(context){
         ],
         detailTables:[
             {table:'formularios', abr:'DET', label:'formularios', fields:['formulario']},
-            {table:'prodespecificacioncompleta', abr:'ECO', label:'Especificacion Completa', fields:['formulario','producto']},
         ],
 
     },context);

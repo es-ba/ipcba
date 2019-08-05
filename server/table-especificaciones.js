@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='analista';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='analista'|| context.user.usu_rol ==='recepcionista';
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'especificaciones',
@@ -24,6 +24,8 @@ module.exports = function(context){
             {name:'pesovolumenporunidad'      , typeName:'decimal'                            , allow:{update:puedeEditarMigracion}},
             {name:'destacada'                 , typeName:'boolean'                            , allow:{update:puedeEditarMigracion}},
             {name:'mostrar_cant_um'           , typeName:'text'                               , allow:{update:puedeEditarMigracion}},
+            {name:'observaciones'             , typeName:'text'                               , allow:{update:puedeEditarMigracion||puedeEditar}},
+            {name:'especificacioncompleta'    , typeName:'text'                               , allow:{select:puedeEditarMigracion||puedeEditar}},
         ],
         primaryKey:['producto','especificacion'],
         foreignKeys:[
@@ -32,6 +34,12 @@ module.exports = function(context){
                 {source:'unidaddemedida'  , target:'unidad'     },
             ]},
         ],
-        
+
+        sql:{
+            from:`(select e.*, ec.especificacioncompleta
+                    from especificaciones e left join (select distinct producto,especificacioncompleta from paraimpresionformulariosenblanco) ec
+                    on e.producto = ec.producto
+                )`
+        }   
     },context);
 }
