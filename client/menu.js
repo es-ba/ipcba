@@ -807,8 +807,8 @@ my.clientSides.ingreso_tipoprecio = {
         depot.rowControls[fieldName].addEventListener('blur',function(){
             var translate={
                 '0':'O',
-                '5':'S',
-                '9':'N'
+                '1':'S',
+                '2':'N'
             }
             value = depot.rowControls[fieldName].textContent;
             if(value in translate){
