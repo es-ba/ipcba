@@ -501,12 +501,14 @@ myOwn.wScreens.precios={
             var collapseButton = html.button({id:'collapse-button'},'compactar').create();
             var showAllButton = html.button({id:'filter-all-button', disabled:true},'todos').create();
             var showPendentsButton = html.button({id:'filter-pendents-button', disabled: false},'pendientes').create();
+            var showWarningsButton = html.button({id:'filter-pendents-button', disabled: false},'advertencias').create();
             var searchProductInput = html.input({id:'search-product-input', placeholder:'Buscar producto ' + MAGNIFYING_GLASS, autocomplete:'off'}).create();
             my.showAllButton = showAllButton;
             my.showPendentsButton = showPendentsButton;
+            my.showWarningsButton = showWarningsButton;
             my.searchProductInput = searchProductInput;
             var searchProductSpan = html.span({id: "search-product"},[searchProductInput]).create();
-            var headerInformationDiv = html.div({id: "header-information"}, [backButton, collapseButton, showAllButton, showPendentsButton, searchProductSpan]).create();
+            var headerInformationDiv = html.div({id: "header-information"}, [backButton, collapseButton, showAllButton, showPendentsButton, showWarningsButton, searchProductSpan]).create();
             layout.appendChild(headerInformationDiv);
             window.onscroll = function(){
                 if(window.scrollY > 50){
@@ -523,6 +525,7 @@ myOwn.wScreens.precios={
             showAllButton.addEventListener('click', function(){
                 showAllButton.disabled = true;
                 showPendentsButton.disabled = false;
+                showWarningsButton.disabled = false;
                 preciosGrid.view=preciosGrid.view||{};
                 preciosGrid.view.filter=[];
                 preciosGrid.displayBody();
@@ -530,6 +533,7 @@ myOwn.wScreens.precios={
             });
             showPendentsButton.addEventListener('click', function(){
                 showAllButton.disabled = false;
+                showWarningsButton.disabled = true;
                 showPendentsButton.disabled = true;
                 preciosGrid.view=preciosGrid.view||{};
                 preciosGrid.view.filter=[{
@@ -539,8 +543,16 @@ myOwn.wScreens.precios={
                 {
                     rowSymbols:{tipopre__espositivo:'=', precio:'\u2205'},
                     row:       {tipopre__espositivo:'S', precio:null    },
-                },
-                {
+                }]
+                preciosGrid.displayBody();
+                window.scrollTo(0,0);
+            });
+            showWarningsButton.addEventListener('click', function(){
+                showAllButton.disabled = false;
+                showPendentsButton.disabled = false;
+                showWarningsButton.disabled = true;
+                preciosGrid.view=preciosGrid.view||{};
+                preciosGrid.view.filter=[{
                     rowSymbols:{adv:'='},
                     row:{adv:true}
                 }]
