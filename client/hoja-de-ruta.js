@@ -501,7 +501,7 @@ myOwn.wScreens.precios={
             var collapseButton = html.button({id:'collapse-button'},'compactar').create();
             var showAllButton = html.button({id:'filter-all-button', disabled:true},'todos').create();
             var showPendentsButton = html.button({id:'filter-pendents-button', disabled: false},'pendientes').create();
-            var showWarningsButton = html.button({id:'filter-pendents-button', disabled: false},'advertencias').create();
+            var showWarningsButton = html.button({id:'filter-warnings-button', disabled: false},'advertencias').create();
             var searchProductInput = html.input({id:'search-product-input', placeholder:'Buscar producto ' + MAGNIFYING_GLASS, autocomplete:'off'}).create();
             my.showAllButton = showAllButton;
             my.showPendentsButton = showPendentsButton;
@@ -533,7 +533,7 @@ myOwn.wScreens.precios={
             });
             showPendentsButton.addEventListener('click', function(){
                 showAllButton.disabled = false;
-                showWarningsButton.disabled = true;
+                showWarningsButton.disabled = false;
                 showPendentsButton.disabled = true;
                 preciosGrid.view=preciosGrid.view||{};
                 preciosGrid.view.filter=[{
