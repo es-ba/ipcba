@@ -23,6 +23,7 @@ module.exports = function(context){
             {name:'precio'                       , typeName:'decimal' , allow:{update:puedeEditar} ,width:75,clientSide:'control_precio' , serverSide:true},
             {name:'tipoprecio'                   , typeName:'text'                                 , allow:{update:puedeEditar} ,title:'TP', postInput:'upperSpanish', clientSide:'ingreso_tipoprecio', serverSide:true },
             {name:'cambio'                       , typeName:'text'                                 , allow:{update:puedeEditar}            , postInput:'upperSpanish', clientSide:'navegar_cambio'    , serverSide:true },            
+            {name:'repregunta'                   , typeName:'text'                                 , allow:{import:false, update:false}, title:'R'        },            
             {name:'excluido'                     , typeName:'text'                                 , allow:{import:false, update:false}, title:'X'        },            
             {name:'antiguedadsinprecioant'       , typeName:'integer'                              , allow:{import:false, update:false}, title:'Aspa'     },            
             {name:'precioanterior'               , typeName:'decimal'                              , allow:{import:false, update:false}                   },
