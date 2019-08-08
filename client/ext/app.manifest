@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Version 190807c
+# Version 190808
 
 CACHE:
 #--------------------------- JS ------------------------------------
@@ -12,7 +12,6 @@ CACHE:
 ../lib/sql-tools.js
 ../dialog-promise/dialog-promise.js
 ../lib/js-to-html.js
-../lib/js-to-html.js.map
 ../moment/min/moment.js
 ../pikaday/pikaday.js
 ../lib/polyfills-bro.js
