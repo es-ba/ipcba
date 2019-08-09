@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'orden'         , typeName:'integer' , nullable:false             , allow:{update:false}, visible:false    },
+            {name:'comentarios'   , typeName:'text'                                 , allow:{update:true}					 },
         ],
         primaryKey:['periodo','informante','visita', 'formulario'],
         sortColumns:[{column:'orden'},{column:'visita'}],
@@ -51,7 +52,7 @@ module.exports = function(context){
             from:`(
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, 
                   CASE WHEN v.razon = 0 THEN 1 ELSE v.razon END as razon,p.nombre || p.apellido as nombreencuestador,
-                  f.orden
+                  f.orden, v.comentarios
                   from relvis v
                     left join personal p on v.encuestador = p.persona 
                     left join formularios f on v.formulario=f.formulario

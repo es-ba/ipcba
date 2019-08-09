@@ -209,7 +209,10 @@ my.clientSides.control_razones = {
         var td = depot.rowControls[fieldName];
         td.style.width='80px';
         depot.rowControls[fieldName].addEventListener('update', function(){
-            depot.detailControls.relpre.divDetail=null;            
+			depot.rowControls.fechaingreso.setTypedValue(bestGlobals.date.today(), true);
+			if (depot.detailControls.relpre){
+				depot.detailControls.relpre.divDetail=null;
+			}
         })
     },
     update: function (depot, fieldName) {
