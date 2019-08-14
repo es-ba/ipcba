@@ -209,7 +209,12 @@ my.clientSides.control_razones = {
         var td = depot.rowControls[fieldName];
         td.style.width='80px';
         depot.rowControls[fieldName].addEventListener('update', function(){
-			depot.rowControls.fechaingreso.setTypedValue(bestGlobals.date.today(), true);
+			if (depot.rowControls.fechaingreso){
+				depot.rowControls.fechaingreso.setTypedValue(bestGlobals.date.today(), true);
+			}
+			if (depot.rowControls.recepcionista){
+				depot.rowControls.recepcionista.setTypedValue(depot.row.operadorrec, true);
+			}
 			if (depot.detailControls.relpre){
 				depot.detailControls.relpre.divDetail=null;
 			}

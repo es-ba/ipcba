@@ -36,8 +36,7 @@ module.exports = function(context){
             {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'direccion'                 , typeName:'text'                                , allow:{update:false}, visible:false},
-            //{name:'puedeagregarvisita'        , typeName:'text'                                , allow:{update:false}               },
-            //{name:'agregarvisita'             , typeName:'bigint'                              , allow:{update:false}, clientSide:'agregar_visita_por_visita'},
+            {name:'operadorrec'               , typeName:'text'                                , allow:{update:false}},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sortColumns:[{column:'direccion'},{column:'orden'},{column:'visita'}],
@@ -70,12 +69,17 @@ module.exports = function(context){
             from:`(
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                  v.fechageneracion, f.orden, i.direccion /*, par.puedeagregarvisita*/                   
+                  v.fechageneracion, f.orden, i.direccion, 
+				  CASE WHEN rec.labor = 'R' THEN rec.persona 
+                       WHEN per.labor = 'R' THEN per.persona 
+                       ELSE rec.persona END operadorrec                 
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario
-				  /*left join parametros par on unicoregistro*/
-                  )`,
+				  left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
+				  left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
+				  and per.activo = 'S' and rec.persona is distinct from per.persona
+				  )`,
         }        
     },context);
 }
