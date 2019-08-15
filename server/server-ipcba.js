@@ -300,7 +300,7 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     getVisibleMenu(menu, context){
         var be=this;
-        var currentUserRole = context.user[be.config.login.rolFieldName];
+        var currentUserRole = (context.user||{})[be.config.login.rolFieldName];
         var processItem = function processItem(item, index, menu){
             var itemExists = true;
             if(item.onlyVisibleFor){
