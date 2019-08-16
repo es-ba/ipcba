@@ -1520,7 +1520,7 @@ function cargarDispositivo(tokenInstalacion, encuestador){
             var panel = reltarHabilitada.panel;
             var tarea = reltarHabilitada.tarea;
             // como esto se ejecuta desde el ipad y el ipad se esta cargando hay que confirmar la CARGA del panel
-            return confirmPromise('confirma descarga del período ' + periodo + ', panel ' + panel + ', tarea ' + tarea).then(function(){
+            return confirmPromise('confirma carga del período ' + periodo + ', panel ' + panel + ', tarea ' + tarea).then(function(){
                 // una vez que confirmo debe deshabilitarse el boton cargar (para no confundir al usuario)
                 // el boton debe habilitarse al final (tanto por error como por exito)
                 if(my.offline.mode){
@@ -1638,7 +1638,7 @@ myOwn.wScreens.sincronizar=function(){
                         }
                         mainLayout.appendChild(downloadButton);
                         downloadButton.onclick = function(){
-                            confirmPromise('¿confirma descarga de iPad?').then(function(){
+                            confirmPromise('¿confirma descarga de D.M.?').then(function(){
                                 downloadButton.disabled=true;
                                 descargarDispositivo(tokenInstalacion, encuestador).then(function(){
                                     downloadButton.disabled=false;
@@ -1670,18 +1670,18 @@ myOwn.wScreens.vaciar=function(){
                 return my.ldb.isEmpty('mobile_hoja_de_ruta').then(function(isEmptyLocalDatabase){
                     var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
                     if(!(isEmptyLocalDatabase || vaciado)){
-                        var clearButton = html.button({class:'load-ipad-button'},'vaciar ipad').create();
+                        var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
                         mainLayout.appendChild(clearButton);
                         clearButton.onclick = function(){
-                            confirmPromise('¿confirma vaciado de iPad?').then(function(){
+                            confirmPromise('¿confirma vaciado de D.M.?').then(function(){
                                 clearButton.disabled=true;
                                 localStorage.setItem('vaciado',JSON.stringify(true));
                             }).then(function(){
-                                mainLayout.appendChild(html.p('Ipad vaciado correctamente!').create());
+                                mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
                             });
                         }
                     }else{
-                        mainLayout.appendChild(html.p('El Ipad está vacío.').create());
+                        mainLayout.appendChild(html.p('El D.M. está vacío.').create());
                     }
                 });
             }else{

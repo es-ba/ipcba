@@ -7,6 +7,7 @@ module.exports = function(context){
         title:'precios',
         tableName:'relpre',
         editable:puedeEditar,
+        policy:'web',
         allow:{
             insert:false,
             delete:false,

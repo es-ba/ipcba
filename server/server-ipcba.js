@@ -96,10 +96,29 @@ class AppIpcba extends backendPlus.AppBackend{
         return super.getProcedures().then(function(procedures){
             return procedures.concat(
                 require('./procedures-ipcba.js').map(be.procedureDefCompleter, be)
-            );
+            ).map(function(procedureDef){
+                if(procedureDef.action=='get_token'){
+                    procedureDef.policy='web';
+                }
+                return procedureDef;
+            });
         });
     }
     getMenu(context){
+        if(this.config.server.policy=='web'){
+            return {menu:[
+                {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
+                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false},
+                {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
+                {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
+                {menuType:'menu', name:'ipad', label:'D.M.', menuContent:[
+                    {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
+                    {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar dispositivo', showInOfflineMode: false},
+                    {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
+                    {menuType:'vaciar', name:'vaciar_dm', label:'vaciar ipad', showInOfflineMode: false},
+                ]}
+            ]};
+        }
         var programador = {role:'programador'};
         var coordinador = {role:'coordinador'};
         var analista = {role:'analista'};
@@ -110,13 +129,9 @@ class AppIpcba extends backendPlus.AppBackend{
         var migracion = {role:'migracion'};
         return {menu:[
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
-            {menuType:'menu', name:'ipad', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], menuContent:[
+            {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
-                {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
-                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar dispositivo', showInOfflineMode: false},
-                {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
-                {menuType:'vaciar', name:'vaciar_dm', label:'vaciar ipad', showInOfflineMode: false},
             ], showInOfflineMode: true},
             {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
             {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
@@ -284,6 +299,30 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'valvalatr'                                          },
             ], onlyVisibleFor:[programador,migracion]},
         ]}
+    }
+    async isThisProcedureAllowed(context, procedureDef, params){
+        var be = this;
+        var tablaAccessProcedures={
+            table_structure:true,
+            table_data:true,
+            table_record_save:true,
+            table_record_delete:true,
+            table_record_lock:true,
+            table_record_enter:true,
+            table_record_leave:true,
+        }
+        if(!await super.isThisProcedureAllowed(context, procedureDef, params)){
+            return false;
+        }
+        if(context.be.config.server.policy=='web'){
+            if(tablaAccessProcedures[procedureDef.action]){
+                var tableDef = await be.tableStructures[params.table](context);
+                return tableDef.policy=='web';
+            }else if(procedureDef.policy!='web'){
+                return false;
+            }
+        }
+        return true;
     }
     clientIncludes(req, hideBEPlusInclusions) {
         var be = this;

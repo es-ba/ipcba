@@ -12,6 +12,7 @@ module.exports = function(context){
             delete:puedeEditarMigracion,
             update:puedeEditar||puedeEditarMigracion,
         },
+        policy:'web',
         fields:[
             {name:'producto'                  , typeName:'text'    , nullable:false               , allow:{update:puedeEditarMigracion}},
             {name:'atributo'                  , typeName:'integer' , nullable:false               , allow:{update:puedeEditarMigracion}},

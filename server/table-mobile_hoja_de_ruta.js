@@ -7,6 +7,7 @@ module.exports = function(context){
         tableName:'relvis',
         title:'Hoja de ruta mobile',
         editable:true, //puedeEditar,
+        policy:'web',
         allow:{
             insert:false,
             delete:false,

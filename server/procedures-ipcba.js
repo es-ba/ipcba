@@ -686,6 +686,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'token_instalacion'   , typeName:'text'},
         ],
+        policy:'web',
         coreFunction:async function(context, parameters){
             var now = datetime.now();
             try{
@@ -720,6 +721,7 @@ ProceduresIpcba = [
             {name:'tarea'               , typeName:'integer'                    },
             {name:'token_instalacion'   , typeName:'text'                       },
         ],
+        policy:'web',
         progress:true,
         roles:['programador','coordinador','analista','jefe_campo','recepcionista'],
         coreFunction:async function(context, params){
@@ -824,6 +826,7 @@ ProceduresIpcba = [
             {name:'numero_ipad'       , typeName:'text' },
             {name:'fecha_ipad'        , typeName:'timestamp' }
         ],
+        policy:'web',
         coreFunction:async function(context, params){
             var clientDatetime = params.fecha_ipad;
             var serverDatetime = datetime.now();
@@ -872,6 +875,7 @@ ProceduresIpcba = [
             {name:'token_original'    , typeName:'text' },
             {name:'version_sistema'   , typeName:'text' },
         ],
+        policy:'web',
         coreFunction:async function(context, params){
             var now = datetime.now();
             var token = params.numero_encuestador + params.numero_ipad + now;
@@ -904,6 +908,7 @@ ProceduresIpcba = [
             {name:'data'               , typeName:'jsonb' },
             {name:'encuestador'        , typeName:'text' },
         ],
+        policy:'web',
         coreFunction:async function(context, params){
             var token = params.token_instalacion;
             try{

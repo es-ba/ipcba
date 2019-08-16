@@ -7,6 +7,7 @@ module.exports = function(context){
     var defNewElement = definnerPeriodo(context);
     defNewElement=changing(defNewElement,{
         name:'razones_encuestador',
+        policy:'web',
         editable:false,
         allow:{
             insert: false,

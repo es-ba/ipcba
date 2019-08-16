@@ -4,6 +4,7 @@ module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='admin';
     return context.be.tableDefAdapt({
         name:'bienvenida',
+        policy:'web',
         dbOrigin:'view',
         editable:false,
         fields:[

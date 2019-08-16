@@ -10,6 +10,7 @@ module.exports = function(context){
             delete:false,
             update:puedeEditar,
         },
+        policy:'web',
         fields:[
             {name:'periodo'              , typeName:'text'    , nullable:false, allow:{update:false}},
             {name:'informante'           , typeName:'integer' , nullable:false, allow:{update:false}},

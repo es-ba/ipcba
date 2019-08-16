@@ -1,10 +1,10 @@
 {
   "name": "ipcba",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "private": true,
   "description": "Indice de Precios al Consumidor",
   "dependencies": {
-    "backend-plus": "0.30.22",
+    "backend-plus": "~0.30.28",
     "pg-triggers": "~0.2.3"
   },
   "devDependencies": {
