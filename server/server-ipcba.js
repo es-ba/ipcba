@@ -111,12 +111,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false},
                 {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
                 {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
-                {menuType:'menu', name:'ipad', label:'D.M.', menuContent:[
-                    {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
-                    {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar dispositivo', showInOfflineMode: false},
-                    {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
-                    {menuType:'vaciar', name:'vaciar_dm', label:'vaciar ipad', showInOfflineMode: false},
-                ]}
             ]};
         }
         var programador = {role:'programador'};
