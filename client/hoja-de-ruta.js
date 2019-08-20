@@ -829,6 +829,7 @@ myOwn.copiarAtributos = function copiarAtributos(precioDepot, setNull){
         precioDepot.row['atributos_mes_anterior'].forEach(function(atributo,i){
             //grid.depots[i].rowControls['valor'].setTypedValue(atributo.valor, true)
             grid.depots[i].row['valor']=setNull?null:atributo.valor;
+            // PREPARAR COALESCE grid.depots[i].row.valor=bestGlobals.coalesce(grid.depots[i].row.valor,setNull?null:atributo.valor);
             promisesArray.push(
                 grid.depots[i].connector.saveRecord(grid.depots[i],{})
             );
@@ -842,6 +843,7 @@ myOwn.copiarAtributos = function copiarAtributos(precioDepot, setNull){
         var extraRow = precioDepot.extraRows[i];
         var extraCell3 = extraRow.cells[i==0?3:2];
         var value = setNull?null:attribute.valor;
+        // PREPARAR COALESCE var value = !extraCell3.textContent || extraCell3.textContent!=0?(setNull?null:attribute.valor):extraCell3.textContent;
         extraCell3.textContent=value?value:'-';
     })
 }
@@ -1002,9 +1004,47 @@ myOwn.clientSides.parseTipoPrecio={
             priceTd.style.display='block';
         }
         if(depot.row['tipopre__espositivo'] == 'S'){
-            likeAr(depot.atributosActualesTds).forEach(function(attributeTd){
-                attributeTd.style.cursor='pointer';
-                attributeTd.onclick=function(){
+        }else{
+            depot.row['cambio'] = null;
+        }
+    },
+    prepare: function(depot, fieldName){
+        var td = depot.rowControls[fieldName];
+        td.disable(true);
+        td.autoExpander=true;
+        td.contentEditable=false;
+        td.editOnlyFromList=true;
+        td.addEventListener('click', function(event){
+            my.autoShowReferences(depot, fieldName);
+            event.preventDefault();
+        });
+        depot.atributosActualesTds=[];
+        depot.row['atributos_mes_actual'].forEach(function(attribute,i){
+            var extraRow = depot.extraRows[i];
+            if(i==0){
+                extraRow.appendChild(html.td({'my-collapsable':'true', class: 'flecha-copiar', rowspan: depot.row['atributos_mes_anterior'].length},RIGHTARROW).create());
+                extraRow.cells[2].style.cursor='pointer';
+                extraRow.cells[2].addEventListener('click', function(){
+                    my.wait4visitaGrid.then(function(visitaGrid){
+                        setTimeout(function(){
+                            if(visitaGrid.depots[0].row['razones__espositivoformulario'] == 'S' && 
+                                (depot.row['tipoprecio'] && depot.row['tipopre__espositivo'] == 'S'
+                                   || depot.row.precio>0 || depot.rowControls.precio.getTypedValue()>0
+                            )){
+                                my.copiarAtributos(depot, false);
+                            }
+                        },200);
+                    });
+                });
+            }
+            var td = html.td({'my-collapsable':'true'}).create();
+            depot.atributosActualesTds[attribute.nombreatributo]= td;
+            extraRow.appendChild(td);
+            var attributeTd=td;
+            // empieza la zona donde se asigna el onclick de los atributos para abrir la pantalla de atributos            
+            attributeTd.style.cursor='pointer';
+            attributeTd.onclick=function(){
+                if(depot.row['tipopre__espositivo'] == 'S' || depot.row.precio>0 || depot.rowControls.precio.getTypedValue()>0){
                     var div = html.div({id:'grilla-atributos'}).create();
                     var params = getParamsFromRow(depot.row,['periodo', 'informante', 'visita', 'formulario','panel','tarea', 'producto', 'observacion']);
                     var wait4atributosGrid=myOwn.wScreens.atributos.mainAction(params, div, depot);
@@ -1053,46 +1093,7 @@ myOwn.clientSides.parseTipoPrecio={
                         window.scrollTo(0,scrollY);
                     });
                 }
-            })
-        }else{
-            depot.row['cambio'] = null;
-            likeAr(depot.atributosActualesTds).forEach(function(attributeTd){
-                quitarClick(attributeTd)
-            })
-        }
-    },
-    prepare: function(depot, fieldName){
-        var td = depot.rowControls[fieldName];
-        td.disable(true);
-        td.autoExpander=true;
-        td.contentEditable=false;
-        td.editOnlyFromList=true;
-        td.addEventListener('click', function(event){
-            my.autoShowReferences(depot, fieldName);
-            event.preventDefault();
-        });
-        depot.atributosActualesTds=[];
-        depot.row['atributos_mes_actual'].forEach(function(attribute,i){
-            var extraRow = depot.extraRows[i];
-            if(i==0){
-                extraRow.appendChild(html.td({'my-collapsable':'true', class: 'flecha-copiar', rowspan: depot.row['atributos_mes_anterior'].length},RIGHTARROW).create());
-                extraRow.cells[2].style.cursor='pointer';
-                extraRow.cells[2].addEventListener('click', function(){
-                    my.wait4visitaGrid.then(function(visitaGrid){
-                        setTimeout(function(){
-                            if(visitaGrid.depots[0].row['razones__espositivoformulario'] == 'S' && 
-                                (depot.row['tipoprecio'] && depot.row['tipopre__espositivo'] == 'S'
-                                   || depot.row.precio>0 || depot.rowControls.precio.getTypedValue()>0
-                            )){
-                                my.copiarAtributos(depot, false);
-                            }
-                        },200);
-                    });
-                });
             }
-            var td = html.td({'my-collapsable':'true'}).create();
-            depot.atributosActualesTds[attribute.nombreatributo]= td;
-            extraRow.appendChild(td);
             var extraCell3 = extraRow.cells[i==0?3:2];
             extraCell3.colSpan=2;
             extraCell3.setAttribute('my-colname','atributo_actual');

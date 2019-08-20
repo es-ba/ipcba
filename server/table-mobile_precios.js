@@ -28,7 +28,7 @@ module.exports = function(context){
             {name:'atributos'        , typeName:'text'    , nullable:false, allow:{update:false}, clientSide:'parseAtributosAnteriores', serverSide:true     },
             {name:'atributos_mes_anterior'       , typeName:'jsonb', nullable:false, visible:false,  allow:{update:false}   },
             {name:'tipoprecioanterior' , typeName:'text'   , title:'TP'    , allow:{update:false},  serverSide:true, clientSide:'parseTipoPrecioAnterior'},
-            {name:'precioanterior'   , typeName:'decimal' , title:'precio anterior', allow:{update:false}, serverSide:true, clientSide:'parsePrecioAnterior' },
+            {name:'precioanterior'   , typeName:'text' , title:'precio anterior', allow:{update:false}, serverSide:true, clientSide:'parsePrecioAnterior' },
             {name:'atributos_mes_actual'         , typeName:'jsonb'   , nullable:false            , allow:{update:false}, visible:false     },
             {name:'copiar_tipoprecio', typeName:'text'    , allow:{update:false}, title:'c', clientSide:'copiarTipoprecio', serverSide:true      },
             {name:'tipoprecio'       , typeName:'text'                    , title:'TP' , allow:{update:puedeEditar},clientSide:'parseTipoPrecio' , serverSide:true},
