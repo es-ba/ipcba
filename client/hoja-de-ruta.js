@@ -1319,7 +1319,7 @@ myOwn.clientSides.habilitarSincronizacion={
                 depot.manager.prepareAndDisplayGrid().then(function(){
                     scrollTo(0,scrollY);
                 })
-            })
+            }).catch(my.alertError);
         }
     }
 }
@@ -1564,7 +1564,8 @@ function cargarDispositivo(tokenInstalacion, encuestador){
                                 panel: panel,
                                 tarea: tarea,
                             };
-                            history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
+                            // history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
+                            history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_ruta');
                             my.changeOfflineMode();
                             return 'ok'
                         })
