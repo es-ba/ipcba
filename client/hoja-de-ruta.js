@@ -125,8 +125,9 @@ myOwn.wScreens.hoja_ruta = function(addrParams){
                 panel: parseInt(panel),
                 tarea: parseInt(tarea),
             };
-            history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
-            my.showPage();
+            // history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
+            // my.showPage();
+            myOwn.wScreens.hoja_de_ruta.mainAction(json,mainLayout);
         }else{
             mainLayout.appendChild(html.p('No se cargó la Hoja de Ruta').create());
         }
@@ -1082,7 +1083,7 @@ myOwn.clientSides.parseTipoPrecio={
                             if(visitaGrid.depots[0].row['razones__espositivoformulario'] == 'S' && 
                                 (depot.row['tipoprecio'] && depot.row['tipopre__espositivo'] == 'S'
                                    || depot.row.precio>0 || depot.rowControls.precio.getTypedValue()>0
-                            ){
+                            )){
                                 my.copiarAtributos(depot, false);
                             }
                         },200);
