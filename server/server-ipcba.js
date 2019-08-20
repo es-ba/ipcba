@@ -121,7 +121,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var supervisor = {role:'supervisor'};
         var recepGabinete = {role:'recep_gabinete'};
         var migracion = {role:'migracion'};
-        return {menu:[
+        var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -292,7 +292,14 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'unidades'                                           },
                 {menuType:'table', name:'valvalatr'                                          },
             ], onlyVisibleFor:[programador,migracion]},
-        ]}
+        ];
+        if(this.config.ipc && this.config.ipc.calculando_periodo_base){
+            menuPrincipal.push({menuType:'menu', name:'perbase', label:'periodo base', menuContent:[
+                {menuType:'proc' , name:'perbase_calcular'  , label:'calcular'  },
+                // {menuType:'table', name:'perbase_parametros', label:'configurar'},
+            ]})
+        }
+        return {menu:menuPrincipal};
     }
     async isThisProcedureAllowed(context, procedureDef, params){
         var be = this;

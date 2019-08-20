@@ -1079,10 +1079,13 @@ myOwn.clientSides.parseTipoPrecio={
                 extraRow.cells[2].addEventListener('click', function(){
                     my.wait4visitaGrid.then(function(visitaGrid){
                         setTimeout(function(){
-                            if(visitaGrid.depots[0].row['razones__espositivoformulario'] == 'S' && depot.row['tipoprecio'] && depot.row['tipopre__espositivo'] == 'S'){
+                            if(visitaGrid.depots[0].row['razones__espositivoformulario'] == 'S' && 
+                                (depot.row['tipoprecio'] && depot.row['tipopre__espositivo'] == 'S'
+                                   || depot.row.precio>0 || depot.rowControls.precio.getTypedValue()>0
+                            ){
                                 my.copiarAtributos(depot, false);
                             }
-                        },500);
+                        },200);
                     });
                 });
             }
