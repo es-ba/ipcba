@@ -1675,19 +1675,31 @@ myOwn.wScreens.vaciar=function(){
             if(existsStructure){
                 return my.ldb.isEmpty('mobile_hoja_de_ruta').then(function(isEmptyLocalDatabase){
                     var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
-                    if(!(isEmptyLocalDatabase || vaciado)){
+                    if(isEmptyLocalDatabase || vaciado){
+                        mainLayout.appendChild(html.p('El D.M. está vacío.').create());
+                    }else{
                         var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
+                        var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
+                        var inputForzar = html.input({class:'input-forzar'}).create();
+                        if(!fueDescargadoAntes){
+                            mainLayout.appendChild(html.div([
+                                html.div({class:'warning'},'El dispositivo todavía no fue descargado'),
+                                html.div(['Se puede forzar la descarga ',inputForzar])
+                            ]).create());
+                        }
                         mainLayout.appendChild(clearButton);
                         clearButton.onclick = function(){
-                            confirmPromise('¿confirma vaciado de D.M.?').then(function(){
-                                clearButton.disabled=true;
-                                localStorage.setItem('vaciado',JSON.stringify(true));
-                            }).then(function(){
-                                mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
-                            });
+                            if(fueDescargadoAntes || inputForzar.value=='forzar'){
+                                confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton}).then(function(){
+                                    clearButton.disabled=true;
+                                    localStorage.setItem('vaciado',JSON.stringify(true));
+                                }).then(function(){
+                                    mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
+                                });
+                            }else{
+                                alertPromise('si necesita vaciar el D.M. puede forzar.',{underElement:clearButton})
+                            }
                         }
-                    }else{
-                        mainLayout.appendChild(html.p('El D.M. está vacío.').create());
                     }
                 });
             }else{
