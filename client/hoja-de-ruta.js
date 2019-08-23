@@ -1125,7 +1125,9 @@ myOwn.clientSides.parseTipoPrecio={
             if(tiposPreciosPositivos.includes(tipoPrecioTd.getTypedValue())){
                 var priceTd = depot.rowControls['precio'];
                 priceTd.style.display='block';
-                priceTd.focus();
+                if(!priceTd.getTypedValue()){
+                    priceTd.focus();
+                }
             }
         })
         depot.tr.addEventListener('savedRowOk', function(){
