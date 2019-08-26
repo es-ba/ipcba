@@ -126,7 +126,13 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
-            ], showInOfflineMode: true},
+                //
+                {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
+                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false},
+                {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
+                {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
+                //
+			], showInOfflineMode: true},
             {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
             {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
                 {menuType:'table', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
