@@ -815,7 +815,7 @@ myOwn.clientSides.copiarTipoprecio={
     }
 };
 
-myOwn.copiarAtributos = function copiarAtributos(precioDepot, setNull){
+myOwn.copiarAtributos = function copiarAtributos(precioDepot, setNull, autoConfirm){
     my.showPendentsButton.disabled = false;
     var fixedFields = precioDepot.def.primaryKey.map(function(fname){
         return {fieldName: fname, value: precioDepot.row[fname]};
@@ -825,27 +825,38 @@ myOwn.copiarAtributos = function copiarAtributos(precioDepot, setNull){
     grid.waitForReady().then(function(){
         //actualizo caché atributos
         updateAtributesCache(grid.depots.map(function(depot){return depot.row}));
-        var promisesArray = []
-        precioDepot.row['atributos_mes_anterior'].forEach(function(atributo,i){
-            //grid.depots[i].rowControls['valor'].setTypedValue(atributo.valor, true)
-            grid.depots[i].row['valor']=setNull?null:atributo.valor;
-            // PREPARAR COALESCE grid.depots[i].row.valor=bestGlobals.coalesce(grid.depots[i].row.valor,setNull?null:atributo.valor);
-            promisesArray.push(
-                grid.depots[i].connector.saveRecord(grid.depots[i],{})
-            );
+        var atributosCopiablesSinConfirmacion=grid.depots.filter(function(depot,i){
+            var valorActual = depot.row['valor']
+            return valorActual==null || valorActual == precioDepot.row['atributos_mes_anterior'][i].valor
         });
-        Promise.all(promisesArray).then(function(){
-            var fieldDef = precioDepot.def.field['precio'];
-            my.clientSides[fieldDef.clientSide].update(precioDepot, fieldDef.name);    
-        })
+        var copiarAtributosFun = function copiarAtributosFun(){
+            var promisesArray = []
+            precioDepot.row['atributos_mes_anterior'].forEach(function(atributo,i){
+                grid.depots[i].row['valor']=setNull?null:atributo.valor;
+                promisesArray.push(
+                    grid.depots[i].connector.saveRecord(grid.depots[i],{})
+                );
+            });
+            Promise.all(promisesArray).then(function(){
+                var fieldDef = precioDepot.def.field['precio'];
+                my.clientSides[fieldDef.clientSide].update(precioDepot, fieldDef.name);    
+            })
+            precioDepot.row['atributos_mes_anterior'].forEach(function(attribute,i){
+                var extraRow = precioDepot.extraRows[i];
+                var extraCell3 = extraRow.cells[i==0?3:2];
+                var value = setNull?null:attribute.valor;
+                extraCell3.textContent=value?value:'-';
+            })
+        }
+        if(atributosCopiablesSinConfirmacion.length == grid.depots.length || autoConfirm){
+            copiarAtributosFun()
+        }else{
+            var message = 'confirma sobrescritura de atributos?'
+            confirmPromise(message).then(function(){
+                copiarAtributosFun()
+            });
+        }
     });
-    precioDepot.row['atributos_mes_anterior'].forEach(function(attribute,i){
-        var extraRow = precioDepot.extraRows[i];
-        var extraCell3 = extraRow.cells[i==0?3:2];
-        var value = setNull?null:attribute.valor;
-        // PREPARAR COALESCE var value = !extraCell3.textContent || extraCell3.textContent!=0?(setNull?null:attribute.valor):extraCell3.textContent;
-        extraCell3.textContent=value?value:'-';
-    })
 }
 
 myOwn.clientSides.parsePrecio={
@@ -1031,7 +1042,7 @@ myOwn.clientSides.parseTipoPrecio={
                                 (depot.row['tipoprecio'] && depot.row['tipopre__espositivo'] == 'S'
                                    || depot.row.precio>0 || depot.rowControls.precio.getTypedValue()>0
                             )){
-                                my.copiarAtributos(depot, false);
+                                my.copiarAtributos(depot, false, false);
                             }
                         },200);
                     });
@@ -1135,7 +1146,7 @@ myOwn.clientSides.parseTipoPrecio={
             if(depot.row[fieldName] && depot.row['tipopre__espositivo'] == 'N'){
                 priceTd.setTypedValue(null,true)
                 if(my.offline.mode){
-                    my.copiarAtributos(depot, true);
+                    my.copiarAtributos(depot, true, true);
                 }
             }
             if(depot.row['precio'] !=null && depot.row[fieldName] == null){
