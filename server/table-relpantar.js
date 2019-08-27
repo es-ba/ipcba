@@ -27,6 +27,7 @@ module.exports = function(context){
         primaryKey:['periodo','panel','tarea'],
         detailTables:[
             {table:'relvis', abr:'VIS', label:'visitas', fields:['periodo','panel','tarea']},
+            {table:'hdrexportarefectivossinprecio', abr:'ESP', label:'efectivos sin precio', fields:['periodo','panel','tarea']},
         ],        
         sql:{
             from:`(select rt.periodo, rt.panel, rt.tarea, t.recepcionista, CASE WHEN verif like '%N%' THEN ' ' ELSE '✓' END verificado, 
