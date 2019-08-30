@@ -49,6 +49,7 @@ module.exports = function(context){
             {references:'productos'  , fields:['producto']},
             {references:'relvis'     , fields:['periodo', 'informante', 'visita', 'formulario']},            
             {references:'tipopre'    , fields:['tipoprecio']},            
+            {references:'formularios', fields:['formulario']},            
         ],
         detailTables:[
             {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita']},
