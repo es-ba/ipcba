@@ -241,7 +241,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'periodos_reltar', label:'observaciones de paneles-tareas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
                 {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
                 {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
-                {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador, analista, recepcionista, jefeCampo, coordinador]},
+                {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
             ]},
             {menuType:'menu', name:'vista_tablas', label:'vista tablas', menuContent:[
                 {menuType:'table', name:'periodos_matrizresultados', label:'matrizresultados', onlyVisibleFor:[programador]},
