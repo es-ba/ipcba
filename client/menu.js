@@ -838,3 +838,48 @@ my.clientSides.agregar_visita_por_visita = botonClientSideEnGrilla({
         });
     }
 });
+
+my.wScreens.buscar_informante=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var controlPeriodo   =html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlInformante=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var botonBuscar=html.button("buscar").create();
+        var resultDiv=html.div({class:"result-div"}).create();
+        var divGrilla=html.div().create();
+        botonBuscar.onclick=function(){
+            var periodo = controlPeriodo.getTypedValue();
+            var informante = controlInformante.getTypedValue();
+            my.ajax.informante_buscar({
+                periodo:controlPeriodo.getTypedValue(),
+                informante:controlInformante.getTypedValue(),
+            }).then(function(result){
+                resultDiv.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodo});
+                fixedFields.push({fieldName: 'informante', value: informante});
+                var grid=my.tableGrid("relvis",divGrilla,{tableDef:{},fixedFields: fixedFields});
+                grid.refresh();
+            })
+        }
+        TypedControls.adaptElement(controlPeriodo   ,{typeName:'text'   , references:'periodos'});
+        TypedControls.adaptElement(controlInformante,{typeName:'integer', references:'informantes'});
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"buscar informante"),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
+                    ]),
+                    html.tr([
+                        html.td("informante"), controlInformante
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonBuscar]), 
+                    ])
+                ]),
+                divGrilla,
+            ]).create()
+        );
+    },50);
+}

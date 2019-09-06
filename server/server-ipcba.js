@@ -219,6 +219,7 @@ class AppIpcba extends backendPlus.AppBackend{
             ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
             {menuType:'menu', name:'ingreso', menuContent:[
                 {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
+                {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
             ]},
             {menuType:'menu', name:'resultados', menuContent:[
                 {menuType:'table', name:'cuagru', label: 'grupos por cuadro'},
