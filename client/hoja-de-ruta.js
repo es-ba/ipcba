@@ -805,6 +805,7 @@ myOwn.clientSides.copiarTipoprecio={
                 if(depot.row['repregunta']=='R'){
                     td.style.backgroundImage = 'url(img/repregunta.png)';
                     td.style.backgroundRepeat = 'no-repeat';
+                    td.style.backgroundPosition = 'center';
                 }
             }
         })
