@@ -1802,7 +1802,7 @@ var awaitForCacheLayout = function prepareLayoutForCache(){
     });
     
 }();
-async function displayWhenReady(message, type, message2, enOtroRenglon){
+function displayWhenReady(message, type, message2, enOtroRenglon){
     return awaitForCacheLayout.then(function(layout){
         var logLayout = document.getElementById('cache-log');
         var texto = logLayout.firstElementChild;
@@ -1818,7 +1818,7 @@ async function displayWhenReady(message, type, message2, enOtroRenglon){
         }
     })
 }
-async function mostrarComoCachea(){
+function mostrarComoCachea(){
     var cacheStatusValues = [
         /* 0 */ 'uncached',
         /* 1 */ 'idle',
