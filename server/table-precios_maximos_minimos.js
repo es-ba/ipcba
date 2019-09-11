@@ -33,8 +33,10 @@ module.exports = function(context){
             from: `(select cp.periodo, cp.producto, cp.responsable as analista, m.precio1, m.precio2, m.precio3, m.precio4, m.precio5,
 			        string_agg(CASE WHEN pa.normalizable = 'S' THEN pa.valornormal||' '||a.unidaddemedida END,',') as normaliza,
 					x.precio6, x.precio7, x.precio8, x.precio9, x.precio10, 
-					CASE WHEN comun.es_numero(m.precio1) and comun.es_numero(m.precio2) THEN round(m.precio2::decimal/m.precio1::decimal*100-100,2) else null END as varmin,
-					CASE WHEN comun.es_numero(x.precio9) and comun.es_numero(x.precio10) THEN round(x.precio10::decimal/x.precio9::decimal*100-100,2) else null END as varmax
+					CASE WHEN comun.es_numero(split_part(m.precio1,'X',1)) and comun.es_numero(split_part(m.precio2,'X',1)) THEN 
+					round(split_part(m.precio2,'X',1)::decimal/split_part(m.precio1,'X',1)::decimal*100-100,2) else null END as varmin,
+					CASE WHEN comun.es_numero(split_part(x.precio9,'X',1)) and comun.es_numero(split_part(x.precio10,'X',1)) THEN 
+					round(split_part(x.precio10,'X',1)::decimal/split_part(x.precio9,'X',1)::decimal*100-100,2) else null END as varmax
                     from calprodresp cp 
 					     left join precios_maximos_vw x on cp.periodo = x.periodo and cp.producto = x.producto
                          left join prodatr pa on cp.producto = pa.producto

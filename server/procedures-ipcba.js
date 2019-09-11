@@ -1028,6 +1028,27 @@ ProceduresIpcba = [
             return result.rows;
         }
     },
+    {
+        action:'informante_buscar',
+        parameters:[
+            {name:'periodo'    , typeName:'text'   , references:'periodos'   },
+            {name:'informante' , typeName:'integer', references:'informantes'},
+        ],
+        roles:['programador','coordinador','analista','jefe_campo','supervisor','ingresador','recep_gabinete','recepcionista'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `SELECT *
+                FROM relvis WHERE periodo = $1 and informante = $2;`,
+                [parameters.periodo,parameters.informante]
+            ).fetchAll().then(function(result){
+                return result.rows;
+            }).catch(function(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            });
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
