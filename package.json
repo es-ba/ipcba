@@ -1,6 +1,6 @@
 {
   "name": "ipcba",
-  "version": "0.4.7",
+  "version": "0.5.0",
   "private": true,
   "description": "Indice de Precios al Consumidor",
   "dependencies": {

@@ -20,7 +20,7 @@ module.exports = function(context){
             {name:'realizada'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'resultado'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'observaciones'              , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'token_instalacion'          , typeName:'text'                                 , allow:{update:puedeEditarMigracion}},
+            {name:'id_instalacion'             , typeName:'integer'                              , allow:{update:false}},
             {name:'cargado'                    , typeName:'timestamp', title: 'cargado a dm'     , allow:{update:puedeEditarMigracion}},
             {name:'descargado'                 , typeName:'timestamp', title: 'descargado de dm' , allow:{update:puedeEditarMigracion}},
             {name:'vencimiento_sincronizacion' , typeName:'timestamp'                            , allow:{update:puedeEditarMigracion}},
@@ -36,7 +36,7 @@ module.exports = function(context){
             ], alias: 'pers'},
             {references:'relpan', fields:['periodo', 'panel']},
             {references:'tareas', fields:['tarea']},
-            {references:'instalaciones', fields:['token_instalacion']},
+            {references:'instalaciones', fields:['id_instalacion']},
         ]
     },context);
 }

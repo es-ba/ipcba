@@ -693,7 +693,7 @@ ProceduresIpcba = [
                 var persona = await context.client.query(
                     `select *
                         from personal 
-                        where token_instalacion = $1`
+                        where id_instalacion = (select id_instalacion from instalaciones where token_instalacion = $1)`
                     ,
                     [parameters.token_instalacion]
                 ).fetchUniqueRow();
@@ -740,12 +740,16 @@ ProceduresIpcba = [
                 ,
                 [params.periodo, params.panel, params.tarea]
             ).execute();
+            var idInstalacion = await context.client.query(
+                `select id_instalacion from instalaciones where token_instalacion = $1`,
+                [params.token_instalacion]
+            ).fetchUniqueValue();
             await context.client.query(
                 `update reltar
-                    set cargado = current_timestamp, descargado = null, token_instalacion = $4
+                    set cargado = current_timestamp, descargado = null, id_instalacion = $4
                     where periodo = $1 and panel = $2 and tarea = $3`
                 ,
-                [params.periodo, params.panel, params.tarea, params.token_instalacion]
+                [params.periodo, params.panel, params.tarea, idInstalacion.value]
             ).execute();
             informantesArray = informantesArray.rows;
             var fixedFields = [
@@ -846,7 +850,7 @@ ProceduresIpcba = [
                     `select rt.panel, rt.tarea, rt.cargado, p.nombre as nombre_encuestador, 
                             p.apellido as apellido_encuestador, i.ipad
                         from reltar rt 
-                            join instalaciones i using (token_instalacion)
+                            join instalaciones i using (id_instalacion)
                             join personal p on rt.encuestador = p.persona 
                         where rt.encuestador = $1 and rt.cargado is not null and rt.descargado is null`
                     ,
@@ -887,12 +891,16 @@ ProceduresIpcba = [
                     ,
                     [token, now, params.numero_encuestador, params.numero_ipad,params.version_sistema, params.token_original]
                 ).fetchUniqueRow();
+                var idInstalacion = await context.client.query(
+                    `select id_instalacion from instalaciones where token_instalacion = $1`,
+                    [result.row.token_instalacion]
+                ).fetchUniqueValue();
                 await context.client.query(
                     `update personal
-                        set ipad = $1, token_instalacion = $2
+                        set ipad = $1, id_instalacion = $2
                         where persona = $3`
                     ,
-                    [result.row.ipad, result.row.token_instalacion, result.row.encuestador]
+                    [result.row.ipad, idInstalacion.value, result.row.encuestador]
                 ).execute();
                 return result.row
             }catch(err){
@@ -912,12 +920,16 @@ ProceduresIpcba = [
         coreFunction:async function(context, params){
             var token = params.token_instalacion;
             try{
+                var idInstalacion = await context.client.query(
+                    `select id_instalacion from instalaciones where token_instalacion = $1`,
+                    [token]
+                ).fetchUniqueValue();
                 var result = await context.client.query(
                     `update reltar
                       set descargado = current_timestamp
-                      where token_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
+                      where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
                       returning *`
-                ,[token]).fetchAll();
+                ,[idInstalacion.value]).fetchAll();
                 if(result.rowCount){
                     var data = JSON.parse(params.data);
                     var promiseChain = Promise.resolve();
