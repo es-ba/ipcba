@@ -11,15 +11,6 @@ export type Atributo = {
     atributo:string
     tipodato:string
     nombreatributo:string
-    prodatr__rangodesde: number
-    prodatr__rangohasta: number
-    prodatr__valornormal: number
-    prodatr__normalizable: string
-    normalizable: string
-    escantidad: string
-    prodatr__orden: number
-    opciones: string
-    especificaciones__mostrar_cant_um: string
 }
 
 export type Producto={
@@ -53,6 +44,14 @@ export type Estructura={
 export type RelAtr={
     valoranterior:string
     valor:string
+    prodatr__rangodesde: number
+    prodatr__rangohasta: number
+    prodatr__valornormal: number
+    prodatr__normalizable: string
+    escantidad: string
+    prodatr__orden: number
+    opciones: string
+    especificaciones__mostrar_cant_um: string
     valornormal: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
     prioridad: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
     normalizable: string //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
