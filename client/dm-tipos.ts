@@ -15,8 +15,8 @@ export type Atributo = {
 
 export type Producto={
     producto:string
-    nombreproducto:string  //AGREGAR A CONSULTA (actualmente lo muestra en un objeto llamado productocompleto)
-    especificacioncompleta: string //AGREGAR A CONSULTA (actualmente lo muestra en un objeto llamado productocompleto)
+    nombreproducto:string
+    especificacioncompleta: string
     atributos:{
         [atributo:number]: true
     }
@@ -25,7 +25,7 @@ export type Producto={
 
 export type Formulario={
     formulario:number
-    nombreformulario:string //AGREGAR a MOBILE VISITA, actualmente está en HOJA DE RUTA
+    nombreformulario:string
     orden: number
     productos:{
         [producto:string]: {
