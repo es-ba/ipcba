@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'pb_desde'                            , typeName:'text'              , allow:{update:puedeEditar}},
             {name:'pb_hasta'                            , typeName:'text'              , allow:{update:puedeEditar}},
             {name:'ph_desde'                            , typeName:'text'              , allow:{update:puedeEditar}},
+            {name:'pn_hasta'                            , typeName:'text'              , allow:{update:puedeEditar}},
             {name:'sup_aleat_prob1'                     , typeName:'decimal'           , allow:{update:puedeEditar}},
             {name:'sup_aleat_prob2'                     , typeName:'decimal'           , allow:{update:puedeEditar}},
             {name:'sup_aleat_prob_per'                  , typeName:'decimal'           , allow:{update:puedeEditar}},

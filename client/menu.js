@@ -883,3 +883,33 @@ my.wScreens.buscar_informante=function(addrParams){
         );
     },50);
 }
+
+my.wScreens.correr_periodobase=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var botonCorrerPb=html.button("Ejecutar").create();
+        var resultDiv=html.div({class:"result-div"}).create();
+        var divGrilla=html.div().create();
+        botonCorrerPb.onclick=function(){
+            my.ajax.periodobase_correr({
+                ejecutar:true,
+            }).then(function(result){
+                resultDiv.textContent=result.value;
+                var fixedFields = [];
+                var grid=my.tableGrid("calculos",divGrilla,{tableDef:{},fixedFields: fixedFields});
+                grid.refresh();
+            })
+        }
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"Ejecutar Periodo Base"),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td(), html.td([botonCorrerPb]), 
+                    ])
+                ]),
+                divGrilla,
+            ]).create()
+        );
+    },50);
+}

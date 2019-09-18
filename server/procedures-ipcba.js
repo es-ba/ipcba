@@ -1049,6 +1049,31 @@ ProceduresIpcba = [
             });
         }
     },
+    {
+        action:'periodobase_correr',
+        parameters:[
+            {name:'ejecutar', typeName:'boolean'},
+        ],
+        roles:['programador','migracion'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `SELECT periodobase() where $1`,
+                [parameters.ejecutar]
+            ).onNotice(function(progressInfo){
+                progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
+                context.informProgress(progressInfo);
+            }).fetchUniqueRow().then(function(result){
+                return 'periodo base calculado';
+            }).catch(function(err){
+                if(err.code=='54011!'){
+                    throw new Error('El calculo no esta abierto');
+                }
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            });
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
