@@ -884,6 +884,7 @@ my.wScreens.buscar_informante=function(addrParams){
     },50);
 }
 
+/*
 my.wScreens.correr_periodobase=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
@@ -913,3 +914,4 @@ my.wScreens.correr_periodobase=function(addrParams){
         );
     },50);
 }
+*/

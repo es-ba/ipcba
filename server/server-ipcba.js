@@ -131,7 +131,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
                 {menuType:'table', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
                 {menuType:'copia_calculo', name:'copias', label:'copias', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'correr_periodobase', name:'periodobase', label:'periodobase', onlyVisibleFor:[programador,migracion]},
+                {menuType:'proc', name:'periodobase_correr', label:'periodobase', onlyVisibleFor:[programador,migracion]},
             ]},
             {menuType:'menu', name:'administracion', label:'administración', menuContent:[
                 {menuType:'table', name:'calculos_novobs', label:'altas y bajas manuales del cálculo', onlyVisibleFor:[programador,coordinador,analista]},
