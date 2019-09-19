@@ -725,7 +725,7 @@ ProceduresIpcba = [
         ],
         policy:'web',
         progress:true,
-        roles:['programador','coordinador','analista','jefe_campo','recepcionista'],
+        roles:['programador','coordinador','analista','jefe_campo','recepcionista','supervisor'],
         coreFunction:async function(context, params){
             var be = context.be;
             var informantesArray = await context.client.query(
