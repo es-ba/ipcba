@@ -698,15 +698,17 @@ ProceduresIpcba = [
                     [parameters.token_instalacion]
                 ).fetchUniqueRow();
                 var result = await context.client.query(
-                    `select * 
-                        from reltar
-                        where encuestador = $1 and 
+                    `select r.*, i.id_instalacion, i.ipad, i.encuestador as encuestador_instalacion, p.nombre, p.apellido
+                        from reltar r
+                        left join instalaciones i using (id_instalacion)
+                        left join personal p on p.persona = i.encuestador
+                        where r.encuestador = $1 and 
                               vencimiento_sincronizacion is not null and 
                               vencimiento_sincronizacion > current_timestamp`
                     ,
                     [persona.row.persona]
-                ).fetchAll();
-                return result.rows[0]?result.rows[0]:null
+                ).fetchUniqueRow();
+                return result.row;
             }catch(err){
                 console.log('ERROR',err.message);
                 throw err;

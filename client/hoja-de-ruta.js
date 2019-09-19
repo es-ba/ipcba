@@ -1530,62 +1530,83 @@ function cargarDispositivo(tokenInstalacion, encuestador){
     return my.ajax.hojaderuta_traer({
         token_instalacion: tokenInstalacion
     }).then(function(reltarHabilitada){
-        if(reltarHabilitada){
-            var periodo = reltarHabilitada.periodo;
-            var panel = reltarHabilitada.panel;
-            var tarea = reltarHabilitada.tarea;
-            // como esto se ejecuta desde el ipad y el ipad se esta cargando hay que confirmar la CARGA del panel
-            return confirmPromise('confirma carga del período ' + periodo + ', panel ' + panel + ', tarea ' + tarea).then(function(){
-                // una vez que confirmo debe deshabilitarse el boton cargar (para no confundir al usuario)
-                // el boton debe habilitarse al final (tanto por error como por exito)
-                if(my.offline.mode){
-                    throw new Error('No se puede asignar una tarea en modo avion');
-                }
-                mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
-                var installStatus = html.p('preparando base de datos local, por favor espere...').create();
-                mainLayout.appendChild(installStatus);
-                return prepareStructures().then(function(){
-                    var promiseChain = Promise.resolve();
-                    return my.ajax.tareamodoavion_crear({
-                        periodo: periodo,
-                        panel: panel,
-                        tarea: tarea,
-                        token_instalacion: tokenInstalacion
-                    },{informProgress: function(result){
-                        var tableName = result.tableName;
-                        var data = result.data;
-                        if(tableName=='mobile_hoja_de_ruta' && result.data[0]){
-                            localStorage.setItem('nombreencuestador', result.data[0]['nombreencuestador']);
-                        }
-                        promiseChain = promiseChain.then(function(){
-                            installStatus.textContent = installStatus.textContent + '.';
-                            mainLayout.appendChild(html.p('cargando datos en tabla ' + tableName + ', por favor espere...').create());
-                            return my.ldb.putMany(tableName,data)
-                        })
-                    }}).then(function(){
-                        return promiseChain.then(function(){
-                            localStorage.setItem('descargado',JSON.stringify(false));
-                            mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-                            localStorage.setItem('periodo', periodo);
-                            localStorage.setItem('panel', panel);
-                            localStorage.setItem('tarea', tarea);
-                            localStorage.setItem('vaciado',JSON.stringify(false));
-                            var json = {
-                                periodo: periodo,
-                                panel: panel,
-                                tarea: tarea,
-                            };
-                            // history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
-                            history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_ruta');
-                            my.changeOfflineMode();
-                            return 'ok'
-                        })
+        var periodo = reltarHabilitada.periodo;
+        var panel = reltarHabilitada.panel;
+        var tarea = reltarHabilitada.tarea;
+        var cargado = reltarHabilitada.cargado;
+        var descargado = reltarHabilitada.descargado;
+        var id_instalacion = reltarHabilitada.id_instalacion;
+        var ipad = reltarHabilitada.ipad;
+        var encuestador_instalacion = reltarHabilitada.encuestador_instalacion;
+        var nombre = reltarHabilitada.nombre;
+        var apellido = reltarHabilitada.apellido;
+        var message=null;
+        if(cargado && !descargado && id_instalacion){
+            message = html.div({},[
+                html.div({class:'danger'},
+                    `El panel ${panel}, tarea ${tarea} se encuentra cargado en el 
+                        dispositivo ${ipad}, en poder de ${nombre} ${apellido} (${encuestador_instalacion})`
+                ),
+                html.div('¿desea continuar?')
+            ]).create();
+        }else{
+            message = html.div(
+                `confirma carga del período ${periodo}, panel ${panel}, tarea ${tarea}`
+            ).create();
+        }
+        // como esto se ejecuta desde el ipad y el ipad se esta cargando hay que confirmar la CARGA del panel
+        return confirmPromise(message).then(function(){
+            // una vez que confirmo debe deshabilitarse el boton cargar (para no confundir al usuario)
+            // el boton debe habilitarse al final (tanto por error como por exito)
+            if(my.offline.mode){
+                throw new Error('No se puede asignar una tarea en modo avion');
+            }
+            mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
+            var installStatus = html.p('preparando base de datos local, por favor espere...').create();
+            mainLayout.appendChild(installStatus);
+            return prepareStructures().then(function(){
+                var promiseChain = Promise.resolve();
+                return my.ajax.tareamodoavion_crear({
+                    periodo: periodo,
+                    panel: panel,
+                    tarea: tarea,
+                    token_instalacion: tokenInstalacion
+                },{informProgress: function(result){
+                    var tableName = result.tableName;
+                    var data = result.data;
+                    if(tableName=='mobile_hoja_de_ruta' && result.data[0]){
+                        localStorage.setItem('nombreencuestador', result.data[0]['nombreencuestador']);
+                    }
+                    promiseChain = promiseChain.then(function(){
+                        installStatus.textContent = installStatus.textContent + '.';
+                        mainLayout.appendChild(html.p('cargando datos en tabla ' + tableName + ', por favor espere...').create());
+                        return my.ldb.putMany(tableName,data)
+                    })
+                }}).then(function(){
+                    return promiseChain.then(function(){
+                        localStorage.setItem('descargado',JSON.stringify(false));
+                        mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
+                        localStorage.setItem('periodo', periodo);
+                        localStorage.setItem('panel', panel);
+                        localStorage.setItem('tarea', tarea);
+                        localStorage.setItem('vaciado',JSON.stringify(false));
+                        var json = {
+                            periodo: periodo,
+                            panel: panel,
+                            tarea: tarea,
+                        };
+                        // history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
+                        history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_ruta');
+                        my.changeOfflineMode();
+                        return 'ok'
                     })
                 })
             })
-        }else{
-            mainLayout.appendChild(html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador).create());
-        }
+        }).catch(function(err){
+            mainLayout.appendChild(html.p('carga cancelada').create());    
+        })
+    }).catch(function(err){
+        mainLayout.appendChild(html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador).create());
     })
 }
 
