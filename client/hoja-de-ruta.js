@@ -648,6 +648,7 @@ myOwn.clientSides.parseProducto={
         var div = html.div({class:'producto'}).create();
         div.appendChild(html.div({class:'nombre-producto'}, depot.row['productocompleto'].nombreproducto).create());
         div.appendChild(html.div({class:'especificacion-producto', 'my-collapsable':'true'}, depot.row['productocompleto'].especificacioncompleta).create());
+        div.appendChild(html.div({class:'comentario-mes-anterior', 'my-collapsable':'true'}, depot.row.esvisiblecomentarioendm_1?depot.row.comentariosanterior:null).create());
         depot.rowControls[fieldName].innerHTML='';
         depot.rowControls[fieldName].appendChild(div);
     },
