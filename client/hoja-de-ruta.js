@@ -408,19 +408,18 @@ myOwn.clientSides.controlarRazonesNegativas={
             }
         };
         my.wait4preciosGrid.then(function(preciosGrid){
-            var message = "Usted eligió la razón de no contacto \"$$razon\" $$nombre_razon. \n Se borrarán " + preciosGrid.depots.length + " precios ingresados. \n Confirme el numero de precios a borrar"
             var preDialogFun = function preDialogFun(typedControl, typedValue){
                 return Promise.resolve().then(function(){
                     var razonEncontrada = razonesEncuestador.find(function(razon){
                         return razon.razon == typedValue;
                     });
-                    typedControl.dialogPromiseSetup.message = typedControl.dialogPromiseSetup.message.replace('$$razon', razonEncontrada.razon);
-                    typedControl.dialogPromiseSetup.message = typedControl.dialogPromiseSetup.message.replace('$$nombre_razon', razonEncontrada.nombrerazon);
+                    typedControl.dialogPromiseSetup.opts = changing(opts,{});
+                    typedControl.dialogPromiseSetup.message = `Eligió la razón de no contacto "${razonEncontrada.razon}" ${razonEncontrada.nombrerazon}. \n Se borrarán ${preciosGrid.depots.length} precios ingresados. \n Confirme el numero de precios a borrar`;
                 })
             }
             var dialogPromiseSetup = {
-                message: message, 
-                opts: opts, 
+                message:null,
+                opts: changing(opts,{}), 
                 ignoreValues: ignoreValues, 
                 dialogType: 'promptPromise', 
                 expectedValue: preciosGrid.depots.length,
