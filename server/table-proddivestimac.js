@@ -12,9 +12,9 @@ module.exports = function(context){
             update:puedeEditar,
         },	
         fields:[
-            {name:'producto'                    , typeName:'text'    , nullable:false},
-            {name:'division'                    , typeName:'text'    , nullable:false},
-            {name:'estimacion'                  , typeName:'integer' , nullable:false},
+            {name:'producto'                    , typeName:'text'    , nullable:false, allow:{update:false}},
+            {name:'division'                    , typeName:'text'    , nullable:false, allow:{update:false}},
+            {name:'estimacion'                  , typeName:'integer' , nullable:false, allow:{update:false}},
             {name:'umbralpriimp'                , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'umbraldescarte'              , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'umbralbajaauto'              , typeName:'integer' , allow:{update:puedeEditar}},

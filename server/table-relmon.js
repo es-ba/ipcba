@@ -12,8 +12,8 @@ module.exports = function(context){
             update:puedeEditar,
         },	
         fields:[
-            {name:'periodo'                  , typeName:'text'    , nullable:false},
-            {name:'moneda'                   , typeName:'text'    , nullable:false},
+            {name:'periodo'                  , typeName:'text'    , nullable:false, allow:{update:false}},
+            {name:'moneda'                   , typeName:'text'    , nullable:false, allow:{update:false}},
             {name:'valor_pesos'              , typeName:'decimal' , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','moneda'],
