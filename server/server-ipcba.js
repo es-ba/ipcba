@@ -198,8 +198,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'filtravarios_caldiv', name:'caldiv_vw_varios', label:'vista de caldiv varios', onlyVisibleFor:[programador]},
                 {menuType:'table', name:'calculos_calgru_vw'                     , label:'vista de calgru', onlyVisibleFor:[programador,coordinador,analista]},
                 //{menuType:'table', name:'periodos_control_observaciones'         , label:'vista de control de observaciones', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'periodos_control_comentariosrelvis'     , label:'vista de control de comentarios por formulario', onlyVisibleFor:[programador,coordinador,jefeCampo,analista]},
-                {menuType:'table', name:'periodos_control_comentariosrelpre'     , label:'vista de control de comentarios por producto', onlyVisibleFor:[programador,coordinador,jefeCampo,analista]},
+                {menuType:'table', name:'periodos_control_comentariosrelvis'     , label:'vista de control de comentarios por formulario', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
+                {menuType:'table', name:'periodos_control_comentariosrelpre'     , label:'vista de control de comentarios por producto', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
             ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
             {menuType:'menu', name:'informantes', menuContent:[
                 {menuType:'table', name:'infreempdir'                           , label:'administración de reemplazos'             },

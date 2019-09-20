@@ -1,15 +1,20 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='admin';
+    var puedeEditar = context.user.usu_rol ==='programador'|| context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'relmon',
         //title:'Relmon',
         editable:puedeEditar,
+        allow:{
+            insert:false,
+            delete:false,
+            update:puedeEditar,
+        },	
         fields:[
             {name:'periodo'                  , typeName:'text'    , nullable:false},
             {name:'moneda'                   , typeName:'text'    , nullable:false},
-            {name:'valor_pesos'              , typeName:'decimal'      },
+            {name:'valor_pesos'              , typeName:'decimal' , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','moneda'],
         foreignKeys:[

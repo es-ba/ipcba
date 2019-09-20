@@ -17,6 +17,7 @@ module.exports = function(context){
             {name:'nombreproducto'               ,typeName:'text'   },
             {name:'observacion'                  ,typeName:'integer'},
             {name:'tipoprecio'                   ,typeName:'text'   },
+            {name:'esvisiblecomentarioendm'      ,typeName:'boolean', title:'Ver'},
             {name:'comentariosrelpre'            ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','producto','visita','observacion'],
