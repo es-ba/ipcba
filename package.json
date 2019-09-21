@@ -4,13 +4,32 @@
   "private": true,
   "description": "Indice de Precios al Consumidor",
   "dependencies": {
+    "@material-ui/core": "~4.4.1",
+    "@material-ui/icons": "~4.4.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "redux": "^4.0.4",
+    "react-redux": "^7.1.1",
     "backend-plus": "~0.30.29",
+    "ajax-best-promise": "^0.3.7",
+    "best-globals": "^0.10.23",
+    "like-ar": "^0.2.16",
     "pg-triggers": "~0.2.3"
   },
   "devDependencies": {
-    "types.d.ts": "~0.4.8"
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "@types/react-redux": "^7.1.2",
+    "source-map-loader": "^0.2.4",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.6.2",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8",
+    "server4test": "^0.5.1",
+    "types.d.ts": "^0.4.8"
   },
   "scripts": {
-    "start": "node server/server-ipcba.js"
+    "start": "node server/server-ipcba.js",
+    "demo-dm": "cd demo && node ../node_modules/server4test/lib/launch4test.js && cd .."
   }
 }
