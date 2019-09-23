@@ -20,7 +20,7 @@ module.exports = function(context){
             {name:'activo'            , typeName:'text'    , nullable:false, default:'S', defaultValue:'S', allow:{update:puedeEditar}},
             {name:'super_labor'       , typeName:'text'    , default:'N', defaultValue:'N'                , allow:{update:puedeEditar}},
             {name:'id_instalacion'    , typeName:'integer'                               , allow:{update:false      }},
-            {name:'ipad'              , typeName:'text'    , editable:false              , allow:{update:puedeEditar}},
+            {name:'ipad'              , typeName:'text'    , editable:false              , allow:{update:false}},
         ],
         primaryKey:['persona'],
         foreignKeys:[
