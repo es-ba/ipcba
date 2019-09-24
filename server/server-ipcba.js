@@ -80,6 +80,15 @@ class AppIpcba extends backendPlus.AppBackend{
             version: 0.1
             deviceWidthForMobile: 768px
             user-scalable: no
+          install:
+            dump:
+              skip-content: true
+              scripts:
+                prepare: 
+                - cvp-db-types.sql
+                - cvp-db-domains.sql
+                - schema-comun.sql
+                - fun-calobs_promedio.sql
           logo: 
             path: client/img
         `);
