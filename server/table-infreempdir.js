@@ -22,7 +22,7 @@ module.exports = function(context){
             {name:'nombrerubro'                , typeName:'text'                      , allow:{update:false}      },
             {name:'conjuntomuestral'           , typeName:'integer', title:'CM'       , allow:{update:false}      },
             {name:'formularios'                , typeName:'text'                      , allow:{update:false}      },
-            {name:'direccionalternativa'       , typeName:'text'   , nullable:false   , allow:{update:puedeEditar}, postInput:'upperSpanish'},
+            {name:'direccionalternativa'       , typeName:'text'                      , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'comentariorecep'            , typeName:'text'                      , allow:{update:puedeEditar}},
             {name:'nombreinformantealternativo', typeName:'text'                      , allow:{update:puedeEditar}},
             {name:'reemplazo'                  , typeName:'integer'                   , allow:{update:puedeEditar}},
