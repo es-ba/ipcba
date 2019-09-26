@@ -107,3 +107,8 @@ CREATE TYPE cvp.res_mat2 AS (
 	cabezal1 text,
 	celda text
 );
+
+CREATE TYPE cvp.tarea_puntos AS (
+	tarea integer,
+	puntos integer
+);

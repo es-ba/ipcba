@@ -88,7 +88,33 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
+                - fun-caldiv_bajar.sql
+                - fun-caldiv_contar.sql
+                - fun-caldiv_impext.sql
+                - fun-caldiv_promfinal.sql
+                - fun-caldiv_prompriimp.sql
+                - fun-caldiv_promsegimp.sql
+                - fun-caldiv_rellenar.sql
+                - fun-caldiv_subir.sql
+                - fun-calgru_canasta_variacion.sql
+                - fun-calgru_indexar.sql
+                - fun-calgru_info.sql
+                - fun-calgru_insertar.sql
+                - fun-calgru_segimp.sql
+                - fun-calgru_segimpunpaso.sql
+                - fun-calgru_valorizar.sql
+                - fun-calhog_subtotalizar.sql
+                - fun-calhog_subtotalizar_unhog.sql
+                - fun-calhog_valorizar.sql
+                - fun-calhog_valorizar_unhog.sql
+                - fun-calobs_altasybajas.sql
+                - fun-calobs_extraer.sql
+                - fun-calobs_impperbase.sql
+                - fun-calobs_priimp.sql
                 - fun-calobs_promedio.sql
+                - fun-calobs_rellenar.sql
+                - fun-calobs_segimp.sql
+                - fun-calobs_segimp_perbase.sql
           logo: 
             path: client/img
         `);
