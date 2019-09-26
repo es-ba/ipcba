@@ -47,7 +47,7 @@ module.exports = function(context){
             {references:'razones'    , fields:['razon']},            
             {references:'personal'   , fields:[{source:'encuestador'  , target:'persona'  }]},
             {references:'personal'   , fields:[{source:'ingresador'   , target:'persona'  }], alias:'pering'},
-            //{references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'},
+            {references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'},
             //{references:'personal'   , fields:[{source:'supervisor'   , target:'persona'  }], alias:'persup'},
         ],
         softForeignKeys:[
