@@ -1356,7 +1356,7 @@ myOwn.wScreens.preparar_instalacion={
                         html.p({},[
                             html.span({class:'danger'},'El encuestador ' + ipadSinDescargar.nombre_encuestador + 
                             ' ' + ipadSinDescargar.apellido_encuestador + ' tiene el ipad ' + 
-                                ipadSinDescargar.ipad + ' sin descargar!'
+                                ipadSinDescargar.ipad + ' sin descargar, se perderán los datos del dispositivo!'
                             )
                         ])
                     .create());
