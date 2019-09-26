@@ -940,10 +940,10 @@ ProceduresIpcba = [
                             try{
                                 await context.client.query(`
                                     update relvis
-                                    set razon = $1, comentarios = $6
+                                    set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
                                     where periodo = $2 and informante = $3 and visita = $4 and formulario = $5
                                     --pk verificada`
-                                ,[row.razon, row.periodo, row.informante, row.visita, row.formulario, row.comentarios]).execute()
+                                ,[row.razon, row.periodo, row.informante, row.visita, row.formulario, row.comentarios, context.user.usu_usu]).execute()
                             }catch(err){
                                 throw new Error('Error al actualizar razón para el informante: ' + row.informante + ', formulario: ' + row.formulario + '. '+ err.message);
                             }

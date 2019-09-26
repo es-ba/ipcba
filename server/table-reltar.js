@@ -16,7 +16,7 @@ module.exports = function(context){
             {name:'panel'                      , typeName:'integer'  , nullable:false            , allow:{update:puedeEditarMigracion}},
             {name:'tarea'                      , typeName:'integer'  , nullable:false            , allow:{update:puedeEditarMigracion}},
             {name:'supervisor'                 , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'encuestador'                , typeName:'text'                                 , allow:{update:puedeEditarMigracion}},
+            {name:'encuestador'                , typeName:'text'                                 , allow:{update:puedeEditar}},
             {name:'realizada'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'resultado'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'observaciones'              , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},

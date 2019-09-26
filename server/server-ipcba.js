@@ -140,14 +140,6 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     getMenu(context){
-        if(this.config.server.policy=='web'){
-            return {menu:[
-                {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
-                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false},
-                {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
-                {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
-            ]};
-        }
         var programador = {role:'programador'};
         var coordinador = {role:'coordinador'};
         var analista = {role:'analista'};
@@ -156,6 +148,14 @@ class AppIpcba extends backendPlus.AppBackend{
         var supervisor = {role:'supervisor'};
         var recepGabinete = {role:'recep_gabinete'};
         var migracion = {role:'migracion'};
+        if(this.config.server.policy=='web'){
+            return {menu:[
+                {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true},
+                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador, analista, coordinador, jefeCampo]},
+                {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
+                {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
+            ]};
+        }
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
