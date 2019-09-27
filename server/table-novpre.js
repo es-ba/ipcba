@@ -2,6 +2,7 @@
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
+    var puedeEditarRecep = context.user.usu_rol ==='recepcionista';
     return context.be.tableDefAdapt({
         name:'novpre',
         //title:'Anulación de precios',
@@ -13,11 +14,11 @@ module.exports = function(context){
             import: puedeEditar,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false                       },
-            {name:'producto'                         , typeName:'text'    , nullable:false                       },
-            {name:'informante'                       , typeName:'integer' , nullable:false                       },
-            {name:'observacion'                      , typeName:'integer' , nullable:false                       },
-            {name:'visita'                           , typeName:'integer' , nullable:false                       },
+            {name:'periodo'                          , typeName:'text'    , nullable:false , allow:{update:puedeEditar}},
+            {name:'producto'                         , typeName:'text'    , nullable:false , allow:{update:puedeEditar}},
+            {name:'informante'                       , typeName:'integer' , nullable:false , allow:{update:puedeEditar}},
+            {name:'observacion'                      , typeName:'integer' , nullable:false , allow:{update:puedeEditar}},
+            {name:'visita'                           , typeName:'integer' , nullable:false , allow:{update:puedeEditar}},
             {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}},
             {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
             {name:'recepcionista'                    , typeName:'text'                     , allow:{update:false}},
@@ -27,10 +28,10 @@ module.exports = function(context){
             {name:'tarea'                            , typeName:'integer'                  , allow:{update:false}},
             {name:'infopre'                          , typeName:'text'                     , allow:{update:false}},
             {name:'infopreant'                       , typeName:'text'                     , allow:{update:false}},
-            {name:'confirma'                         , typeName:'boolean' , nullable:false                       },
-            {name:'comentarios'                      , typeName:'text'                                           },
-            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                                        },
-            {name:'comentarios_recep', title:'Recepcion', typeName:'text'                                        },
+            {name:'confirma'                         , typeName:'boolean' , nullable:false , allow:{update:puedeEditar}},
+            {name:'comentarios'                      , typeName:'text'                     , allow:{update:puedeEditar}},
+            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                  , allow:{update:puedeEditar}},
+            {name:'comentarios_recep', title:'Recepcion', typeName:'text'                  , allow:{update:puedeEditar||puedeEditarRecep}},
         ],
         /*
         filterColumns:[
