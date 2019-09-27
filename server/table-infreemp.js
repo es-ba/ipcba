@@ -13,7 +13,7 @@ module.exports = function(context){
         fields:[
             {name:'id_informante_reemplazante' , typeName:'integer'  , nullable:false, sequence:{name: 'secuencia_informantes_reemplazantes', firstValue: 1}},
             {name:'informante'                 , typeName:'integer'  , nullable:false            , allow:{update:puedeEditar}},
-            {name:'direccionalternativa'       , typeName:'text'     ,                           , allow:{update:puedeEditar}},
+            {name:'direccionalternativa'       , typeName:'text'                                 , allow:{update:puedeEditar}},
             {name:'nombreinformantealternativo', typeName:'text'                                 , allow:{update:puedeEditar}},
             {name:'comentariorecep'            , typeName:'text'                                 , allow:{update:puedeEditar}},
             {name:'comentarioana'              , typeName:'text'                                 , allow:{update:puedeEditar}},
