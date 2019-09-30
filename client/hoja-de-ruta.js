@@ -1474,49 +1474,6 @@ function prepareStructures(){
         var connector=createConnectorForTable('prodatrval');
         return connector.getStructure(opts);
     })
-    /*promiseChain=promiseChain.then(function(){
-        var allStructures = [];
-        var connector=createConnectorForTable('mobile_hoja_de_ruta');
-        wait4AllStructures=connector.getStructure().then(function(structure){
-            return my.getStructuresToRegisterInLdb(structure,[]).then(function(structuresToRegister){
-                allStructures = allStructures.concat(structuresToRegister);
-                return allStructures;
-            })
-        })
-        var connector=createConnectorForTable('prodatrval');
-        wait4AllStructures = wait4AllStructures.then(function(){
-            return connector.getStructure().then(function(structure){
-                return my.getStructuresToRegisterInLdb(structure,[]).then(function(structuresToRegister){
-                    allStructures = allStructures.concat(structuresToRegister);
-                })
-            })
-        })
-        wait4AllStructures.then(function(){
-            var anotherPromiseChain=Promise.resolve();
-            allStructures.forEach(function(structureToRegister){
-                anotherPromiseChain = anotherPromiseChain.then(function(){
-                    return my.ldb.registerStructure(structureToRegister);
-                });
-            });
-            return anotherPromiseChain;
-        });
-        return wait4AllStructures;
-    });*/
-
-    /*promiseChain=promiseChain.then(function(){
-        var connector=createConnectorForTable('prodatrval');
-        return connector.getStructure().then(function(structure){
-            return my.getStructuresToRegisterInLdb(structure,[]).then(function(structuresToRegister){
-                var anotherPromiseChain=Promise.resolve();
-                structuresToRegister.forEach(function(structureToRegister){
-                    anotherPromiseChain = anotherPromiseChain.then(function(){
-                        return my.ldb.registerStructure(structureToRegister);
-                    });
-                });
-                return anotherPromiseChain;
-            })
-        })
-    });*/
     promiseChain=promiseChain.then(function(){
         return saveReferenceTableInLocalStorage('tipopre_encuestador');
     });
@@ -1540,22 +1497,8 @@ function cargarDispositivo(tokenInstalacion, encuestador){
         var encuestador_instalacion = reltarHabilitada.encuestador_instalacion;
         var nombre = reltarHabilitada.nombre;
         var apellido = reltarHabilitada.apellido;
-        var message=null;
-        if(cargado && !descargado && id_instalacion){
-            message = html.div({},[
-                html.div({class:'danger'},
-                    `El panel ${panel}, tarea ${tarea} se encuentra cargado en el 
-                        dispositivo ${ipad}, en poder de ${nombre} ${apellido} (${encuestador_instalacion})`
-                ),
-                html.div('¿desea continuar?')
-            ]).create();
-        }else{
-            message = html.div(
-                `confirma carga del período ${periodo}, panel ${panel}, tarea ${tarea}`
-            ).create();
-        }
-        // como esto se ejecuta desde el ipad y el ipad se esta cargando hay que confirmar la CARGA del panel
-        return confirmPromise(message).then(function(){
+        var hojaDeRutaEnOtroDispositivo = cargado && !descargado && id_instalacion;
+        var cargarFun = function cargarFun(){
             // una vez que confirmo debe deshabilitarse el boton cargar (para no confundir al usuario)
             // el boton debe habilitarse al final (tanto por error como por exito)
             if(my.offline.mode){
@@ -1590,21 +1533,41 @@ function cargarDispositivo(tokenInstalacion, encuestador){
                         localStorage.setItem('panel', panel);
                         localStorage.setItem('tarea', tarea);
                         localStorage.setItem('vaciado',JSON.stringify(false));
-                        var json = {
-                            periodo: periodo,
-                            panel: panel,
-                            tarea: tarea,
-                        };
-                        // history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_de_ruta&up='+JSON.stringify(json)+'&autoproced=true');
                         history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_ruta');
                         my.changeOfflineMode();
                         return 'ok'
                     })
                 })
             })
-        }).catch(function(err){
-            mainLayout.appendChild(html.p('carga cancelada').create());    
-        })
+        }
+        if(hojaDeRutaEnOtroDispositivo){
+            mainLayout.appendChild(html.div({},[
+                html.div({class:'danger'}, `El panel ${panel}, tarea ${tarea} se encuentra cargado en el  dispositivo ${ipad}, 
+                    en poder de ${nombre} ${apellido} (${encuestador_instalacion}). Si continua no se podrá descargar
+                    el dispositivo.`
+                )
+            ]).create());
+            var inputForzar = html.input({class:'input-forzar'}).create();
+            mainLayout.appendChild(html.div([
+                html.div(['Se puede forzar la carga ',inputForzar])
+            ]).create());
+            var clearButton = html.button({class:'load-ipad-button'},'forzar carga').create();
+            mainLayout.appendChild(clearButton);
+            clearButton.onclick = function(){
+                if(inputForzar.value=='forzar'){
+                    confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton}).then(function(){
+                        clearButton.disabled=true;
+                        cargarFun()
+                    });
+                }else{
+                    alertPromise('si necesita cargar el D.M. escriba forzar.',{underElement:clearButton})
+                }
+            }
+        }else{
+            return confirmPromise(`confirma carga del período ${periodo}, panel ${panel}, tarea ${tarea}`).then(cargarFun).catch(function(err){
+                mainLayout.appendChild(html.p('carga cancelada').create());    
+            })
+        }
     }).catch(function(err){
         mainLayout.appendChild(html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador).create());
     })
@@ -1714,8 +1677,8 @@ myOwn.wScreens.vaciar=function(){
                         var inputForzar = html.input({class:'input-forzar'}).create();
                         if(!fueDescargadoAntes){
                             mainLayout.appendChild(html.div([
-                                html.div({class:'warning'},'El dispositivo todavía no fue descargado'),
-                                html.div(['Se puede forzar la descarga ',inputForzar])
+                                html.div({class:'danger'},'El dispositivo todavía no fue descargado'),
+                                html.div(['Se puede forzar el vaciado ',inputForzar])
                             ]).create());
                         }
                         mainLayout.appendChild(clearButton);
