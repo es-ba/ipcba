@@ -2,6 +2,7 @@
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
+    var puedeEditarRecep = context.user.usu_rol ==='recepcionista';
     return context.be.tableDefAdapt({
         name:'novobs',
         //title:'Altas y bajas manuales del cálculo',
@@ -13,11 +14,11 @@ module.exports = function(context){
             import: puedeEditar,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false                       },
-            {name:'calculo'                          , typeName:'integer' , nullable:false, visible: false       },
-            {name:'producto'                         , typeName:'text'    , nullable:false                       },
-            {name:'informante'                       , typeName:'integer' , nullable:false                       },
-            {name:'observacion'                      , typeName:'integer' , nullable:false                       },
+            {name:'periodo'                          , typeName:'text'    , nullable:false                , allow:{update:puedeEditar}},
+            {name:'calculo'                          , typeName:'integer' , nullable:false, visible: false, allow:{update:puedeEditar}},
+            {name:'producto'                         , typeName:'text'    , nullable:false                , allow:{update:puedeEditar}},
+            {name:'informante'                       , typeName:'integer' , nullable:false                , allow:{update:puedeEditar}},
+            {name:'observacion'                      , typeName:'integer' , nullable:false                , allow:{update:puedeEditar}},
             {name:'visita'                           , typeName:'text'                     , allow:{update:false}},
             {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}},
             {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
@@ -25,10 +26,10 @@ module.exports = function(context){
             {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}},
             {name:'panel'                            , typeName:'text'                     , allow:{update:false}},
             {name:'tarea'                            , typeName:'text'                     , allow:{update:false}},
-            {name:'estado'                           , typeName:'text'    , nullable:false                       },
-            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                                        },
-            {name:'comentarios'                      , typeName:'text'                                           },
-            {name:'comentarios_recep'                , typeName:'text'                                           },
+            {name:'estado'                           , typeName:'text'    , nullable:false , allow:{update:puedeEditar}},
+            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                  , allow:{update:puedeEditar}},
+            {name:'comentarios'                      , typeName:'text'                     , allow:{update:puedeEditar}},
+            {name:'comentarios_recep'                , typeName:'text'                     , allow:{update:puedeEditar||puedeEditarRecep}},
         ],
         primaryKey:['periodo','calculo','producto','informante','observacion'],
         foreignKeys:[
