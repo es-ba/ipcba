@@ -889,7 +889,7 @@ ProceduresIpcba = [
                 var result = await context.client.query(
                     `insert into instalaciones (token_instalacion, fecha_hora, encuestador, ipad, version_sistema, token_original) 
                         values (md5($1), $2, $3, $4, $5, coalesce($6,md5($1)))
-                        returning token_instalacion, encuestador, ipad`
+                        returning id_instalacion, token_instalacion, fecha_hora, encuestador, ipad`
                     ,
                     [token, now, params.numero_encuestador, params.numero_ipad,params.version_sistema, params.token_original]
                 ).fetchUniqueRow();

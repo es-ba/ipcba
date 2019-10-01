@@ -1419,6 +1419,33 @@ myOwn.wScreens.preparar_instalacion={
         })
     }
 };
+myOwn.wScreens.instalacion_actual=function(addrParams){
+    var mainLayout = document.getElementById('main_layout');
+    var instalacionDiv = html.table({id:'local-install', class:'my-grid'},[
+        html.caption('datos dispositivo'),
+        html.tr({},[
+            html.th('id_instalacion'),
+            html.td(localStorage.getItem('id_instalacion')||'-')
+        ]),
+        html.tr({},[
+            html.th('token_instalacion'),
+            html.td(localStorage.getItem('token_instalacion')||'-')
+        ]),
+        html.tr({},[
+            html.th('fecha instalacion'),
+            html.td(localStorage.getItem('fecha_hora_instalacion')||'-')
+        ]),
+        html.tr({},[
+            html.th('encuestador'),
+            html.td(localStorage.getItem('encuestador')||'-')
+        ]),
+        html.tr({},[
+            html.th('dispositivo'),
+            html.td(localStorage.getItem('ipad')||'-')
+        ])
+    ]).create();
+    mainLayout.appendChild(instalacionDiv)
+}
 
 function install(numeroEncuestador, numeroIpad, divResult){
     var waitGif=html.img({src:'img/loading16.gif'}).create()
@@ -1430,7 +1457,9 @@ function install(numeroEncuestador, numeroIpad, divResult){
         token_original: localStorage.getItem('token_instalacion'),
         version_sistema: getVersionSistema()
     }).then(function(token){
+        localStorage.setItem('id_instalacion', token.id_instalacion);
         localStorage.setItem('token_instalacion', token.token_instalacion);
+        localStorage.setItem('fecha_hora_instalacion', token.fecha_hora.toYmdHms());
         localStorage.setItem('encuestador', token.encuestador);
         localStorage.setItem('ipad', token.ipad);
         localStorage.removeItem('descargado');
