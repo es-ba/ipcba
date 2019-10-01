@@ -23,11 +23,6 @@ module.exports = function(context){
         foreignKeys:[
             {references:'proddiv' , fields:['producto','division']},
             {references:'productos', fields:['producto']},
-        ],
-        constraints:[
-            {constraintType:'unique', fields:['producto', 'sindividir']},
-            {constraintType:'unique', fields:['producto','incluye_supermercados']},
-            {constraintType:'unique', fields:['producto','incluye_tradicionales']}
         ]
     },context);
 }

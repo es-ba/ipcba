@@ -4,7 +4,8 @@ module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='analista';
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
-        name:'productos',
+        name:'productos_vw',
+		tableName:'productos',
         //title:'Productos',
         allow:{
             insert:puedeEditarMigracion,
@@ -32,6 +33,7 @@ module.exports = function(context){
             {name:'serepregunta'                , typeName:'boolean'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'nombreparapublicar'          , typeName:'text'                                    , allow:{update:puedeEditarMigracion}},
             {name:'calculo_desvios'             , typeName:'text', default:'N', defaultValue:'N'     , allow:{update:puedeEditarMigracion}},
+            {name:'compatible'                  , typeName:'boolean'                                 , allow:{update:false}},
          ],
 		primaryKey:['producto'],
         foreignKeys:[
@@ -45,6 +47,12 @@ module.exports = function(context){
             {table:'proddiv', abr:'DIV', label:'Divisiones', fields:['producto']},
             {table:'forprod', abr:'FOR', label:'Formularios', fields:['producto']},
             {table:'prodcontrolrangos', abr:'CTRL', label:'Contol Rangos', fields:['producto']},
-        ]
+        ],
+        sql:{
+            from:`(select p.*, 
+                CASE WHEN unidadmedidaabreviada is not null then cvp.validar_unidadmedidaabreviada(producto) else null end as compatible
+                   FROM productos p
+                )`
+        }
     },context);
 }

@@ -8,6 +8,7 @@ module.exports = function(context){
     defNewElement=changing(defNewElement,{
         name:'razones_encuestador',
         policy:'web',
+        dbOrigin:'view',
         editable:false,
         allow:{
             insert: false,

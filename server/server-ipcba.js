@@ -88,6 +88,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
+                adapt: 
                 - fun-caldiv_bajar.sql
                 - fun-caldiv_contar.sql
                 - fun-caldiv_impext.sql
@@ -115,6 +116,10 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calobs_rellenar.sql
                 - fun-calobs_segimp.sql
                 - fun-calobs_segimp_perbase.sql
+                - fun-calprod_indexar.sql
+                - fun-calprod_valorizar.sql
+                - trg-actualizar_estado_informante_trg.sql
+                - trg-actualizar_periodo_panelrotativo_trg.sql
           logo: 
             path: client/img
         `);
@@ -424,6 +429,7 @@ class AppIpcba extends backendPlus.AppBackend{
 			'forinf',
             'formularios',
             'productos',
+            'productos_vw',
             'novobs',
             'novobs_recep',
             'novpre',
@@ -439,6 +445,7 @@ class AppIpcba extends backendPlus.AppBackend{
             'forprod',
             'atributos',
             'prodatr',
+            'prodatr_vw',
             'prodatrval',
             'divisiones',
             'hogares',

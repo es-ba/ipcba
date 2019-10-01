@@ -10,7 +10,7 @@ module.exports = function(context){
             update:false,
         },
         fields:[
-            {name:'id_instalacion'    , typeName:'integer'   , nullable:false, sequence:{name: 'secuencia_bitacora', firstValue: 1}},
+            {name:'id_instalacion'    , typeName:'integer'   , nullable:false, sequence:{name: 'secuencia_instalaciones', firstValue: 1}},
             {name:'fecha_hora'        , typeName:'timestamp' , nullable:false},
             {name:'encuestador'       , typeName:'text'      , nullable:false},
             {name:'ipad'              , typeName:'text'      , nullable:false},
