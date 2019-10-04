@@ -17,6 +17,7 @@ module.exports = function(context){
         },
     });
     defNewElement.sql={
+        isTable: false,
         where: `visibleparaencuestador='S'`,    
         orderBy:['orden']
     };

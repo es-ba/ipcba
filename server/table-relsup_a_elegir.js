@@ -30,6 +30,13 @@ module.exports = function(context){
             {references:'periodos', fields:[
                 {source:'periodo'       , target:'periodo'     },
             ]},
-        ]
+        ],
+        sql:{
+            from:`(
+                select periodo, panel, supervisor, disponible, motivonodisponible
+                   from relsup
+                )`,
+            isTable: false,
+            }
     }, context);
 }

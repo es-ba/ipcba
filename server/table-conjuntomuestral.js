@@ -3,7 +3,8 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
-        name:'conjuntomuestral',
+        name:'conjuntomuestral_vw',
+		tableName:'conjuntomuestral',
         editable:puedeEditar,
         allow:{
             insert:puedeEditar,
@@ -15,8 +16,8 @@ module.exports = function(context){
             {name:'encuestador'                 , typeName:'text'   , allow:{update:puedeEditar}},
             {name:'panel'                       , typeName:'integer', allow:{update:puedeEditar}},
             {name:'tiponegociomuestra'          , typeName:'integer', allow:{update:puedeEditar}},
-            {name:'paneles'                     , typeName:'text', allow:{update:false}},
-            {name:'tareas'                      , typeName:'text', allow:{update:false}},
+            {name:'paneles'                     , typeName:'text', allow:{update:false}, inTable:false},
+            {name:'tareas'                      , typeName:'text', allow:{update:false}, inTable:false},
         ],
         primaryKey:['conjuntomuestral'],
         sql:{
@@ -31,7 +32,7 @@ module.exports = function(context){
                    LEFT JOIN informantes i ON c.conjuntomuestral = i.conjuntomuestral
                    LEFT JOIN relvis r ON i.informante=r.informante
                    WHERE r.periodo is null or r.periodo>='` + context.be.internalData.filterUltimoPeriodo + `' group by c.conjuntomuestral, c.encuestador, c.panel, c.tiponegociomuestra)`,
-
+          isTable:true,
         }
     },context);
 }

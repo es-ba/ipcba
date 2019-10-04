@@ -17,5 +17,11 @@ module.exports = function(context){
         ],
         sortColumns:[{column:'periodo', order:-1}],
         primaryKey:['periodo'],
+        sql:{
+            from:`(
+                select periodo, ano, mes, visita, ingresando, fechageneracionperiodo, cerraringresocampohastapanel
+                   from periodos
+                )`
+        }
     },context);
 }

@@ -17,7 +17,8 @@ module.exports = function(context){
                 {source:'cuadro'  , target:'cuadro'     },
             ]},
             {references:'grupos', fields:[
-                {source:'agrupacion'  , target:'grupo'     },
+                {source:'agrupacion'   , target:'agrupacion'},
+                {source:'grupo'        , target:'grupo'     },
             ]},            
         ]
     },context);

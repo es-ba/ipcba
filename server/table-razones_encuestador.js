@@ -8,7 +8,6 @@ module.exports = function(context){
     defNewElement=changing(defNewElement,{
         name:'razones_encuestador',
         policy:'web',
-        dbOrigin:'view',
         editable:false,
         allow:{
             insert: false,
@@ -18,6 +17,7 @@ module.exports = function(context){
         },
     });
     defNewElement.sql={
+        isTable: false,
         where: `visibleparaencuestador='S'`
     };
     return context.be.tableDefAdapt(defNewElement, context);

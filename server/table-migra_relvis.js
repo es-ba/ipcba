@@ -4,8 +4,9 @@ module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete';
 	var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
-        name:'relvis',
+        name:'migra_relvis',
         title:'Relvis',
+        tableName:'relvis',
         editable:puedeEditar||puedeEditarMigracion,
         allow:{
             insert:puedeEditar||puedeEditarMigracion,
@@ -70,16 +71,16 @@ module.exports = function(context){
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
                   v.fechageneracion, f.orden, i.direccion, 
-				  CASE WHEN rec.labor = 'R' THEN rec.persona 
+                  CASE WHEN rec.labor = 'R' THEN rec.persona 
                        WHEN per.labor = 'R' THEN per.persona 
                        ELSE rec.persona END operadorrec                 
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario
-				  left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
-				  left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
-				  and per.activo = 'S' and rec.persona is distinct from per.persona
-				  )`,
+                  left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
+                  left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
+                  and per.activo = 'S' and rec.persona is distinct from per.persona
+                  )`,
         }        
     },context);
 }

@@ -31,11 +31,11 @@ module.exports = function(context){
             {name:'ultima_visita'             , typeName:'boolean'                             , allow:{update:false}, visible:false},
             {name:'verificado_rec'            , typeName:'text'                                , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'fechageneracion'           , typeName:'timestamp'                           , allow:{update:false}, visible:false},
-            {name:'orden'                     , typeName:'integer'                             , allow:{update:false}, visible:false},
-            {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false},
-            {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false},
-            {name:'direccion'                 , typeName:'text'                                , allow:{update:false}, visible:false},
-            {name:'operadorrec'               , typeName:'text'                                , allow:{update:false}, visible:false},
+            {name:'orden'                     , typeName:'integer'                             , allow:{update:false}, visible:false, inTable:false},
+            {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
+            {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
+            {name:'direccion'                 , typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
+            {name:'operadorrec'               , typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sortColumns:[{column:'direccion'},{column:'orden'},{column:'visita'}],
@@ -69,16 +69,17 @@ module.exports = function(context){
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
                   v.fechageneracion, f.orden, i.direccion, 
-				  CASE WHEN rec.labor = 'R' THEN rec.persona 
+                  CASE WHEN rec.labor = 'R' THEN rec.persona 
                        WHEN per.labor = 'R' THEN per.persona 
                        ELSE rec.persona END operadorrec                 
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario
-				  left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
-				  left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
-				  and per.activo = 'S' and rec.persona is distinct from per.persona
-				  )`,
-        }        
+                  left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
+                  left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
+                  and per.activo = 'S' and rec.persona is distinct from per.persona
+                  )`,
+            isTable:true,
+                }        
     },context);
 }
