@@ -23,7 +23,7 @@ module.exports = function(context){
             {name:'encuestador'               , typeName:'text'                                , allow:{update:puedeEditar}, title:'enc'    },
             {name:'ingresador'                , typeName:'text'                                , allow:{update:puedeEditar}, title:'ing'    },
             {name:'recepcionista'             , typeName:'text'                                , allow:{update:puedeEditar}, title:'rec'    },
-            {name:'razon'                     , typeName:'integer'                             , allow:{update:puedeEditar}, clientSide:'control_razones', serverSide:true},
+            {name:'razon'                     , typeName:'integer'                             , allow:{update:puedeEditar}, clientSide:'control_razones', serverSide:true, inTable:true},
             {name:'ultimavisita'              , typeName:'integer' , nullable:false , default:1, allow:{update:false}, visible:false},
             {name:'comentarios'               , typeName:'text'                                , allow:{update:puedeEditar}                 },
             {name:'supervisor'                , typeName:'text'                                , allow:{update:false}, visible:false},

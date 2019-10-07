@@ -18,6 +18,13 @@ module.exports = function(context){
         primaryKey:['grupo'],
         detailTables:[
             {table:'app_productos', abr:'PRO', label:'productos', fields:['grupo']},
-        ],        
+        ],
+        sql:{
+            from:`(
+                select grupo, nombregrupo
+                  from precios_app.grupos_producto
+                  )`
+        }
+        
     }, context);
 }

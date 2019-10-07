@@ -27,13 +27,12 @@ module.exports = function(context){
                 {source:'periodo'       , target:'periodo'   },
             ]},
         ],
-        /*        
         sql:{
             from:`(
-                select agrupacion, nombreagrupacion
+                select periodo, agrupacion, grupo, indiceredondeado
                   from precios_app.calculo_grupos
                   )`
-        }*/
+        }
         
     }, context);
 }

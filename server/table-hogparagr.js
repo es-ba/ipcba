@@ -15,9 +15,7 @@ module.exports = function(context){
         foreignKeys:[
             {references:'hogares', fields:['hogar']},
             {references:'parhog', fields:['parametro']},
-            {references:'agrupaciones', fields:[
-                {source:'agrupacionorigen'  , target:'agrupacion'     },
-            ]},
+            {references:'agrupaciones', fields:['agrupacion']},
         ]
-    });
+    },context);
 }

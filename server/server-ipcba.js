@@ -88,7 +88,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
-                adapt: 
+                post-adapt: 
                 - fun-caldiv_bajar.sql
                 - fun-caldiv_contar.sql
                 - fun-caldiv_impext.sql

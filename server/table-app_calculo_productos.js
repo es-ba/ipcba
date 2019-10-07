@@ -25,5 +25,11 @@ module.exports = function(context){
                 {source:'periodo'      , target:'periodo'   },
             ]},
         ],        
+        sql:{
+            from:`(
+                select periodo, producto, preciopromedio
+                  from precios_app.calculo_productos
+                  )`
+        }
     }, context);
 }
