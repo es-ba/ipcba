@@ -12,20 +12,20 @@ module.exports = function(context){
             import: false,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false                       },
-            {name:'producto'                         , typeName:'text'    , nullable:false                       },
-            {name:'informante'                       , typeName:'integer' , nullable:false                       },
-            {name:'observacion'                      , typeName:'integer' , nullable:false                       },
-            {name:'visita'                           , typeName:'integer' , nullable:false                       },
-            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}},
-            {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
-            {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}},
-            {name:'panel'                            , typeName:'integer'                  , allow:{update:false}},
-            {name:'tarea'                            , typeName:'integer'                  , allow:{update:false}},
-            {name:'infopre'                          , typeName:'text'                     , allow:{update:false}},
-            {name:'infopreant'                       , typeName:'text'                     , allow:{update:false}},
-            {name:'confirma'                         , typeName:'boolean'                                        },
-            {name:'comentarios'                      , typeName:'text'                                           },
+            {name:'periodo'                          , typeName:'text'    , nullable:false                       , inTable:true},
+            {name:'producto'                         , typeName:'text'    , nullable:false                       , inTable:true},
+            {name:'informante'                       , typeName:'integer' , nullable:false                       , inTable:true},
+            {name:'observacion'                      , typeName:'integer' , nullable:false                       , inTable:true},
+            {name:'visita'                           , typeName:'integer' , nullable:false                       , inTable:true},
+            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}, inTable:true},
+            {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}, inTable:false},
+            {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}, inTable:false},
+            {name:'panel'                            , typeName:'integer'                  , allow:{update:false}, inTable:false},
+            {name:'tarea'                            , typeName:'integer'                  , allow:{update:false}, inTable:false},
+            {name:'infopre'                          , typeName:'text'                     , allow:{update:false}, inTable:false},
+            {name:'infopreant'                       , typeName:'text'                     , allow:{update:false}, inTable:false},
+            {name:'confirma'                         , typeName:'boolean'                                        , inTable:true},
+            {name:'comentarios'                      , typeName:'text'                                           , inTable:true},
         ],
         sortColumns:[{column:'periodo', order:-1}],
         primaryKey:['periodo','producto','informante','observacion', 'visita'],
@@ -65,7 +65,8 @@ module.exports = function(context){
                     left join relpre_1 rpa on 
                       n.periodo = rpa.periodo and n.producto = rpa.producto and n.observacion = rpa.observacion and n.informante = rpa.informante and n.visita = rpa.visita  
                 group by n.periodo, n.producto, n.informante, n.observacion, n.visita, v.panel, v.tarea, r.precio, r.tipoprecio, r.cambio, rpa.precio_1, rpa.tipoprecio_1, rpa.cambio_1
-                )`
+                )`,
+                isTable: true,
         }    
     },context);
 }

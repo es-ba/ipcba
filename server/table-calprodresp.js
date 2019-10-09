@@ -11,13 +11,13 @@ module.exports = function(context){
             import: false,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'calculo'                          , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'producto'                         , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'estimacion'                       , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'responsable'                      , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'revisado'                         , typeName:'text'    , nullable:false, allow:{update:puedeEditar}},
-            {name:'observaciones'                    , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'periodo'                          , typeName:'text'    , nullable:false, allow:{update:false}, inTable: true},
+            {name:'calculo'                          , typeName:'integer' , nullable:false, allow:{update:false}, inTable: true},
+            {name:'producto'                         , typeName:'text'    , nullable:false, allow:{update:false}, inTable: true},
+            {name:'estimacion'                       , typeName:'integer' , nullable:false, allow:{update:false}, inTable: false},
+            {name:'responsable'                      , typeName:'text'    , nullable:false, allow:{update:false}, inTable: true},
+            {name:'revisado'                         , typeName:'text'    , nullable:false, allow:{update:puedeEditar}, inTable: true},
+            {name:'observaciones'                    , typeName:'text'    , allow:{update:puedeEditar}, inTable: true},
         ],
         primaryKey:['periodo','calculo','producto'],
         foreignKeys:[
@@ -30,7 +30,8 @@ module.exports = function(context){
             from: `(select p.periodo, p.calculo, p.producto, c.estimacion, p.revisado, p.responsable, p.observaciones
                     FROM calprodresp p
                     LEFT JOIN calculos c ON c.periodo = p.periodo AND c.calculo = p.calculo
-                    )`                  
+                    )`,
+        isTable: true,                  
         }  
     },context);
 }

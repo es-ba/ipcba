@@ -120,6 +120,58 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calprod_valorizar.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
+                - trg-actualizar_tarea_encuestador_trg.sql
+                - trg-agrupaciones_fijas_trg.sql
+                - trg-altamanualdeinformantes_trg.sql
+                - trg-blanquear_precios_trg.sql
+                - trg-borrar_precios_trg.sql
+                - trg-borrar_visita_trg.sql
+                - trg-calcular_precionormaliz_relatr_trg.sql
+                - trg-calcular_precionormaliz_relpre_trg.sql
+                - trg-cambio_panel_tarea_trg.sql
+                - trg-cambios_razon_trg.sql
+                - trg-controlar_actualizacion_datos_trg.sql
+                - trg-controlar_existencia_visita_1_trg.sql
+                - trg-controlar_revision_trg.sql
+                - trg-correr_normalizacion_moneda_trg.sql
+                - trg-desp_actualizar_ultima_visita_trg.sql
+                - trg-generar_direccion_informante_trg.sql
+                - trg-generar_visitas_reemplazo_trg.sql
+                - trg-insertat_atributos_trg.sql
+                - trg-modi_trg.sql
+                - trg-novobs_validacion_trg.sql
+                - trg-permitir_actualizar_valor_trg.sql
+                - trg-prodatr_validamod_valornormal_trg.sql
+                - trg-proddiv_ins_trg.sql
+                - trg-razon_cierre_definitivo_trg.sql
+                - trg-razon_cierre_temporal_trg.sql
+                - trg-relatr_valor_valida_moneda_trg.sql
+                - trg-relatr_valor_valida_numerico_trg.sql
+                - trg-relpre_validacion_trg.sql
+                - trg-relvis_tarea_trg.sql
+                - trg-restaurar_atributos_trg.sql
+                - trg-revisar_cambio_trg.sql
+                - trg-setar_renglon_de_cal_mensajes_trg.sql
+                - trg-validar_abrir_cerrar_calculo_trg.sql
+                - trg-validar_fechas_visita_trg.sql
+                - trg-validar_habilitado_trg.sql
+                - trg-validar_imputacon_trg.sql
+                - trg-validar_ingresando_trg.sql
+                - trg-validar_personal_trg.sql
+                - trg-validar_recepcion_trg.sql
+                - trg-validar_transmitir_canasta_trg.sql
+                - trg-verificar_act_promedio.sql
+                - trg-verificar_calcularprerep.sql
+                - trg-verificar_cargado_dm.sql
+                - trg-verificar_generar_externos.sql
+                - trg-verificar_generar_formulario.sql
+                - trg-verificar_generar_panel.sql
+                - trg-verifiacr_generar_periodo.sql
+                - trg-verificar_ingresando.sql
+                - trg-verificar_insersion_ultima_visita_trg.sql
+                - trg-verificar_lanzamiento_calculo.sql
+                - trg-verificar_sincronizacion.sql
+                - trg-verificar_valor_pesos_trg.sql
           logo: 
             path: client/img
         `);

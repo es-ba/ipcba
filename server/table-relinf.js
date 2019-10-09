@@ -11,20 +11,20 @@ module.exports = function(context){
             update:puedeEditar,
         },
         fields:[
-            {name:'periodo'                , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'panel'                  , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'tarea'                  , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'razon'                  , typeName:'text'                    , allow:{update:false}},
+            {name:'periodo'                , typeName:'text'    , nullable:false, allow:{update:false}, inTable:true},
+            {name:'panel'                  , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
+            {name:'tarea'                  , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
+            {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
+            {name:'razon'                  , typeName:'text'                    , allow:{update:false}, inTable:false},
             //{name:'nombreinformante'       , typeName:'text'                  , allow:{update:false}},
-            {name:'visita'                 , typeName:'integer'                 , allow:{update:false}},
-            {name:'direccion'              , typeName:'text'                    , allow:{update:false}},
-            {name:'formularios'            , typeName:'text'                    , allow:{update:false}},
-            {name:'contacto'               , typeName:'text'                    , allow:{update:false}},
-            {name:'maxperiodoinformado'    , typeName:'text'                    , allow:{update:false}},
-            {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}},
+            {name:'visita'                 , typeName:'integer'                 , allow:{update:false}, inTable:false},
+            {name:'direccion'              , typeName:'text'                    , allow:{update:false}, inTable:false},
+            {name:'formularios'            , typeName:'text'                    , allow:{update:false}, inTable:false},
+            {name:'contacto'               , typeName:'text'                    , allow:{update:false}, inTable:false},
+            {name:'maxperiodoinformado'    , typeName:'text'                    , allow:{update:false}, inTable:false},
+            {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
         ],
-        primaryKey:['periodo','informante','visita','panel','tarea'],
+        primaryKey:['periodo','informante','panel','tarea'],
         foreignKeys:[
             {references:'periodos'   , fields:['periodo']},
             {references:'informantes', fields:['informante']},
@@ -36,6 +36,7 @@ module.exports = function(context){
                 left join hdrexportarteorica h on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita
 				and r.panel = h.panel and r.tarea = h.tarea)
                 `,
-        }
+            isTable: true,
+            },
     },context);
 }

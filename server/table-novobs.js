@@ -14,22 +14,22 @@ module.exports = function(context){
             import: puedeEditar,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false                , allow:{update:puedeEditar}},
-            {name:'calculo'                          , typeName:'integer' , nullable:false, visible: false, allow:{update:puedeEditar}},
-            {name:'producto'                         , typeName:'text'    , nullable:false                , allow:{update:puedeEditar}},
-            {name:'informante'                       , typeName:'integer' , nullable:false                , allow:{update:puedeEditar}},
-            {name:'observacion'                      , typeName:'integer' , nullable:false                , allow:{update:puedeEditar}},
-            {name:'visita'                           , typeName:'text'                     , allow:{update:false}},
-            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}},
-            {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
-            {name:'recepcionista'                    , typeName:'text'                     , allow:{update:false}},
-            {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}},
-            {name:'panel'                            , typeName:'text'                     , allow:{update:false}},
-            {name:'tarea'                            , typeName:'text'                     , allow:{update:false}},
-            {name:'estado'                           , typeName:'text'    , nullable:false , allow:{update:puedeEditar}},
-            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                  , allow:{update:puedeEditar}},
-            {name:'comentarios'                      , typeName:'text'                     , allow:{update:puedeEditar}},
-            {name:'comentarios_recep'                , typeName:'text'                     , allow:{update:puedeEditar||puedeEditarRecep}},
+            {name:'periodo'                          , typeName:'text'    , nullable:false                , allow:{update:puedeEditar}, inTable: true},
+            {name:'calculo'                          , typeName:'integer' , nullable:false, visible: false, allow:{update:puedeEditar}, inTable: true},
+            {name:'producto'                         , typeName:'text'    , nullable:false                , allow:{update:puedeEditar}, inTable: true},
+            {name:'informante'                       , typeName:'integer' , nullable:false                , allow:{update:puedeEditar}, inTable: true},
+            {name:'observacion'                      , typeName:'integer' , nullable:false                , allow:{update:puedeEditar}, inTable: true},
+            {name:'visita'                           , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}, inTable: true},
+            {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'recepcionista'                    , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'panel'                            , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'tarea'                            , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'estado'                           , typeName:'text'    , nullable:false , allow:{update:puedeEditar}, inTable: true},
+            {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                  , allow:{update:puedeEditar}, inTable: true},
+            {name:'comentarios'                      , typeName:'text'                     , allow:{update:puedeEditar}, inTable: true},
+            {name:'comentarios_recep'                , typeName:'text'                     , allow:{update:puedeEditar||puedeEditarRecep}, inTable: true},
         ],
         primaryKey:['periodo','calculo','producto','informante','observacion'],
         foreignKeys:[
@@ -53,8 +53,8 @@ module.exports = function(context){
                         left join personal s on s.persona = v.encuestador
                         left join personal c on c.persona = v.recepcionista
                     group by n.periodo, n.calculo, n.producto, n.informante, n.observacion, n.modi_usu, n.estado
-                    )`
-                   
+                    )`,
+        isTable: true,
         }    
     },context);
 }

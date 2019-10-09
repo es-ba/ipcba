@@ -12,16 +12,16 @@ module.exports = function(context){
             import: false,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false                       },
-            {name:'informante'                       , typeName:'integer' , nullable:false                       },
-            {name:'visita'                           , typeName:'integer' , nullable:false                       },
-            {name:'formulario'                       , typeName:'integer' , nullable:false                       },
-            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}},
-            {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
-            {name:'panel'                            , typeName:'integer'                  , allow:{update:false}},
-            {name:'tarea'                            , typeName:'integer'                  , allow:{update:false}},
-            {name:'confirma'                         , typeName:'boolean'                                        },
-            {name:'comentarios'                      , typeName:'text'                                           },
+            {name:'periodo'                          , typeName:'text'    , nullable:false                       , inTable: true},
+            {name:'informante'                       , typeName:'integer' , nullable:false                       , inTable: true},
+            {name:'visita'                           , typeName:'integer' , nullable:false                       , inTable: true},
+            {name:'formulario'                       , typeName:'integer' , nullable:false                       , inTable: true},
+            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}, inTable: true},
+            {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}, inTable: false},
+            {name:'panel'                            , typeName:'integer'                  , allow:{update:false}, inTable: false},
+            {name:'tarea'                            , typeName:'integer'                  , allow:{update:false}, inTable: false},
+            {name:'confirma'                         , typeName:'boolean'                                        , inTable: true},
+            {name:'comentarios'                      , typeName:'text'                                           , inTable: true},
         ],
         sortColumns:[{column:'periodo', order:-1}],
         primaryKey:['periodo','informante','visita', 'formulario'],
@@ -51,7 +51,8 @@ module.exports = function(context){
                     left join personal c on 
                       c.persona = v.recepcionista
                       group by n.periodo, n.informante, n.visita, n.formulario, v.panel, v.tarea
-                )`
+                )`,
+                isTable: true,
         }    
     },context);
 }

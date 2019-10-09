@@ -13,22 +13,22 @@ module.exports = function(context){
             update:puedeEditar,
         },
         fields:[
-            {name:'periodo'                          , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'informante'                       , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'visita'                           , typeName:'integer' , nullable:false , default:1, allow:{update:false}},
-            {name:'producto'                         , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'observacion'                      , typeName:'integer' , nullable:false, allow:{update:false}},
-            {name:'atributo'                         , typeName:'integer' , nullable:false, allow:{update:false}},
+            {name:'periodo'                          , typeName:'text'    , nullable:false, allow:{update:false}, inTable:true},
+            {name:'informante'                       , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
+            {name:'visita'                           , typeName:'integer' , nullable:false , default:1, allow:{update:false}, inTable:true},
+            {name:'producto'                         , typeName:'text'    , nullable:false, allow:{update:false}, inTable:true},
+            {name:'observacion'                      , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
+            {name:'atributo'                         , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
             // {name:'tipodato'                         , typeName:'text'                    , allow:{update:false}},
-            {name:'valor'                            , typeName:'text'    , allow:{update:puedeEditar} ,clientSide:'control_rangos' , serverSide:true, postInput:'upperSpanish'},
-            {name:'valoranterior'                    , typeName:'text'    , allow:{update:false}      },
-            {name:'prodatr__rangodesde'              , typeName:'decimal' , title:'desde', allow:{update:false}},
-            {name:'prodatr__rangohasta'              , typeName:'decimal' , title:'hasta', allow:{update:false}},
-            {name:'prodatr__valornormal'             , typeName:'decimal' , title:'valorNormal', allow:{update:false}, visible:false},
-            {name:'normalizable'                     , typeName:'text'    , visible:false},
-            {name:'prodatr__orden'                   , typeName:'integer' , allow:{update:false}, visible:false},
-            {name:'opciones'                         , typeName:'text'    , allow:{update:false}, visible:false},
-            {name:'especificaciones__mostrar_cant_um', typeName:'text'    , allow:{update:false}, visible:false},
+            {name:'valor'                            , typeName:'text'    , allow:{update:puedeEditar} ,clientSide:'control_rangos' , serverSide:true, postInput:'upperSpanish', inTable:true},
+            {name:'valoranterior'                    , typeName:'text'    , allow:{update:false}, inTable:false},
+            {name:'prodatr__rangodesde'              , typeName:'decimal' , title:'desde', allow:{update:false}, inTable:false},
+            {name:'prodatr__rangohasta'              , typeName:'decimal' , title:'hasta', allow:{update:false}, inTable:false},
+            {name:'prodatr__valornormal'             , typeName:'decimal' , title:'valorNormal', allow:{update:false}, visible:false, inTable:false},
+            {name:'normalizable'                     , typeName:'text'    , visible:false, inTable:false},
+            {name:'prodatr__orden'                   , typeName:'integer' , allow:{update:false}, visible:false, inTable:false},
+            {name:'opciones'                         , typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
+            {name:'especificaciones__mostrar_cant_um', typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
 
         ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
@@ -65,7 +65,8 @@ module.exports = function(context){
                   a.informante = a_1.informante and a.visita = a_1.visita and a.atributo = a_1.atributo
                   left join control_normalizables_sindato n on a.periodo = n.periodo and a.informante = n.informante and
                   a.observacion = n.observacion and a.visita = n.visita and a.producto = n.producto and a.atributo = n.atributo
-                  )`
+                  )`,
+            isTable: true,
         }
     },context);
 }

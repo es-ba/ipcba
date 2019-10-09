@@ -12,12 +12,12 @@ module.exports = function(context){
             update:puedeEditar,
         },
         fields:[
-            {name:'periodo'                      , typeName:'text'    , nullable:false, allow:{update:false} },
-            {name:'calculo'                      , typeName:'integer' , nullable:false, allow:{update:false} },
-            {name:'producto'                     , typeName:'text'    , nullable:false, allow:{update:puedeEditar} },
-            {name:'promedioext'                  , typeName:'decimal'  , allow:{update:puedeEditar}  },
-            {name:'anterior'                     , typeName:'decimal'  , allow:{update:false} },
-            {name:'variacion'                    , typeName:'decimal'  , default:0, allow:{update:puedeEditar} },
+            {name:'periodo'                      , typeName:'text'    , nullable:false, allow:{update:false}, inTable: true},
+            {name:'calculo'                      , typeName:'integer' , nullable:false, allow:{update:false}, inTable: true},
+            {name:'producto'                     , typeName:'text'    , nullable:false, allow:{update:puedeEditar}, inTable: true},
+            {name:'promedioext'                  , typeName:'decimal'  , allow:{update:puedeEditar}, inTable: true},
+            {name:'anterior'                     , typeName:'decimal'  , allow:{update:false}, inTable: false},
+            {name:'variacion'                    , typeName:'decimal'  , default:0, allow:{update:puedeEditar}, inTable: true},
         ],
         /*
         filterColumns:[
@@ -35,7 +35,8 @@ module.exports = function(context){
                 FROM novprod n
                 LEFT JOIN calculos l ON n.periodo = l.periodo AND n.calculo = l.calculo 
                 LEFT JOIN caldiv c0 ON c0.periodo = l.periodoanterior and c0.calculo = l.calculoanterior and n.producto = c0.producto and c0.division = '0'
-                 )`
+                 )`,
+        isTable: true,
         }
     },context);
 }
