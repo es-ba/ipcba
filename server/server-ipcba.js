@@ -88,7 +88,21 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
-                post-adapt: 
+                post-adapt:
+                - fun-cal_canasta_borrar.sql
+                - fun-cal_canasta_valorizar.sql
+                - fun-cal_control.sql
+                - fun-cal_copiar_calprodagr.sql
+                - fun-cal_copiar.sql
+                - fun-cal_invalidar_aux.sql
+                - fun-cal_invalidar.sql
+                - fun-cal_mensajes.sql
+                - fun-cal_perbase_prop.sql
+                - fun-calbase_periodos.sql
+                - fun-calcularunperiodo.sql
+                - fun-calcularvarios.sql
+                - fun-calculo_borrar.sql
+                - fun-calculo_controlarabierto.sql 
                 - fun-caldiv_bajar.sql
                 - fun-caldiv_contar.sql
                 - fun-caldiv_impext.sql

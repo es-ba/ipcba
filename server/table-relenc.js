@@ -7,13 +7,13 @@ module.exports = function(context){
         //title:'Relenc',
         editable:puedeEditar,
         fields:[
-            {name:'periodo'            , typeName:'text'    , nullable:false},
-            {name:'panel'              , typeName:'integer' , nullable:false},
-            {name:'tarea'              , typeName:'integer' , nullable:false},
-            {name:'encuestador'        , typeName:'text'    , nullable:false},
-            {name:'encuestadornombre'  , typeName:'text'    , nullable:false},
-            {name:'titular'            , typeName:'text'    , nullable:false},
-            {name:'titularnombre'      , typeName:'text'    , nullable:false},
+            {name:'periodo'            , typeName:'text'    , nullable:false, inTable:true},
+            {name:'panel'              , typeName:'integer' , nullable:false, inTable:true},
+            {name:'tarea'              , typeName:'integer' , nullable:false, inTable:true},
+            {name:'encuestador'        , typeName:'text'    , nullable:false, inTable:true},
+            {name:'encuestadornombre'  , typeName:'text'    , nullable:false, inTable:false},
+            {name:'titular'            , typeName:'text'    , nullable:false, inTable:false},
+            {name:'titularnombre'      , typeName:'text'    , nullable:false, inTable:false},
         ],
         primaryKey:['periodo','panel','tarea'],
         foreignKeys:[
@@ -41,6 +41,7 @@ module.exports = function(context){
                                       inner join tareas t on t.tarea = r.tarea
                                       inner join personal pe on pe.persona = t.encuestador
                     )`,
+            isTable: true,
         }    
     }, context);
 }

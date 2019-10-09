@@ -29,6 +29,7 @@ module.exports = function(context){
             {name:'prodatr__orden'                   , typeName:'integer' , allow:{update:false}, visible:false, inTable:false},
             {name:'opciones'                         , typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
             {name:'especificaciones__mostrar_cant_um', typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
+            {name:'validar_con_valvalatr'            , typeName:'boolean' , allow:{update:false}, visible:false, inTable:true},
 
         ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
@@ -58,7 +59,7 @@ module.exports = function(context){
         sql:{
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,
-                  n.normalizable, pa.opciones
+                  n.normalizable, pa.opciones, a.validar_con_valvalatr
                   from relatr a
                   join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                   left join relatr_1 a_1 on a.periodo = a_1.periodo and a.producto = a_1.producto and a.observacion = a_1.observacion and

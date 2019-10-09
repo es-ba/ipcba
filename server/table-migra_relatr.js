@@ -3,7 +3,7 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
-    	name:'migra_relatr',
+        name:'migra_relatr',
         title:'Relatr',
         tableName:'relatr',
         editable:puedeEditar,
@@ -21,7 +21,7 @@ module.exports = function(context){
             {name:'valor'                            , typeName:'text'    , allow:{update:puedeEditar}, clientSide:'control_rangos' , serverSide:true, postInput:'upperSpanish'},
             {name:'visita'                           , typeName:'integer' , nullable:false , default:1, allow:{update:puedeEditar}},
             {name:'validar_con_valvalatr'            , typeName:'boolean'                             , allow:{update:puedeEditar}                   },
-		],
+        ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
         foreignKeys:[
             {references:'atributos', fields:['atributo'], displayFields:['nombreatributo','tipodato']},
@@ -36,5 +36,13 @@ module.exports = function(context){
         detailTables:[
             {table:'relatr_tipico', abr:'Valores Típicos', fields:['periodo','producto','atributo'], abr:'V'}
         ],
+        sql:{
+            from:`(
+                select periodo, informante, visita, producto, observacion, atributo, valor, validar_con_valvalatr
+                  from relatr
+                  )`,
+            isTable: false,
+        }
+        
     },context);
 }
