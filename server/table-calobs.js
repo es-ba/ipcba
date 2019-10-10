@@ -18,6 +18,7 @@ module.exports = function(context){
             {name:'antiguedadsinprecio'          , typeName:'integer'                 },
             {name:'antiguedadexcluido'           , typeName:'integer'                 },
             {name:'antiguedadincluido'           , typeName:'integer'                 },
+            {name:'sindatosestacional'           , typeName:'integer'                 },
             {name:'muestra'                      , typeName:'integer'                 },
             
         ],
