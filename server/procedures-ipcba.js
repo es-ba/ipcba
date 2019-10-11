@@ -928,7 +928,7 @@ ProceduresIpcba = [
                 ).fetchUniqueValue();
                 var result = await context.client.query(
                     `update reltar
-                      set descargado = current_timestamp
+                      set descargado = current_timestamp, vencimiento_sincronizacion = null
                       where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
                       returning *`
                 ,[idInstalacion.value]).fetchAll();
