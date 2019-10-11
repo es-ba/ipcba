@@ -1424,11 +1424,11 @@ myOwn.wScreens.instalacion_actual=function(addrParams){
     var instalacionDiv = html.table({id:'local-install', class:'my-grid'},[
         html.caption('datos dispositivo'),
         html.tr({},[
-            html.th('id_instalacion'),
+            html.th('id instalacion'),
             html.td(localStorage.getItem('id_instalacion')||'-')
         ]),
         html.tr({},[
-            html.th('token_instalacion'),
+            html.th('token instalacion'),
             html.td(localStorage.getItem('token_instalacion')||'-')
         ]),
         html.tr({},[
