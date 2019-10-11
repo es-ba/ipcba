@@ -1,12 +1,11 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo';
+    var puedeEditar = true;
     return context.be.tableDefAdapt({
         name:'mobile_precios',
         title:'precios',
         tableName:'relpre',
-        editable:puedeEditar,
         policy:'web',
         allow:{
             insert:false,
@@ -31,10 +30,10 @@ module.exports = function(context){
             {name:'precioanterior'            , typeName:'text' , title:'precio anterior', allow:{update:false}, serverSide:true, clientSide:'parsePrecioAnterior' },
             {name:'atributos_mes_actual'      , typeName:'jsonb'   , nullable:false            , allow:{update:false}, visible:false     },
             {name:'copiar_tipoprecio'         , typeName:'text'    , allow:{update:false}, title:'c', clientSide:'copiarTipoprecio', serverSide:true      },
-            {name:'tipoprecio'                , typeName:'text'                    , title:'TP' , allow:{update:puedeEditar},clientSide:'parseTipoPrecio' , serverSide:true},
-            {name:'precio'                    , typeName:'decimal' , allow:{update:puedeEditar} , clientSide:'parsePrecio' , serverSide:true, mobileInputType:'number'},
+            {name:'tipoprecio'                , typeName:'text'                    , title:'TP' , clientSide:'parseTipoPrecio' , serverSide:true},
+            {name:'precio'                    , typeName:'decimal'                              , clientSide:'parsePrecio' , serverSide:true, mobileInputType:'number'},
             {name:'cambio'                    , typeName:'text'                                 , allow:{update:true}, visible:false     },
-            {name:'comentariosrelpre'         , typeName:'text'                                 , allow:{update:puedeEditar}, postInput:'upperSpanish' },
+            {name:'comentariosrelpre'         , typeName:'text'                                 , postInput:'upperSpanish' },
             {name:'comentariosanterior'       , typeName:'text'                                 , allow:{update:false}, visible:false},
             {name:'esvisiblecomentarioendm_1'   , typeName:'boolean' , allow:{update:false}   , visible:false},
             {name:'precionormalizado'         , typeName:'decimal' , editable:false     , visible:false},

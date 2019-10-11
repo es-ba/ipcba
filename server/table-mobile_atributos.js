@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo';
+    var puedeEditar = true;
     return context.be.tableDefAdapt({
         name:'mobile_atributos',
         tableName:'relatr',
@@ -25,7 +25,7 @@ module.exports = function(context){
             {name:'nombreatributo'       , typeName:'text'    , allow:{update:false}, title: 'atributo'},
             {name:'valoranterior'        , typeName:'text'    , allow:{update:false}      },
             {name:'copiar_atributo'      , typeName:'text'    , allow:{update:false}, title:'c', clientSide:'copiar_atributo', serverSide:true      },
-            {name:'valor'                , typeName:'text'    , allow:{update:puedeEditar} ,clientSide:'control_rangos' , serverSide:true, postInput:'upperSpanish'},
+            {name:'valor'                , typeName:'text'    , clientSide:'control_rangos' , serverSide:true, postInput:'upperSpanish'},
             {name:'prodatr__rangodesde'  , typeName:'decimal' , title:'desde', allow:{update:false}, visible:false},
             {name:'prodatr__rangohasta'  , typeName:'decimal' , title:'hasta', allow:{update:false}, visible:false},
             {name:'prodatr__valornormal' , typeName:'decimal' , title:'valorNormal', allow:{update:false}, visible:false},
