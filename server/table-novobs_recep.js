@@ -5,7 +5,7 @@ module.exports = function(context){
     return context.be.tableDefAdapt({
         name:'novobs_recep',
         //title:'Altas y bajas manuales del cálculo',
-		tableName:'novobs',
+        tableName:'novobs',
         editable:puedeEditar,
         allow: {
             insert: false,
@@ -17,6 +17,8 @@ module.exports = function(context){
             {name:'periodo'                          , typeName:'text'    , nullable:false, allow:{update:false}},
             {name:'calculo'                          , typeName:'integer' , nullable:false, visible: false, allow:{update:false}},
             {name:'producto'                         , typeName:'text'    , nullable:false , allow:{update:false}},
+            {name:'panel'                            , typeName:'text'                     , allow:{update:false}},
+            {name:'tarea'                            , typeName:'text'                     , allow:{update:false}},
             {name:'informante'                       , typeName:'integer' , nullable:false , allow:{update:false}},
             {name:'observacion'                      , typeName:'integer' , nullable:false , allow:{update:false}},
             {name:'visita'                           , typeName:'text'                     , allow:{update:false}},
@@ -24,8 +26,6 @@ module.exports = function(context){
             {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
             {name:'recepcionista'                    , typeName:'text'                     , allow:{update:false}},
             {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}},
-            {name:'panel'                            , typeName:'text'                     , allow:{update:false}},
-            {name:'tarea'                            , typeName:'text'                     , allow:{update:false}},
             {name:'estado'                           , typeName:'text'    , nullable:false , allow:{update:false}},
             {name:'comentarios'                      , typeName:'text'                     , allow:{update:false}},
             {name:'comentarios_recep'                , typeName:'text'                     , allow:{update:puedeEditar}},
@@ -51,7 +51,7 @@ module.exports = function(context){
                         left join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita 
                         left join personal s on s.persona = v.encuestador
                         left join personal c on c.persona = v.recepcionista
-				    where revisar_recep
+                    where revisar_recep
                     group by n.periodo, n.calculo, n.producto, n.informante, n.observacion, n.modi_usu, n.estado
                     )`
         }    
