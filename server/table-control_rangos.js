@@ -36,5 +36,8 @@ module.exports = function(context){
             {name:'razon_impobs_ant'             , typeName:'text'   },            
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

@@ -15,10 +15,8 @@ module.exports = function(context){
             {name:'nivel'              , typeName:'text'    },
         ],
         primaryKey:['orden'],
-        /*
         sql:{
-            where:"codigo = 'nivel_usuario'" //+context.be.db.quoteText(context.user.usuario)
-        }
-        */        
-    });
+            isTable: false,
+        },
+    },context);
 }

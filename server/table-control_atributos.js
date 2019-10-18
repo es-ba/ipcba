@@ -24,5 +24,8 @@ module.exports = function(context){
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo}
         ],        
         primaryKey:['periodo','informante','visita','formulario','producto','observacion'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

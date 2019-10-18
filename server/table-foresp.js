@@ -11,5 +11,8 @@ module.exports = function(context){
             {name:'orden'              , typeName:'integer'    },
         ],
        primaryKey:['formulario','producto','especificacion'],        
+        sql:{
+            isTable: false,
+        },
     });
 }

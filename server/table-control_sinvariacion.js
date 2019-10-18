@@ -22,5 +22,8 @@ module.exports = function(context){
             {name:'cantprecios'                  ,typeName:'integer'},
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
+        sql:{
+            isTable: false,
+        },
     });
 }

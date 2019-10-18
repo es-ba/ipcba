@@ -23,5 +23,8 @@ module.exports = function(context){
             {name:'cantimputados'                 ,typeName:'integer'},
         ],
         primaryKey:['periodo','calculo','agrupacion','grupo'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

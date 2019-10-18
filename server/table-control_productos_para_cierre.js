@@ -26,5 +26,8 @@ module.exports = function(context){
             {name:'t_cantimputados'       , typeName:'integer'},
         ],
         primaryKey:['periodo','calculo','producto'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

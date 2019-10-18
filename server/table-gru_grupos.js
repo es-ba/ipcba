@@ -16,5 +16,8 @@ module.exports = function(context){
             {column:'agrupacion', operator:'=', value:'Z'}
         ],                
         primaryKey:['agrupacion','grupo_padre','grupo'],
+        sql:{
+            isTable: false,
+        },
     });
 }

@@ -12,5 +12,8 @@ module.exports = function(context){
             {name:'desvio'                ,typeName:'decimal'},
         ],
         primaryKey:['periodo','producto'],
+        sql:{
+            isTable: false,
+        },
     });
 }

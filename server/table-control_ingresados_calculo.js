@@ -18,5 +18,8 @@ module.exports = function(context){
         {name:'fechamodificacioninformante'  ,typeName:'timestamp'},
         ],
         primaryKey:['periodo','producto','informante','observacion'],
+        sql:{
+            isTable: false,
+        },
     });
 }

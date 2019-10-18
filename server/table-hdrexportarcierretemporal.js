@@ -29,5 +29,8 @@ module.exports = function(context){
             {name:'maxperiodoinformado'          , typeName:'text'   },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

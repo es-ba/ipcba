@@ -23,6 +23,8 @@ module.exports = function(context){
             {references:'formularios', fields:['formulario']},
             {references:'informantes', fields:['informante']},
         ],
-        
+        sql:{
+            isTable: false,
+        },
     },context);
 }

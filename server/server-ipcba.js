@@ -88,6 +88,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
+                - cvp-db-roles.sql
                 post-adapt:
                 - fun-cal_canasta_borrar.sql
                 - fun-cal_canasta_valorizar.sql
@@ -132,6 +133,13 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calobs_segimp_perbase.sql
                 - fun-calprod_indexar.sql
                 - fun-calprod_valorizar.sql
+                - fun-crear_vista_calobs_periodos.sql
+                - fun-moverperiodos.sql
+                - fun-periodo_igual_mes_anno_anterior.sql
+                - fun-obtenerunidadnormalizada.sql
+                - fun-estadoinformante.sql
+                - fun-devolver_mes_anio.sql
+                - fun-formularioshdr.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
@@ -186,10 +194,99 @@ class AppIpcba extends backendPlus.AppBackend{
                 - trg-verificar_lanzamiento_calculo.sql
                 - trg-verificar_sincronizacion.sql
                 - trg-verificar_valor_pesos_trg.sql
+                - vw-bienvenida.sql
+                - vw-gru_grupos.sql
+                - vw-caldiv_vw.sql
+                - vw-caldiv_vw.sql
+                - vw-caldivsincambio.sql
+                - vw-calgru_promedios.sql
+                - vw-calgru_vw.sql
+                - vw-calobs_periodos.sql
+                - vw-calobs_vw.sql
+                - vw-matrizperiodos6.sql
+                - vw-canasta_alimentaria.sql
+                - vw-canasta_alimentaria_var.sql
+                - vw-canasta_consumo.sql
+                - vw-canasta_consumo_var.sql
+                - vw-canasta_producto.sql
+                - vw-control_ajustes.sql
+                - vw-control_anulados_recep.sql
+                - vw-control_atributos.sql
+                - vw-control_calculoresultados.sql
+                - vw-control_calobs.sql
+                - vw-control_generacion_formularios.sql
+                - vw-gru_prod.sql
+                - vw-control_grupos_para_cierre.sql
+                - vw-control_hojas_ruta.sql
+                - vw-control_ingreso_atributos.sql
+                - vw-control_ingreso_precios.sql
+                - vw-control_normalizables_sindato.sql
+                - vw-control_precios.sql
+                - vw-control_precios2.sql
+                - vw-control_productos_para_cierre.sql
+                - vw-relatr_1.sql
+                - vw-relpre_1.sql
+                - vw-panel_promrotativo.sql
+                - vw-control_rangos.sql
+                - vw-panel_promrotativo_mod.sql
+                - vw-control_rangos_mod.sql
+                - vw-control_relev_telef.sql
+                - vw-control_sinprecio.sql
+                - vw-control_sinvariacion.sql
+                - vw-perfiltro.sql
+                - vw-control_tipoprecio.sql
+                - vw-controlvigencias.sql
+                - vw-desvios.sql
+                - vw-estadoinformantes.sql
+                - vw-forobs.sql
+                - vw-foresp.sql
+                - vw-forobsinf.sql
+                - vw-freccambio_nivel0.sql
+                - vw-freccambio_nivel1.sql
+                - vw-freccambio_nivel3.sql
+                - vw-freccambio_resto.sql
+                - vw-freccambio_restorest.sql
+                - vw-hdrexportar.sql
+                - vw-hdrexportarcierretemporal.sql
+                - vw-hdrexportarefectivossinprecio.sql
+                - vw-hdrexportarteorica.sql
+                - vw-hojaderuta.sql
+                - vw-hojaderutasupervisor.sql
+                - vw-informantesaltasbajas.sql
+                - vw-informantesformulario.sql
+                - vw-informantesrazon.sql
+                - vw-informantesrubro.sql
           logo: 
             path: client/img
         `);
     }
+    /* falta agregar:
+    - vw-control_ingresados_calculo.sql
+    - vw-matrizresultados.sql
+    - vw-matrizresultadossinvariacion.sql
+    - vw-parahojasderuta.sql
+    - vw-paraimpresionformulariosatributos.sql
+    - vw-paraimpresionformulariosenblanco.sql
+    - vw-paraimpresionformulariosprecios.sql
+    - vw-paralistadodecontroldecm.sql
+    - vw-paralistadodecontroldeinformantes.sql
+    - vw-precios_maximos_vw.sql
+    - vw-precios_minimos_vw.sql
+    - vw-precios_porcentaje_positivos_y_anulados.sql
+    - vw-preciosmedios_albs.sql
+    - vw-preciosmedios_albs_var.sql
+    - vw-prod_for_rub.sql
+    - vw-promedios_maximos_minimos.sql
+    - vw-reemplazosexportar.sql
+    - vw-revisor.sql
+    - vw-revisor_parametros.sql
+    - vw-transf_data.sql
+    - vw-transf_data_orig.sql
+    - vw-valorizacion_canasta.sql
+    - vw-valorizacion_canasta_cuadros.sql
+    - vw-variaciones_maximas_vw.sql
+    - vw-variaciones_minimas_vw.sql
+    */
     addLoggedServices(){
         var be = this;
         super.addLoggedServices();
@@ -233,7 +330,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
-			], showInOfflineMode: true},
+            ], showInOfflineMode: true},
             {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
             {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
                 {menuType:'table', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
@@ -493,9 +590,14 @@ class AppIpcba extends backendPlus.AppBackend{
             'prodcontrolrangos',
             'prodagr',
             'tipoinf',
-			'forinf',
+            'forinf',
             'formularios',
             'productos',
+            'calobs',
+            'calhoggru',
+            'calhogsubtotales',
+            'calprod',
+            'calprodagr',
             'novobs',
             'novobs_recep',
             'novpre',
@@ -510,6 +612,7 @@ class AppIpcba extends backendPlus.AppBackend{
             'gru_grupos',
             'forprod',
             'atributos',
+            'prerep',
             'prodatr',
             'prodatrval',
             'divisiones',
@@ -545,7 +648,7 @@ class AppIpcba extends backendPlus.AppBackend{
             'periodos_control_sinprecio',
             'periodos_precios_minimos_vw',
             'periodos_precios_maximos_vw',
-			'periodos_precios_maximos_minimos',
+            'periodos_precios_maximos_minimos',
             'periodos_variaciones_minimas_vw',
             'periodos_variaciones_maximas_vw',
             'periodos_control_observaciones',
@@ -567,8 +670,8 @@ class AppIpcba extends backendPlus.AppBackend{
             'periodos_control_comentariosrelvis',
             'periodos_control_generacion_formularios',
             'periodos_precios_porcentaje_positivos_y_anulados',
-			'periodos_novpre_recep',
-			'calculos_novobs_recep',
+            'periodos_novpre_recep',
+            'calculos_novobs_recep',
             'periodos_relinf',
             'periodos_reltar',
             'periodos_calprodresp',
@@ -590,7 +693,7 @@ class AppIpcba extends backendPlus.AppBackend{
             'relpan',
             'relpantar',
             'relvis',
-			'parametros',
+            'parametros',
             'mobile_hoja_de_ruta',
             'matriz_de_un_producto',
             'mobile_visita',
@@ -603,13 +706,13 @@ class AppIpcba extends backendPlus.AppBackend{
             'migra_relatr',
             'periodos_migra_relatr',
             //'relpre_control_rangos',
-			'relpre_control_rangos_analisis',
-			'relpre_control_rangos_recepcion',
-			'relpre_control_rangos_atrnorm',
+            'relpre_control_rangos_analisis',
+            'relpre_control_rangos_recepcion',
+            'relpre_control_rangos_atrnorm',
             'valvalatr',
             'relatr',
             'relsup',
-			'rubfor',
+            'rubfor',
             'relsup_a_elegir',
             'hojaderutasupervisor',
             'hdrexportarefectivossinprecio',
