@@ -13,6 +13,9 @@ module.exports = function(context){
             {name:'cantbajas'      , typeName:'integer'},
         ],                                             
         primaryKey:['periodo','rubro'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }
 

@@ -45,5 +45,8 @@ module.exports = function(context){
         ],
         sortColumns:[{column:'ordenpor'}],        
         primaryKey:['periodo','calculo','agrupacion','grupo'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

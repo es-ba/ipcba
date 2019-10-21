@@ -20,5 +20,8 @@ module.exports = function(context){
             {name:'comentarios'                  ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','producto','observacion'],
+        sql:{
+            isTable: false,
+        },
     });
 }

@@ -22,5 +22,8 @@ module.exports = function(context){
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo.replace(/\d\d\d\d/,function(annio){ return annio-1;})},
         ],            
+        sql:{
+            isTable: false,
+        },
     },context);
 }

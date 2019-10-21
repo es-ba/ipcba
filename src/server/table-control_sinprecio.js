@@ -20,11 +20,8 @@ module.exports = function(context){
             {name:'recepcionista'                ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','producto','visita','observacion'],
-        /*
         sql:{
-            where:"periodo = 'a2017m02'" 
-            //+context.be.db.quoteText(context.user.usuario)
-        }
-        */        
+            isTable: false,
+        },
     });
 }

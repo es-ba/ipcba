@@ -30,6 +30,9 @@ module.exports = function(context){
             {name:'ordenhdr'                     , typeName:'integer'   },
         ],
         primaryKey:['periodo','informante','visita','formulario'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }
 

@@ -44,11 +44,9 @@ module.exports = function(context){
             {name:'promexcluidos'            , typeName:'decimal'  ,allow:{select:false}},   
             {name:'promimputados'            , typeName:'decimal'  ,allow:{select:false}},   
             {name:'promrealesincluidos'      , typeName:'decimal'  ,allow:{select:false}},   
-            //{name:'promrealesexcluidos'      , typeName:'decimal'  ,allow:{select:false}},   
             {name:'cantrealesdescartados'    , typeName:'integer' ,allow:{select:false}},   
             {name:'cantpreciostotales'       , typeName:'integer' ,allow:{select:false}},    
             {name:'cantpreciosingresados'    , typeName:'integer' ,allow:{select:false}},    
-            //{name:'cantconprecioparacalestac', typeName:'integer' ,allow:{select:false}},             
             {name:'variacion'            , typeName:'decimal'  },
             {name:'promsinimpext'        , typeName:'decimal'  },
             {name:'varsinimpext'         , typeName:'decimal'  },
@@ -63,5 +61,8 @@ module.exports = function(context){
             {column:'calculo', operator:'=' ,value:context.be.internalData.filterUltimoCalculo}
         ],        
         primaryKey:['periodo','calculo','producto','division'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

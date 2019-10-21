@@ -12,6 +12,9 @@ module.exports = function(context){
             {name:'cantinformantes', typeName:'integer'},
         ],                                             
         primaryKey:['periodo','razon'],
+        sql:{
+            isTable:false,
+        },
     },context);
 }
 

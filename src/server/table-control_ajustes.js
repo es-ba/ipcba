@@ -38,5 +38,8 @@ module.exports = function(context){
                 {name:'varia_ambos'        , typeName:'text'      },
         ],
         primaryKey:['periodo','informante','visita','producto','observacion'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

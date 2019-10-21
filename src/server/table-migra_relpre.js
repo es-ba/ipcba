@@ -3,7 +3,7 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
-    	name:'migra_relpre',
+        name:'migra_relpre',
         title:'Relpre',
         tableName:'relpre',
         editable:puedeEditar,
@@ -39,6 +39,9 @@ module.exports = function(context){
         //sortColumns:[{column:'orden'},{column:'observacion'}],
         detailTables:[
             {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita']},
-        ],       
+        ],
+        sql:{
+            isTable: false,
+        }       
     },context);
 }

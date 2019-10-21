@@ -33,6 +33,9 @@ module.exports = function(context){
             {name:'minperiodoinformado'          , typeName: 'text'   },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }
 

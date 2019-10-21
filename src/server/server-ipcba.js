@@ -87,6 +87,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
+                - cvp-db-roles.sql
                 post-adapt:
                 - fun-cal_canasta_borrar.sql
                 - fun-cal_canasta_valorizar.sql
@@ -131,6 +132,13 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calobs_segimp_perbase.sql
                 - fun-calprod_indexar.sql
                 - fun-calprod_valorizar.sql
+                - fun-crear_vista_calobs_periodos.sql
+                - fun-moverperiodos.sql
+                - fun-periodo_igual_mes_anno_anterior.sql
+                - fun-obtenerunidadnormalizada.sql
+                - fun-estadoinformante.sql
+                - fun-devolver_mes_anio.sql
+                - fun-formularioshdr.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
@@ -185,10 +193,99 @@ class AppIpcba extends backendPlus.AppBackend{
                 - trg-verificar_lanzamiento_calculo.sql
                 - trg-verificar_sincronizacion.sql
                 - trg-verificar_valor_pesos_trg.sql
+                - vw-bienvenida.sql
+                - vw-gru_grupos.sql
+                - vw-caldiv_vw.sql
+                - vw-caldiv_vw.sql
+                - vw-caldivsincambio.sql
+                - vw-calgru_promedios.sql
+                - vw-calgru_vw.sql
+                - vw-calobs_periodos.sql
+                - vw-calobs_vw.sql
+                - vw-matrizperiodos6.sql
+                - vw-canasta_alimentaria.sql
+                - vw-canasta_alimentaria_var.sql
+                - vw-canasta_consumo.sql
+                - vw-canasta_consumo_var.sql
+                - vw-canasta_producto.sql
+                - vw-control_ajustes.sql
+                - vw-control_anulados_recep.sql
+                - vw-control_atributos.sql
+                - vw-control_calculoresultados.sql
+                - vw-control_calobs.sql
+                - vw-control_generacion_formularios.sql
+                - vw-gru_prod.sql
+                - vw-control_grupos_para_cierre.sql
+                - vw-control_hojas_ruta.sql
+                - vw-control_ingreso_atributos.sql
+                - vw-control_ingreso_precios.sql
+                - vw-control_normalizables_sindato.sql
+                - vw-control_precios.sql
+                - vw-control_precios2.sql
+                - vw-control_productos_para_cierre.sql
+                - vw-relatr_1.sql
+                - vw-relpre_1.sql
+                - vw-panel_promrotativo.sql
+                - vw-control_rangos.sql
+                - vw-panel_promrotativo_mod.sql
+                - vw-control_rangos_mod.sql
+                - vw-control_relev_telef.sql
+                - vw-control_sinprecio.sql
+                - vw-control_sinvariacion.sql
+                - vw-perfiltro.sql
+                - vw-control_tipoprecio.sql
+                - vw-controlvigencias.sql
+                - vw-desvios.sql
+                - vw-estadoinformantes.sql
+                - vw-forobs.sql
+                - vw-foresp.sql
+                - vw-forobsinf.sql
+                - vw-freccambio_nivel0.sql
+                - vw-freccambio_nivel1.sql
+                - vw-freccambio_nivel3.sql
+                - vw-freccambio_resto.sql
+                - vw-freccambio_restorest.sql
+                - vw-hdrexportar.sql
+                - vw-hdrexportarcierretemporal.sql
+                - vw-hdrexportarefectivossinprecio.sql
+                - vw-hdrexportarteorica.sql
+                - vw-hojaderuta.sql
+                - vw-hojaderutasupervisor.sql
+                - vw-informantesaltasbajas.sql
+                - vw-informantesformulario.sql
+                - vw-informantesrazon.sql
+                - vw-informantesrubro.sql
           logo: 
             path: client/img
         `);
     }
+    /* falta agregar:
+    - vw-control_ingresados_calculo.sql
+    - vw-matrizresultados.sql
+    - vw-matrizresultadossinvariacion.sql
+    - vw-parahojasderuta.sql
+    - vw-paraimpresionformulariosatributos.sql
+    - vw-paraimpresionformulariosenblanco.sql
+    - vw-paraimpresionformulariosprecios.sql
+    - vw-paralistadodecontroldecm.sql
+    - vw-paralistadodecontroldeinformantes.sql
+    - vw-precios_maximos_vw.sql
+    - vw-precios_minimos_vw.sql
+    - vw-precios_porcentaje_positivos_y_anulados.sql
+    - vw-preciosmedios_albs.sql
+    - vw-preciosmedios_albs_var.sql
+    - vw-prod_for_rub.sql
+    - vw-promedios_maximos_minimos.sql
+    - vw-reemplazosexportar.sql
+    - vw-revisor.sql
+    - vw-revisor_parametros.sql
+    - vw-transf_data.sql
+    - vw-transf_data_orig.sql
+    - vw-valorizacion_canasta.sql
+    - vw-valorizacion_canasta_cuadros.sql
+    - vw-variaciones_maximas_vw.sql
+    - vw-variaciones_minimas_vw.sql
+    */
     addLoggedServices(){
         var be = this;
         super.addLoggedServices();
@@ -233,7 +330,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
-			], showInOfflineMode: true},
+            ], showInOfflineMode: true},
             {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
             {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
                 {menuType:'table', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
@@ -502,6 +599,11 @@ class AppIpcba extends backendPlus.AppBackend{
 			{name: 'forinf', path: __dirname},
             {name: 'formularios', path: __dirname},
             {name: 'productos', path: __dirname},
+            {name: 'calobs', path: __dirname},
+            {name: 'calhoggru', path: __dirname},
+            {name: 'calhogsubtotales', path: __dirname},
+            {name: 'calprod', path: __dirname},
+            {name: 'calprodagr', path: __dirname},
             {name: 'novobs', path: __dirname},
             {name: 'novobs_recep', path: __dirname},
             {name: 'novpre', path: __dirname},
@@ -516,6 +618,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'gru_grupos', path: __dirname},
             {name: 'forprod', path: __dirname},
             {name: 'atributos', path: __dirname},
+            {name: 'prerep', path: __dirname},
             {name: 'prodatr', path: __dirname},
             {name: 'prodatrval', path: __dirname},
             {name: 'divisiones', path: __dirname},
@@ -687,8 +790,6 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'misma_direccion', path: __dirname}
         ]);
     }
-
-
 }
 
 new AppIpcba().start();

@@ -18,12 +18,9 @@ module.exports = function(context){
             {name:'cantidad'                     ,typeName:'integer'},
         ],
         primaryKey:['periodo','producto','tipoinformante','rubro','tipoprecio'],
-        /*
         sql:{
-            where:"periodo = 'a2017m02'" 
-            //+context.be.db.quoteText(context.user.usuario)
-        } 
-        */        
+            isTable: false,
+        },
     });
 }
 

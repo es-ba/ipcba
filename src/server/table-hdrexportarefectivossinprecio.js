@@ -31,5 +31,8 @@ module.exports = function(context){
             {name:'tipoprecios'                  , typeName:'text'      },
         ],
         primaryKey:['periodo','informante','visita','formulario'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }

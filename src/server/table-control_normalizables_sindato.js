@@ -42,5 +42,8 @@ module.exports = function(context){
             {name:'recepcionista'                , typeName:'text', title:'rec'},     
         ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
+        sql:{
+            isTable: false,
+        },
     });
 }

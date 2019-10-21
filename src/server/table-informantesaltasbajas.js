@@ -29,6 +29,9 @@ module.exports = function(context){
             {name:'cantformactivos'              , typeName:'integer'},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
+        sql:{
+            isTable: false,
+        },
     },context);
 }
 

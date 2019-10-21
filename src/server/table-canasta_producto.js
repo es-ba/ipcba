@@ -32,5 +32,8 @@ module.exports = function(context){
             {name:'bgrupo4'              ,typeName:'text'   },
         ],
         primaryKey:['periodo','calculo','agrupacion','producto','hogar','parametro'],
+        sql:{
+            isTable: false,
+        },
     });
 }
