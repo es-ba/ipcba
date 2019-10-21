@@ -8,7 +8,24 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}\\server\\server-ipcba.js"
+            "preLaunchTask": "build-all",
+            "program": "${workspaceFolder}/dist/server/server-ipcba.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "dumpDb",
+            "preLaunchTask": "build-all",
+            "program": "${workspaceFolder}/dist/server/server-ipcba.js",
+            "args": [
+                "--dump-db"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
         }
     ]
 }

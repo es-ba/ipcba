@@ -3,33 +3,55 @@
   "version": "0.5.6",
   "private": true,
   "description": "Indice de Precios al Consumidor",
+  "main": "dist/server/server-ipcba.js",
+  "files": [
+    "dist",
+    "install"
+  ],
   "dependencies": {
-    "@material-ui/core": "~4.4.1",
-    "@material-ui/icons": "~4.4.1",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
+    "@material-ui/core": "~4.5.1",
+    "@material-ui/icons": "~4.5.1",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "redux": "^4.0.4",
     "react-redux": "^7.1.1",
-    "backend-plus": "~0.30.30",
+    "backend-plus": "~0.31.2",
     "ajax-best-promise": "^0.3.7",
     "best-globals": "^0.10.23",
     "like-ar": "^0.2.16",
     "pg-triggers": "~0.2.3"
   },
   "devDependencies": {
-    "@types/react": "^16.9.2",
-    "@types/react-dom": "^16.9.0",
-    "@types/react-redux": "^7.1.2",
+    "@types/react": "^16.9.9",
+    "@types/react-dom": "^16.9.2",
+    "@types/react-redux": "^7.1.4",
     "source-map-loader": "^0.2.4",
-    "ts-loader": "^6.0.4",
-    "typescript": "^3.6.2",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.8",
-    "server4test": "^0.5.1",
-    "types.d.ts": "^0.4.8"
+    "ts-loader": "^6.2.0",
+    "typescript": "^3.6.4",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "server4test": "^0.5.3",
+    "types.d.ts": "^0.4.9",
+    "mixin-patch": "~0.3.1",
+    "material-styles": "~0.0.3"
   },
   "scripts": {
-    "start": "node server/server-ipcba.js",
+    "prepublish": "npm run build",
+    "build": "(tsc -p tsconfig-client.json || echo \"continue w/error\") && (tsc -p tsconfig-tests.json || echo \"continue w/error\") && (tsc -p tsconfig-server.json  || echo \"continue w/error\") && (tsc -p tsconfig-unlogged.json || echo \"continue w/error\") && mixin-patch",
+    "watch:buildC": "(tsc -p tsconfig-client.json --watch || echo \"continue w/error\")",
+    "watch:buildS": "(tsc -p tsconfig-server.json --watch || echo \"continue w/error\")",
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "dump": "npm start -- --dump-db",
+    "dumpb": "(tsc -p tsconfig-server.json  || echo \"continue w/error\") && npm run dump",
+    "start": "node dist/server/server-ipcba.js",
     "demo-dm": "cd demo && node ../node_modules/server4test/lib/launch4test.js && cd .."
+  },
+  "qa-control": {
+    "package-version": "0.3.0",
+    "coverage": 90,
+    "run-in": "server",
+    "stability": "extending",
+    "type": "app",
+    "ecmaVersion": 6
   }
 }
