@@ -539,6 +539,8 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', module: 'react-dom', modPath: 'umd', file:'react-dom.development.js', fileProduction:'react-dom.production.min.js' },
             { type: 'js', module: '@material-ui/core', modPath: 'umd', file:'material-ui.development.js', fileProduction:'material-ui.production.min.js' },
             { type: 'js', module: 'material-styles', file:'material-styles.development.js', fileProduction:'material-styles.production.min.js' },
+            { type: 'js', module: 'redux', modPath:'../dist', file:'redux.js', fileProduction:'redux.min.js' },
+            { type: 'js', module: 'react-redux', modPath:'../dist', file:'react-redux.js', fileProduction:'react-redux.min.js' },
             ...super.clientIncludes(req, hideBEPlusInclusions),
             { type: 'js', src:'adapt.js' },
             { type: 'js', src: 'client/ejemplo-precios.js' },

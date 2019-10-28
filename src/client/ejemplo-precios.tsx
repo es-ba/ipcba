@@ -1,9 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre,} from "./dm-tipos";
+import {ProductoState, ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
-import {changing, deepFreeze} from "best-globals";
+import { Provider, useSelector, useDispatch } from "react-redux"; 
+import {changing, serie, deepFreeze} from "best-globals";
 import * as likeAr from "like-ar";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
+import { Store } from "redux";
 
 
 const FLECHATIPOPRECIO="→";
@@ -13,163 +17,7 @@ type Focusable = {
     focus:()=>void
     blur:()=>void
 }
-type AtributoDataTypes = 'numero'|'texto';
-
-type DataAtributo = {
-    atributo:string,
-    tipodato: AtributoDataTypes,
-    valorAnterior:string|null,
-    valor:string|null
-}
-
-type DataPrecio = {
-    producto:string, 
-    especificacion:string, 
-    tipoPrecioAnterior:string|null, 
-    tipoPrecio:string|null, 
-    precio:number|null,
-    precioAnterior:number|null,
-    atributos:DataAtributo[],
-    cambio:string|null
-}
-
-type TiposPrecioDef = {
-    tipoPrecio: string,
-    descripcion: string,
-    positivo: boolean,
-    copiable?: true, 
-    predeterminado?: true, 
-}
-
-var tiposPrecioDef:TiposPrecioDef[]=[
-    {tipoPrecio:'P', descripcion:'Precio normal'   , positivo:true , predeterminado:true},
-    {tipoPrecio:'O', descripcion:'Oferta'          , positivo:true },
-    {tipoPrecio:'B', descripcion:'Bonificado'      , positivo:true },
-    {tipoPrecio:'S', descripcion:'Sin existencia'  , positivo:false},
-    {tipoPrecio:'N', descripcion:'No vende'        , positivo:false, copiable:true},
-    {tipoPrecio:'E', descripcion:'Falta estacional', positivo:false, copiable:true},
-];
-
-var tipoPrecio=likeAr.createIndex(tiposPrecioDef, 'tipoPrecio');
-
-var tipoPrecioPredeterminado = tiposPrecioDef.find(tp=>tp.predeterminado)!;
-
-var dataPreciosInicialCorto:DataPrecio[] = [
-    {
-        producto:'Lata de tomate',
-        especificacion:'Lata de tomate perita enteros pelado de 120 a 140g neto',
-        tipoPrecioAnterior:'P',
-        precioAnterior:120,
-        tipoPrecio:'O',
-        precio:130,
-        atributos:[
-            {atributo:'Marca', valorAnterior:'La campagnola', tipodato:"texto", valor:null},
-            {atributo:'Gramaje', valorAnterior:'300', tipodato:"numero", valor:null}
-        ],
-        cambio: null
-    },
-    {
-        producto:'Lata de arvejas',
-        especificacion:'Lata de arvejas peladas de 120 a 140g neto',
-        tipoPrecioAnterior:'P',
-        precioAnterior:140,
-        tipoPrecio:null,
-        precio:null,
-        atributos:[
-            {atributo:'Marca', valorAnterior:'La campagnola', tipodato:"texto", valor:null},
-            {atributo:'Gramaje', valorAnterior:'300', tipodato:"numero", valor:null}
-        ],
-        cambio: null
-    },
-    {
-        producto:'Yerba',
-        especificacion:'Paquete de yerba con palo en envase de papel de 500g',
-        tipoPrecioAnterior:'S',
-        precioAnterior:null,
-        tipoPrecio:'S',
-        precio:null,
-        atributos:[
-            {atributo:'Marca', valorAnterior:'Unión', tipodato:"texto", valor:null},
-            {atributo:'Variante', valorAnterior:'Suave sin palo', tipodato:"texto", valor:null},
-            {atributo:'Gramaje', valorAnterior:'500', tipodato:"numero", valor:null}
-        ],
-        cambio: null
-    },
-    {
-        producto:'Azucar',
-        especificacion:'Azucar blanca de 900 a 1200g en bolsa de plástico o papel',
-        tipoPrecioAnterior:'S',
-        precioAnterior:null,
-        tipoPrecio:null,
-        precio:null,
-        atributos:[
-            {atributo:'Marca'  , valorAnterior:'Ledesma', tipodato:"texto", valor:null},
-            {atributo:'Envase' , valorAnterior:'papel', tipodato:"texto", valor:null},
-            {atributo:'Gramaje', valorAnterior:'1000', tipodato:"numero", valor:null}
-        ],
-        cambio: null
-    },
-    {
-        producto:'Leche entera en sachet',
-        especificacion:'Leche entera en sachet de 1 litro sin adhitivos ni vitaminas',
-        tipoPrecioAnterior:'P',
-        precioAnterior:56,
-        tipoPrecio:'P',
-        precio:57.75,
-        atributos:[
-            {atributo:'Marca', valorAnterior:'Sancor', tipodato:"texto", valor:'Sancor'},
-        ],
-        cambio: null
-    },
-    {
-        producto:'Dulce de leche',
-        especificacion:'Dulce de leche en envase de 300g a 550g. Excluir mezclas especiales y marcas premium',
-        tipoPrecioAnterior:'P',
-        precioAnterior:98.40,
-        tipoPrecio:'P',
-        precio:57.75,
-        atributos:[
-            {atributo:'Marca'   , valorAnterior:'Sancor', tipodato:"texto", valor:null},
-            {atributo:'Variante', valorAnterior:'Repostero', tipodato:"texto", valor:null},
-            {atributo:'Gramaje' , valorAnterior:'500', tipodato:"numero", valor:null},
-            {atributo:'Envase'  , valorAnterior:'Plástico', tipodato:"texto", valor:null},
-        ],
-        cambio: null
-    },
-];
-
-var dataPreciosInicial=[...dataPreciosInicialCorto,
-    {
-        producto:'Mandarina',
-        especificacion:'Mandarina común',
-        tipoPrecioAnterior:'E',
-        precioAnterior:null,
-        tipoPrecio:null,
-        precio:null,
-        atributos:[],
-        cambio: null
-    },
-    {
-        producto:'Carbón de leña',
-        especificacion:'Carbón de leña en bolsa de plástico o papel de 3 a 5kg',
-        tipoPrecioAnterior:'N',
-        precioAnterior:null,
-        tipoPrecio:null,
-        precio:null,
-        atributos:[
-            {atributo:'Marca'   , valorAnterior:'s/m', tipodato:"texto", valor:null},
-            {atributo:'Kilos'   , valorAnterior:'3', tipodato:"numero", valor:null},
-            {atributo:'Envase'  , valorAnterior:'Papel', tipodato:"texto", valor:null},
-        ],
-        cambio: null
-    },
-];
-
-while(dataPreciosInicial.length<100){
-    dataPreciosInicial.push(changing(dataPreciosInicialCorto[Math.floor(Math.random()*dataPreciosInicialCorto.length)],{}));
-}
-
-deepFreeze(dataPreciosInicial);
+type AtributoDataTypes = 'N'|'C';
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -177,11 +25,113 @@ type InputTypes = 'date'|'number'|'tel'|'text';
 
 function adaptAtributoDataTypes(attrDataType:AtributoDataTypes):InputTypes{
     const adapter:{[key in AtributoDataTypes]:InputTypes} = {
-        'numero': 'number',
-        'texto': 'text'
+        'N': 'number',
+        'C': 'text'
     }
     return adapter[attrDataType]
 }
+
+/* SEPARAR*/
+
+var productos:{[p:string]:Producto} = {
+    P01:{
+        producto:'P01',
+        nombreproducto:'Lata de tomate',
+        especificacioncompleta:'Lata de tomate perita enteros pelado de 120 a 140g neto',
+        atributos:{
+            13:{
+                orden:1,
+                normalizable:'N',
+                prioridad:null,
+                rangodesde:null,
+                rangohasta:null,
+                tiponormalizacion:null
+            },
+            16:{
+                orden:2,
+                normalizable:'N',
+                prioridad:1,
+                rangodesde:120,
+                rangohasta:140,
+                tiponormalizacion:'normal'
+            }
+        },
+        listaAtributos:[13,16]
+    },
+    P02:{
+        producto:'P02',
+        nombreproducto:'Lata de arvejas',
+        especificacioncompleta:'Lata de arvejas peladas de 120 a 140g neto',
+        atributos:{
+            13:{
+                orden:1,
+                normalizable:'N',
+                prioridad:null,
+                rangodesde:null,
+                rangohasta:null,
+                tiponormalizacion:null
+            },
+            16:{
+                orden:2,
+                normalizable:'S',
+                prioridad:1,
+                rangodesde:120,
+                rangohasta:140,
+                tiponormalizacion:'normal'
+            }
+        },
+        listaAtributos:[13,16]
+    },
+    P03:{
+        producto:'P02',
+        nombreproducto:'Yerba',
+        especificacioncompleta:'Paquete de yerba con palo en envase de papel de 500g',
+        atributos:{
+            13:{
+                orden:1,
+                normalizable:'N',
+                prioridad:null,
+                rangodesde:null,
+                rangohasta:null,
+                tiponormalizacion:null
+            },
+            16:{
+                orden:3,
+                normalizable:'S',
+                prioridad:1,
+                rangodesde:120,
+                rangohasta:140,
+                tiponormalizacion:'normal'
+            },
+            55:{
+                orden:2,
+                normalizable:'S',
+                prioridad:1,
+                rangodesde:120,
+                rangohasta:140,
+                tiponormalizacion:'normal'
+            }
+        },
+        listaAtributos:[13,55,16]
+    }
+}
+
+var tiposPrecioDef:TipoPrecio[]=[
+    {tipoprecio:'P', nombretipoprecio:'Precio normal'   , espositivo:'S', puedecopiar:'N' , predeterminado:true},
+    {tipoprecio:'O', nombretipoprecio:'Oferta'          , espositivo:'S', puedecopiar:'N' },
+    {tipoprecio:'B', nombretipoprecio:'Bonificado'      , espositivo:'S', puedecopiar:'N' },
+    {tipoprecio:'S', nombretipoprecio:'Sin existencia'  , espositivo:'N', puedecopiar:'N' },
+    {tipoprecio:'N', nombretipoprecio:'No vende'        , espositivo:'N', puedecopiar:'S'},
+    {tipoprecio:'E', nombretipoprecio:'Falta estacional', espositivo:'N', puedecopiar:'S'},
+];
+
+var tipoPrecio=likeAr.createIndex(tiposPrecioDef, 'tipoprecio');
+
+var tipoPrecioPredeterminado = tiposPrecioDef.find(tp=>tp.predeterminado)!;
+
+
+/*FIN SEPARAR*/
+
 
 function TypedInput<T>(props:{
     value:T,
@@ -262,7 +212,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
 });
 
 const AtributosRow = forwardRef(function(props:{
-    dataAtributo:DataAtributo, 
+    dataAtributo:RelAtr, 
     cambio:string|null,
     primerAtributo:boolean, 
     cantidadAtributos:number, 
@@ -275,10 +225,10 @@ const AtributosRow = forwardRef(function(props:{
     ref:React.Ref<Focusable>
 ){
     const atributo = props.dataAtributo;
-    return (
+return (
         <tr>
-            <td>{atributo.atributo}</td>
-            <td colSpan={2} className="atributo-anterior" >{atributo.valorAnterior}</td>
+            <td>{'attr'/*atributo.atributo*/}</td>
+            <td colSpan={2} className="atributo-anterior" >{atributo.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
                     if(props.habilitarCopiado){
@@ -287,7 +237,7 @@ const AtributosRow = forwardRef(function(props:{
                 }}>{props.habilitarCopiado?FLECHAATRIBUTOS:props.cambio}</td>
                 :null}
             <EditableTd disabled={props.deshabilitarAtributo} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={atributo.valor} onUpdate={value=>{
-                props.onUpdate(props.dataAtributo.atributo, value)
+                //props.onUpdate(props.dataAtributo.atributo, value)
             }} onWantToMoveForward={props.onWantToMoveForward}
             ref={ref} />
         </tr>
@@ -295,40 +245,45 @@ const AtributosRow = forwardRef(function(props:{
 });
 
 function PreciosRow(props:{
-    dataPrecio:DataPrecio, 
-    onCopiarAtributos:()=>void,
-    setPrecio:(precio:number|null)=>void,
-    setTipoPrecioPositivo:(tipoPrecio:string)=>void,
-    setTipoPrecioNegativo:(tipoDePrecioNegativo:string)=>void,
-    updateAtributo:(atributo:string, valor:string|null)=>void
-    onUpdate:(dataPrecio:DataPrecio)=>void,
+    producto:string,
+    observacion:number,
+    relPre:RelPre, 
+    //formulario:Formulario,
+    //onCopiarAtributos:()=>void,
+    //setPrecio:(precio:number|null)=>void,
+    //setTipoPrecioPositivo:(tipoPrecio:string)=>void,
+    //setTipoPrecioNegativo:(tipoDePrecioNegativo:string)=>void,
+    //updateAtributo:(atributo:string, valor:string|null)=>void
+    //onUpdate:(dataPrecio:RelPre)=>void,
 }){
     const precioRef = useRef<HTMLInputElement>(null);
-    const atributosRef = useRef(props.dataPrecio.atributos.map(() => createRef<HTMLInputElement>()));
+    const productoDef:Producto = productos[props.producto];
+    const atributosRef = useRef(productoDef.listaAtributos.map(() => createRef<HTMLInputElement>()));
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
-    const [deshabilitarPrecio, setDeshabilitarPrecio] = useState<boolean>(props.dataPrecio.tipoPrecio?!(tipoPrecio[props.dataPrecio.tipoPrecio].positivo):false);
-    var habilitarCopiado = props.dataPrecio.cambio==null && (!props.dataPrecio.tipoPrecio || tipoPrecio[props.dataPrecio.tipoPrecio].positivo);
+    var deshabilitarPrecio = false; // mejorar
+    // const [deshabilitarPrecio, setDeshabilitarPrecio] = useState<boolean>(props.relPre.tipoPrecio?!(tipoPrecio[props.relPre.tipoPrecio].espositivo):false);
+    var habilitarCopiado = props.relPre.cambio==null && (!props.relPre.tipoprecio || tipoPrecio[props.relPre.tipoprecio].espositivo == 'S');
     return (
-        <tbody>
+        <>
             <tr>
-                <td className="col-prod-esp" rowSpan={props.dataPrecio.atributos.length + 1}>
-                    <div className="producto">{props.dataPrecio.producto}</div>
-                    <div className="especificacion">{props.dataPrecio.especificacion}</div>
+                <td className="col-prod-esp" rowSpan={productoDef.listaAtributos.length + 1}>
+                    <div className="producto">{productoDef.nombreproducto}</div>
+                    <div className="especificacion">{productoDef.especificacioncompleta}</div>
                 </td>
                 <td className="observaiones"><button>Obs.</button></td>
-                <td className="tipoPrecioAnterior">{props.dataPrecio.tipoPrecioAnterior}</td>
-                <td className="precioAnterior">{props.dataPrecio.precioAnterior}</td>
-                { props.dataPrecio.tipoPrecio==null 
-                    && props.dataPrecio.tipoPrecioAnterior!=null 
-                    && tipoPrecio[props.dataPrecio.tipoPrecioAnterior].copiable
+                <td className="tipoPrecioAnterior">{props.relPre.tipoprecioanterior}</td>
+                <td className="precioAnterior">{props.relPre.precioanterior}</td>
+                { props.relPre.tipoprecio==null 
+                    && props.relPre.tipoprecioanterior!=null 
+                    && tipoPrecio[props.relPre.tipoprecioanterior].puedecopiar
                 ?
                     <td className="flechaTP" onClick={ () => {
-                        if(tipoPrecio[props.dataPrecio.tipoPrecioAnterior!].positivo){
-                            props.setTipoPrecioPositivo(props.dataPrecio.tipoPrecioAnterior!);
+                        if(tipoPrecio[props.relPre.tipoprecioanterior!].espositivo){
+                            //props.setTipoPrecioPositivo(props.relPre.tipoprecioanterior!);
                         }else{
-                            props.setTipoPrecioNegativo(props.dataPrecio.tipoPrecioAnterior!);    
+                            //props.setTipoPrecioNegativo(props.relPre.tipoprecioanterior!);    
                         }
                         
                     }}>{FLECHATIPOPRECIO}</td>
@@ -337,7 +292,7 @@ function PreciosRow(props:{
                 }
                 <td className="tipoPrecio"
                     onClick={event=>setMenuTipoPrecio(event.currentTarget)}
-                >{props.dataPrecio.tipoPrecio}
+                >{props.relPre.tipoprecio}
                 </td>
                 <Menu id="simple-menu"
                     open={Boolean(menuTipoPrecio)}
@@ -345,22 +300,22 @@ function PreciosRow(props:{
                     onClose={()=>setMenuTipoPrecio(null)}
                 >
                     {tiposPrecioDef.map(tpDef=>
-                        <MenuItem key={tpDef.tipoPrecio} onClick={()=>{
+                        <MenuItem key={tpDef.tipoprecio} onClick={()=>{
                             setMenuTipoPrecio(null);
-                            var necesitaConfirmacion = !tipoPrecio[tpDef.tipoPrecio].positivo && (props.dataPrecio.precio != null || props.dataPrecio.cambio != null);
+                            var necesitaConfirmacion = !tipoPrecio[tpDef.tipoprecio].espositivo && (props.relPre.precio != null || props.relPre.cambio != null);
                             if(necesitaConfirmacion){
-                                setTipoDePrecioNegativoAConfirmar(tpDef.tipoPrecio);
+                                setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                setDeshabilitarPrecio(!tipoPrecio[tpDef.tipoPrecio].positivo);
-                                props.setTipoPrecioPositivo(tpDef.tipoPrecio);
+                                // setDeshabilitarPrecio(!tipoPrecio[tpDef.tipoprecio].espositivo);
+                                //props.setTipoPrecioPositivo(tpDef.tipoprecio);
                             }
-                            if(precioRef.current && !props.dataPrecio.precio && tipoPrecio[tpDef.tipoPrecio].positivo){
+                            if(precioRef.current && !props.relPre.precio && tipoPrecio[tpDef.tipoprecio].espositivo){
                                 precioRef.current.focus();
                             }
                         }}>
-                            <ListItemText>{tpDef.tipoPrecio}&nbsp;</ListItemText>
-                            <ListItemText>&nbsp;{tpDef.descripcion}</ListItemText>
+                            <ListItemText>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                            <ListItemText>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
                         </MenuItem>
                     )}
                 </Menu>
@@ -383,51 +338,51 @@ function PreciosRow(props:{
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            props.setTipoPrecioNegativo(tipoDePrecioNegativoAConfirmar!)
-                            setDeshabilitarPrecio(true);
+                            //props.setTipoPrecioNegativo(tipoDePrecioNegativoAConfirmar!)
+                            // setDeshabilitarPrecio(true);
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd disabled={deshabilitarPrecio} className="precio" value={props.dataPrecio.precio} dataType="number" onUpdate={value=>{
-                    props.setPrecio(value);
-                    if(!props.dataPrecio.tipoPrecio && props.dataPrecio.precio){
-                        props.setTipoPrecioPositivo(tipoPrecioPredeterminado.tipoPrecio);
+                <EditableTd disabled={deshabilitarPrecio} className="precio" value={props.relPre.precio} onUpdate={value=>{
+                    //props.setPrecio(value);
+                    if(!props.relPre.tipoprecio && props.relPre.precio){
+                        //props.setTipoPrecioPositivo(tipoPrecioPredeterminado.tipoprecio);
                     }
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }
-                }} ref={precioRef}/>
+                }} ref={precioRef} dataType="number"/>
             </tr>
-            {props.dataPrecio.atributos.map((atributo,index)=>
-                <AtributosRow key={index}
-                    dataAtributo={atributo}
+            {productoDef.listaAtributos.map((atributo, index)=>
+                <AtributosRow key={atributo}
+                    dataAtributo={props.relPre.atributos[atributo]}
                     primerAtributo={index==0}
-                    cambio={props.dataPrecio.cambio}
+                    cambio={props.relPre.cambio}
                     habilitarCopiado={habilitarCopiado}
                     deshabilitarAtributo={deshabilitarPrecio}
-                    cantidadAtributos={props.dataPrecio.atributos.length}
-                    ultimoAtributo={index == props.dataPrecio.atributos.length-1}
+                    cantidadAtributos={productoDef.listaAtributos.length}
+                    ultimoAtributo={index == productoDef.listaAtributos.length-1}
                     onCopiarAtributos={()=>{
-                        props.onCopiarAtributos()
-                        if(!props.dataPrecio.precio && precioRef.current){
+                        //props.onCopiarAtributos()
+                        if(!props.relPre.precio && precioRef.current){
                             precioRef.current.focus();
                         }
                     }}
                     onUpdate={(atributo:string, valor:string|null)=>{
-                        props.updateAtributo(atributo,valor)
+                        //props.updateAtributo(atributo,valor)
                     }}
                     onWantToMoveForward={()=>{
-                        if(index<props.dataPrecio.atributos.length-1){
+                        if(index<productoDef.listaAtributos.length-1){
                             var nextItemRef=atributosRef.current[index+1];
                             if(nextItemRef.current!=null){
                                 nextItemRef.current.focus()
                                 return true;
                             }
                         }else{
-                            if(!props.dataPrecio.precio){
+                            if(!props.relPre.precio){
                                 if(precioRef.current){
                                     precioRef.current.focus();
                                     return true;
@@ -439,15 +394,12 @@ function PreciosRow(props:{
                     ref={atributosRef.current[index]}
                 />
             )}
-        </tbody>
+        </>
     );
 }
 
 function PruebaRelevamientoPrecios(){
-    const [dataPrecios, setDataPrecios] = useState(dataPreciosInicial);
-    const updateDataPrecio = function updateDataPrecio(dataPrecio:DataPrecio,index:number){
-        setDataPrecios(deepFreeze([...dataPrecios.slice(0,index), dataPrecio, ...dataPrecios.slice(index+1)]))
-    }
+    const productosState = useSelector((productos:ProductoState)=>productos);
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -478,60 +430,29 @@ function PruebaRelevamientoPrecios(){
                     <th>precio</th>
                 </tr>
             </thead>
-            {dataPrecios.map((dataPrecio,index) =>
-                <PreciosRow key={index} dataPrecio={dataPrecio} 
-                onCopiarAtributos={()=>{
-                    var myDataPrecio = {
-                        ...dataPrecio,
-                        atributos: dataPrecio.atributos.map(atrib=>{
-                            return {...atrib, valor:atrib.valorAnterior}
-                        }),
-                        cambio:'=',
-                        tipoPrecio:dataPrecio.tipoPrecio||tipoPrecioPredeterminado.tipoPrecio,
-                    };
-                    updateDataPrecio(myDataPrecio,index);
-                }}
-                setPrecio={(precio:number|null)=>{
-                    updateDataPrecio({...dataPrecio, precio},index);
-                }}
-                setTipoPrecioPositivo={(tipoPrecio:string)=>{
-                    updateDataPrecio({...dataPrecio, tipoPrecio},index);
-                }}
-                setTipoPrecioNegativo={(tipoDePrecioNegativo:string)=>{
-                    var myDataPrecio = {
-                        ...dataPrecio,
-                        tipoPrecio: tipoDePrecioNegativo,
-                        precio: null,
-                        cambio: null,
-                        atributos: dataPrecio.atributos.map(atrib=>{return {...atrib, valor:null}})
-                    };
-                    updateDataPrecio(myDataPrecio,index);
-                }}
-                updateAtributo={(atributo:string, valor:string|null)=>{
-                    var myDataPrecio = {
-                        ...dataPrecio,
-                        atributos: dataPrecio.atributos.map(atrib=>
-                            atrib.atributo == atributo?{...atrib, valor}:atrib
-                        )
-                    };
-                    updateDataPrecio({
-                        ...myDataPrecio,
-                        cambio: dataPrecio.atributos.find((atrib)=>
-                            atrib.valorAnterior == atrib.valor
-                        )!==null?'C':'='
-                    },index);
-                }}
-                onUpdate={
-                    (dataPrecioForUpdate:DataPrecio)=>updateDataPrecio(dataPrecioForUpdate,index)
-                }></PreciosRow>
+            <tbody>
+            {productosState.allIds.map((idProducto:string) => {
+                var miProducto = productosState.byIds[idProducto];
+                return likeAr(miProducto.observaciones).map((relPre:RelPre, observacion:number)=>
+                    <PreciosRow 
+                        //formulario={formulario} // se va con redux 
+                        relPre={relPre} // se va con redux 
+                        producto={idProducto} 
+                        observacion={observacion}
+                    />
+                ).array()
+                }
             )}
+            </tbody>
         </table>
     );
 }
 
-export function mostrarHdr(){
+export function mostrarHdr(store:Store<ProductoState, ActionFormulario>){
     ReactDOM.render(
-        <PruebaRelevamientoPrecios/>,
+        <Provider store={store}>
+            <PruebaRelevamientoPrecios/>
+        </Provider>,
         document.getElementById('main_layout')
     )
 }

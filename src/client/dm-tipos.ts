@@ -7,29 +7,31 @@
  * 
  */
 
+export type SiNo = 'S' | 'N';
+
 export type Atributo = {
     atributo:string
     tipodato:string
     nombreatributo:string
-    escantidad: string
+    escantidad: SiNo
 }
 
 export type ProdAtr = {
-    rangodesde: number
-    rangohasta: number
+    rangodesde: number | null
+    rangohasta: number | null
     orden: number
-    normalizable: string
-    prioridad: number 
-    tiponormalizacion: string
+    normalizable: SiNo
+    prioridad: number | null
+    tiponormalizacion: string | null
 }
 
 export type Producto={
     producto:string
     nombreproducto:string
     especificacioncompleta: string
-    _especificaciones__mostrar_cant_um: string
+    _especificaciones__mostrar_cant_um?: string
     atributos:{
-        [atributo:number]: ProdAtr
+        [atributo:string]: ProdAtr
     }
     listaAtributos:number[]
 }
@@ -43,8 +45,8 @@ export type Formulario={
     formulario:number
     nombreformulario:string
     orden: number // esto va acá o en la hoja de ruta en ForInf?
-    productos: ForProd
-    listaProductos:number[]
+    productos: {[p:string]:ForProd}
+    listaProductos:string[]
 }
 
 export type Razones={
@@ -54,7 +56,10 @@ export type Razones={
 
 export type TipoPrecio = {
     tipoprecio: string
-    positivo: string // CONFIRMAR NOMBRE
+    nombretipoprecio: string
+    puedecopiar: SiNo
+    espositivo: SiNo
+    predeterminado?:boolean
 
 }
 
@@ -68,21 +73,21 @@ export type Estructura={
 
 export type RelAtr={
     valoranterior:string
-    valor:string
+    valor:string|null
     _valornormal: number
     _opciones: string  
     _valor_pesos: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
 }
 
 export type RelPre={
-    precio:number,
-    precioanterior:number,
-    tipopecio:string,
-    tipoprecioanterior:string,
+    precio:number | null,
+    precioanterior:number | null,
+    tipoprecio:string | null,
+    tipoprecioanterior:string | null,
     atributos:{
         [atributo:number]:RelAtr
     }
-    cambio: string
+    cambio: string | null
     comentariosrelpre: string
     precionormalizado: number
     precionormalizado_1: number
@@ -96,9 +101,9 @@ export type RelPre={
 export type RelVis={
     formulario: number
     razon: number
-    comentarios: string
+    comentarios: string | null
     productos:{
-        [producto:number]:{
+        [producto:string]:{
             observaciones:{
                 [observacion:number]:RelPre
             }
