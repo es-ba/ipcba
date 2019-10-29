@@ -36,12 +36,6 @@ module.exports = function(context){
                 {source:'informante'      , target:'informante'  },
                 {source:'visita'          , target:'visita'      },
             ]},
-            {references:'valvalatr', fields:[
-                {source:'periodo'                    , target:'periodo'     },
-                {source:'producto'                   , target:'producto'    },
-                {source:'valor'                      , target:'valor'       },
-                {source:'validar_con_valvalatr'      , target:'validar'  },
-            ]},
         ]
-    });
+    }, context);
 }

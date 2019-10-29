@@ -19,7 +19,7 @@ module.exports = function(context){
             {name:'tarea'                        ,typeName:'integer'},
             {name:'recepcionista'                ,typeName:'text'   },
             {name:'precionormalizado'            ,typeName:'decimal'},
-            {name:'cantprecios'                  ,typeName:'integer'},
+            {name:'cantprecios'                  ,title:'cantperiodosconigualprecio',typeName:'integer'},
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
         sql:{

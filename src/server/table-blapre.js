@@ -38,11 +38,11 @@ module.exports = function(context){
                 {source:'formulario'      , target:'formulario'  },
             ]},
             {references:'tipopre', fields:[
-                {source:'tipoprecio'         , target:'tiporecio'     },
+                {source:'tipoprecio'         , target:'tipoprecio'     },
             ]},
         ],
         constraints:[
             {constraintType:'unique', fields:['periodo', 'producto', 'observacion', 'informante', 'ultima_visita']}
         ]
-    });
+    }, context);
 }

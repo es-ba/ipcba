@@ -139,6 +139,11 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-estadoinformante.sql
                 - fun-devolver_mes_anio.sql
                 - fun-formularioshdr.sql
+                - fun-matrizresultados_atributos_fun.sql
+                - fun-periodo_minimas_variaciones.sql
+                - fun-periodo_maximas_variaciones.sql
+                - fun-periodo_minimos_precios.sql
+                - fun-periodo_maximos_precios.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
@@ -255,36 +260,36 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-informantesformulario.sql
                 - vw-informantesrazon.sql
                 - vw-informantesrubro.sql
+                - vw-control_ingresados_calculo.sql
+                - vw-matrizresultados.sql
+                - vw-matrizresultadossinvariacion.sql
+                - vw-parahojasderuta.sql
+                - vw-paraimpresionformulariosatributos.sql
+                - vw-paraimpresionformulariosenblanco.sql
+                - vw-paraimpresionformulariosprecios.sql
+                - vw-paralistadodecontroldecm.sql
+                - vw-paralistadodecontroldeinformantes.sql
+                - vw-precios_maximos_vw.sql
+                - vw-precios_minimos_vw.sql
+                - vw-precios_porcentaje_positivos_y_anulados.sql
+                - vw-preciosmedios_albs.sql
+                - vw-preciosmedios_albs_var.sql
+                - vw-prod_for_rub.sql
+                - vw-promedios_maximos_minimos.sql
+                - vw-reemplazosexportar.sql
+                - vw-revisor_parametros.sql
+                - vw-revisor.sql
+                - vw-variaciones_maximas_vw.sql
+                - vw-variaciones_minimas_vw.sql
           logo: 
             path: client/img
         `);
     }
     /* falta agregar:
-    - vw-control_ingresados_calculo.sql
-    - vw-matrizresultados.sql
-    - vw-matrizresultadossinvariacion.sql
-    - vw-parahojasderuta.sql
-    - vw-paraimpresionformulariosatributos.sql
-    - vw-paraimpresionformulariosenblanco.sql
-    - vw-paraimpresionformulariosprecios.sql
-    - vw-paralistadodecontroldecm.sql
-    - vw-paralistadodecontroldeinformantes.sql
-    - vw-precios_maximos_vw.sql
-    - vw-precios_minimos_vw.sql
-    - vw-precios_porcentaje_positivos_y_anulados.sql
-    - vw-preciosmedios_albs.sql
-    - vw-preciosmedios_albs_var.sql
-    - vw-prod_for_rub.sql
-    - vw-promedios_maximos_minimos.sql
-    - vw-reemplazosexportar.sql
-    - vw-revisor.sql
-    - vw-revisor_parametros.sql
     - vw-transf_data.sql
     - vw-transf_data_orig.sql
     - vw-valorizacion_canasta.sql
     - vw-valorizacion_canasta_cuadros.sql
-    - vw-variaciones_maximas_vw.sql
-    - vw-variaciones_minimas_vw.sql
     */
     addLoggedServices(){
         var be = this;
@@ -599,7 +604,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'prodcontrolrangos', path: __dirname},
             {name: 'prodagr', path: __dirname},
             {name: 'tipoinf', path: __dirname},
-			{name: 'forinf', path: __dirname},
+            {name: 'forinf', path: __dirname},
             {name: 'formularios', path: __dirname},
             {name: 'productos', path: __dirname},
             {name: 'calobs', path: __dirname},
@@ -609,6 +614,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'calprodagr', path: __dirname},
             {name: 'novobs', path: __dirname},
             {name: 'novobs_recep', path: __dirname},
+            {name: 'blapre', path: __dirname},
+            {name: 'blaatr', path: __dirname},
             {name: 'novpre', path: __dirname},
             {name: 'novpre_recep', path: __dirname},
             {name: 'novdelobs', path: __dirname},
@@ -657,7 +664,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_control_sinprecio', path: __dirname},
             {name: 'periodos_precios_minimos_vw', path: __dirname},
             {name: 'periodos_precios_maximos_vw', path: __dirname},
-			{name: 'periodos_precios_maximos_minimos', path: __dirname},
+            {name: 'periodos_precios_maximos_minimos', path: __dirname},
             {name: 'periodos_variaciones_minimas_vw', path: __dirname},
             {name: 'periodos_variaciones_maximas_vw', path: __dirname},
             {name: 'periodos_control_observaciones', path: __dirname},
@@ -679,8 +686,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_control_comentariosrelvis', path: __dirname},
             {name: 'periodos_control_generacion_formularios', path: __dirname},
             {name: 'periodos_precios_porcentaje_positivos_y_anulados', path: __dirname},
-			{name: 'periodos_novpre_recep', path: __dirname},
-			{name: 'calculos_novobs_recep', path: __dirname},
+            {name: 'periodos_novpre_recep', path: __dirname},
+            {name: 'calculos_novobs_recep', path: __dirname},
             {name: 'periodos_relinf', path: __dirname},
             {name: 'periodos_reltar', path: __dirname},
             {name: 'periodos_calprodresp', path: __dirname},
@@ -702,7 +709,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'relpan', path: __dirname},
             {name: 'relpantar', path: __dirname},
             {name: 'relvis', path: __dirname},
-			{name: 'parametros', path: __dirname},
+            {name: 'parametros', path: __dirname},
             {name: 'mobile_hoja_de_ruta', path: __dirname},
             {name: 'matriz_de_un_producto', path: __dirname},
             {name: 'mobile_visita', path: __dirname},
@@ -715,13 +722,13 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'migra_relatr', path: __dirname},
             {name: 'periodos_migra_relatr', path: __dirname},
             //{name: 'relpre_control_rangos', path: __dirname},
-			{name: 'relpre_control_rangos_analisis', path: __dirname},
-			{name: 'relpre_control_rangos_recepcion', path: __dirname},
-			{name: 'relpre_control_rangos_atrnorm', path: __dirname},
+            {name: 'relpre_control_rangos_analisis', path: __dirname},
+            {name: 'relpre_control_rangos_recepcion', path: __dirname},
+            {name: 'relpre_control_rangos_atrnorm', path: __dirname},
             {name: 'valvalatr', path: __dirname},
             {name: 'relatr', path: __dirname},
             {name: 'relsup', path: __dirname},
-			{name: 'rubfor', path: __dirname},
+            {name: 'rubfor', path: __dirname},
             {name: 'relsup_a_elegir', path: __dirname},
             {name: 'hojaderutasupervisor', path: __dirname},
             {name: 'hdrexportarefectivossinprecio', path: __dirname},
