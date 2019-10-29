@@ -1,6 +1,5 @@
 "use strict";
-
-
+import * as likeAr from "like-ar" ;
 /* TODO: controlar los nombres y tipos de la base
  * atributo
  * producto

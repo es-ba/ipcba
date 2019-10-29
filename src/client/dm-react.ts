@@ -1,6 +1,7 @@
 import { createStore } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
+import {puedeCopiarTipoPrecio} from './dm-constantes';
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
@@ -124,9 +125,9 @@ myOwn.wScreens.demo_dm = function(addrParams){
             P03:{
                 observaciones:{
                     1:{
-                        tipoprecioanterior:'S',
+                        tipoprecioanterior:'N',
                         precioanterior:null,
-                        tipoprecio:'S',
+                        tipoprecio:null,
                         precio:null,
                         atributos:{
                             13:{valoranterior:'Unión', valor:null},
@@ -150,14 +151,21 @@ myOwn.wScreens.demo_dm = function(addrParams){
         switch (action.type) {
         case COPIAR_TP: {
             const { producto, observacion } = action.payload;
-            var miObservacion = productoState.byIds[producto].observaciones[observacion];
+            var misObservaciones = productoState.byIds[producto].observaciones;
+            var miRelPre = productoState.byIds[producto].observaciones[observacion];
+            //var miTipoPrecio = miObservacion.tipoprecio==null && miObservacion.tipoprecioanterior!=null && tipoPrecio[miObservacion.tipoprecioanterior].puedecopiar=='S'
             return deepFreeze({
                 ...productoState,
                 byIds:{
                     ...productoState.byIds,
                     [producto]:{
-                        ...miObservacion,
-                        tipoprecio: miObservacion.tipoprecioanterior
+                        observaciones:{
+                            ...misObservaciones,
+                            [observacion]: {
+                                ...miRelPre,
+                                tipoprecio: puedeCopiarTipoPrecio(miRelPre)?miRelPre.tipoprecioanterior:miRelPre.tipoprecio
+                            }
+                        }
                     }
                 }
             });

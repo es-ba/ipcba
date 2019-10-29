@@ -543,6 +543,7 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', module: 'react-redux', modPath:'../dist', file:'react-redux.js', fileProduction:'react-redux.min.js' },
             ...super.clientIncludes(req, hideBEPlusInclusions),
             { type: 'js', src:'adapt.js' },
+            { type: 'js', src: 'client/dm-constantes.js' },
             { type: 'js', src: 'client/ejemplo-precios.js' },
             { type: 'js', src: 'client/dm-react.js' },
             { type: 'js', src: 'client/hoja-de-ruta.js' },
