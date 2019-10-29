@@ -72,7 +72,8 @@ module.exports = function(context){
                     where cp.calculo = 0
                     group by cp.periodo, cp.producto, cp.responsable, m.precio1, m.precio2, m.precio3, m.precio4, m.precio5,
                     x.precio6, x.precio7, x.precio8, x.precio9, x.precio10, p.unidadmedidaabreviada, m.informantes1, m.informantes2
-                    )`
+                    )`,
+            isTable: false,
         }    
     },context);
 }

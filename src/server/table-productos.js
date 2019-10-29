@@ -32,6 +32,8 @@ module.exports = function(context){
             {name:'nombreparapublicar'          , typeName:'text'                                    , allow:{update:puedeEditarMigracion}},
             {name:'calculo_desvios'             , typeName:'text', default:'N', defaultValue:'N'     , allow:{update:puedeEditarMigracion}},
             {name:'compatible'                  , typeName:'boolean'                                 , allow:{update:false}, inTable:false},
+            {name:'excluir_control_precios_maxmin'  , typeName:'boolean'                             , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'controlar_precios_sin_normalizar', typeName:'boolean'                             , allow:{update:puedeEditar||puedeEditarMigracion}},
          ],
         primaryKey:['producto'],
         foreignKeys:[

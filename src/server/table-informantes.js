@@ -6,7 +6,7 @@ module.exports = function(context){
     return context.be.tableDefAdapt({
         name:'informantes',
         editable:puedeEditar||puedeEditarMigracion,
-		allow:{
+        allow:{
             insert:puedeEditar||puedeEditarMigracion,
             delete:false,
             update:puedeEditar||puedeEditarMigracion,
@@ -50,7 +50,7 @@ module.exports = function(context){
             {name:'muestra'                   , typeName:'integer' , nullable:false , default:1   , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'contacto'                  , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'telcontacto'               , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
-
+            {name:'modi_fec'                  , typeName:'timestamp'               , allow:{update:puedeEditar||puedeEditarMigracion}},
         ],
         primaryKey:['informante'],
         foreignKeys:[
