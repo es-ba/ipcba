@@ -1,6 +1,5 @@
 "use strict";
-
-
+import * as likeAr from "like-ar" ;
 /* TODO: controlar los nombres y tipos de la base
  * atributo
  * producto
@@ -9,9 +8,11 @@
 
 export type SiNo = 'S' | 'N';
 
+export type AtributoDataTypes = 'N'|'C';
+
 export type Atributo = {
     atributo:string
-    tipodato:string
+    tipodato:AtributoDataTypes
     nombreatributo:string
     escantidad: SiNo
 }

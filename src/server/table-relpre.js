@@ -35,7 +35,7 @@ module.exports = function(context){
             {name:'comentariosanterior'          , typeName:'text'                                 , allow:{import:false, update:false}, inTable: false   },
             {name:'precionormalizado'            , typeName:'decimal'                              , allow:{import:false, update:false}, visible:false, inTable: true},
             {name:'especificacion'               , typeName:'integer'                              , visible:false, inTable: true                         },
-            {name:'ultima_visita'                , typeName:'boolean'                              , inTable: true, inTable: true                         },
+            {name:'ultima_visita'                , typeName:'boolean'                              , inTable: true                          },
             {name:'observaciones'                , typeName:'text'                                 , visible:false, inTable: true                         },
             {name:'promobs_1'                    , typeName:'decimal'                              , width:75, visible:false, inTable: false},
             {name:'precionormalizado_1'          , typeName:'decimal'                              , width:75, visible:false, inTable: false},
@@ -43,7 +43,8 @@ module.exports = function(context){
             {name:'fueraderango'                 , typeName:'text'                                 , visible:false          , inTable: false},
             {name:'sinpreciohace4meses'          , typeName:'text'                                 , visible:false          , inTable: false},
             {name:'orden'                        , typeName:'integer'                              , visible:false          , inTable: false},
-            {name:'agregarvisita'                , typeName:'boolean'                              , allow:{update:puedeEditar}, serverSide:true, inTable:false, clientSide:'agregar_visita', inTable: false},
+            {name:'agregarvisita'                , typeName:'boolean'                              , allow:{update:puedeEditar}, serverSide:true, inTable:false, clientSide:'agregar_visita'},
+            {name:'modi_fec'                     , typeName:'timestamp'                            , visible:false, inTable: true                         },
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -70,7 +71,7 @@ module.exports = function(context){
                         END AS masdatos,
                     c_1.antiguedadsinprecio as antiguedadsinprecioant, c_1.promobs as promobs_1, r_1.precionormalizado_1, normsindato, fueraderango,
                     CASE WHEN s.periodo is not null THEN 'S' ELSE null END as sinpreciohace4meses, fp.orden,
-                    case when r.ultima_visita is true then null else true end as agregarvisita, r.esvisiblecomentarioendm
+                    case when r.ultima_visita is true then null else true end as agregarvisita, r.esvisiblecomentarioendm, r.modi_fec
                     from relpre r
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion

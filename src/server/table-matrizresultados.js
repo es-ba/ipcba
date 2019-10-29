@@ -79,11 +79,7 @@ module.exports = function(context){
             {references:'informantes', fields:['informante']},
         ],
         sql:{
-            from:`(
-                select periodo6 as periodo, *
-                  from matrizresultados
-                  where producto = 'P0111111'
-                  )`
+            isTable:false,
         }        
     },context);
 }

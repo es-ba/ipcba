@@ -33,6 +33,9 @@ module.exports = function(context){
             {name:'informantes10'        ,typeName:'text'  },
         ],
         primaryKey:['periodo','producto'],
-    });
+        sql:{
+            isTable: false,
+        },        
+    }, context);
 }
 
