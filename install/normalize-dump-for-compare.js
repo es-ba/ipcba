@@ -8,6 +8,7 @@ console.log('normalizando',fileName);
 
 async function normalize(fileName){
     var content = await fs.readFile(fileName,'utf8');
+if(!"hacer todo"){
     /// REEMPLAZAR CHARACTER VARYING POR TEXT
     content = content
         .replace(/character varying\(\d+\)/g,"text")
@@ -33,7 +34,13 @@ async function normalize(fileName){
     /// REEMPLAZAR cvp.sino_dom POR TEXT
     content = content.replace(/cvp.sino_dom/g,"text");
     /// FIN REEMPLAZOS
-    await fs.writeFile(fileName,content);
+}
+    content = content.replace(/--\s*\r?\n-- Name:.*\r?\n--\s*\r?\n/g,"\n")
+    var partes = content.split(/\r?\n(\r?\n)+/);
+    partes.sort();
+    var content = partes.join("\n\n");
+    content = content.replace(/\r?\n(\r?\n)+/g,"\n\n");
+    await fs.writeFile(fileName, content);
     console.log('normalizado');
     process.exit();
 }

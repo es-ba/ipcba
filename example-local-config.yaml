@@ -1,0 +1,18 @@
+server:
+  port: 3000
+  base-url: ipc
+db:
+  description: base de prueba
+  host: localhost
+  port: 5432
+  database: cvp_db
+  schema: cvp
+  user: cvpowner
+  password: cambiar_esta_clave
+client-setup:
+  skin: default
+devel:
+  delay: 0
+log:
+  db:
+    on-demand: true  

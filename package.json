@@ -1,7 +1,7 @@
 {
   "name": "ipcba",
   "version": "0.5.7",
-  "private": true,
+  "license": "MIT",
   "description": "Indice de Precios al Consumidor",
   "main": "dist/server/server-ipcba.js",
   "files": [
