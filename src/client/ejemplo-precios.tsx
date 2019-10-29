@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
-import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, productos, puedeCopiarTipoPrecio} from "./dm-constantes";
+import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre, AtributoDataTypes} from "./dm-tipos";
+import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio} from "./dm-constantes";
 import {ProductoState, ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -17,8 +17,6 @@ type Focusable = {
     focus:()=>void
     blur:()=>void
 }
-type AtributoDataTypes = 'N'|'C';
-
 type OnUpdate<T> = (data:T)=>void
 
 type InputTypes = 'date'|'number'|'tel'|'text';
@@ -110,33 +108,31 @@ const EditableTd = forwardRef(function<T extends any>(props:{
 });
 
 const AtributosRow = forwardRef(function(props:{
-    dataAtributo:RelAtr, 
-    cambio:string|null,
+    producto: string,
+    observacion: number,
+    atributo: number,
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
-    habilitarCopiado:boolean, 
-    deshabilitarAtributo:boolean,
-    onCopiarAtributos:()=>void,
-    onUpdate:(atributo:string, valor:string|null)=>void,
     onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
-    const atributo = props.dataAtributo;
+    const productosState = useSelector((productos:ProductoState)=>productos);
+    const relAtr = productosState.byIds[props.producto].observaciones[props.observacion].atributos[props.atributo];
+    const dispatch = useDispatch();
+    const atributo = estructura.atributos[props.atributo];
 return (
         <tr>
-            <td>{'attr'/*atributo.atributo*/}</td>
-            <td colSpan={2} className="atributo-anterior" >{atributo.valoranterior}</td>
+            <td>{atributo.nombreatributo}</td>
+            <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
-                    if(props.habilitarCopiado){
-                        props.onCopiarAtributos()
-                    }
-                }}>{props.habilitarCopiado?FLECHAATRIBUTOS:props.cambio}</td>
+                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{producto:props.producto, observacion:props.observacion}})    
+                }}>{FLECHAATRIBUTOS}</td>
                 :null}
-            <EditableTd disabled={props.deshabilitarAtributo} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={atributo.valor} onUpdate={value=>{
-                //props.onUpdate(props.dataAtributo.atributo, value)
-            }} onWantToMoveForward={props.onWantToMoveForward}
+            <EditableTd disabled={false/*CAMBIAR*/} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
+                dispatch({type: 'SET_ATRIBUTO', payload:{producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
+        }} onWantToMoveForward={props.onWantToMoveForward}
             ref={ref} />
         </tr>
     )
@@ -150,7 +146,7 @@ function PreciosRow(props:{
     const relPre = productosState.byIds[props.producto].observaciones[props.observacion];
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
-    const productoDef:Producto = productos[props.producto];
+    const productoDef:Producto = estructura.productos[props.producto];
     const atributosRef = useRef(productoDef.listaAtributos.map(() => createRef<HTMLInputElement>()));
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
@@ -239,22 +235,12 @@ function PreciosRow(props:{
             </tr>
             {productoDef.listaAtributos.map((atributo, index)=>
                 <AtributosRow key={atributo}
-                    dataAtributo={relPre.atributos[atributo]}
+                    producto={props.producto}
+                    observacion={props.observacion}
+                    atributo={atributo}
                     primerAtributo={index==0}
-                    cambio={relPre.cambio}
-                    habilitarCopiado={habilitarCopiado}
-                    deshabilitarAtributo={deshabilitarPrecio}
                     cantidadAtributos={productoDef.listaAtributos.length}
                     ultimoAtributo={index == productoDef.listaAtributos.length-1}
-                    onCopiarAtributos={()=>{
-                        //props.onCopiarAtributos()
-                        if(!relPre.precio && precioRef.current){
-                            precioRef.current.focus();
-                        }
-                    }}
-                    onUpdate={(atributo:string, valor:string|null)=>{
-                        //props.updateAtributo(atributo,valor)
-                    }}
                     onWantToMoveForward={()=>{
                         if(index<productoDef.listaAtributos.length-1){
                             var nextItemRef=atributosRef.current[index+1];

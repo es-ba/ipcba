@@ -1,6 +1,6 @@
 "use strict";
 import * as likeAr from "like-ar" ;
-import {TipoPrecio, Producto, RelPre} from "./dm-tipos";
+import {TipoPrecio, Producto, RelPre, Estructura, Atributo} from "./dm-tipos";
 
 export const tiposPrecioDef:TipoPrecio[]=[
     {tipoprecio:'P', nombretipoprecio:'Precio normal'   , espositivo:'S', puedecopiar:'N' , predeterminado:true},
@@ -99,4 +99,60 @@ export const productos:{[p:string]:Producto} = {
         },
         listaAtributos:[13,55,16]
     }
+}
+
+var razones={
+    1:{escierredefinitivoinf:'N', escierredefinitivofor:'N'}
+}
+
+var atributos:{[a:string]:Atributo}={
+    '13':{
+        atributo:'13',
+        nombreatributo:'Marca',
+        escantidad:'N',
+        tipodato:'C'
+    },
+    '16':{
+        atributo:'16',
+        nombreatributo:'Gramaje',
+        escantidad:'S',
+        tipodato:'N'
+    },
+    '55':{
+        atributo:'55',
+        nombreatributo:'Variante',
+        escantidad:'N',
+        tipodato:'C'
+    }
+}
+
+var formularios:{[f:number]:Formulario}={
+    99:{
+        formulario:99,
+        nombreformulario:'Prueba',
+        orden:99,
+        productos:{
+            P01:{
+                orden:2,
+                observaciones:2
+            },
+            P02:{
+                orden:3,
+                observaciones:1
+            },
+            P03:{
+                orden:1,
+                observaciones:1
+            },
+        },
+        listaProductos:['P03','P01','P02']
+    }
+}
+
+export const estructura:Estructura={
+    tipoPrecio,
+    razones,
+    atributos,
+    productos,
+    formularios,
 }

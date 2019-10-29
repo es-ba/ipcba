@@ -15,67 +15,13 @@ export type ProductoState={
 
 const COPIAR_TP         ='COPIAR_TP';
 const COPIAR_ATRIBUTOS  ='COPIAR_ATRIBUTOS';
+const SET_ATRIBUTO      ='SET_ATRIBUTO';
 type ActionCopiarTp = {type:'COPIAR_TP', payload:{producto:string, observacion:number}};
 type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{producto:string, observacion:number}};
-export type ActionFormulario = ActionCopiarTp | ActionCopiarAtributos;
+type ActionSetAtributo = {type:'SET_ATRIBUTO', payload:{producto:string, observacion:number, atributo:number, valor:string}};
+export type ActionFormulario = ActionCopiarTp | ActionCopiarAtributos | ActionSetAtributo;
 
 myOwn.wScreens.demo_dm = function(addrParams){
-    var atributos:{[a:string]:Atributo}={
-        '13':{
-            atributo:'13',
-            nombreatributo:'Marca',
-            escantidad:'N',
-            tipodato:'C'
-        },
-        '16':{
-            atributo:'16',
-            nombreatributo:'Gramaje',
-            escantidad:'S',
-            tipodato:'N'
-        },
-        '55':{
-            atributo:'55',
-            nombreatributo:'Variante',
-            escantidad:'N',
-            tipodato:'C'
-        }
-    }
-   
-    var formularios:{[f:number]:Formulario}={
-        99:{
-            formulario:99,
-            nombreformulario:'Prueba',
-            orden:99,
-            productos:{
-                P01:{
-                    orden:2,
-                    observaciones:2
-                },
-                P02:{
-                    orden:3,
-                    observaciones:1
-                },
-                P03:{
-                    orden:1,
-                    observaciones:1
-                },
-            },
-            listaProductos:['P03','P01','P02']
-        }
-    }
-    
-    var razones={
-        1:{escierredefinitivoinf:'N', escierredefinitivofor:'N'}
-    }
-    
-    //var estructura:Estructura={
-    //    tipoPrecio,
-    //    razones,
-    //    atributos,
-    //    productos,
-    //    formularios,
-    //}
-    
     var formularioCorto:RelVis = {
         formulario:99,
         razon:1,
@@ -164,6 +110,60 @@ myOwn.wScreens.demo_dm = function(addrParams){
                             [observacion]: {
                                 ...miRelPre,
                                 tipoprecio: puedeCopiarTipoPrecio(miRelPre)?miRelPre.tipoprecioanterior:miRelPre.tipoprecio
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        case SET_ATRIBUTO: {
+            const { producto, observacion, atributo, valor } = action.payload;
+            var misObservaciones = productoState.byIds[producto].observaciones;
+            var miRelPre = productoState.byIds[producto].observaciones[observacion];
+            var miAtr = productoState.byIds[producto].observaciones[observacion].atributos[atributo];
+            return deepFreeze({
+                ...productoState,
+                byIds:{
+                    ...productoState.byIds,
+                    [producto]:{
+                        observaciones:{
+                            ...misObservaciones,
+                            [observacion]: {
+                                ...miRelPre,
+                                atributos:{
+                                    ...miRelPre.atributos,
+                                    [atributo]:{
+                                        ...miAtr,
+                                        valor: valor
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        case COPIAR_ATRIBUTOS: {
+            const { producto, observacion } = action.payload;
+            var misObservaciones = productoState.byIds[producto].observaciones;
+            var miRelPre = productoState.byIds[producto].observaciones[observacion];
+            var atributos = {...miRelPre.atributos};
+            likeAr(miRelPre.atributos).forEach(function(attr,index){
+                atributos[index]={...attr};
+                atributos[index].valor=atributos[index].valoranterior;
+            })
+            return deepFreeze({
+                ...productoState,
+                byIds:{
+                    ...productoState.byIds,
+                    [producto]:{
+                        observaciones:{
+                            ...misObservaciones,
+                            [observacion]: {
+                                ...miRelPre,
+                                atributos:{
+                                    ...atributos
+                                }
                             }
                         }
                     }

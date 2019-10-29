@@ -8,9 +8,11 @@ import * as likeAr from "like-ar" ;
 
 export type SiNo = 'S' | 'N';
 
+export type AtributoDataTypes = 'N'|'C';
+
 export type Atributo = {
     atributo:string
-    tipodato:string
+    tipodato:AtributoDataTypes
     nombreatributo:string
     escantidad: SiNo
 }
