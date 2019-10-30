@@ -233,6 +233,20 @@ myOwn.wScreens.demo_dm = function(addrParams){
             }
         }
     }
-    const store = createStore(preciosReducer, initialState); 
+    function loadState():ProductoState{
+        var content = localStorage.getItem('dm-store');
+        if(content){
+            return JSON.parse(content);
+        }else{
+            return initialState;
+        }
+    }
+    function saveState(state:ProductoState){
+        localStorage.setItem('dm-store', JSON.stringify(state));
+    }
+    const store = createStore(preciosReducer, loadState()); 
+    store.subscribe(function(){
+        saveState(store.getState());
+    });
     mostrarHdr(store)
 }
