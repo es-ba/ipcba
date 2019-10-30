@@ -127,3 +127,8 @@ export type HojaDeRuta={
     fechaCarga:Date,
     informantes:{[informante:number]:Informante}
 }
+
+export type ProductoState={
+    allIds:string[],
+    byIds:{[producto:string]:{observaciones:{[obs:number]:RelPre}}},
+};

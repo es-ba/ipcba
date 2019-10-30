@@ -1,17 +1,14 @@
 import { createStore } from "redux";
-import {RelVis, RelPre} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tipoPrecioPredeterminado, tipoPrecio} from './dm-estructura';
+import { RelVis, ProductoState} from "./dm-tipos";
+import { tipoPrecioPredeterminado, tipoPrecio} from './dm-estructura';
+import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
 
 var my=myOwn;
 
-export type ProductoState={
-    allIds:string[],
-    byIds:{[producto:string]:{observaciones:{[obs:number]:RelPre}}},
-};
-
+/* INICIO ACCIONES */
 const SET_TP            = 'SET_TP';
 const COPIAR_TP         = 'COPIAR_TP';
 const SET_PRECIO        = 'SET_PRECIO';
@@ -25,8 +22,10 @@ type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{producto:string,
 type ActionSetAtributo = {type:'SET_ATRIBUTO', payload:{producto:string, observacion:number, atributo:number, valor:string}};
 
 export type ActionFormulario = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
+/* FIN ACCIONES */
 
 myOwn.wScreens.demo_dm = function(addrParams){
+    /* FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
     var formularioCorto:RelVis = {
         formulario:99,
         razon:1,
@@ -91,13 +90,9 @@ myOwn.wScreens.demo_dm = function(addrParams){
             },
         }
     };
-    ///////// ESTADO:
-    const initialState:ProductoState = {
-        allIds: Object.keys(formularioCorto.productos),
-        byIds: formularioCorto.productos,
-    };
+    /* FIN FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
 
-    /////////// CONTROLADOR
+    /* DEFINICION CONTROLADOR */
     function preciosReducer(productoState:ProductoState = initialState, action:ActionFormulario):ProductoState {
         var defaultAction = function defaultAction(){return deepFreeze(productoState)};
         var setTP = function setTP(producto:string, observacion:number, valor:string){
@@ -232,6 +227,16 @@ myOwn.wScreens.demo_dm = function(addrParams){
             }
         }
     }
+    /* FIN DEFINICION CONTROLADOR */
+
+    /* DEFINICION STATE */
+    const initialState:ProductoState = {
+        allIds: Object.keys(formularioCorto.productos),
+        byIds: formularioCorto.productos,
+    };
+    /* FIN DEFINICION STATE */
+
+    /* CARGA Y GUARDADO DE STATE */
     function loadState():ProductoState{
         var content = localStorage.getItem('dm-store');
         if(content){
@@ -243,9 +248,15 @@ myOwn.wScreens.demo_dm = function(addrParams){
     function saveState(state:ProductoState){
         localStorage.setItem('dm-store', JSON.stringify(state));
     }
+    /* FIN CARGA Y GUARDADO DE STATE */
+
+    /* CREACION STORE */
     const store = createStore(preciosReducer, loadState()); 
     store.subscribe(function(){
         saveState(store.getState());
     });
+    /* FIN CREACION STORE */
+
+    //HDR CON STORE CREADO
     mostrarHdr(store)
 }

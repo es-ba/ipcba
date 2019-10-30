@@ -1,7 +1,8 @@
 "use strict";
 import * as likeAr from "like-ar" ;
-import {TipoPrecio, Producto, RelPre, Estructura, Atributo, Formulario} from "./dm-tipos";
+import {TipoPrecio, Producto, Estructura, Atributo, Formulario} from "./dm-tipos";
 
+/* TODO: TRAER DESDE ARCHIVO GENERADO */
 export const tiposPrecioDef:TipoPrecio[]=[
     {tipoprecio:'P', nombretipoprecio:'Precio normal'   , espositivo:'S', puedecopiar:'N' , predeterminado:true},
     {tipoprecio:'O', nombretipoprecio:'Oferta'          , espositivo:'S', puedecopiar:'N' },
@@ -10,27 +11,13 @@ export const tiposPrecioDef:TipoPrecio[]=[
     {tipoprecio:'N', nombretipoprecio:'No vende'        , espositivo:'N', puedecopiar:'S'},
     {tipoprecio:'E', nombretipoprecio:'Falta estacional', espositivo:'N', puedecopiar:'S'},
 ];
+/* FIN TRAER DESDE ARCHIVO GENERADO */
 
 export const tipoPrecio=likeAr.createIndex(tiposPrecioDef, 'tipoprecio');
 
 export const tipoPrecioPredeterminado = tiposPrecioDef.find(tp=>tp.predeterminado)!;
 
-export function puedeCopiarTipoPrecio(relPre:RelPre){
-    return relPre.tipoprecio==null && relPre.tipoprecioanterior!=null && tipoPrecio[relPre.tipoprecioanterior].puedecopiar=='S'
-}
-
-export function puedeCopiarAtributos(relPre:RelPre){
-    return relPre.cambio==null && (!relPre.tipoprecio || tipoPrecio[relPre.tipoprecio].espositivo == 'S');
-}
-
-export function puedeCambiarPrecioYAtributos(relPre:RelPre){
-    return relPre.tipoprecio==null || tipoPrecio[relPre.tipoprecio].espositivo != 'N';
-}
-
-export function tpNecesitaConfirmacion(relPre:RelPre, tipoPrecioSeleccionado:string){
-    return tipoPrecio[tipoPrecioSeleccionado].espositivo == 'N' && (relPre.precio != null || relPre.cambio != null)
-}
-
+/* TODO: TRAER DESDE ARCHIVO GENERADO */
 export const productos:{[p:string]:Producto} = {
     P01:{
         producto:'P01',
@@ -161,6 +148,7 @@ var formularios:{[f:number]:Formulario}={
         listaProductos:['P03','P01','P02']
     }
 }
+/* FIN TRAER DESDE ARCHIVO GENERADO */
 
 export const estructura:Estructura={
     tipoPrecio,
