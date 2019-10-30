@@ -115,6 +115,7 @@ const AtributosRow = forwardRef(function(props:{
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
     onWantToMoveForward?:()=>boolean},
+    onCopiarAtributos:()=>void,
     ref:React.Ref<Focusable>
 ){
     const productosState = useSelector((productos:ProductoState)=>productos);
@@ -128,7 +129,8 @@ return (
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
-                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{producto:props.producto, observacion:props.observacion}})    
+                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{producto:props.producto, observacion:props.observacion}})
+                    props.onCopiarAtributos()
                 }}>{puedeCopiarAtributos(relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
                 :null}
             <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
@@ -239,6 +241,11 @@ function PreciosRow(props:{
                     primerAtributo={index==0}
                     cantidadAtributos={productoDef.listaAtributos.length}
                     ultimoAtributo={index == productoDef.listaAtributos.length-1}
+                    onCopiarAtributos={()=>{
+                        if(precioRef.current && !relPre.precio){
+                            precioRef.current.focus();
+                        }
+                    }}
                     onWantToMoveForward={()=>{
                         if(index<productoDef.listaAtributos.length-1){
                             var nextItemRef=atributosRef.current[index+1];
