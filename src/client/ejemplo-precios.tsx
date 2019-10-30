@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes} from "./dm-tipos";
+import {Producto, RelPre, AtributoDataTypes, ProductoState} from "./dm-tipos";
 import {tiposPrecioDef, estructura} from "./dm-estructura";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-funciones";
-import {ProductoState, ActionFormulario} from "./dm-react";
+import {ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -152,6 +152,7 @@ function PreciosRow(props:{
     const atributosRef = useRef(productoDef.listaAtributos.map(() => createRef<HTMLInputElement>()));
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
+    const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     return (
         <>
@@ -160,7 +161,38 @@ function PreciosRow(props:{
                     <div className="producto">{productoDef.nombreproducto}</div>
                     <div className="especificacion">{productoDef.especificacioncompleta}</div>
                 </td>
-                <td className="observaiones"><button>Obs.</button></td>
+                <td className="observaiones">
+                    <Button color="primary" variant="outlined" onClick={()=>{
+                        setDialogoObservaciones(true)
+                    }}>
+                        OBS
+                    </Button>
+                    <Dialog
+                    open={dialogoObservaciones}
+                    onClose={()=>setDialogoObservaciones(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">{"Observaciones del precio"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            acá van las obs
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={()=>{
+                            setDialogoObservaciones(false)
+                        }} color="primary" variant="outlined">
+                            Guardar
+                        </Button>
+                        <Button onClick={()=>{
+                            setDialogoObservaciones(false)
+                        }} color="secondary" variant="outlined">
+                            Descartar Observaciones
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                </td>
                 <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                 <td className="precioAnterior">{relPre.precioanterior}</td>
                 <td className="flechaTP" onClick={ () => {
