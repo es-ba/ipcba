@@ -1,6 +1,6 @@
 "use strict";
 import * as likeAr from "like-ar" ;
-import {TipoPrecio, Producto, RelPre, Estructura, Atributo} from "./dm-tipos";
+import {TipoPrecio, Producto, RelPre, Estructura, Atributo, Formulario} from "./dm-tipos";
 
 export const tiposPrecioDef:TipoPrecio[]=[
     {tipoprecio:'P', nombretipoprecio:'Precio normal'   , espositivo:'S', puedecopiar:'N' , predeterminado:true},

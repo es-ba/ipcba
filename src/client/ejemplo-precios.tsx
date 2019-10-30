@@ -1,11 +1,10 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre, AtributoDataTypes} from "./dm-tipos";
-import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-constantes";
+import {Producto, RelPre, AtributoDataTypes} from "./dm-tipos";
+import {tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-estructura";
 import {ProductoState, ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
-import {changing, serie, deepFreeze} from "best-globals";
 import * as likeAr from "like-ar";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
 import { Store } from "redux";
@@ -188,7 +187,7 @@ function PreciosRow(props:{
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
                                 dispatch({type: 'SET_TP', payload:{producto:props.producto, observacion:props.observacion, valor:tpDef.tipoprecio}})
-                                if(precioRef.current && !relPre.precio && tipoPrecio[tpDef.tipoprecio].espositivo == 'S'){
+                                if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo == 'S'){
                                     precioRef.current.focus();
                                 }
                             }

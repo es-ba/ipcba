@@ -1,7 +1,6 @@
 import { createStore } from "redux";
-import { Provider, useSelector, useDispatch } from "react-redux";
-import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tipoPrecioPredeterminado, tipoPrecio} from './dm-constantes';
+import {RelVis, RelPre} from "./dm-tipos";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tipoPrecioPredeterminado, tipoPrecio} from './dm-estructura';
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
