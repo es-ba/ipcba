@@ -100,118 +100,15 @@ myOwn.wScreens.demo_dm = function(addrParams){
 
     /////////// CONTROLADOR
     function preciosReducer(productoState:ProductoState = initialState, action:ActionFormulario):ProductoState {
-        switch (action.type) {
-            case SET_TP: {
-                const { producto, observacion, valor } = action.payload;
-                var misObservaciones = productoState.byIds[producto].observaciones;
-                var miRelPre = productoState.byIds[producto].observaciones[observacion];
-                var atributos = {...miRelPre.atributos};
-                var esNegativo = tipoPrecio[valor].espositivo == 'N';
-                likeAr(miRelPre.atributos).forEach(function(attr,index){
-                    atributos[index]={...attr};
-                    atributos[index].valor=esNegativo?null:atributos[index].valor;
-                })
-                return deepFreeze({
-                    ...productoState,
-                    byIds:{
-                        ...productoState.byIds,
-                        [producto]:{
-                            observaciones:{
-                                ...misObservaciones,
-                                [observacion]: {
-                                    ...miRelPre,
-                                    precio: esNegativo?null:miRelPre.precio,
-                                    cambio: esNegativo?null:miRelPre.cambio,
-                                    tipoprecio: valor,
-                                    atributos:{
-                                        ...atributos
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        case COPIAR_TP: {
-            const { producto, observacion } = action.payload;
-            var misObservaciones = productoState.byIds[producto].observaciones;
-            var miRelPre = productoState.byIds[producto].observaciones[observacion];
-            return deepFreeze({
-                ...productoState,
-                byIds:{
-                    ...productoState.byIds,
-                    [producto]:{
-                        observaciones:{
-                            ...misObservaciones,
-                            [observacion]: {
-                                ...miRelPre,
-                                tipoprecio: puedeCopiarTipoPrecio(miRelPre)?miRelPre.tipoprecioanterior:miRelPre.tipoprecio
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        case SET_PRECIO: {
-            const { producto, observacion, valor } = action.payload;
-            var misObservaciones = productoState.byIds[producto].observaciones;
-            var miRelPre = productoState.byIds[producto].observaciones[observacion];
-            var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
-            return deepFreeze({
-                ...productoState,
-                byIds:{
-                    ...productoState.byIds,
-                    [producto]:{
-                        observaciones:{
-                            ...misObservaciones,
-                            [observacion]: {
-                                ...miRelPre,
-                                precio:puedeCambiarPrecio?valor:miRelPre.precio,
-                                tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        case SET_ATRIBUTO: {
-            const { producto, observacion, atributo, valor } = action.payload;
-            var misObservaciones = productoState.byIds[producto].observaciones;
-            var miRelPre = productoState.byIds[producto].observaciones[observacion];
-            var miAtr = productoState.byIds[producto].observaciones[observacion].atributos[atributo];
-            var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
-            return deepFreeze({
-                ...productoState,
-                byIds:{
-                    ...productoState.byIds,
-                    [producto]:{
-                        observaciones:{
-                            ...misObservaciones,
-                            [observacion]: {
-                                ...miRelPre,
-                                cambio:puedeCambiarAttrs?'C':miRelPre.cambio,
-                                atributos:{
-                                    ...miRelPre.atributos,
-                                    [atributo]:{
-                                        ...miAtr,
-                                        valor: puedeCambiarAttrs?valor:miAtr.valor
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        case COPIAR_ATRIBUTOS: {
-            const { producto, observacion } = action.payload;
+        var defaultAction = function defaultAction(){return deepFreeze(productoState)};
+        var setTP = function setTP(producto:string, observacion:number, valor:string){
             var misObservaciones = productoState.byIds[producto].observaciones;
             var miRelPre = productoState.byIds[producto].observaciones[observacion];
             var atributos = {...miRelPre.atributos};
-            var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
+            var esNegativo = tipoPrecio[valor].espositivo == 'N';
             likeAr(miRelPre.atributos).forEach(function(attr,index){
                 atributos[index]={...attr};
-                atributos[index].valor=puedeCopiarAttrs?atributos[index].valoranterior:atributos[index].valor;
+                atributos[index].valor=esNegativo?null:atributos[index].valor;
             })
             return deepFreeze({
                 ...productoState,
@@ -222,7 +119,9 @@ myOwn.wScreens.demo_dm = function(addrParams){
                             ...misObservaciones,
                             [observacion]: {
                                 ...miRelPre,
-                                cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
+                                precio: esNegativo?null:miRelPre.precio,
+                                cambio: esNegativo?null:miRelPre.cambio,
+                                tipoprecio: valor,
                                 atributos:{
                                     ...atributos
                                 }
@@ -232,8 +131,106 @@ myOwn.wScreens.demo_dm = function(addrParams){
                 }
             });
         }
-        default:
-            return deepFreeze(productoState);
+        switch (action.type) {
+            case SET_TP: {
+                const { producto, observacion, valor } = action.payload;
+                return setTP(producto, observacion, valor);
+            }
+            case COPIAR_TP: {
+                const { producto, observacion } = action.payload;
+                var misObservaciones = productoState.byIds[producto].observaciones;
+                var miRelPre = productoState.byIds[producto].observaciones[observacion];
+                var atributos = {...miRelPre.atributos};
+                if(puedeCopiarTipoPrecio(miRelPre)){
+                    return setTP(producto, observacion, miRelPre.tipoprecioanterior!)
+                }else{
+                    return defaultAction()
+                }
+
+            }
+            case SET_PRECIO: {
+                const { producto, observacion, valor } = action.payload;
+                var misObservaciones = productoState.byIds[producto].observaciones;
+                var miRelPre = productoState.byIds[producto].observaciones[observacion];
+                var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
+                return deepFreeze({
+                    ...productoState,
+                    byIds:{
+                        ...productoState.byIds,
+                        [producto]:{
+                            observaciones:{
+                                ...misObservaciones,
+                                [observacion]: {
+                                    ...miRelPre,
+                                    precio:puedeCambiarPrecio?valor:miRelPre.precio,
+                                    tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            case SET_ATRIBUTO: {
+                const { producto, observacion, atributo, valor } = action.payload;
+                var misObservaciones = productoState.byIds[producto].observaciones;
+                var miRelPre = productoState.byIds[producto].observaciones[observacion];
+                var miAtr = productoState.byIds[producto].observaciones[observacion].atributos[atributo];
+                var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
+                return deepFreeze({
+                    ...productoState,
+                    byIds:{
+                        ...productoState.byIds,
+                        [producto]:{
+                            observaciones:{
+                                ...misObservaciones,
+                                [observacion]: {
+                                    ...miRelPre,
+                                    cambio:puedeCambiarAttrs?'C':miRelPre.cambio,
+                                    atributos:{
+                                        ...miRelPre.atributos,
+                                        [atributo]:{
+                                            ...miAtr,
+                                            valor: puedeCambiarAttrs?valor:miAtr.valor
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            case COPIAR_ATRIBUTOS: {
+                const { producto, observacion } = action.payload;
+                var misObservaciones = productoState.byIds[producto].observaciones;
+                var miRelPre = productoState.byIds[producto].observaciones[observacion];
+                var atributos = {...miRelPre.atributos};
+                var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
+                likeAr(miRelPre.atributos).forEach(function(attr,index){
+                    atributos[index]={...attr};
+                    atributos[index].valor=puedeCopiarAttrs?atributos[index].valoranterior:atributos[index].valor;
+                })
+                return deepFreeze({
+                    ...productoState,
+                    byIds:{
+                        ...productoState.byIds,
+                        [producto]:{
+                            observaciones:{
+                                ...misObservaciones,
+                                [observacion]: {
+                                    ...miRelPre,
+                                    cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
+                                    atributos:{
+                                        ...atributos
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            default: {
+                return defaultAction();
+            }
         }
     }
     const store = createStore(preciosReducer, initialState); 

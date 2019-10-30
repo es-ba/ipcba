@@ -164,7 +164,12 @@ function PreciosRow(props:{
                 <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                 <td className="precioAnterior">{relPre.precioanterior}</td>
                 <td className="flechaTP" onClick={ () => {
-                    dispatch({type: 'COPIAR_TP', payload:{producto:props.producto, observacion:props.observacion}})
+                    if(tpNecesitaConfirmacion(relPre,relPre.tipoprecioanterior!)){
+                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                        setMenuConfirmarBorradoPrecio(true)
+                    }else{
+                        dispatch({type: 'COPIAR_TP', payload:{producto:props.producto, observacion:props.observacion}})
+                    }
                 }}>{(puedeCopiarTipoPrecio(relPre))?FLECHATIPOPRECIO:''}</td>
                 <td className="tipoPrecio"
                     onClick={event=>setMenuTipoPrecio(event.currentTarget)}
@@ -242,7 +247,7 @@ function PreciosRow(props:{
                     cantidadAtributos={productoDef.listaAtributos.length}
                     ultimoAtributo={index == productoDef.listaAtributos.length-1}
                     onCopiarAtributos={()=>{
-                        if(precioRef.current && !relPre.precio){
+                        if(precioRef.current && !relPre.precio && puedeCopiarAtributos(relPre)){
                             precioRef.current.focus();
                         }
                     }}
