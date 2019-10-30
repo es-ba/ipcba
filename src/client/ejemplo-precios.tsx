@@ -224,10 +224,7 @@ function PreciosRow(props:{
                     </DialogActions>
                 </Dialog>
                 <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
-                    //props.setPrecio(value);
-                    if(!relPre.tipoprecio && relPre.precio){
-                        //props.setTipoPrecioPositivo(tipoPrecioPredeterminado.tipoprecio);
-                    }
+                    dispatch({type: 'SET_PRECIO', payload:{producto:props.producto, observacion:props.observacion, valor:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }

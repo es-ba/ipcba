@@ -1,7 +1,7 @@
 import { createStore } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from './dm-constantes';
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tipoPrecioPredeterminado} from './dm-constantes';
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
@@ -13,13 +13,15 @@ export type ProductoState={
     byIds:{[producto:string]:{observaciones:{[obs:number]:RelPre}}},
 };
 
-const COPIAR_TP         ='COPIAR_TP';
-const COPIAR_ATRIBUTOS  ='COPIAR_ATRIBUTOS';
-const SET_ATRIBUTO      ='SET_ATRIBUTO';
+const COPIAR_TP         = 'COPIAR_TP';
+const COPIAR_ATRIBUTOS  = 'COPIAR_ATRIBUTOS';
+const SET_ATRIBUTO      = 'SET_ATRIBUTO';
+const SET_PRECIO        = 'SET_PRECIO';
 type ActionCopiarTp = {type:'COPIAR_TP', payload:{producto:string, observacion:number}};
+type ActionSetPrecio = {type:'SET_PRECIO', payload:{producto:string, observacion:number, valor:string}};
 type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{producto:string, observacion:number}};
 type ActionSetAtributo = {type:'SET_ATRIBUTO', payload:{producto:string, observacion:number, atributo:number, valor:string}};
-export type ActionFormulario = ActionCopiarTp | ActionCopiarAtributos | ActionSetAtributo;
+export type ActionFormulario = ActionCopiarTp | ActionCopiarAtributos | ActionSetAtributo | ActionSetPrecio;
 
 myOwn.wScreens.demo_dm = function(addrParams){
     var formularioCorto:RelVis = {
@@ -110,6 +112,28 @@ myOwn.wScreens.demo_dm = function(addrParams){
                             [observacion]: {
                                 ...miRelPre,
                                 tipoprecio: puedeCopiarTipoPrecio(miRelPre)?miRelPre.tipoprecioanterior:miRelPre.tipoprecio
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        case SET_PRECIO: {
+            const { producto, observacion, valor } = action.payload;
+            var misObservaciones = productoState.byIds[producto].observaciones;
+            var miRelPre = productoState.byIds[producto].observaciones[observacion];
+            var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
+            return deepFreeze({
+                ...productoState,
+                byIds:{
+                    ...productoState.byIds,
+                    [producto]:{
+                        observaciones:{
+                            ...misObservaciones,
+                            [observacion]: {
+                                ...miRelPre,
+                                precio:puedeCambiarPrecio?valor:miRelPre.precio,
+                                tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
                             }
                         }
                     }
