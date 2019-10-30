@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre, AtributoDataTypes} from "./dm-tipos";
-import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos} from "./dm-constantes";
+import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-constantes";
 import {ProductoState, ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -131,7 +131,7 @@ return (
                     dispatch({type: 'COPIAR_ATRIBUTOS', payload:{producto:props.producto, observacion:props.observacion}})    
                 }}>{puedeCopiarAtributos(relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
                 :null}
-            <EditableTd disabled={false/*CAMBIAR*/} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
+            <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
                 dispatch({type: 'SET_ATRIBUTO', payload:{producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
         }} onWantToMoveForward={props.onWantToMoveForward}
             ref={ref} />
@@ -152,9 +152,6 @@ function PreciosRow(props:{
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
-    var deshabilitarPrecio = false; // mejorar
-    // const [deshabilitarPrecio, setDeshabilitarPrecio] = useState<boolean>(relPre.tipoPrecio?!(tipoPrecio[relPre.tipoPrecio].espositivo):false);
-    var habilitarCopiado = relPre.cambio==null && (!relPre.tipoprecio || tipoPrecio[relPre.tipoprecio].espositivo == 'S');
     return (
         <>
             <tr>
@@ -224,7 +221,7 @@ function PreciosRow(props:{
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd disabled={deshabilitarPrecio} className="precio" value={relPre.precio} onUpdate={value=>{
+                <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
                     //props.setPrecio(value);
                     if(!relPre.tipoprecio && relPre.precio){
                         //props.setTipoPrecioPositivo(tipoPrecioPredeterminado.tipoprecio);

@@ -22,7 +22,7 @@ export function puedeCopiarAtributos(relPre:RelPre){
     return relPre.cambio==null && (!relPre.tipoprecio || tipoPrecio[relPre.tipoprecio].espositivo == 'S');
 }
 
-export function puedeCambiarAtributos(relPre:RelPre){
+export function puedeCambiarPrecioYAtributos(relPre:RelPre){
     return relPre.tipoprecio==null || tipoPrecio[relPre.tipoprecio].espositivo != 'N';
 }
 

@@ -1,7 +1,7 @@
 import { createStore } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarAtributos} from './dm-constantes';
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from './dm-constantes';
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
@@ -121,7 +121,7 @@ myOwn.wScreens.demo_dm = function(addrParams){
             var misObservaciones = productoState.byIds[producto].observaciones;
             var miRelPre = productoState.byIds[producto].observaciones[observacion];
             var miAtr = productoState.byIds[producto].observaciones[observacion].atributos[atributo];
-            var puedeCambiarAttrs = puedeCambiarAtributos(miRelPre);
+            var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
             return deepFreeze({
                 ...productoState,
                 byIds:{
