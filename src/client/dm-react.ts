@@ -1,7 +1,7 @@
 import { createStore } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tipoPrecioPredeterminado} from './dm-constantes';
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tipoPrecioPredeterminado, tipoPrecio} from './dm-constantes';
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
@@ -13,15 +13,19 @@ export type ProductoState={
     byIds:{[producto:string]:{observaciones:{[obs:number]:RelPre}}},
 };
 
+const SET_TP            = 'SET_TP';
 const COPIAR_TP         = 'COPIAR_TP';
+const SET_PRECIO        = 'SET_PRECIO';
 const COPIAR_ATRIBUTOS  = 'COPIAR_ATRIBUTOS';
 const SET_ATRIBUTO      = 'SET_ATRIBUTO';
-const SET_PRECIO        = 'SET_PRECIO';
+
+type ActionSetTp = {type:'SET_TP', payload:{producto:string, observacion:number, valor:string}};
 type ActionCopiarTp = {type:'COPIAR_TP', payload:{producto:string, observacion:number}};
 type ActionSetPrecio = {type:'SET_PRECIO', payload:{producto:string, observacion:number, valor:string}};
 type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{producto:string, observacion:number}};
 type ActionSetAtributo = {type:'SET_ATRIBUTO', payload:{producto:string, observacion:number, atributo:number, valor:string}};
-export type ActionFormulario = ActionCopiarTp | ActionCopiarAtributos | ActionSetAtributo | ActionSetPrecio;
+
+export type ActionFormulario = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 
 myOwn.wScreens.demo_dm = function(addrParams){
     var formularioCorto:RelVis = {
@@ -97,11 +101,41 @@ myOwn.wScreens.demo_dm = function(addrParams){
     /////////// CONTROLADOR
     function preciosReducer(productoState:ProductoState = initialState, action:ActionFormulario):ProductoState {
         switch (action.type) {
+            case SET_TP: {
+                const { producto, observacion, valor } = action.payload;
+                var misObservaciones = productoState.byIds[producto].observaciones;
+                var miRelPre = productoState.byIds[producto].observaciones[observacion];
+                var atributos = {...miRelPre.atributos};
+                var esNegativo = tipoPrecio[valor].espositivo == 'N';
+                likeAr(miRelPre.atributos).forEach(function(attr,index){
+                    atributos[index]={...attr};
+                    atributos[index].valor=esNegativo?null:atributos[index].valor;
+                })
+                return deepFreeze({
+                    ...productoState,
+                    byIds:{
+                        ...productoState.byIds,
+                        [producto]:{
+                            observaciones:{
+                                ...misObservaciones,
+                                [observacion]: {
+                                    ...miRelPre,
+                                    precio: esNegativo?null:miRelPre.precio,
+                                    cambio: esNegativo?null:miRelPre.cambio,
+                                    tipoprecio: valor,
+                                    atributos:{
+                                        ...atributos
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         case COPIAR_TP: {
             const { producto, observacion } = action.payload;
             var misObservaciones = productoState.byIds[producto].observaciones;
             var miRelPre = productoState.byIds[producto].observaciones[observacion];
-            //var miTipoPrecio = miObservacion.tipoprecio==null && miObservacion.tipoprecioanterior!=null && tipoPrecio[miObservacion.tipoprecioanterior].puedecopiar=='S'
             return deepFreeze({
                 ...productoState,
                 byIds:{

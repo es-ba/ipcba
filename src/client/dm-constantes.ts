@@ -10,6 +10,7 @@ export const tiposPrecioDef:TipoPrecio[]=[
     {tipoprecio:'N', nombretipoprecio:'No vende'        , espositivo:'N', puedecopiar:'S'},
     {tipoprecio:'E', nombretipoprecio:'Falta estacional', espositivo:'N', puedecopiar:'S'},
 ];
+
 export const tipoPrecio=likeAr.createIndex(tiposPrecioDef, 'tipoprecio');
 
 export const tipoPrecioPredeterminado = tiposPrecioDef.find(tp=>tp.predeterminado)!;
@@ -24,6 +25,10 @@ export function puedeCopiarAtributos(relPre:RelPre){
 
 export function puedeCambiarPrecioYAtributos(relPre:RelPre){
     return relPre.tipoprecio==null || tipoPrecio[relPre.tipoprecio].espositivo != 'N';
+}
+
+export function tpNecesitaConfirmacion(relPre:RelPre, tipoPrecioSeleccionado:string){
+    return tipoPrecio[tipoPrecioSeleccionado].espositivo == 'N' && (relPre.precio != null || relPre.cambio != null)
 }
 
 export const productos:{[p:string]:Producto} = {

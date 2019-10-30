@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre, AtributoDataTypes} from "./dm-tipos";
-import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-constantes";
+import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-constantes";
 import {ProductoState, ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -114,8 +114,8 @@ const AtributosRow = forwardRef(function(props:{
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
-    onWantToMoveForward?:()=>boolean},
     onCopiarAtributos:()=>void,
+    onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
     const productosState = useSelector((productos:ProductoState)=>productos);
@@ -123,7 +123,7 @@ const AtributosRow = forwardRef(function(props:{
     const relAtr = productosState.byIds[props.producto].observaciones[props.observacion].atributos[props.atributo];
     const dispatch = useDispatch();
     const atributo = estructura.atributos[props.atributo];
-return (
+    return (
         <tr>
             <td>{atributo.nombreatributo}</td>
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
@@ -135,8 +135,7 @@ return (
                 :null}
             <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
                 dispatch({type: 'SET_ATRIBUTO', payload:{producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
-        }} onWantToMoveForward={props.onWantToMoveForward}
-            ref={ref} />
+            }} onWantToMoveForward={props.onWantToMoveForward} ref={ref} />
         </tr>
     )
 });
@@ -179,16 +178,14 @@ function PreciosRow(props:{
                     {tiposPrecioDef.map(tpDef=>
                         <MenuItem key={tpDef.tipoprecio} onClick={()=>{
                             setMenuTipoPrecio(null);
-                            var necesitaConfirmacion = !tipoPrecio[tpDef.tipoprecio].espositivo && (relPre.precio != null || relPre.cambio != null);
-                            if(necesitaConfirmacion){
+                            if(tpNecesitaConfirmacion(relPre,tpDef.tipoprecio)){
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                // setDeshabilitarPrecio(!tipoPrecio[tpDef.tipoprecio].espositivo);
-                                //props.setTipoPrecioPositivo(tpDef.tipoprecio);
-                            }
-                            if(precioRef.current && !relPre.precio && tipoPrecio[tpDef.tipoprecio].espositivo){
-                                precioRef.current.focus();
+                                dispatch({type: 'SET_TP', payload:{producto:props.producto, observacion:props.observacion, valor:tpDef.tipoprecio}})
+                                if(precioRef.current && !relPre.precio && tipoPrecio[tpDef.tipoprecio].espositivo == 'S'){
+                                    precioRef.current.focus();
+                                }
                             }
                         }}>
                             <ListItemText>{tpDef.tipoprecio}&nbsp;</ListItemText>
@@ -215,8 +212,7 @@ function PreciosRow(props:{
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            //props.setTipoPrecioNegativo(tipoDePrecioNegativoAConfirmar!)
-                            // setDeshabilitarPrecio(true);
+                            dispatch({type: 'SET_TP', payload:{producto:props.producto, observacion:props.observacion, valor:tipoDePrecioNegativoAConfirmar}})
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
