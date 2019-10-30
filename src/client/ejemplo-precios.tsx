@@ -224,7 +224,14 @@ function PreciosRow(props:{
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }
-                }} ref={precioRef} dataType="number"/>
+                }} ref={precioRef} dataType="number" onWantToMoveForward={()=>{
+                    var nextItemRef=atributosRef.current[0];
+                    if(nextItemRef.current!=null){
+                        nextItemRef.current.focus()
+                        return true;
+                    }
+                    return false;
+                }}/>
             </tr>
             {productoDef.listaAtributos.map((atributo, index)=>
                 <AtributosRow key={atributo}
