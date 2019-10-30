@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre, AtributoDataTypes} from "./dm-tipos";
-import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio} from "./dm-constantes";
+import {tipoPrecio, tipoPrecioPredeterminado, tiposPrecioDef, estructura, puedeCopiarTipoPrecio, puedeCopiarAtributos} from "./dm-constantes";
 import {ProductoState, ActionFormulario} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -118,6 +118,7 @@ const AtributosRow = forwardRef(function(props:{
     ref:React.Ref<Focusable>
 ){
     const productosState = useSelector((productos:ProductoState)=>productos);
+    const relPre = productosState.byIds[props.producto].observaciones[props.observacion];
     const relAtr = productosState.byIds[props.producto].observaciones[props.observacion].atributos[props.atributo];
     const dispatch = useDispatch();
     const atributo = estructura.atributos[props.atributo];
@@ -128,7 +129,7 @@ return (
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
                     dispatch({type: 'COPIAR_ATRIBUTOS', payload:{producto:props.producto, observacion:props.observacion}})    
-                }}>{FLECHAATRIBUTOS}</td>
+                }}>{puedeCopiarAtributos(relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
                 :null}
             <EditableTd disabled={false/*CAMBIAR*/} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
                 dispatch({type: 'SET_ATRIBUTO', payload:{producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})

@@ -18,6 +18,14 @@ export function puedeCopiarTipoPrecio(relPre:RelPre){
     return relPre.tipoprecio==null && relPre.tipoprecioanterior!=null && tipoPrecio[relPre.tipoprecioanterior].puedecopiar=='S'
 }
 
+export function puedeCopiarAtributos(relPre:RelPre){
+    return relPre.cambio==null && (!relPre.tipoprecio || tipoPrecio[relPre.tipoprecio].espositivo == 'S');
+}
+
+export function puedeCambiarAtributos(relPre:RelPre){
+    return relPre.tipoprecio==null || tipoPrecio[relPre.tipoprecio].espositivo != 'N';
+}
+
 export const productos:{[p:string]:Producto} = {
     P01:{
         producto:'P01',

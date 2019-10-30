@@ -1,7 +1,7 @@
 import { createStore } from "redux";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import {TipoPrecio, Atributo, Producto, ProdAtr, Formulario, Estructura, RelVis, RelAtr, RelPre} from "./dm-tipos";
-import {puedeCopiarTipoPrecio} from './dm-constantes';
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarAtributos} from './dm-constantes';
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as likeAr from "like-ar";
@@ -58,7 +58,7 @@ myOwn.wScreens.demo_dm = function(addrParams){
                     1:{
                         tipoprecioanterior:'P',
                         precioanterior:140,
-                        tipoprecio:null,
+                        tipoprecio:'N',
                         precio:null,
                         atributos:{
                             13:{valoranterior:'La campagnola', valor:null},
@@ -121,6 +121,7 @@ myOwn.wScreens.demo_dm = function(addrParams){
             var misObservaciones = productoState.byIds[producto].observaciones;
             var miRelPre = productoState.byIds[producto].observaciones[observacion];
             var miAtr = productoState.byIds[producto].observaciones[observacion].atributos[atributo];
+            var puedeCambiarAttrs = puedeCambiarAtributos(miRelPre);
             return deepFreeze({
                 ...productoState,
                 byIds:{
@@ -130,11 +131,12 @@ myOwn.wScreens.demo_dm = function(addrParams){
                             ...misObservaciones,
                             [observacion]: {
                                 ...miRelPre,
+                                cambio:puedeCambiarAttrs?'C':miRelPre.cambio,
                                 atributos:{
                                     ...miRelPre.atributos,
                                     [atributo]:{
                                         ...miAtr,
-                                        valor: valor
+                                        valor: puedeCambiarAttrs?valor:miAtr.valor
                                     }
                                 }
                             }
@@ -148,9 +150,10 @@ myOwn.wScreens.demo_dm = function(addrParams){
             var misObservaciones = productoState.byIds[producto].observaciones;
             var miRelPre = productoState.byIds[producto].observaciones[observacion];
             var atributos = {...miRelPre.atributos};
+            var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
             likeAr(miRelPre.atributos).forEach(function(attr,index){
                 atributos[index]={...attr};
-                atributos[index].valor=atributos[index].valoranterior;
+                atributos[index].valor=puedeCopiarAttrs?atributos[index].valoranterior:atributos[index].valor;
             })
             return deepFreeze({
                 ...productoState,
@@ -161,6 +164,7 @@ myOwn.wScreens.demo_dm = function(addrParams){
                             ...misObservaciones,
                             [observacion]: {
                                 ...miRelPre,
+                                cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
                                 atributos:{
                                     ...atributos
                                 }
