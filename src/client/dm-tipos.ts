@@ -114,7 +114,7 @@ export type RelVis={
 
 export type Informante={
     informante:number,
-    informantenombre:string,
+    nombreinformante:string,
     domicilio:string,
     formularios:{
         [formulario:number]:RelVis

@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import {Producto, RelPre, AtributoDataTypes, ProductoState} from "./dm-tipos";
 import {tiposPrecioDef, estructura} from "./dm-estructura";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-funciones";
-import {ActionFormulario} from "./dm-react";
+import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -356,7 +356,7 @@ function PruebaRelevamientoPrecios(){
     );
 }
 
-export function mostrarHdr(store:Store<ProductoState, ActionFormulario>){
+export function mostrarHdr(store:Store<ProductoState, ActionHdr>){
     ReactDOM.render(
         <Provider store={store}>
             <PruebaRelevamientoPrecios/>
