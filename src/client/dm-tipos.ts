@@ -75,9 +75,9 @@ export type Estructura={
 export type RelAtr={
     valoranterior:string
     valor:string|null
-    _valornormal: number
-    _opciones: string  
-    _valor_pesos: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
+    _valornormal?: number
+    _opciones?: string  
+    _valor_pesos?: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
 }
 
 export type RelPre={
@@ -89,14 +89,14 @@ export type RelPre={
         [atributo:number]:RelAtr
     }
     cambio: string | null
-    comentariosrelpre: string
-    precionormalizado: number
-    precionormalizado_1: number
-    promobs_1: number
-    normsindato:string
-    fueraderango:string
-    sinpreciohace4meses:string
-    adv: boolean
+    comentariosrelpre?: string
+    precionormalizado?: number
+    precionormalizado_1?: number
+    promobs_1?: number
+    normsindato?:string
+    fueraderango?:string
+    sinpreciohace4meses?:string
+    adv?: boolean
 }
 
 export type RelVis={
@@ -127,8 +127,3 @@ export type HojaDeRuta={
     fechaCarga:Date,
     informantes:{[informante:number]:Informante}
 }
-
-export type ProductoState={
-    allIds:string[],
-    byIds:{[producto:string]:{observaciones:{[obs:number]:RelPre}}},
-};

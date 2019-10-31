@@ -1,12 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes, ProductoState} from "./dm-tipos";
+import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, ForProd} from "./dm-tipos";
 import {tiposPrecioDef, estructura} from "./dm-estructura";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
+import * as bestGlobals from "best-globals";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
 import { Store } from "redux";
 
@@ -118,9 +119,9 @@ const AtributosRow = forwardRef(function(props:{
     onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
-    const productosState = useSelector((productos:ProductoState)=>productos);
-    const relPre = productosState.byIds[props.producto].observaciones[props.observacion];
-    const relAtr = productosState.byIds[props.producto].observaciones[props.observacion].atributos[props.atributo];
+    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[3333].formularios[99].productos);
+    const relPre = productosState[props.producto].observaciones[props.observacion];
+    const relAtr = productosState[props.producto].observaciones[props.observacion].atributos[props.atributo];
     const dispatch = useDispatch();
     const atributo = estructura.atributos[props.atributo];
     return (
@@ -144,8 +145,8 @@ function PreciosRow(props:{
     producto:string,
     observacion:number
 }){
-    const productosState = useSelector((productos:ProductoState)=>productos);
-    const relPre = productosState.byIds[props.producto].observaciones[props.observacion];
+    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[3333].formularios[99].productos);
+    const relPre = productosState[props.producto].observaciones[props.observacion];
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
     const productoDef:Producto = estructura.productos[props.producto];
@@ -308,7 +309,7 @@ function PreciosRow(props:{
 }
 
 function PruebaRelevamientoPrecios(){
-    const productosState = useSelector((productos:ProductoState)=>productos);
+    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[3333].formularios[99].productos);
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -340,23 +341,22 @@ function PruebaRelevamientoPrecios(){
                 </tr>
             </thead>
             <tbody>
-            {productosState.allIds.map((idProducto:string) => {
-                var miProducto = productosState.byIds[idProducto];
-                return likeAr(miProducto.observaciones).map((_relPre:RelPre, observacion:number)=>
+            {estructura.formularios[99].listaProductos.map((producto:string) => {
+                var forProd = estructura.formularios[99].productos[producto];
+                return bestGlobals.serie({from:1, to:forProd.observaciones}).map(observacion=>
                     <PreciosRow 
-                        key={idProducto+observacion.toString()}
-                        producto={idProducto} 
+                        key={producto+'/'+observacion}
+                        producto={producto}
                         observacion={observacion}
                     />
-                ).array()
-                }
-            )}
+                )
+            })}
             </tbody>
         </table>
     );
 }
 
-export function mostrarHdr(store:Store<ProductoState, ActionHdr>){
+export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>){
     ReactDOM.render(
         <Provider store={store}>
             <PruebaRelevamientoPrecios/>

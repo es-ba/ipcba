@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelVis, ProductoState, HojaDeRuta } from "./dm-tipos";
+import { RelVis, RelPre, HojaDeRuta } from "./dm-tipos";
 import { tipoPrecioPredeterminado, tipoPrecio} from './dm-estructura';
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
@@ -18,14 +18,14 @@ const SET_ATRIBUTO      = 'SET_ATRIBUTO';
 
 type ActionSetTp           = {type:'SET_TP'          , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:string}};
 type ActionCopiarTp        = {type:'COPIAR_TP'       , payload:{informante:number, formulario:number, producto:string, observacion:number}};
-type ActionSetPrecio       = {type:'SET_PRECIO'      , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:string}};
+type ActionSetPrecio       = {type:'SET_PRECIO'      , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:number}};
 type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{informante:number, formulario:number, producto:string, observacion:number}};
 type ActionSetAtributo     = {type:'SET_ATRIBUTO'    , payload:{informante:number, formulario:number, producto:string, observacion:number, atributo:number, valor:string}};
 
 export type ActionHdr = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 /* FIN ACCIONES */
 
-myOwn.wScreens.demo_dm = function(addrParams){
+myOwn.wScreens.demo_dm = async function(_addrParams){
     /* FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
     var formularioCorto:RelVis = {
         formulario:99,
@@ -95,27 +95,42 @@ myOwn.wScreens.demo_dm = function(addrParams){
 
     /* DEFINICION CONTROLADOR */
     function hdrReducer(hdrState:HojaDeRuta = initialState, action:ActionHdr):HojaDeRuta {
+        action.payload = {
+            ...action.payload,
+            informante:3333,
+            formulario:99
+        }
         var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
-        var enElFormulario = (productoState:RelPre)=>deepFreeze({
+        var enRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>deepFreeze({
             ...hdrState,
             informantes:{
                 [action.payload.informante]:{
                     ...hdrState.informantes[action.payload.informante], 
                     formularios:{
                         ...hdrState.informantes[action.payload.informante]
-                            .formularios[action.payload.formulario], 
+                            .formularios, 
                         [action.payload.formulario]:{
+                            ...hdrState.informantes[action.payload.informante]
+                                .formularios[action.payload.formulario], 
                             productos: {
                                 ...hdrState.informantes[action.payload.informante]
                                     .formularios[action.payload.formulario]
-                                    .productos[action.payload.producto],
+                                    .productos,
                                 [action.payload.producto]:{
                                     ...hdrState.informantes[action.payload.informante]
                                         .formularios[action.payload.formulario]
-                                        .productos[action.payload.producto]
-                                        .observaciones[action.payload.observacion],
+                                        .productos[action.payload.producto],
                                     observaciones: {
-                                        [action.payload.observacion]: productoState
+                                        ...hdrState.informantes[action.payload.informante]
+                                            .formularios[action.payload.formulario]
+                                            .productos[action.payload.producto]
+                                            .observaciones,
+                                        [action.payload.observacion]: relPreReducer(
+                                            hdrState.informantes[action.payload.informante]
+                                                .formularios[action.payload.formulario]
+                                                .productos[action.payload.producto]
+                                                .observaciones[action.payload.observacion]
+                                        )
                                     }
                                 }
                             }
@@ -126,87 +141,63 @@ myOwn.wScreens.demo_dm = function(addrParams){
             }
             
         })
-        var setTP = function setTP(producto:string, observacion:number, valor:string){
-            var misObservaciones = hdrState.byIds[producto].observaciones;
-            var miRelPre = hdrState.byIds[producto].observaciones[observacion];
-            var atributos = {...miRelPre.atributos};
-            var esNegativo = tipoPrecio[valor].espositivo == 'N';
-            likeAr(miRelPre.atributos).forEach(function(attr,index){
-                atributos[index]={...attr};
-                atributos[index].valor=esNegativo?null:atributos[index].valor;
-            })
-            return enElFormulario({
-                ...miRelPre,
-                precio: esNegativo?null:miRelPre.precio,
-                cambio: esNegativo?null:miRelPre.cambio,
-                tipoprecio: valor,
-                atributos:{
-                    ...atributos
-                }
+        var setTP = function setTP(tipoPrecioRedux:(miRelPre:RelPre)=>string|null){
+            return enRelPre(miRelPre=>{
+                var tipoPrecioNuevo = tipoPrecioRedux(miRelPre);
+                var esNegativo = !tipoPrecioNuevo || tipoPrecio[tipoPrecioNuevo].espositivo == 'N';
+                var paraLimipar=esNegativo?{
+                    precio: null,
+                    cambio: null,
+                    atributos: likeAr(miRelPre.atributos).map(relAtr=>({...relAtr, valor:null})).plain()
+                }:{};
+                return {
+                    ...miRelPre,
+                    ...paraLimipar,
+                    tipoPrecio: tipoPrecioNuevo
+                };
             });
         }
         switch (action.type) {
             case SET_TP: {
-                const { producto, observacion, valor } = action.payload;
-                return setTP(producto, observacion, valor);
+                return setTP(_ => action.payload.valor);
             }
             case COPIAR_TP: {
-                const { producto, observacion } = action.payload;
-                var misObservaciones = hdrState.byIds[producto].observaciones;
-                var miRelPre = hdrState.byIds[producto].observaciones[observacion];
-                var atributos = {...miRelPre.atributos};
-                if(puedeCopiarTipoPrecio(miRelPre)){
-                    return setTP(producto, observacion, miRelPre.tipoprecioanterior!)
-                }else{
-                    return defaultAction()
-                }
-
+                return setTP(relPre => puedeCopiarTipoPrecio(relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
             }
             case SET_PRECIO: {
-                const { producto, observacion, valor } = action.payload;
-                var misObservaciones = hdrState.byIds[producto].observaciones;
-                var miRelPre = hdrState.byIds[producto].observaciones[observacion];
-                var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
-                return enElFormulario({
-                    ...miRelPre,
-                    precio:puedeCambiarPrecio?valor:miRelPre.precio,
-                    tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
+                return enRelPre((miRelPre:RelPre)=>{
+                    var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
+                    return {
+                        ...miRelPre,
+                        precio:puedeCambiarPrecio?action.payload.valor:miRelPre.precio,
+                        tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
+                    }
                 });
             }
             case SET_ATRIBUTO: {
-                const { producto, observacion, atributo, valor } = action.payload;
-                var misObservaciones = hdrState.byIds[producto].observaciones;
-                var miRelPre = hdrState.byIds[producto].observaciones[observacion];
-                var miAtr = hdrState.byIds[producto].observaciones[observacion].atributos[atributo];
-                var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
-                return enElFormulario({
-                    ...miRelPre,
-                    cambio:puedeCambiarAttrs?'C':miRelPre.cambio,
-                    atributos:{
-                        ...miRelPre.atributos,
-                        [atributo]:{
-                            ...miAtr,
-                            valor: puedeCambiarAttrs?valor:miAtr.valor
+                return enRelPre((miRelPre:RelPre)=>{
+                    var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
+                    return puedeCambiarAttrs?{
+                        ...miRelPre,
+                        cambio:'C',
+                        atributos:{
+                            ...miRelPre.atributos,
+                            [action.payload.atributo]:{
+                                ...miRelPre.atributos[action.payload.atributo],
+                                valor: action.payload.valor
+                            }
                         }
-                    }
+                    }:miRelPre
                 });
             }
             case COPIAR_ATRIBUTOS: {
-                const { producto, observacion } = action.payload;
-                var misObservaciones = hdrState.byIds[producto].observaciones;
-                var miRelPre = hdrState.byIds[producto].observaciones[observacion];
-                var atributos = {...miRelPre.atributos};
-                var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
-                likeAr(miRelPre.atributos).forEach(function(attr,index){
-                    atributos[index]={...attr};
-                    atributos[index].valor=puedeCopiarAttrs?atributos[index].valoranterior:atributos[index].valor;
-                })
-                return enElFormulario({
-                    ...miRelPre,
-                    cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
-                    atributos:{
-                        ...atributos
-                    }
+                return enRelPre((miRelPre:RelPre)=>{
+                    var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
+                    return puedeCopiarAttrs?{
+                        ...miRelPre,
+                        cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
+                        atributos:likeAr(miRelPre.atributos).map(relAtr=>({...relAtr, valor:relAtr.valoranterior})).plain()
+                    }:miRelPre;
                 });
             }
             default: {
@@ -220,7 +211,7 @@ myOwn.wScreens.demo_dm = function(addrParams){
     const initialState:HojaDeRuta = {
         dispositivo: 'N33',
         encuestador: '13',
-        fechaCarga: bestGlobals.date(2019,11,1),
+        fechaCarga: bestGlobals.date.ymd(2019,11,1),
         informantes:{
             3333:{
                 informante: 3333,
@@ -235,16 +226,17 @@ myOwn.wScreens.demo_dm = function(addrParams){
     /* FIN DEFINICION STATE */
 
     /* CARGA Y GUARDADO DE STATE */
-    function loadState():ProductoState{
-        var content = localStorage.getItem('dm-store');
-        if(content){
-            return JSON.parse(content);
+    function loadState():HojaDeRuta{
+        var contentJson = localStorage.getItem('dm-store-v2');
+        if(contentJson){
+            var content = JSON.parse(contentJson);
+            return {...content, fechaCarga:bestGlobals.date.iso(content.fechaCarga) }
         }else{
             return initialState;
         }
     }
-    function saveState(state:ProductoState){
-        localStorage.setItem('dm-store', JSON.stringify(state));
+    function saveState(state:HojaDeRuta){
+        localStorage.setItem('dm-store-v2', JSON.stringify(state));
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 
