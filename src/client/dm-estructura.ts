@@ -1,6 +1,6 @@
 "use strict";
 import * as likeAr from "like-ar" ;
-import {TipoPrecio, Producto, Estructura, Atributo, Formulario} from "./dm-tipos";
+import {TipoPrecio, Producto, Estructura, Atributo, Formulario, Razon} from "./dm-tipos";
 
 /* TODO: TRAER DESDE ARCHIVO GENERADO */
 export const tiposPrecioDef:TipoPrecio[]=[
@@ -101,8 +101,8 @@ export const productos:{[p:string]:Producto} = {
     }
 }
 
-var razones={
-    1:{escierredefinitivoinf:'N', escierredefinitivofor:'N'}
+var razones:{[r:number]:Razon}={
+    1:{nombrerazon: 'Respuesta Efectiva', escierredefinitivoinf:'N', escierredefinitivofor:'N'}
 }
 
 var atributos:{[a:string]:Atributo}={

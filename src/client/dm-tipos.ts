@@ -51,6 +51,7 @@ export type Formulario={
 }
 
 export type Razones={
+    nombrerazon: string
     escierredefinitivoinf: string
     escierredefinitivofor: string
 }

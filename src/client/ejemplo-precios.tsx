@@ -314,21 +314,9 @@ function PreciosRow(props:{
     );
 }
 
-function PruebaRelevamientoPrecios(props:{informante: number,formulario: number,}){
-    const ref = useRef<HTMLTableElement>(null);
-    useEffect(()=>{
-        if(ref.current){
-            var thInThead=ref.current.querySelectorAll('thead th');
-            var minReducer = (min:number, th:HTMLElement)=>Math.min(min, th.offsetTop);
-            // @ts-ignore
-            var minTop = Array.prototype.reduce.call(thInThead, minReducer, Number.MAX_VALUE)
-            Array.prototype.map.call(thInThead,(th:HTMLElement)=>{
-                th.style.top = th.offsetTop - minTop + 'px'
-            })
-        }
-    })
+function RelevamientoPrecios(props:{informante: number,formulario: number,}){
     return (
-        <table className="formulario-precios" ref={ref}>
+        <table className="formulario-precios">
             <caption>Formulario X</caption>
             <thead>
                 <tr>
@@ -363,10 +351,54 @@ function PruebaRelevamientoPrecios(props:{informante: number,formulario: number,
     );
 }
 
+function RazonFormulario(props:{informante: number,formulario: number,}){
+    const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario]);
+    const razones = estructura.razones;
+    return (
+        <table className="razon-formulario">
+            <thead>
+                <tr>
+                    <th>razon</th>
+                    <th>nombre</th>
+                    <th>comentarios</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{relVis.razon}</td>
+                    <td>{razones[relVis.razon].nombrerazon}</td>
+                    <td>{relVis.comentarios}</td>
+                </tr>
+            </tbody>
+        </table>
+    );
+}
+
+function InformanteVisita(props:{informante: number,formulario: number,}){
+    const ref = useRef<HTMLTableElement>(null);
+    useEffect(()=>{
+        if(ref.current){
+            var thInThead=ref.current.querySelectorAll('thead th');
+            var minReducer = (min:number, th:HTMLElement)=>Math.min(min, th.offsetTop);
+            // @ts-ignore
+            var minTop = Array.prototype.reduce.call(thInThead, minReducer, Number.MAX_VALUE)
+            Array.prototype.map.call(thInThead,(th:HTMLElement)=>{
+                th.style.top = th.offsetTop - minTop + 'px'
+            })
+        }
+    })
+    return (
+        <div className="informante-visita" ref={ref}>
+            <RazonFormulario informante={props.informante} formulario={props.formulario}/>
+            <RelevamientoPrecios informante={props.informante} formulario={props.formulario}/>
+        </div>
+    );
+}
+
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>){
     ReactDOM.render(
         <Provider store={store}>
-            <PruebaRelevamientoPrecios informante={3333} formulario={99}/>
+            <InformanteVisita informante={3333} formulario={99}/>
         </Provider>,
         document.getElementById('main_layout')
     )
