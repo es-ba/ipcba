@@ -33,15 +33,20 @@ function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previo
 export type ActionHdr = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 /* FIN ACCIONES */
 
-// function surf<T extends {[key:K]}>(object:T, key:keyof T, callback:(object:T[keyof T])=>T[keyof T]):T
-//function surf<T extends {}>(object:T, key:keyof T, callback:(object:T[keyof T])=>T[keyof T]):T{
 function surf<T extends {}, K extends keyof T>(object:T, key:K, callback:(object:T[K])=>T[K]):T{
-    return {
+    return Object.freeze({
         ...object,
         [key]: callback(object[key])
-    };
+    });
 }
 
+function surfx<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
+    return (object:T)=>surf(object, key, callback);
+}
+
+function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
+    return callback(object);
+}
 
 myOwn.wScreens.demo_dm = async function(_addrParams){
     /* FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
@@ -121,14 +126,16 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
         var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
 
         const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>
-            surf(hdrState,'informantes', x=>surf(x,action.payload.informante,x=>
-                surf(x,'formularios', x=>surf(x,action.payload.formulario,relVisReducer))
+            (surfStart(hdrState,
+                surfx('informantes', surfx(action.payload.informante,
+                    surfx('formularios', surfx(action.payload.formulario,relVisReducer))
+                ))
             ));
 
         const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
-            surfRelVis(relVis=>
-                surf(relVis,'productos', x=>surf(x,action.payload.producto,x=>
-                    surf(x,'observaciones', x=>surf(x,action.payload.observacion,relPreReducer))
+            surfRelVis(
+                surfx('productos', surfx(action.payload.producto,
+                    surfx('observaciones', surfx(action.payload.observacion,relPreReducer))
                 ))
             );
 
