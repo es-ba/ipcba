@@ -33,15 +33,11 @@ function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previo
 export type ActionHdr = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 /* FIN ACCIONES */
 
-function surf<T extends {}, K extends keyof T>(object:T, key:K, callback:(object:T[K])=>T[K]):T{
-    return Object.freeze({
+function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
+    return (object:T)=>Object.freeze({
         ...object,
         [key]: callback(object[key])
     });
-}
-
-function surfx<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
-    return (object:T)=>surf(object, key, callback);
 }
 
 function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
@@ -127,15 +123,15 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
 
         const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>
             (surfStart(hdrState,
-                surfx('informantes', surfx(action.payload.informante,
-                    surfx('formularios', surfx(action.payload.formulario,relVisReducer))
+                surf('informantes', surf(action.payload.informante,
+                    surf('formularios', surf(action.payload.formulario,relVisReducer))
                 ))
             ));
 
         const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
             surfRelVis(
-                surfx('productos', surfx(action.payload.producto,
-                    surfx('observaciones', surfx(action.payload.observacion,relPreReducer))
+                surf('productos', surf(action.payload.producto,
+                    surf('observaciones', surf(action.payload.observacion,relPreReducer))
                 ))
             );
 
