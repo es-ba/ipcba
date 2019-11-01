@@ -10,17 +10,21 @@ import * as bestGlobals from "best-globals";
 var my=myOwn;
 
 /* INICIO ACCIONES */
-const SET_TP            = 'SET_TP';
-const COPIAR_TP         = 'COPIAR_TP';
-const SET_PRECIO        = 'SET_PRECIO';
-const COPIAR_ATRIBUTOS  = 'COPIAR_ATRIBUTOS';
-const SET_ATRIBUTO      = 'SET_ATRIBUTO';
+const SET_RAZON            = 'SET_RAZON';
+const SET_COMENTARIO_RAZON = 'SET_COMENTARIO_RAZON';
+const SET_TP               = 'SET_TP';
+const COPIAR_TP            = 'COPIAR_TP';
+const SET_PRECIO           = 'SET_PRECIO';
+const COPIAR_ATRIBUTOS     = 'COPIAR_ATRIBUTOS';
+const SET_ATRIBUTO         = 'SET_ATRIBUTO';
 
-type ActionSetTp           = {type:'SET_TP'          , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:string}};
-type ActionCopiarTp        = {type:'COPIAR_TP'       , payload:{informante:number, formulario:number, producto:string, observacion:number}};
-type ActionSetPrecio       = {type:'SET_PRECIO'      , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:number}};
-type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{informante:number, formulario:number, producto:string, observacion:number}};
-type ActionSetAtributo     = {type:'SET_ATRIBUTO'    , payload:{informante:number, formulario:number, producto:string, observacion:number, atributo:number, valor:string}};
+type ActionSetRAzon           = {type:'SET_RAZON'           , payload:{informante:number, formulario:number, valor:number}};
+type ActionSetComentarioRazon = {type:'SET_COMENTARIO_RAZON', payload:{informante:number, formulario:number, valor:string}};
+type ActionSetTp              = {type:'SET_TP'              , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:string}};
+type ActionCopiarTp           = {type:'COPIAR_TP'           , payload:{informante:number, formulario:number, producto:string, observacion:number}};
+type ActionSetPrecio          = {type:'SET_PRECIO'          , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:number}};
+type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , payload:{informante:number, formulario:number, producto:string, observacion:number}};
+type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , payload:{informante:number, formulario:number, producto:string, observacion:number, atributo:number, valor:string}};
 
 /*
 function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previous:T)=>U)){
@@ -30,7 +34,7 @@ function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previo
 }
 */
 
-export type ActionHdr = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
+export type ActionHdr = ActionSetRAzon | ActionSetComentarioRazon | ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 /* FIN ACCIONES */
 
 // function surf<T extends {[key:K]}>(object:T, key:keyof T, callback:(object:T[keyof T])=>T[keyof T]):T
@@ -150,6 +154,22 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
             });
         }
         switch (action.type) {
+            case SET_RAZON: {
+                return surfRelVis((miRelVis:RelVis)=>{
+                    return {
+                        ...miRelVis,
+                        razon: action.payload.valor
+                    }
+                });
+            }
+            case SET_COMENTARIO_RAZON: {
+                return surfRelVis((miRelVis:RelVis)=>{
+                    return {
+                        ...miRelVis,
+                        comentarios: action.payload.valor
+                    }
+                });
+            }
             case SET_TP: {
                 return setTP(_ => action.payload.valor);
             }
