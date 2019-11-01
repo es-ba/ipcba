@@ -120,81 +120,21 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
         }
         var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
 
-        /*
-        var enRelPre3 = (relPreReducer:(productoState:RelPre)=>RelPre)=>surf(hdrState)
-            .in('informantes').in(action.payload.informante)
-            .in('formularios').in(action.payload.formulario)
-            .in('productos').in(action.payload.producto)
-            .in('observaciones').in(action.payload.observacion)
-            .redux(relPreReducer)
-            .freeze();
-
-        var enRelPre3 = (relPreReducer:(productoState:RelPre)=>RelPre)=>
-            surfRedux(relPreReducer,
-                surfIn('observaciones',surfIn(action.payload.observacion,
-                    surfIn('productos',surfIn(action.payload.producto,
-                        surfIn('formularios',surfIn(action.payload.formulario,
-                            surfIn('informantes',surfIn(action.payload.informante,
-                                surfStart(hdrState)
-                            ))
-                        ))
-                    ))
-                ))
-            );
-        */
-
-        var enRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
+        const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>
             surf(hdrState,'informantes', x=>surf(x,action.payload.informante,x=>
-                surf(x,'formularios', x=>surf(x,action.payload.formulario,x=>
-                    surf(x,'productos', x=>surf(x,action.payload.producto,x=>
-                        surf(x,'observaciones', x=>surf(x,action.payload.observacion,relPreReducer))
-                    ))
-                ))
+                surf(x,'formularios', x=>surf(x,action.payload.formulario,relVisReducer))
             ));
 
-        var enRelPre1 = (relPreReducer:(productoState:RelPre)=>RelPre)=>deepFreeze({
-            ...hdrState,
-            informantes:{
-                ...hdrState.informantes,
-                [action.payload.informante]:{
-                    ...hdrState.informantes[action.payload.informante], 
-                    formularios:{
-                        ...hdrState.informantes[action.payload.informante]
-                            .formularios, 
-                        [action.payload.formulario]:{
-                            ...hdrState.informantes[action.payload.informante]
-                                .formularios[action.payload.formulario], 
-                            productos: {
-                                ...hdrState.informantes[action.payload.informante]
-                                    .formularios[action.payload.formulario]
-                                    .productos,
-                                [action.payload.producto]:{
-                                    ...hdrState.informantes[action.payload.informante]
-                                        .formularios[action.payload.formulario]
-                                        .productos[action.payload.producto],
-                                    observaciones: {
-                                        ...hdrState.informantes[action.payload.informante]
-                                            .formularios[action.payload.formulario]
-                                            .productos[action.payload.producto]
-                                            .observaciones,
-                                        [action.payload.observacion]: relPreReducer(
-                                            hdrState.informantes[action.payload.informante]
-                                                .formularios[action.payload.formulario]
-                                                .productos[action.payload.producto]
-                                                .observaciones[action.payload.observacion]
-                                        )
-                                    }
-                                }
-                            }
+        const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
+            surfRelVis(relVis=>
+                surf(relVis,'productos', x=>surf(x,action.payload.producto,x=>
+                    surf(x,'observaciones', x=>surf(x,action.payload.observacion,relPreReducer))
+                ))
+            );
 
-                        }
-                    }
-                }
-            }
             
-        })
         var setTP = function setTP(tipoPrecioRedux:(miRelPre:RelPre)=>string|null){
-            return enRelPre(miRelPre=>{
+            return surfRelPre(miRelPre=>{
                 var tipoPrecioNuevo = tipoPrecioRedux(miRelPre);
                 var esNegativo = !tipoPrecioNuevo || tipoPrecio[tipoPrecioNuevo].espositivo == 'N';
                 var paraLimipar=esNegativo?{
@@ -217,7 +157,7 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
                 return setTP(relPre => puedeCopiarTipoPrecio(relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
             }
             case SET_PRECIO: {
-                return enRelPre((miRelPre:RelPre)=>{
+                return surfRelPre((miRelPre:RelPre)=>{
                     var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
                     return {
                         ...miRelPre,
@@ -227,7 +167,7 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
                 });
             }
             case SET_ATRIBUTO: {
-                return enRelPre((miRelPre:RelPre)=>{
+                return surfRelPre((miRelPre:RelPre)=>{
                     var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
                     return puedeCambiarAttrs?{
                         ...miRelPre,
@@ -243,7 +183,7 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
                 });
             }
             case COPIAR_ATRIBUTOS: {
-                return enRelPre((miRelPre:RelPre)=>{
+                return surfRelPre((miRelPre:RelPre)=>{
                     var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
                     return puedeCopiarAttrs?{
                         ...miRelPre,
