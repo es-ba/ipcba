@@ -50,7 +50,7 @@ export type Formulario={
     listaProductos:string[]
 }
 
-export type Razones={
+export type Razon={
     nombrerazon: string
     escierredefinitivoinf: string
     escierredefinitivofor: string
@@ -70,7 +70,7 @@ export type Estructura={
     productos  : {[producto:string]: Producto}
     formularios: {[formulario:number]: Formulario}
     tipoPrecio : {[tipoPrecio:string]: TipoPrecio}
-    razones    : {[razon:number]: Razones}
+    razones    : {[razon:number]: Razon}
 }
 
 export type RelAtr={

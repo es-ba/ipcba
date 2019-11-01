@@ -102,7 +102,18 @@ export const productos:{[p:string]:Producto} = {
 }
 
 var razones:{[r:number]:Razon}={
-    1:{nombrerazon: 'Respuesta Efectiva', escierredefinitivoinf:'N', escierredefinitivofor:'N'}
+    1: {nombrerazon: 'Respuesta Efectiva', escierredefinitivoinf:'N', escierredefinitivofor:'N'},
+    2: {nombrerazon: 'No Existe local comercial', escierredefinitivoinf:'N', escierredefinitivofor:'N'},
+    3: {nombrerazon: 'Cerrado Definitiv.', escierredefinitivoinf:'S', escierredefinitivofor:'S'},
+    4: {nombrerazon: 'Rubro diferente al seleccionado', escierredefinitivoinf: 'S', escierredefinitivofor:'S'},
+    5: {nombrerazon: 'Cerrado moment.', escierredefinitivoinf: 'N', escierredefinitivofor:'N'},
+    6: {nombrerazon: 'Ausencia momentánea', escierredefinitivoinf: 'N', escierredefinitivofor:'N'},
+    7: {nombrerazon: 'Rechazo', escierredefinitivoinf: 'S', escierredefinitivofor:'S'},
+    8: {nombrerazon: 'Otro (especificar)', escierredefinitivoinf: 'N', escierredefinitivofor:'N'},
+    9: {nombrerazon: 'Domicilio inexistente', escierredefinitivoinf: 'S', escierredefinitivofor:'S'},
+    10:{nombrerazon: 'Informante Inactivo por reemplazo', escierredefinitivoinf: 'S', escierredefinitivofor:'S'},
+    11:{nombrerazon: 'Rubro Inexistente', escierredefinitivoinf: 'N', escierredefinitivofor:'S'},
+    12:{nombrerazon: 'Cierre temporal de sección/rubro', escierredefinitivoinf: 'N', escierredefinitivofor:'N'}
 }
 
 var atributos:{[a:string]:Atributo}={

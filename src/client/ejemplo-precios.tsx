@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, ForProd} from "./dm-tipos";
+import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon} from "./dm-tipos";
 import {tiposPrecioDef, estructura} from "./dm-estructura";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
@@ -354,6 +354,8 @@ function RelevamientoPrecios(props:{informante: number,formulario: number,}){
 function RazonFormulario(props:{informante: number,formulario: number,}){
     const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario]);
     const razones = estructura.razones;
+    const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
+    const dispatch = useDispatch();
     return (
         <table className="razon-formulario">
             <thead>
@@ -365,9 +367,22 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
             </thead>
             <tbody>
                 <tr>
-                    <td>{relVis.razon}</td>
+                    <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
                     <td>{razones[relVis.razon].nombrerazon}</td>
-                    <td>{relVis.comentarios}</td>
+                    <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} onUpdate={value=>{
+                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:value}})
+                    }}/>
+                    <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
+                    {likeAr(estructura.razones).map((razon:Razon,index)=>
+                        <MenuItem key={razon.nombrerazon} onClick={()=>{
+                            dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:index}})
+                            setMenuRazon(null)
+                        }}>
+                            <ListItemText>&nbsp;{index}</ListItemText>
+                            <ListItemText>&nbsp;{razon.nombrerazon}</ListItemText>
+                        </MenuItem>
+                    ).array()}
+                </Menu>
                 </tr>
             </tbody>
         </table>
