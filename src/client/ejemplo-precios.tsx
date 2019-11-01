@@ -109,6 +109,8 @@ const EditableTd = forwardRef(function<T extends any>(props:{
 });
 
 const AtributosRow = forwardRef(function(props:{
+    informante: number,
+    formulario: number,
     producto: string,
     observacion: number,
     atributo: number,
@@ -119,7 +121,7 @@ const AtributosRow = forwardRef(function(props:{
     onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[3333].formularios[99].productos);
+    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario].productos);
     const relPre = productosState[props.producto].observaciones[props.observacion];
     const relAtr = productosState[props.producto].observaciones[props.observacion].atributos[props.atributo];
     const dispatch = useDispatch();
@@ -142,10 +144,12 @@ const AtributosRow = forwardRef(function(props:{
 });
 
 function PreciosRow(props:{
+    informante: number,
+    formulario: number,
     producto:string,
     observacion:number
 }){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[3333].formularios[99].productos);
+    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario].productos);
     const relPre = productosState[props.producto].observaciones[props.observacion];
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
@@ -273,6 +277,8 @@ function PreciosRow(props:{
             </tr>
             {productoDef.listaAtributos.map((atributo, index)=>
                 <AtributosRow key={atributo}
+                    informante={props.informante}
+                    formulario={props.formulario}
                     producto={props.producto}
                     observacion={props.observacion}
                     atributo={atributo}
@@ -308,8 +314,7 @@ function PreciosRow(props:{
     );
 }
 
-function PruebaRelevamientoPrecios(){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[3333].formularios[99].productos);
+function PruebaRelevamientoPrecios(props:{informante: number,formulario: number,}){
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -341,11 +346,13 @@ function PruebaRelevamientoPrecios(){
                 </tr>
             </thead>
             <tbody>
-            {estructura.formularios[99].listaProductos.map((producto:string) => {
-                var forProd = estructura.formularios[99].productos[producto];
+            {estructura.formularios[props.formulario].listaProductos.map((producto:string) => {
+                var forProd = estructura.formularios[props.formulario].productos[producto];
                 return bestGlobals.serie({from:1, to:forProd.observaciones}).map(observacion=>
                     <PreciosRow 
                         key={producto+'/'+observacion}
+                        informante={props.informante}
+                        formulario={props.formulario}
                         producto={producto}
                         observacion={observacion}
                     />
@@ -359,7 +366,7 @@ function PruebaRelevamientoPrecios(){
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>){
     ReactDOM.render(
         <Provider store={store}>
-            <PruebaRelevamientoPrecios/>
+            <PruebaRelevamientoPrecios informante={3333} formulario={99}/>
         </Provider>,
         document.getElementById('main_layout')
     )
