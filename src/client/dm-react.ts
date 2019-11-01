@@ -22,8 +22,26 @@ type ActionSetPrecio       = {type:'SET_PRECIO'      , payload:{informante:numbe
 type ActionCopiarAtributos = {type:'COPIAR_ATRIBUTOS', payload:{informante:number, formulario:number, producto:string, observacion:number}};
 type ActionSetAtributo     = {type:'SET_ATRIBUTO'    , payload:{informante:number, formulario:number, producto:string, observacion:number, atributo:number, valor:string}};
 
+/*
+function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previous:T)=>U)){
+    return {
+
+    }
+}
+*/
+
 export type ActionHdr = ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 /* FIN ACCIONES */
+
+// function surf<T extends {[key:K]}>(object:T, key:keyof T, callback:(object:T[keyof T])=>T[keyof T]):T
+//function surf<T extends {}>(object:T, key:keyof T, callback:(object:T[keyof T])=>T[keyof T]):T{
+function surf<T extends {}, K extends keyof T>(object:T, key:K, callback:(object:T[K])=>T[K]):T{
+    return {
+        ...object,
+        [key]: callback(object[key])
+    };
+}
+
 
 myOwn.wScreens.demo_dm = async function(_addrParams){
     /* FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
@@ -101,9 +119,43 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
             formulario:99
         }
         var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
-        var enRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>deepFreeze({
+
+        /*
+        var enRelPre3 = (relPreReducer:(productoState:RelPre)=>RelPre)=>surf(hdrState)
+            .in('informantes').in(action.payload.informante)
+            .in('formularios').in(action.payload.formulario)
+            .in('productos').in(action.payload.producto)
+            .in('observaciones').in(action.payload.observacion)
+            .redux(relPreReducer)
+            .freeze();
+
+        var enRelPre3 = (relPreReducer:(productoState:RelPre)=>RelPre)=>
+            surfRedux(relPreReducer,
+                surfIn('observaciones',surfIn(action.payload.observacion,
+                    surfIn('productos',surfIn(action.payload.producto,
+                        surfIn('formularios',surfIn(action.payload.formulario,
+                            surfIn('informantes',surfIn(action.payload.informante,
+                                surfStart(hdrState)
+                            ))
+                        ))
+                    ))
+                ))
+            );
+        */
+
+        var enRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
+            surf(hdrState,'informantes', x=>surf(x,action.payload.informante,x=>
+                surf(x,'formularios', x=>surf(x,action.payload.formulario,x=>
+                    surf(x,'productos', x=>surf(x,action.payload.producto,x=>
+                        surf(x,'observaciones', x=>surf(x,action.payload.observacion,relPreReducer))
+                    ))
+                ))
+            ));
+
+        var enRelPre1 = (relPreReducer:(productoState:RelPre)=>RelPre)=>deepFreeze({
             ...hdrState,
             informantes:{
+                ...hdrState.informantes,
                 [action.payload.informante]:{
                     ...hdrState.informantes[action.payload.informante], 
                     formularios:{
@@ -153,7 +205,7 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
                 return {
                     ...miRelPre,
                     ...paraLimipar,
-                    tipoPrecio: tipoPrecioNuevo
+                    tipoprecio: tipoPrecioNuevo
                 };
             });
         }
