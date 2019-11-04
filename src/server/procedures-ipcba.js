@@ -14,8 +14,37 @@ var timeInterval = bestGlobals.timeInterval;
 const periodo_inicial = 'a2012m07';
 const agrupacion = 'E';
 
+const ESPECIFICACION_COMPLETA=`
+        COALESCE(trim(e.nombreespecificacion)|| '. ', '')  
+            ||COALESCE(
+                NULLIF(TRIM(
+                    COALESCE(trim(e.envase)||' ','')||
+                    CASE WHEN e.mostrar_cant_um='N' THEN ''
+                    ELSE COALESCE(e.cantidad::text||' ','')||COALESCE(e.UnidadDeMedida,'') END),'')|| '. '
+            , '') 
+            ||(SELECT 
+              string_agg(
+               CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN 
+                  CASE WHEN t.visiblenombreatributo = 'S' THEN a.nombreatributo||' ' ELSE '' END||
+                  'de '||t.rangodesde||' a '||t.rangohasta||' '||COALESCE(a.unidaddemedida, a.nombreatributo, '')
+                  ||CASE WHEN t.alterable = 'S' AND t.normalizable = 'S' AND NOT(t.rangodesde <= t.valornormal AND t.valornormal <= t.rangohasta) THEN ' ó '||t.valornormal||' '||a.unidaddemedida ELSE '' END||'. '
+                ELSE ''
+               END,'' ORDER BY t.orden)
+               FROM prodatr t INNER JOIN atributos a USING (atributo)
+               WHERE t.producto=p.producto
+              )
+            ||COALESCE('Excluir ' || trim(e.excluir) || '. ', '') AS EspecificacionCompleta`
+
 var ProceduresIpcba = {};
 var cuadro = [];
+
+function json(sql, orderby){
+    return `(SELECT jsonb_agg(to_jsonb(j.*) ORDER BY ${orderby}) from (${sql}) as j)`
+}
+
+function jsono(sql, indexedby){
+    return `(SELECT jsonb_object_agg(${indexedby},to_jsonb(j.*)) from (${sql}) as j)`
+}
 
 //----------------------FUNCIONES AUXILIARES-------------------------------------------------------------------------
 function elemento_existente(id_elemento){
@@ -1088,6 +1117,65 @@ ProceduresIpcba = [
             });
         }
     },
+    {
+        action:'dm_cargar',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , defaultValue:'a2019m07', references:'periodos'},
+            {name:'panel'             , typeName:'integer' , defaultValue:1},
+            {name:'tarea'             , typeName:'integer' , defaultValue:3},
+        ],
+        coreFunction: async function(context, parameters){
+            var sql=`
+                SELECT ${jsono(`
+                    SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
+                        FROM atributos INNER JOIN (
+                            SELECT atributo
+                                FROM relatr 
+                                    INNER JOIN relpre USING (periodo,informante,visita,producto,observacion)
+                                    INNER JOIN relvis USING (periodo,informante,visita)
+                                WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                GROUP BY atributo
+                        ) lista_atributos USING (atributo)`, 'atributo')} as atributos
+                        , ${jsono(`
+                    SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA},
+                            ${json(`SELECT atributo, orden, rangodesde, rangohasta, normalizable, prioridad, tiponormalizacion
+                                    FROM prodatr WHERE producto=p.producto`, 'orden, atributo')} as x_atributos
+                        FROM productos p INNER JOIN (
+                            SELECT producto
+                                FROM relpre
+                                    INNER JOIN relvis USING (periodo,informante,visita)
+                                WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                GROUP BY producto
+                        ) lista_productos USING (producto)
+                            INNER JOIN especificaciones e ON p.producto=e.producto AND e.especificacion=1
+                        `, 'producto')} as productos
+                        , ${jsono(`
+                    SELECT formulario, nombreformulario, orden, 
+                            ${json(`SELECT producto, observaciones, orden
+                                    FROM forprod WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
+                        FROM formularios f INNER JOIN (
+                            SELECT formulario
+                                FROM relvis
+                                WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                GROUP BY formulario
+                        ) lista_productos USING (formulario)`, 'formulario')} as formularios
+                        , ${jsono(`
+                    SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar
+                        FROM tipopre`, 'tipoprecio')} as "tipoPrecio"
+                        , ${jsono(`
+                    SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
+                        FROM razones`, 'razon')} as razones
+                    FROM reltar rt
+                    WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
+            `;
+            var result = await context.client.query(
+                sql,
+                [parameters.periodo, parameters.panel, parameters.tarea]
+            ).fetchUniqueRow();
+            var estructura = result.row;
+            return JSON.stringify(estructura,null,'  ');
+        }
+    }
 ];
 
 module.exports = ProceduresIpcba;

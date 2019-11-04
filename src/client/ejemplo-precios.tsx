@@ -356,7 +356,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
     const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario]);
     const razones = estructura.razones;
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
-    const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null, nombreRazon:string|null}>({razon:null, nombreRazon:null});
+    const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     const dispatch = useDispatch();
     return (
@@ -379,7 +379,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
                         <MenuItem key={razon.nombrerazon} onClick={()=>{
                             if(razonNecesitaConfirmacion(relVis,index)){
-                                setRazonAConfirmar({razon:index, nombreRazon:razon.nombrerazon});
+                                setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
                                 dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:index}})
@@ -401,7 +401,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description-rn">
                             <div>
-                                Eligió la razón de no contacto {razonAConfirmar.razon} {razonAConfirmar.nombreRazon}. Se borrarán x precios ingresados.
+                                Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. Se borrarán x precios ingresados.
                             </div>
                             <div>
                                 Confirme el numero de precios a borrar
