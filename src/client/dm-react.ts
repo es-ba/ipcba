@@ -60,8 +60,8 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
                     1:{
                         tipoprecioanterior:'P',
                         precioanterior:120,
-                        tipoprecio:'O',
-                        precio:130,
+                        tipoprecio: null,
+                        precio:null,
                         atributos:{
                             13:{valoranterior:'La campagnola', valor:null},
                             16:{valoranterior:'300', valor:null}
@@ -86,7 +86,7 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
                     1:{
                         tipoprecioanterior:'P',
                         precioanterior:140,
-                        tipoprecio:'N',
+                        tipoprecio:null,
                         precio:null,
                         atributos:{
                             13:{valoranterior:'La campagnola', valor:null},

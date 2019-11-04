@@ -52,8 +52,9 @@ export type Formulario={
 
 export type Razon={
     nombrerazon: string
-    escierredefinitivoinf: string
-    escierredefinitivofor: string
+    espositivoformulario: SiNo
+    escierredefinitivoinf: SiNo
+    escierredefinitivofor: SiNo
 }
 
 export type TipoPrecio = {

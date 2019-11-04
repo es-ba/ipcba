@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon} from "./dm-tipos";
 import {tiposPrecioDef, estructura} from "./dm-estructura";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion} from "./dm-funciones";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -10,6 +10,7 @@ import * as likeAr from "like-ar";
 import * as bestGlobals from "best-globals";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
 import { Store } from "redux";
+import { string } from "prop-types";
 
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
@@ -178,9 +179,9 @@ function PreciosRow(props:{
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                    <DialogTitle id="alert-dialog-title">{"Observaciones del precio"}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                     <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
+                        <DialogContentText id="alert-dialog-description-obs">
                             acá van las obs
                         </DialogContentText>
                     </DialogContent>
@@ -241,9 +242,9 @@ function PreciosRow(props:{
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                    <DialogTitle id="alert-dialog-title">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
                     <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
+                        <DialogContentText id="alert-dialog-description-tpn">
                             Se borrará el precio y los atributos
                         </DialogContentText>
                     </DialogContent>
@@ -317,7 +318,7 @@ function PreciosRow(props:{
 function RelevamientoPrecios(props:{informante: number,formulario: number,}){
     return (
         <table className="formulario-precios">
-            <caption>Formulario X</caption>
+            <caption>Formulario {props.formulario}</caption>
             <thead>
                 <tr>
                     <th rowSpan={2}>producto<br/>especificación</th>
@@ -355,6 +356,8 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
     const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario]);
     const razones = estructura.razones;
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
+    const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null, nombreRazon:string|null}>({razon:null, nombreRazon:null});
+    const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     const dispatch = useDispatch();
     return (
         <table className="razon-formulario">
@@ -368,14 +371,19 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
             <tbody>
                 <tr>
                     <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
-                    <td>{razones[relVis.razon].nombrerazon}</td>
+                    <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} onUpdate={value=>{
                         dispatch({type: 'SET_COMENTARIO_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:value}})
                     }}/>
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
                         <MenuItem key={razon.nombrerazon} onClick={()=>{
-                            dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:index}})
+                            if(razonNecesitaConfirmacion(relVis,index)){
+                                setRazonAConfirmar({razon:index, nombreRazon:razon.nombrerazon});
+                                setMenuConfirmarRazon(true)
+                            }else{
+                                dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:index}})
+                            }
                             setMenuRazon(null)
                         }}>
                             <ListItemText>&nbsp;{index}</ListItemText>
@@ -383,6 +391,37 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                         </MenuItem>
                     ).array()}
                 </Menu>
+                <Dialog
+                    open={menuConfirmarRazon}
+                    onClose={()=>setMenuConfirmarRazon(false)}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa`}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description-rn">
+                            <div>
+                                Eligió la razón de no contacto {razonAConfirmar.razon} {razonAConfirmar.nombreRazon}. Se borrarán x precios ingresados.
+                            </div>
+                            <div>
+                                Confirme el numero de precios a borrar
+                            </div>
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={()=>{
+                            setMenuConfirmarRazon(false)
+                        }} color="primary" variant="outlined">
+                            No borrar
+                        </Button>
+                        <Button onClick={()=>{
+                            dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:razonAConfirmar.razon}})
+                            setMenuConfirmarRazon(false)
+                        }} color="secondary" variant="outlined">
+                            Borrar precios y/o atributos
+                        </Button>
+                    </DialogActions>
+                </Dialog>
                 </tr>
             </tbody>
         </table>
