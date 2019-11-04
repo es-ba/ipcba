@@ -131,7 +131,7 @@ my.clientSides.control_rangos = {
             td.controledType.typeInfo=TypeStore.typerFrom(td.controledType.typeInfo);
             td.controledType.typeInfo.postInput='parseDecimal';
         }
-        if(depot.row['opciones']!='N'){
+        if(depot.def.name == 'mobile_atributos' && depot.row['opciones']!='N'){
             td.disable(true);
             td.autoExpander=true;
             td.contentEditable=false;
@@ -143,7 +143,7 @@ my.clientSides.control_rangos = {
     },
     update: function (depot, fieldName) {
         var td = depot.rowControls[fieldName];
-        if(depot.row['opciones']!='N'){
+        if(depot.def.name == 'mobile_atributos' && depot.row['opciones']!='N'){
             td.disable(true);
             td.autoExpander=true;
             td.contentEditable=false;
