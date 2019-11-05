@@ -1156,8 +1156,9 @@ ProceduresIpcba = [
                     )} as productos
                     , ${jsono(`
                         SELECT formulario, nombreformulario, orden, 
-                                ${json(`SELECT producto, observaciones, orden
-                                        FROM forprod WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
+                                ${json(`SELECT producto, COALESCE(pr.cantobs,2) as observaciones, orden
+                                            FROM forprod INNER JOIN productos pr using (producto) 
+                                            WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
                             FROM formularios f INNER JOIN (
                                 SELECT formulario
                                     FROM relvis
@@ -1224,7 +1225,7 @@ ProceduresIpcba = [
                 `;
             var sqlInformantes=`
                 SELECT periodo, visita, informante, nombreinformante, direccion,
-                        ${jsono(sqlFormularios,'formulario')} as informantes
+                        ${jsono(sqlFormularios,'formulario')} as formularios
                     FROM relvis rvi INNER JOIN informantes USING (informante)
                     WHERE periodo=rt.periodo 
                         AND panel=rt.panel 
@@ -1260,7 +1261,7 @@ ProceduresIpcba = [
                 f.productos = likeAr.createIndex(f.x_productos, 'producto');
                 delete f.x_productos;
             });
-            return JSON.stringify({estructura,hdr:resultHdR.row},null,'  ');
+            return {estructura,hdr:resultHdR.row};
         }
     }
 ];

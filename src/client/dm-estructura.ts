@@ -4,12 +4,14 @@ import {TipoPrecio, Producto, Estructura, Atributo, Formulario, Razon} from "./d
 
 /* TODO: TRAER DESDE ARCHIVO GENERADO */
 export const tiposPrecioDef:TipoPrecio[]=[
-    {tipoprecio:'P', nombretipoprecio:'Precio normal'   , espositivo:'S', puedecopiar:'N' , predeterminado:true},
-    {tipoprecio:'O', nombretipoprecio:'Oferta'          , espositivo:'S', puedecopiar:'N' },
-    {tipoprecio:'B', nombretipoprecio:'Bonificado'      , espositivo:'S', puedecopiar:'N' },
-    {tipoprecio:'S', nombretipoprecio:'Sin existencia'  , espositivo:'N', puedecopiar:'N' },
-    {tipoprecio:'N', nombretipoprecio:'No vende'        , espositivo:'N', puedecopiar:'S'},
-    {tipoprecio:'E', nombretipoprecio:'Falta estacional', espositivo:'N', puedecopiar:'S'},
+    {tipoprecio:'P', nombretipoprecio:'Precio normal'   , espositivo:true, puedecopiar:false , predeterminado:true},
+    {tipoprecio:'O', nombretipoprecio:'Oferta'          , espositivo:true, puedecopiar:false },
+    {tipoprecio:'B', nombretipoprecio:'Bonificado'      , espositivo:true, puedecopiar:false },
+    {tipoprecio:'R', nombretipoprecio:'Regulado'        , espositivo:true, puedecopiar:false },
+    {tipoprecio:'V', nombretipoprecio:'VVVV'            , espositivo:true, puedecopiar:false },
+    {tipoprecio:'S', nombretipoprecio:'Sin existencia'  , espositivo:true, puedecopiar:false },
+    {tipoprecio:'N', nombretipoprecio:'No vende'        , espositivo:false, puedecopiar:true},
+    {tipoprecio:'E', nombretipoprecio:'Falta estacional', espositivo:false, puedecopiar:true},
 ];
 /* FIN TRAER DESDE ARCHIVO GENERADO */
 
@@ -41,7 +43,7 @@ export const productos:{[p:string]:Producto} = {
                 tiponormalizacion:'normal'
             }
         },
-        listaAtributos:[13,16]
+        lista_atributos:[13,16]
     },
     P02:{
         producto:'P02',
@@ -65,7 +67,7 @@ export const productos:{[p:string]:Producto} = {
                 tiponormalizacion:'normal'
             }
         },
-        listaAtributos:[13,16]
+        lista_atributos:[13,16]
     },
     P03:{
         producto:'P02',
@@ -97,7 +99,7 @@ export const productos:{[p:string]:Producto} = {
                 tiponormalizacion:'normal'
             }
         },
-        listaAtributos:[13,55,16]
+        lista_atributos:[13,55,16]
     }
 }
 

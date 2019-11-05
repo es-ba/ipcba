@@ -6,22 +6,20 @@ import * as likeAr from "like-ar" ;
  * 
  */
 
-export type SiNo = 'S' | 'N';
-
 export type AtributoDataTypes = 'N'|'C';
 
 export type Atributo = {
     atributo:string
     tipodato:AtributoDataTypes
     nombreatributo:string
-    escantidad: SiNo
+    escantidad: boolean
 }
 
 export type ProdAtr = {
     rangodesde: number | null
     rangohasta: number | null
     orden: number
-    normalizable: SiNo
+    normalizable: boolean
     prioridad: number | null
     tiponormalizacion: string | null
 }
@@ -34,7 +32,7 @@ export type Producto={
     atributos:{
         [atributo:string]: ProdAtr
     }
-    listaAtributos:number[]
+    lista_atributos:number[]
 }
 
 export type ForProd = {
@@ -47,21 +45,21 @@ export type Formulario={
     nombreformulario:string
     orden: number // esto va acá o en la hoja de ruta en ForInf?
     productos: {[p:string]:ForProd}
-    listaProductos:string[]
+    lista_productos:string[]
 }
 
 export type Razon={
     nombrerazon: string
-    espositivoformulario: SiNo
-    escierredefinitivoinf: SiNo
-    escierredefinitivofor: SiNo
+    espositivoformulario: boolean
+    escierredefinitivoinf: boolean
+    escierredefinitivofor: boolean
 }
 
 export type TipoPrecio = {
     tipoprecio: string
     nombretipoprecio: string
-    puedecopiar: SiNo
-    espositivo: SiNo
+    puedecopiar: boolean
+    espositivo: boolean
     predeterminado?:boolean
 
 }

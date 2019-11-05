@@ -4,23 +4,24 @@ import {estructura} from "./dm-estructura";
 import * as likeAr from "like-ar";
 
 export function puedeCopiarTipoPrecio(relPre:RelPre){
-    return relPre.tipoprecio==null && relPre.tipoprecioanterior!=null && estructura.tipoPrecio[relPre.tipoprecioanterior].puedecopiar=='S'
+    return relPre.tipoprecio==null && relPre.tipoprecioanterior!=null && estructura.tipoPrecio[relPre.tipoprecioanterior].puedecopiar
 }
 
 export function puedeCopiarAtributos(relPre:RelPre){
-    return relPre.cambio==null && (!relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo == 'S');
+    return relPre.cambio==null && (!relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo);
 }
 
 export function puedeCambiarPrecioYAtributos(relPre:RelPre){
-    return relPre.tipoprecio==null || estructura.tipoPrecio[relPre.tipoprecio].espositivo != 'N';
+    console.log(relPre.tipoprecio)
+    return relPre.tipoprecio==null || !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
 }
 
 export function tpNecesitaConfirmacion(relPre:RelPre, tipoPrecioSeleccionado:string){
-    return estructura.tipoPrecio[tipoPrecioSeleccionado].espositivo == 'N' && (relPre.precio != null || relPre.cambio != null)
+    return !estructura.tipoPrecio[tipoPrecioSeleccionado].espositivo && (relPre.precio != null || relPre.cambio != null)
 }
 
 export function razonNecesitaConfirmacion(relVis:RelVis, razon:number){
-    return estructura.razones[razon].espositivoformulario == "N"
+    return !estructura.razones[razon].espositivoformulario
 }
 
 export function hayPreciosOAtributosCargadosEnFormulario(relVis:RelVis){

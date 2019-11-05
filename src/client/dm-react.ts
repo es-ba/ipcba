@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelVis, RelPre, HojaDeRuta } from "./dm-tipos";
+import { RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
 import { tipoPrecioPredeterminado, tipoPrecio} from './dm-estructura';
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
@@ -49,73 +49,11 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 }
 
 myOwn.wScreens.demo_dm = async function(_addrParams){
-    /* FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
-    var formularioCorto:RelVis = {
-        formulario:99,
-        razon:1,
-        comentarios:null,
-        productos:{
-            P01:{
-                observaciones:{
-                    1:{
-                        tipoprecioanterior:'P',
-                        precioanterior:120,
-                        tipoprecio: null,
-                        precio:null,
-                        atributos:{
-                            13:{valoranterior:'La campagnola', valor:null},
-                            16:{valoranterior:'300', valor:null}
-                        },
-                        cambio: null
-                    },
-                    2:{
-                        tipoprecioanterior:'P',
-                        precioanterior:102,
-                        tipoprecio:null,
-                        precio:null,
-                        atributos:{
-                            13:{valoranterior:'Arcor', valor:null},
-                            16:{valoranterior:'300', valor:null}
-                        },
-                        cambio: null
-                    }
-                }
-            },
-            P02:{
-                observaciones:{
-                    1:{
-                        tipoprecioanterior:'P',
-                        precioanterior:140,
-                        tipoprecio:null,
-                        precio:null,
-                        atributos:{
-                            13:{valoranterior:'La campagnola', valor:null},
-                            16:{valoranterior:'300', valor:null}
-                        },
-                        cambio: null
-                    }
-                }
-            },
-            P03:{
-                observaciones:{
-                    1:{
-                        tipoprecioanterior:'N',
-                        precioanterior:null,
-                        tipoprecio:null,
-                        precio:null,
-                        atributos:{
-                            13:{valoranterior:'Unión', valor:null},
-                            16:{valoranterior:'500', valor:null},
-                            55:{valoranterior:'Suave sin palo', valor:null},
-                        },
-                        cambio: null
-                    }
-                }
-            },
-        }
-    };
-    /* FIN FORM EJEMPLO, LUEGO SE TRAE POR AJAX */
-
+    var result = await my.ajax.dm_cargar({
+        periodo: 'a2019m07',
+        panel: 1,
+        tarea: 3
+    })
     /* DEFINICION CONTROLADOR */
     function hdrReducer(hdrState:HojaDeRuta = initialState, action:ActionHdr):HojaDeRuta {
         action.payload = {
@@ -223,21 +161,8 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
     /* FIN DEFINICION CONTROLADOR */
 
     /* DEFINICION STATE */
-    const initialState:HojaDeRuta = {
-        dispositivo: 'N33',
-        encuestador: '13',
-        fecha_carga: bestGlobals.date.ymd(2019,11,1),
-        informantes:{
-            3333:{
-                informante: 3333,
-                nombreinformante: "Ferretería X",
-                direccion: "San José 999",
-                formularios:{
-                    99:formularioCorto
-                }
-            }
-        }
-    };
+    const initialState:HojaDeRuta = result.hdr;
+    const estructura:Estructura = result.estructura;
     /* FIN DEFINICION STATE */
 
     /* CARGA Y GUARDADO DE STATE */
@@ -263,5 +188,5 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
     /* FIN CREACION STORE */
 
     //HDR CON STORE CREADO
-    mostrarHdr(store)
+    mostrarHdr(store, estructura)
 }

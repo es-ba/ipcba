@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon} from "./dm-tipos";
-import {tiposPrecioDef, estructura} from "./dm-estructura";
+import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon, Estructura} from "./dm-tipos";
+import {tiposPrecioDef} from "./dm-estructura";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
@@ -10,7 +10,9 @@ import * as likeAr from "like-ar";
 import * as bestGlobals from "best-globals";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
 import { Store } from "redux";
-import { string } from "prop-types";
+
+
+export var estructura:Estructura;
 
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
@@ -155,7 +157,7 @@ function PreciosRow(props:{
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
     const productoDef:Producto = estructura.productos[props.producto];
-    const atributosRef = useRef(productoDef.listaAtributos.map(() => createRef<HTMLInputElement>()));
+    const atributosRef = useRef(productoDef.lista_atributos.map(() => createRef<HTMLInputElement>()));
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
@@ -163,7 +165,7 @@ function PreciosRow(props:{
     return (
         <>
             <tr>
-                <td className="col-prod-esp" rowSpan={productoDef.listaAtributos.length + 1}>
+                <td className="col-prod-esp" rowSpan={productoDef.lista_atributos.length + 1}>
                     <div className="producto">{productoDef.nombreproducto}</div>
                     <div className="especificacion">{productoDef.especificacioncompleta}</div>
                 </td>
@@ -276,7 +278,7 @@ function PreciosRow(props:{
                     return false;
                 }}/>
             </tr>
-            {productoDef.listaAtributos.map((atributo, index)=>
+            {productoDef.lista_atributos.map((atributo, index)=>
                 <AtributosRow key={atributo}
                     informante={props.informante}
                     formulario={props.formulario}
@@ -284,15 +286,15 @@ function PreciosRow(props:{
                     observacion={props.observacion}
                     atributo={atributo}
                     primerAtributo={index==0}
-                    cantidadAtributos={productoDef.listaAtributos.length}
-                    ultimoAtributo={index == productoDef.listaAtributos.length-1}
+                    cantidadAtributos={productoDef.lista_atributos.length}
+                    ultimoAtributo={index == productoDef.lista_atributos.length-1}
                     onCopiarAtributos={()=>{
                         if(precioRef.current && !relPre.precio && puedeCopiarAtributos(relPre)){
                             precioRef.current.focus();
                         }
                     }}
                     onWantToMoveForward={()=>{
-                        if(index<productoDef.listaAtributos.length-1){
+                        if(index<productoDef.lista_atributos.length-1){
                             var nextItemRef=atributosRef.current[index+1];
                             if(nextItemRef.current!=null){
                                 nextItemRef.current.focus()
@@ -335,7 +337,7 @@ function RelevamientoPrecios(props:{informante: number,formulario: number,}){
                 </tr>
             </thead>
             <tbody>
-            {estructura.formularios[props.formulario].listaProductos.map((producto:string) => {
+            {estructura.formularios[props.formulario].lista_productos.map((producto:string) => {
                 var forProd = estructura.formularios[props.formulario].productos[producto];
                 return bestGlobals.serie({from:1, to:forProd.observaciones}).map(observacion=>
                     <PreciosRow 
@@ -428,7 +430,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
     );
 }
 
-function InformanteVisita(props:{informante: number,formulario: number,}){
+function InformanteVisita(props:{informante: number,formulario: number}){
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -449,10 +451,15 @@ function InformanteVisita(props:{informante: number,formulario: number,}){
     );
 }
 
-export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>){
+function HojaDeRuta(){
+    
+}
+
+export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
+    estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
-            <InformanteVisita informante={3333} formulario={99}/>
+            <InformanteVisita informante={732218} formulario={161}/>
         </Provider>,
         document.getElementById('main_layout')
     )
