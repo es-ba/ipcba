@@ -1125,55 +1125,142 @@ ProceduresIpcba = [
             {name:'tarea'             , typeName:'integer' , defaultValue:3},
         ],
         coreFunction: async function(context, parameters){
-            var sql=`
-                SELECT ${jsono(`
-                    SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
-                        FROM atributos INNER JOIN (
-                            SELECT atributo
-                                FROM relatr 
-                                    INNER JOIN relpre USING (periodo,informante,visita,producto,observacion)
-                                    INNER JOIN relvis USING (periodo,informante,visita)
-                                WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                GROUP BY atributo
-                        ) lista_atributos USING (atributo)`, 'atributo')} as atributos
-                        , ${jsono(`
-                    SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA},
-                            ${json(`SELECT atributo, orden, rangodesde, rangohasta, normalizable, prioridad, tiponormalizacion
-                                    FROM prodatr WHERE producto=p.producto`, 'orden, atributo')} as x_atributos
-                        FROM productos p INNER JOIN (
-                            SELECT producto
-                                FROM relpre
-                                    INNER JOIN relvis USING (periodo,informante,visita)
-                                WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                GROUP BY producto
-                        ) lista_productos USING (producto)
-                            INNER JOIN especificaciones e ON p.producto=e.producto AND e.especificacion=1
-                        `, 'producto')} as productos
-                        , ${jsono(`
-                    SELECT formulario, nombreformulario, orden, 
-                            ${json(`SELECT producto, observaciones, orden
-                                    FROM forprod WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
-                        FROM formularios f INNER JOIN (
-                            SELECT formulario
-                                FROM relvis
-                                WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                GROUP BY formulario
-                        ) lista_productos USING (formulario)`, 'formulario')} as formularios
-                        , ${jsono(`
-                    SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar
-                        FROM tipopre`, 'tipoprecio')} as "tipoPrecio"
-                        , ${jsono(`
-                    SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
-                        FROM razones`, 'razon')} as razones
-                    FROM reltar rt
-                    WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
+            var sqlEstructura=`
+            SELECT 
+                    ${jsono(`
+                        SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
+                            FROM atributos INNER JOIN (
+                                SELECT atributo
+                                    FROM relvis 
+                                        INNER JOIN forprod USING (formulario)
+                                        INNER JOIN prodatr USING (producto)
+                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                    GROUP BY atributo
+                            ) lista_atributos USING (atributo)`, 
+                            'atributo'
+                    )} as atributos
+                    , ${jsono(`
+                        SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA},
+                                ${json(`SELECT atributo, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion
+                                        FROM prodatr WHERE producto=p.producto`, 'orden, atributo')} as x_atributos
+                            FROM productos p INNER JOIN (
+                                SELECT producto
+                                    FROM relvis 
+                                        INNER JOIN forprod USING (formulario)
+                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                    GROUP BY producto
+                            ) lista_productos USING (producto)
+                                INNER JOIN especificaciones e ON p.producto=e.producto AND e.especificacion=1
+                            `, 
+                        'producto'
+                    )} as productos
+                    , ${jsono(`
+                        SELECT formulario, nombreformulario, orden, 
+                                ${json(`SELECT producto, observaciones, orden
+                                        FROM forprod WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
+                            FROM formularios f INNER JOIN (
+                                SELECT formulario
+                                    FROM relvis
+                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                    GROUP BY formulario
+                            ) lista_productos USING (formulario)`, 
+                        'formulario'
+                    )} as formularios
+                    , ${jsono(`
+                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar
+                            FROM tipopre`, 
+                        'tipoprecio'
+                    )} as "tipoPrecio"
+                    , ${jsono(`
+                        SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
+                            FROM razones
+                            WHERE visibleparaencuestador='S'`, 
+                        'razon'
+                    )} as razones
+                FROM reltar rt
+                WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
             `;
-            var result = await context.client.query(
-                sql,
+            var sqlAtributos=`
+                SELECT ra.atributo, ra.valor, ra_1.valor as valoranterior
+                    FROM relatr ra 
+                        INNER JOIN relatr ra_1 
+                            ON ra_1.periodo = rp.periodo_1
+                            AND ra_1.visita = ra.visita
+                            AND ra_1.informante = ra.informante
+                            AND ra_1.producto=ra.producto
+                            AND ra_1.observacion=ra.observacion
+                            AND ra_1.atributo=ra.atributo
+                    WHERE ra.periodo=rp.periodo 
+                        AND ra.visita=rp.visita 
+                        AND ra.informante=rp.informante 
+                        AND ra.producto=rp.producto
+                        AND ra.observacion=rp.observacion`
+            var sqlObservaciones=`                
+                SELECT observacion, precio, precio_1 as precioanterior, tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                        cambio, comentariosrelpre, precionormalizado,
+                        ${jsono(sqlAtributos, 'atributo')} as atributos
+                    FROM relpre_1 rp
+                    WHERE periodo=rpp.periodo 
+                        AND visita=rpp.visita 
+                        AND informante=rpp.informante 
+                        AND formulario=rpp.formulario
+                        AND producto=rpp.producto`;
+            var sqlProductos=`
+                SELECT rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto,
+                        ${jsono(sqlObservaciones, 'observacion')} as observaciones
+                    FROM relpre rpp
+                    WHERE periodo=rv.periodo 
+                        AND visita=rv.visita 
+                        AND informante=rv.informante 
+                        AND formulario=rv.formulario
+                    GROUP BY rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto`;
+            var sqlFormularios=`
+                SELECT formulario, razon, comentarios, visita, 
+                        ${jsono(sqlProductos, 'producto')} as productos
+                    FROM relvis rv 
+                    WHERE periodo=rvi.periodo 
+                        AND visita=rvi.visita 
+                        AND informante=rvi.informante
+                `;
+            var sqlInformantes=`
+                SELECT periodo, visita, informante, nombreinformante, direccion,
+                        ${jsono(sqlFormularios,'formulario')} as informantes
+                    FROM relvis rvi INNER JOIN informantes USING (informante)
+                    WHERE periodo=rt.periodo 
+                        AND panel=rt.panel 
+                        AND tarea=rt.tarea
+                    GROUP BY periodo, visita, informante, nombreinformante, direccion
+                `;
+            var sqlHdR=`
+                SELECT encuestador, 
+                        (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
+                        current_date as fecha_carga,
+                        ${jsono(sqlInformantes,'informante')} as informantes
+                    FROM reltar rt INNER JOIN periodos p USING (periodo)
+                    WHERE rt.periodo=$1 
+                        AND rt.panel=$2 
+                        AND rt.tarea=$3
+            `;
+            var resultEstructura = await context.client.query(
+                sqlEstructura,
                 [parameters.periodo, parameters.panel, parameters.tarea]
             ).fetchUniqueRow();
-            var estructura = result.row;
-            return JSON.stringify(estructura,null,'  ');
+            var resultHdR = await context.client.query(
+                sqlHdR,
+                [parameters.periodo, parameters.panel, parameters.tarea]
+            ).fetchUniqueRow();
+            var estructura = resultEstructura.row;
+            likeAr(estructura.productos).forEach(p=>{
+                p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                delete p.x_atributos;
+            });
+            likeAr(estructura.formularios).forEach(f=>{
+                f.lista_productos = f.x_productos.map(p=>p.producto);
+                f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                delete f.x_productos;
+            });
+            return JSON.stringify({estructura,hdr:resultHdR.row},null,'  ');
         }
     }
 ];

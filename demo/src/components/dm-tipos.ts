@@ -126,7 +126,7 @@ export type RelVis={
 export type Informante={
     informante:number,
     informantenombre:string,
-    domicilio:string,
+    direccion:string,
     formularios:{
         [formulario:number]:RelVis
     }
@@ -135,6 +135,6 @@ export type Informante={
 export type HojaDeRuta={
     encuestador:string,
     dispositivo:string,
-    fechaCarga:Date,
+    fecha_carga:Date,
     informantes:{[informante:number]:Informante}
 }

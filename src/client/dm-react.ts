@@ -226,12 +226,12 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
     const initialState:HojaDeRuta = {
         dispositivo: 'N33',
         encuestador: '13',
-        fechaCarga: bestGlobals.date.ymd(2019,11,1),
+        fecha_carga: bestGlobals.date.ymd(2019,11,1),
         informantes:{
             3333:{
                 informante: 3333,
                 nombreinformante: "Ferretería X",
-                domicilio: "San José 999",
+                direccion: "San José 999",
                 formularios:{
                     99:formularioCorto
                 }
@@ -245,7 +245,7 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
         var contentJson = localStorage.getItem('dm-store-v2');
         if(contentJson){
             var content = JSON.parse(contentJson);
-            return {...content, fechaCarga:bestGlobals.date.iso(content.fechaCarga) }
+            return {...content, fecha_carga:bestGlobals.date.iso(content.fecha_carga) }
         }else{
             return initialState;
         }

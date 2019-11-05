@@ -13,7 +13,7 @@ module.exports = function(context){
             {name:'id_instalacion'    , typeName:'integer'   , nullable:false, sequence:{name: 'secuencia_instalaciones', firstValue: 1}},
             {name:'fecha_hora'        , typeName:'timestamp' , nullable:false},
             {name:'encuestador'       , typeName:'text'      , nullable:false},
-            {name:'ipad'              , typeName:'text'      , nullable:false},
+            {name:'ipad'              , typeName:'text'      , title:'DM', nullable:false},
             {name:'version_sistema'   , typeName:'text'      , nullable:false},
             {name:'token_original'    , typeName:'text'      , nullable:false, allow:{select:context.forDump, update:context.forDump}},            
         ],
