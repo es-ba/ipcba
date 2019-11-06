@@ -69,6 +69,8 @@ export type Estructura={
     productos  : {[producto:string]: Producto}
     formularios: {[formulario:number]: Formulario}
     tipoPrecio : {[tipoPrecio:string]: TipoPrecio}
+    tiposPrecioDef: TipoPrecio[],
+    tipoPrecioPredeterminado: TipoPrecio,
     razones    : {[razon:number]: Razon}
 }
 

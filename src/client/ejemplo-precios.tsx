@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon, Estructura} from "./dm-tipos";
-import {tiposPrecioDef} from "./dm-estructura";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
@@ -135,12 +134,12 @@ const AtributosRow = forwardRef(function(props:{
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
-                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{producto:props.producto, observacion:props.observacion}})
+                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion}})
                     props.onCopiarAtributos()
-                }}>{puedeCopiarAtributos(relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
+                }}>{puedeCopiarAtributos(estructura, relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
                 :null}
-            <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
-                dispatch({type: 'SET_ATRIBUTO', payload:{producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
+            <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
+                dispatch({type: 'SET_ATRIBUTO', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
             }} onWantToMoveForward={props.onWantToMoveForward} ref={ref} />
         </tr>
     )
@@ -204,13 +203,13 @@ function PreciosRow(props:{
                 <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                 <td className="precioAnterior">{relPre.precioanterior}</td>
                 <td className="flechaTP" onClick={ () => {
-                    if(tpNecesitaConfirmacion(relPre,relPre.tipoprecioanterior!)){
+                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                         setMenuConfirmarBorradoPrecio(true)
                     }else{
-                        dispatch({type: 'COPIAR_TP', payload:{producto:props.producto, observacion:props.observacion}})
+                        dispatch({type: 'COPIAR_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion}})
                     }
-                }}>{(puedeCopiarTipoPrecio(relPre))?FLECHATIPOPRECIO:''}</td>
+                }}>{(puedeCopiarTipoPrecio(estructura, relPre))?FLECHATIPOPRECIO:''}</td>
                 <td className="tipoPrecio"
                     onClick={event=>setMenuTipoPrecio(event.currentTarget)}
                 >{relPre.tipoprecio}
@@ -220,15 +219,15 @@ function PreciosRow(props:{
                     anchorEl={menuTipoPrecio}
                     onClose={()=>setMenuTipoPrecio(null)}
                 >
-                    {tiposPrecioDef.map(tpDef=>
+                    {estructura.tiposPrecioDef.map(tpDef=>
                         <MenuItem key={tpDef.tipoprecio} onClick={()=>{
                             setMenuTipoPrecio(null);
-                            if(tpNecesitaConfirmacion(relPre,tpDef.tipoprecio)){
+                            if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                dispatch({type: 'SET_TP', payload:{producto:props.producto, observacion:props.observacion, valor:tpDef.tipoprecio}})
-                                if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo == 'S'){
+                                dispatch({type: 'SET_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:tpDef.tipoprecio}})
+                                if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo){
                                     precioRef.current.focus();
                                 }
                             }
@@ -257,15 +256,15 @@ function PreciosRow(props:{
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_TP', payload:{producto:props.producto, observacion:props.observacion, valor:tipoDePrecioNegativoAConfirmar}})
+                            dispatch({type: 'SET_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:tipoDePrecioNegativoAConfirmar}})
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd disabled={!puedeCambiarPrecioYAtributos(relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
-                    dispatch({type: 'SET_PRECIO', payload:{producto:props.producto, observacion:props.observacion, valor:value}})
+                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
+                    dispatch({type: 'SET_PRECIO', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }
@@ -289,7 +288,7 @@ function PreciosRow(props:{
                     cantidadAtributos={productoDef.lista_atributos.length}
                     ultimoAtributo={index == productoDef.lista_atributos.length-1}
                     onCopiarAtributos={()=>{
-                        if(precioRef.current && !relPre.precio && puedeCopiarAtributos(relPre)){
+                        if(precioRef.current && !relPre.precio && puedeCopiarAtributos(estructura, relPre)){
                             precioRef.current.focus();
                         }
                     }}
@@ -380,7 +379,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
                         <MenuItem key={razon.nombrerazon} onClick={()=>{
-                            if(razonNecesitaConfirmacion(relVis,index)){
+                            if(razonNecesitaConfirmacion(estructura, relVis,index)){
                                 setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
@@ -459,7 +458,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
-            <InformanteVisita informante={732218} formulario={161}/>
+            <InformanteVisita informante={2525} formulario={61}/>
         </Provider>,
         document.getElementById('main_layout')
     )
