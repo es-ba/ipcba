@@ -458,7 +458,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
-            <InformanteVisita informante={2525} formulario={61}/>
+            <InformanteVisita informante={280201} formulario={161}/>
         </Provider>,
         document.getElementById('main_layout')
     )
