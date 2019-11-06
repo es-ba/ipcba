@@ -16,7 +16,7 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'     , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'calculo'                      , typeName:'integer'  , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'estimacion'                   , typeName:'integer'  , nullable:false, default:0, defaultValue:0, allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'abierto'                      , typeName:'text'     , nullable:false, default:'N', defaultValue:'N', allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'abierto'                      , typeName:'text'     , nullable:false, default:'S', defaultValue:'S', allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'esperiodobase'                , typeName:'text'     , default:'N', defaultValue:'N', allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'fechacalculo'                 , typeName:'timestamp', allow:{update:false}},
             {name:'fechageneracionexternos'      , typeName:'timestamp', allow:{update:false}},
