@@ -29,8 +29,8 @@ module.exports = function(context){
                 {source:'periodo'         , target:'periodo'     },
             ]},
             {references:'productos', fields:[
-                {source:'producto'         , target:'producto'     },
-            ]},
+                {source:'producto'         , target:'producto'}
+            ], onUpdate: 'cascade'},
             {references:'relvis', fields:[
                 {source:'periodo'         , target:'periodo'     },
                 {source:'informante'      , target:'informante'  },

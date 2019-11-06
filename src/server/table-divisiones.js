@@ -22,8 +22,8 @@ module.exports = function(context){
         primaryKey:['division'],
         constraints:[
             {constraintType:'unique', fields:['sindividir']},
-            {constraintType:'unique', fields:['incluye_supermercados','incluye_tradicionales']},
-            {constraintType:'unique', fields:['division','incluye_supermercados','incluye_tradicionales']}
+            {constraintType:'unique', consName:'hay una division por cada combinacion de tipos de informante in', fields:['incluye_supermercados','incluye_tradicionales']},
+            {constraintType:'unique', consName:'redundancia para garantizar la exclusion de divisiones no compa', fields:['division','incluye_supermercados','incluye_tradicionales']}
         ]
     },context);
 }

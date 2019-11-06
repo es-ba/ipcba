@@ -27,8 +27,8 @@ module.exports = function(context){
                 {source:'periodo'         , target:'periodo'     },
             ]},
             {references:'productos', fields:[
-                {source:'producto'         , target:'producto'     },
-            ]},
+                {source:'producto'         , target:'producto'   },
+            ], onUpdate:'cascade' },
             {references:'relpre', fields:[
                 {source:'periodo'         , target:'periodo'     },
                 {source:'producto'        , target:'producto'    },
@@ -36,6 +36,7 @@ module.exports = function(context){
                 {source:'informante'      , target:'informante'  },
                 {source:'visita'          , target:'visita'      },
             ]},
+            {references:'valvalatr', fields:['periodo', 'atributo', 'valor', {source:'validar_con_valvalatr', target:'validar'}]}
         ]
     }, context);
 }

@@ -12,6 +12,5 @@ module.exports = function(context){
             {name:'tipo'                      , typeName:'integer'   },
         ],
         primaryKey:['formulario','zona','nombre'],
-
     });
 }
