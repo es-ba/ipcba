@@ -3,6 +3,7 @@ import { RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
+import * as JSON4all from "json4all";
 import * as likeAr from "like-ar";
 import * as bestGlobals from "best-globals";
 
@@ -161,16 +162,16 @@ export async function dmHojaDeRuta(_addrParams){
 
     /* CARGA Y GUARDADO DE STATE */
     function loadState():HojaDeRuta{
-        var contentJson = localStorage.getItem('dm-store-v2');
+        var contentJson = localStorage.getItem('dm-store-v3');
         if(contentJson){
-            var content = JSON.parse(contentJson);
-            return {...content, fecha_carga:bestGlobals.date.iso(content.fecha_carga) }
+            var content:HojaDeRuta = JSON4all.parse(contentJson);
+            return content;
         }else{
             return initialState;
         }
     }
     function saveState(state:HojaDeRuta){
-        localStorage.setItem('dm-store-v2', JSON.stringify(state));
+        localStorage.setItem('dm-store-v2', JSON4all.stringify(state));
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 
