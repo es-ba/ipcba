@@ -1156,7 +1156,7 @@ ProceduresIpcba = [
                     )} as productos
                     , ${jsono(`
                         SELECT formulario, nombreformulario, orden, 
-                                ${json(`SELECT producto, COALESCE(pr.cantobs,2) as observaciones, orden
+                                ${json(`SELECT producto, COALESCE(pr.cantobs,CASE WHEN despacho = 'A' THEN 2 ELSE 1 END) as observaciones, orden
                                             FROM forprod INNER JOIN productos pr using (producto) 
                                             WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
                             FROM formularios f INNER JOIN (
@@ -1169,9 +1169,16 @@ ProceduresIpcba = [
                     )} as formularios
                     , ${jsono(`
                         SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar
-                            FROM tipopre`, 
+                            FROM tipopre
+                            WHERE visibleparaencuestador = 'S'`, 
                         'tipoprecio'
                     )} as "tipoPrecio"
+                    , ${json(`
+                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden
+                            FROM tipopre
+                            WHERE visibleparaencuestador = 'S'`, 
+                        'orden'
+                    )} as "tiposPrecioDef"
                     , ${jsono(`
                         SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
                             FROM razones
@@ -1261,6 +1268,8 @@ ProceduresIpcba = [
                 f.productos = likeAr.createIndex(f.x_productos, 'producto');
                 delete f.x_productos;
             });
+            //estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+            estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
             return {estructura,hdr:resultHdR.row};
         }
     }
