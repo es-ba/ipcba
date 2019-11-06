@@ -1124,6 +1124,7 @@ ProceduresIpcba = [
             {name:'panel'             , typeName:'integer' , defaultValue:1},
             {name:'tarea'             , typeName:'integer' , defaultValue:3},
         ],
+        policy:'web',
         coreFunction: async function(context, parameters){
             var sqlEstructura=`
             SELECT 
