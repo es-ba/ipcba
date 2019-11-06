@@ -12,7 +12,6 @@ export function puedeCopiarAtributos(relPre:RelPre){
 }
 
 export function puedeCambiarPrecioYAtributos(relPre:RelPre){
-    console.log(relPre.tipoprecio)
     return relPre.tipoprecio==null || !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
 }
 

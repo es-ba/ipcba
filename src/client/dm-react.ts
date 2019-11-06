@@ -48,7 +48,7 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
     return callback(object);
 }
 
-myOwn.wScreens.demo_dm = async function(_addrParams){
+export async function dmHojaDeRuta(_addrParams){
     var result = await my.ajax.dm_cargar({
         periodo: 'a2019m07',
         panel: 1,
@@ -189,4 +189,8 @@ myOwn.wScreens.demo_dm = async function(_addrParams){
 
     //HDR CON STORE CREADO
     mostrarHdr(store, estructura)
+}
+
+if(typeof window !== 'undefined'){
+    window.dmHojaDeRuta = dmHojaDeRuta;
 }

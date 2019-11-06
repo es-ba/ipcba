@@ -298,6 +298,16 @@ class AppIpcba extends backendPlus.AppBackend{
             res.end('echo');
         });
     }
+    addSchrödingerServices(mainApp, baseUrl){
+        var be=this;
+        super.addSchrödingerServices(mainApp, baseUrl);
+        mainApp.get(baseUrl+'/demo',async function(req,res,_next){
+            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var {useragent} = req;
+            var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
+            MiniTools.serveText(htmlMain,'html')(req,res);
+        });
+    }
     getProcedures(){
         var be = this;
         return super.getProcedures().then(function(procedures){
@@ -537,8 +547,15 @@ class AppIpcba extends backendPlus.AppBackend{
         }
         return true;
     }
-    clientIncludes(req, hideBEPlusInclusions) {
+    clientIncludes(req, opts) {
         var be = this;
+        var menuedResources=req && opts && !opts.skipMenu ? [
+            { type:'js' , src:'client.js' },
+            { type: 'js', src: 'client/hoja-de-ruta.js' },
+            { type: 'js', src: 'client/imp-formularios.js' },
+        ]:[
+            {type:'js' , src:'unlogged.js' },
+        ];
         return [
             { type: 'js', module: 'react', modPath: 'umd', file:'react.development.js', fileProduction:'react.production.min.js' },
             { type: 'js', module: 'react-dom', modPath: 'umd', file:'react-dom.development.js', fileProduction:'react-dom.production.min.js' },
@@ -546,18 +563,17 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', module: 'material-styles', file:'material-styles.development.js', fileProduction:'material-styles.production.min.js' },
             { type: 'js', module: 'redux', modPath:'../dist', file:'redux.js', fileProduction:'redux.min.js' },
             { type: 'js', module: 'react-redux', modPath:'../dist', file:'react-redux.js', fileProduction:'react-redux.min.js' },
-            ...super.clientIncludes(req, hideBEPlusInclusions),
+            ...super.clientIncludes(req, opts),
             { type: 'js', src: 'adapt.js' },
             { type: 'js', src: 'client/dm-estructura.js' },
             { type: 'js', src: 'client/dm-funciones.js' },
             { type: 'js', src: 'client/ejemplo-precios.js' },
             { type: 'js', src: 'client/dm-react.js' },
-            { type: 'js', src: 'client/hoja-de-ruta.js' },
-            { type: 'js', src: 'client/imp-formularios.js' },
             { type: 'css', file: 'ejemplo-precios.css' },
             { type: 'css', file: 'hoja-de-ruta.css' },
             { type: 'css', file: 'imp-formularios.css' },
-            { type: 'css', file: 'menu.css' }
+            { type: 'css', file: 'menu.css' },
+            ... menuedResources
         ];
     }
     getVisibleMenu(menu, context){
