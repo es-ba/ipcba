@@ -59,7 +59,7 @@ module.exports = function(context){
                 {source:'periodo'         , target:'periodo'     },
             ]},
             {references:'productos', fields:[
-                {source:'producto'         , target:'producto'     },
+                {source:'producto'         , target:'producto', onUpdate: 'cascade'},
             ]},
             {references:'calculos', fields:[
                 {source:'periodo'  , target:'periodo'     },

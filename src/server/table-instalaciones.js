@@ -19,7 +19,7 @@ module.exports = function(context){
         ],
         primaryKey:['id_instalacion'],
         foreignKeys:[
-            {references:'personal', fields:[{source:'encuestador', target:'persona'}]}
+            {references:'personal', fields:[{source:'encuestador', target:'persona'}], onUpdate:'cascade'}
         ],
         sortColumns:[{column:'fecha_hora', order:-1}],
     },context);

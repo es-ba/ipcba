@@ -20,7 +20,7 @@ module.exports = function(context){
         primaryKey:['formulario','producto'],
         foreignKeys:[
             {references:'formularios', fields:['formulario']},
-            {references:'productos'  , fields:['producto']},
+            {references:'productos'  , fields:['producto'], onUpdate:'cascade'},
         ],
         detailTables:[
             {table:'formularios', abr:'DET', label:'formularios', fields:['formulario']},

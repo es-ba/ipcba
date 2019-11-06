@@ -29,7 +29,7 @@ module.exports = function(context){
         ],
         primaryKey:['producto','especificacion'],
         foreignKeys:[
-            {references:'productos', fields:['producto']},
+            {references:'productos', fields:['producto'], onUpdate:'cascade'},
             {references:'unidades', fields:[
                 {source:'unidaddemedida'  , target:'unidad'     },
             ]},

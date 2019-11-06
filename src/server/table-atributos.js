@@ -33,7 +33,8 @@ module.exports = function(context){
             {constraintType:'check',  consName:"texto invalido en abratributo de tabla atributos", expr:"comun.cadena_valida(abratributo, 'castellano')"},
             {constraintType:'check',  consName:"texto invalido en nombreatributo de tabla atributos", expr:"comun.cadena_valida(nombreatributo, 'castellano')"},
             {constraintType:'check',  consName:"texto invalido en unidaddemedida de tabla atributos", expr:"comun.cadena_valida(unidaddemedida, 'extendido')"},
-            {constraintType:'check',  consName:"texto invalido en valorinicial de tabla atributos", expr:"comun.cadena_valida(valorinicial, 'amplio')"}
+            {constraintType:'check',  consName:"texto invalido en valorinicial de tabla atributos", expr:"comun.cadena_valida(valorinicial, 'amplio')"},
+            {constraintType:'unique', consName:"debe haber un unico atributo es_vigencia", fields:['es_vigencia']}
         ]
     }, context);
 }
