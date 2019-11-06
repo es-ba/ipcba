@@ -46,6 +46,7 @@ class AppIpcba extends backendPlus.AppBackend{
             schema: cvp
             user: cvpowner
             search_path: [cvp, ipcba, precios_app]
+            fkOnUpdate: false
           login:
             schema: ipcba
             table: usuarios
