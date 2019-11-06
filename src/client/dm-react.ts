@@ -49,7 +49,7 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 
 export async function dmHojaDeRuta(_addrParams){
     var result = await my.ajax.dm_cargar({
-        periodo: 'a2019m08',
+        periodo: 'a2019m02',
         panel: 1,
         tarea: 1
     })
