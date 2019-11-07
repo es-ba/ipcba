@@ -42,7 +42,7 @@ module.exports = function(context){
             {references:'calculos', fields:[
                 {source:'periodoanterior'  , target:'periodo'     },
                 {source:'calculoanterior'  , target:'calculo'     },
-            ], alias: 'cal'},            
+            ], alias: 'cal', onUpdate: 'cascade'},            
         ],
         detailTables:[
             {table:'calgru', fields:['periodo','calculo'], abr:'G'},

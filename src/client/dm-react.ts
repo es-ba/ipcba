@@ -1,9 +1,9 @@
 import { createStore } from "redux";
 import { RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
-import { tipoPrecioPredeterminado, tipoPrecio} from './dm-estructura';
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
+import * as JSON4all from "json4all";
 import * as likeAr from "like-ar";
 import * as bestGlobals from "best-globals";
 
@@ -50,17 +50,12 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 
 export async function dmHojaDeRuta(_addrParams){
     var result = await my.ajax.dm_cargar({
-        periodo: 'a2019m07',
+        periodo: 'a2019m02',
         panel: 1,
-        tarea: 3
+        tarea: 1
     })
     /* DEFINICION CONTROLADOR */
     function hdrReducer(hdrState:HojaDeRuta = initialState, action:ActionHdr):HojaDeRuta {
-        action.payload = {
-            ...action.payload,
-            informante:3333,
-            formulario:99
-        }
         var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
 
         const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>
@@ -81,7 +76,7 @@ export async function dmHojaDeRuta(_addrParams){
         var setTP = function setTP(tipoPrecioRedux:(miRelPre:RelPre)=>string|null){
             return surfRelPre(miRelPre=>{
                 var tipoPrecioNuevo = tipoPrecioRedux(miRelPre);
-                var esNegativo = !tipoPrecioNuevo || tipoPrecio[tipoPrecioNuevo].espositivo == 'N';
+                var esNegativo = !tipoPrecioNuevo || !estructura.tipoPrecio[tipoPrecioNuevo].espositivo;
                 var paraLimipar=esNegativo?{
                     precio: null,
                     cambio: null,
@@ -115,21 +110,21 @@ export async function dmHojaDeRuta(_addrParams){
                 return setTP(_ => action.payload.valor);
             }
             case COPIAR_TP: {
-                return setTP(relPre => puedeCopiarTipoPrecio(relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
+                return setTP(relPre => puedeCopiarTipoPrecio(estructura, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
             }
             case SET_PRECIO: {
                 return surfRelPre((miRelPre:RelPre)=>{
-                    var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(miRelPre);
+                    var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura, miRelPre);
                     return {
                         ...miRelPre,
                         precio:puedeCambiarPrecio?action.payload.valor:miRelPre.precio,
-                        tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
+                        tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?estructura.tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
                     }
                 });
             }
             case SET_ATRIBUTO: {
                 return surfRelPre((miRelPre:RelPre)=>{
-                    var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(miRelPre);
+                    var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(estructura, miRelPre);
                     return puedeCambiarAttrs?{
                         ...miRelPre,
                         cambio:'C',
@@ -145,7 +140,7 @@ export async function dmHojaDeRuta(_addrParams){
             }
             case COPIAR_ATRIBUTOS: {
                 return surfRelPre((miRelPre:RelPre)=>{
-                    var puedeCopiarAttrs = puedeCopiarAtributos(miRelPre);
+                    var puedeCopiarAttrs = puedeCopiarAtributos(estructura, miRelPre);
                     return puedeCopiarAttrs?{
                         ...miRelPre,
                         cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
@@ -167,16 +162,16 @@ export async function dmHojaDeRuta(_addrParams){
 
     /* CARGA Y GUARDADO DE STATE */
     function loadState():HojaDeRuta{
-        var contentJson = localStorage.getItem('dm-store-v2');
+        var contentJson = localStorage.getItem('dm-store-v3');
         if(contentJson){
-            var content = JSON.parse(contentJson);
-            return {...content, fecha_carga:bestGlobals.date.iso(content.fecha_carga) }
+            var content:HojaDeRuta = JSON4all.parse(contentJson);
+            return content;
         }else{
             return initialState;
         }
     }
     function saveState(state:HojaDeRuta){
-        localStorage.setItem('dm-store-v2', JSON.stringify(state));
+        localStorage.setItem('dm-store-v2', JSON4all.stringify(state));
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 

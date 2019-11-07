@@ -25,6 +25,9 @@ module.exports = function(context){
             {references:'informantes', fields:[
                 {source:'informante'  , target:'informante'     },
             ]},
+            {references:'periodos', fields:[
+                {source:'altamanualperiodo',   target:'periodo' },
+            ]},
         ]
     },context);
 }

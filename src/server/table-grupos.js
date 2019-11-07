@@ -11,7 +11,6 @@ module.exports = function(context){
             delete:puedeEditarMigracion,
             update:puedeEditar||puedeEditarMigracion,
         },
-
         fields:[
             {name:'agrupacion'                   , typeName:'text'    , nullable:false, allow:{update:puedeEditarMigracion}},
             {name:'grupo'                        , typeName:'text'    , nullable:false, allow:{update:puedeEditarMigracion}},
@@ -35,14 +34,14 @@ module.exports = function(context){
             {references:'grupos', fields:[
                 {source:'agrupacion'  , target:'agrupacion'     },
                 {source:'grupopadre'  , target:'grupo'          },
-            ], alias: 'gru'},            
+            ], alias: 'padre'},            
             {references:'agrupaciones', fields:[
                 {source:'agrupacionorigen'  , target:'agrupacion'     },
-            ], alias: 'agrup'},
+            ], alias: 'ag_origen'},
             {references:'grupos', fields:[
                 {source:'agrupacionorigen'  , target:'agrupacion'     },
                 {source:'grupo'             , target:'grupo'          },
-            ], alias: 'grup'},
+            ], alias: 'ag_origen_g'},
         ]
     },context);
 }

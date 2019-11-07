@@ -23,7 +23,7 @@ module.exports = function(context){
         ],
         primaryKey:['calculo'],
         foreignKeys:[
-            {references:'calculos_def', fields:[{source:'basado_en_extraccion_calculo', target:'calculo'}], alias:'caldef'},
+            {references:'calculos_def', fields:[{source:'basado_en_extraccion_calculo', target:'calculo'}], alias:'caldef', onUpdate: 'cascade'},
             {references:'muestras', fields:[{source:'basado_en_extraccion_muestra'    , target:'muestra'}]},
         ],
         constraints:[

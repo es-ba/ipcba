@@ -46,6 +46,7 @@ class AppIpcba extends backendPlus.AppBackend{
             schema: cvp
             user: cvpowner
             search_path: [cvp, ipcba, precios_app]
+            fkOnUpdate: false
           login:
             schema: ipcba
             table: usuarios
@@ -565,7 +566,6 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', module: 'react-redux', modPath:'../dist', file:'react-redux.js', fileProduction:'react-redux.min.js' },
             ...super.clientIncludes(req, opts),
             { type: 'js', src: 'adapt.js' },
-            { type: 'js', src: 'client/dm-estructura.js' },
             { type: 'js', src: 'client/dm-funciones.js' },
             { type: 'js', src: 'client/ejemplo-precios.js' },
             { type: 'js', src: 'client/dm-react.js' },
