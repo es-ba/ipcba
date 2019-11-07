@@ -27,6 +27,7 @@ module.exports = function(context){
             {name:'ordenhdr'         , typeName:'integer' },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
+        sortColumns:[{column:'supervisor'}, {column:'periodo'}, {column:'panel'}, {column:'tarea'}, {column:'direccion'}, {column:'visita'}],
         sql:{
             isTable: false,
         },
