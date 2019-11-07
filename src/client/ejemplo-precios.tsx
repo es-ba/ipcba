@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon, Estructura} from "./dm-tipos";
+import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon, Estructura, Informante, Formulario, RelVis} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
@@ -12,9 +12,11 @@ import { Store } from "redux";
 
 
 export var estructura:Estructura;
+var elStore:Store<HojaDeRuta, ActionHdr>;
 
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
+const FLECHAVOLVER="←";
 
 type Focusable = {
     focus:()=>void
@@ -444,21 +446,76 @@ function InformanteVisita(props:{informante: number,formulario: number}){
     })
     return (
         <div className="informante-visita" ref={ref}>
+            <Button color="primary" variant="outlined" onClick={()=>{
+                ReactDOM.render(
+                    <Provider store={elStore}>
+                        <HojaDeRuta/>   
+                    </Provider>,
+                    document.getElementById('main_layout')
+                )
+            }}>
+                {FLECHAVOLVER}
+            </Button>
             <RazonFormulario informante={props.informante} formulario={props.formulario}/>
             <RelevamientoPrecios informante={props.informante} formulario={props.formulario}/>
         </div>
     );
 }
 
+function InformanteRow(props:{informanteId:number}){
+    const informante = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informanteId]);
+    return (
+        <>
+            <tr>
+                <td rowSpan={likeAr(informante.formularios).array().length+1}>{props.informanteId} {informante.nombreinformante}</td>
+            </tr>
+            {likeAr(informante.formularios).map((visita:RelVis)=>
+                <tr key={props.informanteId+'/'+visita.formulario} onClick={()=>{
+                    ReactDOM.render(
+                        <Provider store={elStore}>
+                            <InformanteVisita informante={props.informanteId} formulario={visita.formulario}/>   
+                        </Provider>,
+                        document.getElementById('main_layout')
+                    )
+                }}>
+                    <td>{visita.formulario} {estructura.formularios[visita.formulario].nombreformulario}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            ).array()}
+        </>
+    )
+}
+
 function HojaDeRuta(){
-    
+    const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
+    return (
+        <table id="hoja-ruta">
+            <thead>
+                <tr>
+                    <th>informante</th>
+                    <th>formularios</th>
+                    <th>prod</th>
+                    <th>faltan</th>
+                    <th>adv</th>
+                </tr>
+            </thead>
+            <tbody>
+                {likeAr(informantes).map((_informante:Informante, key:number)=>
+                    <InformanteRow key={key} informanteId={key}/>
+                ).array()}
+            </tbody>
+        </table>
+    );
 }
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
     estructura=miEstructura;
+    elStore=store;
     ReactDOM.render(
         <Provider store={store}>
-            <InformanteVisita informante={280201} formulario={161}/>
+            <HojaDeRuta/>
         </Provider>,
         document.getElementById('main_layout')
     )

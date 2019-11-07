@@ -158,11 +158,12 @@ export async function dmHojaDeRuta(_addrParams){
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     const estructura:Estructura = result.estructura;
+    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v3'
     /* FIN DEFINICION STATE */
 
     /* CARGA Y GUARDADO DE STATE */
     function loadState():HojaDeRuta{
-        var contentJson = localStorage.getItem('dm-store-v3');
+        var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(contentJson){
             var content:HojaDeRuta = JSON4all.parse(contentJson);
             return content;
@@ -171,7 +172,7 @@ export async function dmHojaDeRuta(_addrParams){
         }
     }
     function saveState(state:HojaDeRuta){
-        localStorage.setItem('dm-store-v2', JSON4all.stringify(state));
+        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 
