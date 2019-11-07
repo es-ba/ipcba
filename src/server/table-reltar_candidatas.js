@@ -21,10 +21,7 @@ module.exports = function(context){
             {name:'resultado'              , typeName:'text'                    , allow:{update:puedeEditar}},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}},
             {name:'cargado'                , typeName:'timestamp'               , allow:{update:false}},
-            {name:'dm'                     , typeName:'text'                    , allow:{update:false}},
             {name:'descargado'             , typeName:'timestamp'               , allow:{update:false}},
-            {name:'token'                  , typeName:'text'                    , allow:{update:false}, visible:false},
-            //{name:'puntos'                 , typeName:'integer'                 },
         ],
         primaryKey:['periodo','panel','tarea'],
         foreignKeys:[

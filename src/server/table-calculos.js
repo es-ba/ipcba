@@ -16,7 +16,7 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'     , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'calculo'                      , typeName:'integer'  , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'estimacion'                   , typeName:'integer'  , nullable:false, default:0, defaultValue:0, allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'abierto'                      , typeName:'text'     , nullable:false, default:'S', defaultValue:'S', allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'abierto'                      , typeName:'text'     , nullable:false, default:'S', postInput:'upperSpanish', defaultValue:'S', allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'esperiodobase'                , typeName:'text'     , default:'N', defaultValue:'N', allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'fechacalculo'                 , typeName:'timestamp', allow:{update:false}},
             {name:'fechageneracionexternos'      , typeName:'timestamp', allow:{update:false}},
@@ -29,6 +29,8 @@ module.exports = function(context){
             {name:'transmitir_canastas'          , typeName:'text'     , nullable:false, default:'N', defaultValue:'N', allow:{update:puedeEditar}},
             {name:'fechatransmitircanastas'      , typeName:'timestamp', allow:{update:false}},
             {name:'hasta_panel'                  , typeName:'integer'  , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'denominadordefinitivosegimp'  , typeName:'boolean'  , nullable:false, default:true, defaultValue:true, visible:false},
+            {name:'descartedefinitivosegimp'     , typeName:'boolean'  , nullable:false, default:true, defaultValue:true, visible:false},
         ],
         primaryKey:['periodo','calculo'],
         foreignKeys:[

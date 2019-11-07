@@ -15,7 +15,7 @@ module.exports = function(context){
             {name:'periodo'                , typeName:'text'    , nullable:false, allow:{update:false}},
             {name:'panel'                  , typeName:'integer' , nullable:false, allow:{update:false}},
             {name:'supervisor'             , typeName:'text'    , nullable:false, allow:{update:false}},
-            {name:'disponible'             , typeName:'text'                    , allow:{update:puedeEditar}},
+            {name:'disponible'             , typeName:'text'    , postInput:'upperSpanish', allow:{update:puedeEditar}},
             {name:'motivonodisponible'     , typeName:'text'                    , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','panel','supervisor'],
