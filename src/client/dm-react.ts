@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
+import { Informante, RelVis, RelPre, RelAtr, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
@@ -60,15 +60,15 @@ export async function dmHojaDeRuta(_addrParams){
 
         const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>
             (surfStart(hdrState,
-                surf('informantes', surf(action.payload.informante,
-                    surf('formularios', surf(action.payload.formulario,relVisReducer))
+                surf('informantes_idx', surf(action.payload.informante,
+                    surf('formularios_idx', surf(action.payload.formulario,relVisReducer))
                 ))
             ));
 
         const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
             surfRelVis(
-                surf('productos', surf(action.payload.producto,
-                    surf('observaciones', surf(action.payload.observacion,relPreReducer))
+                surf('productos_idx', surf(action.payload.producto,
+                    surf('observaciones_idx', surf(action.payload.observacion,relPreReducer))
                 ))
             );
 
@@ -80,7 +80,7 @@ export async function dmHojaDeRuta(_addrParams){
                 var paraLimipar=esNegativo?{
                     precio: null,
                     cambio: null,
-                    atributos: likeAr(miRelPre.atributos).map(relAtr=>({...relAtr, valor:null})).plain()
+                    atributos_idx: likeAr(miRelPre.atributos_idx).map(relAtr=>({...relAtr, valor:null})).plain()
                 }:{};
                 return {
                     ...miRelPre,
@@ -128,10 +128,10 @@ export async function dmHojaDeRuta(_addrParams){
                     return puedeCambiarAttrs?{
                         ...miRelPre,
                         cambio:'C',
-                        atributos:{
-                            ...miRelPre.atributos,
+                        atributos_idx:{
+                            ...miRelPre.atributos_idx,
                             [action.payload.atributo]:{
-                                ...miRelPre.atributos[action.payload.atributo],
+                                ...miRelPre.atributos_idx[action.payload.atributo],
                                 valor: action.payload.valor
                             }
                         }
@@ -144,7 +144,7 @@ export async function dmHojaDeRuta(_addrParams){
                     return puedeCopiarAttrs?{
                         ...miRelPre,
                         cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
-                        atributos:likeAr(miRelPre.atributos).map(relAtr=>({...relAtr, valor:relAtr.valoranterior})).plain()
+                        atributos_idx:likeAr(miRelPre.atributos_idx).map(relAtr=>({...relAtr, valor:relAtr.valoranterior})).plain()
                     }:miRelPre;
                 });
             }
@@ -157,6 +157,20 @@ export async function dmHojaDeRuta(_addrParams){
 
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
+    //CREAMOS INDICES
+    result.hdr.informantes_idx = likeAr.createIndex(result.hdr.informantes, 'informante');
+    result.hdr.informantes.forEach(function(_informante:Informante,iInformante:number){
+        result.hdr.informantes[iInformante].formularios_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios, 'formulario');
+        result.hdr.informantes[iInformante].formularios.forEach(function(_relVis: RelVis, iRelVis:number){
+            result.hdr.informantes[iInformante].formularios[iRelVis].productos_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios[iRelVis].productos, 'producto');
+            result.hdr.informantes[iInformante].formularios[iRelVis].productos.forEach(function(_producto:{observaciones: RelPre []}, iProducto:number){
+                result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones, 'observacion');
+                result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones.forEach(function(_observacion:RelPre, iRelPre:number){
+                    result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones[iRelPre].atributos_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones[iRelPre].atributos, 'atributo');
+                })
+            })
+        })
+    })
     const estructura:Estructura = result.estructura;
     const LOCAL_STORAGE_STATE_NAME = 'dm-store-v3'
     /* FIN DEFINICION STATE */

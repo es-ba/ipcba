@@ -75,6 +75,7 @@ export type Estructura={
 }
 
 export type RelAtr={
+    atributo: number,
     valoranterior:string
     valor:string|null
     _valornormal?: number
@@ -87,9 +88,10 @@ export type RelPre={
     precioanterior:number | null,
     tipoprecio:string | null,
     tipoprecioanterior:string | null,
-    atributos:{
+    atributos_idx:{
         [atributo:number]:RelAtr
     }
+    atributos: RelAtr[],
     cambio: string | null
     comentariosrelpre?: string
     precionormalizado?: number
@@ -105,27 +107,33 @@ export type RelVis={
     formulario: number
     razon: number
     comentarios: string | null
-    productos:{
+    productos_idx:{
         [producto:string]:{
-            observaciones:{
+            observaciones_idx:{
                 [observacion:number]:RelPre
             }
         }
     }
+    productos: {
+        producto: string,
+        observaciones: RelPre []
+    }[]
 };
 
 export type Informante={
     informante:number,
     nombreinformante:string,
     direccion:string,
-    formularios:{
+    formularios_idx:{
         [formulario:number]:RelVis
-    }
+    },
+    formularios: RelVis[]
 }
 
 export type HojaDeRuta={
     encuestador:string,
     dispositivo:string,
     fecha_carga:Date,
-    informantes:{[informante:number]:Informante}
+    informantes_idx:{[informante:number]:Informante},
+    informantes:Informante[]
 }

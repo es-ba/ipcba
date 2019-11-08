@@ -1190,7 +1190,7 @@ ProceduresIpcba = [
                 WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
             `;
             var sqlAtributos=`
-                SELECT ra.atributo, ra.valor, ra_1.valor as valoranterior
+                SELECT ra.atributo, ra.valor, ra_1.valor as valoranterior, pa.orden
                     FROM relatr ra 
                         INNER JOIN relatr ra_1 
                             ON ra_1.periodo = rp.periodo_1
@@ -1199,6 +1199,7 @@ ProceduresIpcba = [
                             AND ra_1.producto=ra.producto
                             AND ra_1.observacion=ra.observacion
                             AND ra_1.atributo=ra.atributo
+                        INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
                     WHERE ra.periodo=rp.periodo 
                         AND ra.visita=rp.visita 
                         AND ra.informante=rp.informante 
@@ -1207,7 +1208,7 @@ ProceduresIpcba = [
             var sqlObservaciones=`                
                 SELECT observacion, precio, precio_1 as precioanterior, tipoprecio,  tipoprecio_1 as tipoprecioanterior,
                         cambio, comentariosrelpre, precionormalizado,
-                        ${jsono(sqlAtributos, 'atributo')} as atributos
+                        ${json(sqlAtributos, 'orden')} as atributos
                     FROM relpre_1 rp
                     WHERE periodo=rpp.periodo 
                         AND visita=rpp.visita 
@@ -1215,25 +1216,25 @@ ProceduresIpcba = [
                         AND formulario=rpp.formulario
                         AND producto=rpp.producto`;
             var sqlProductos=`
-                SELECT rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto,
-                        ${jsono(sqlObservaciones, 'observacion')} as observaciones
-                    FROM relpre rpp
+                SELECT rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto, fp.orden,
+                        ${json(sqlObservaciones, 'observacion')} as observaciones
+                    FROM relpre rpp inner join forprod fp using (producto, formulario)
                     WHERE periodo=rv.periodo 
                         AND visita=rv.visita 
                         AND informante=rv.informante 
                         AND formulario=rv.formulario
-                    GROUP BY rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto`;
+                    GROUP BY rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto, fp.orden`;
             var sqlFormularios=`
-                SELECT formulario, razon, comentarios, visita, 
-                        ${jsono(sqlProductos, 'producto')} as productos
-                    FROM relvis rv 
+                SELECT formulario, razon, comentarios, visita, orden,
+                        ${json(sqlProductos, 'orden')} as productos
+                    FROM relvis rv  inner join formularios using (formulario)
                     WHERE periodo=rvi.periodo 
                         AND visita=rvi.visita 
                         AND informante=rvi.informante
                 `;
             var sqlInformantes=`
                 SELECT periodo, visita, informante, nombreinformante, direccion,
-                        ${jsono(sqlFormularios,'formulario')} as formularios
+                        ${json(sqlFormularios,'orden')} as formularios
                     FROM relvis rvi INNER JOIN informantes USING (informante)
                     WHERE periodo=rt.periodo 
                         AND panel=rt.panel 
@@ -1244,7 +1245,7 @@ ProceduresIpcba = [
                 SELECT encuestador, 
                         (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                         current_date as fecha_carga,
-                        ${jsono(sqlInformantes,'informante')} as informantes
+                        ${json(sqlInformantes,'direccion')} as informantes
                     FROM reltar rt INNER JOIN periodos p USING (periodo)
                     WHERE rt.periodo=$1 
                         AND rt.panel=$2 

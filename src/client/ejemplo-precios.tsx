@@ -125,9 +125,9 @@ const AtributosRow = forwardRef(function(props:{
     onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario].productos);
-    const relPre = productosState[props.producto].observaciones[props.observacion];
-    const relAtr = productosState[props.producto].observaciones[props.observacion].atributos[props.atributo];
+    const productosIdx = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario].productos_idx);
+    const relPre = productosIdx[props.producto].observaciones_idx[props.observacion];
+    const relAtr = productosIdx[props.producto].observaciones_idx[props.observacion].atributos_idx[props.atributo];
     const dispatch = useDispatch();
     const atributo = estructura.atributos[props.atributo];
     return (
@@ -153,8 +153,8 @@ function PreciosRow(props:{
     producto:string,
     observacion:number
 }){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario].productos);
-    const relPre = productosState[props.producto].observaciones[props.observacion];
+    const productosIdx = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario].productos_idx);
+    const relPre = productosIdx[props.producto].observaciones_idx[props.observacion];
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
     const productoDef:Producto = estructura.productos[props.producto];
@@ -166,7 +166,7 @@ function PreciosRow(props:{
     return (
         <>
             <tr>
-                <td className="col-prod-esp" rowSpan={productoDef.lista_atributos.length + 1}>
+                <td className="col-prod-esp" rowSpan={relPre.atributos.length + 1}>
                     <div className="producto">{productoDef.nombreproducto}</div>
                     <div className="especificacion">{productoDef.especificacioncompleta}</div>
                 </td>
@@ -279,23 +279,23 @@ function PreciosRow(props:{
                     return false;
                 }}/>
             </tr>
-            {productoDef.lista_atributos.map((atributo, index)=>
-                <AtributosRow key={atributo}
+            {relPre.atributos.map((atributo, index)=>
+                <AtributosRow key={props.producto+'/'+props.observacion+'/'+atributo.atributo}
                     informante={props.informante}
                     formulario={props.formulario}
                     producto={props.producto}
                     observacion={props.observacion}
-                    atributo={atributo}
+                    atributo={atributo.atributo}
                     primerAtributo={index==0}
-                    cantidadAtributos={productoDef.lista_atributos.length}
-                    ultimoAtributo={index == productoDef.lista_atributos.length-1}
+                    cantidadAtributos={relPre.atributos.length}
+                    ultimoAtributo={index == relPre.atributos.length-1}
                     onCopiarAtributos={()=>{
                         if(precioRef.current && !relPre.precio && puedeCopiarAtributos(estructura, relPre)){
                             precioRef.current.focus();
                         }
                     }}
                     onWantToMoveForward={()=>{
-                        if(index<productoDef.lista_atributos.length-1){
+                        if(index<relPre.atributos.length-1){
                             var nextItemRef=atributosRef.current[index+1];
                             if(nextItemRef.current!=null){
                                 nextItemRef.current.focus()
@@ -319,6 +319,7 @@ function PreciosRow(props:{
 }
 
 function RelevamientoPrecios(props:{informante: number,formulario: number,}){
+    const productos = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario].productos);
     return (
         <table className="formulario-precios">
             <caption>Formulario {props.formulario}</caption>
@@ -338,14 +339,14 @@ function RelevamientoPrecios(props:{informante: number,formulario: number,}){
                 </tr>
             </thead>
             <tbody>
-            {estructura.formularios[props.formulario].lista_productos.map((producto:string) => {
-                var forProd = estructura.formularios[props.formulario].productos[producto];
+            {productos.map((producto) => {
+                var forProd = estructura.formularios[props.formulario].productos[producto.producto];
                 return bestGlobals.serie({from:1, to:forProd.observaciones}).map(observacion=>
                     <PreciosRow 
-                        key={producto+'/'+observacion}
+                        key={producto.producto+'/'+observacion}
                         informante={props.informante}
                         formulario={props.formulario}
-                        producto={producto}
+                        producto={producto.producto}
                         observacion={observacion}
                     />
                 )
@@ -356,7 +357,7 @@ function RelevamientoPrecios(props:{informante: number,formulario: number,}){
 }
 
 function RazonFormulario(props:{informante: number,formulario: number,}){
-    const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario]);
+    const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario]);
     const razones = estructura.razones;
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
@@ -463,13 +464,13 @@ function InformanteVisita(props:{informante: number,formulario: number}){
 }
 
 function InformanteRow(props:{informanteId:number}){
-    const informante = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informanteId]);
+    const informante = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informanteId]);
     return (
         <>
             <tr>
                 <td rowSpan={likeAr(informante.formularios).array().length+1}>{props.informanteId} {informante.nombreinformante}</td>
             </tr>
-            {likeAr(informante.formularios).map((visita:RelVis)=>
+            {informante.formularios.map((visita:RelVis)=>
                 <tr key={props.informanteId+'/'+visita.formulario} onClick={()=>{
                     ReactDOM.render(
                         <Provider store={elStore}>
@@ -483,7 +484,7 @@ function InformanteRow(props:{informanteId:number}){
                     <td></td>
                     <td></td>
                 </tr>
-            ).array()}
+            )}
         </>
     )
 }
@@ -502,9 +503,9 @@ function HojaDeRuta(){
                 </tr>
             </thead>
             <tbody>
-                {likeAr(informantes).map((_informante:Informante, key:number)=>
-                    <InformanteRow key={key} informanteId={key}/>
-                ).array()}
+                {informantes.map((informante:Informante)=>
+                    <InformanteRow key={informante.informante} informanteId={informante.informante}/>
+                )}
             </tbody>
         </table>
     );
