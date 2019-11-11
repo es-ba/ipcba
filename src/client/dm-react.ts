@@ -176,7 +176,7 @@ export async function dmHojaDeRuta(_addrParams){
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     const estructura:Estructura = result.estructura;
-    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v3'
+    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v4'
     /* FIN DEFINICION STATE */
 
     /* CARGA Y GUARDADO DE STATE */
