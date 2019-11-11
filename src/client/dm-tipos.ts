@@ -84,14 +84,16 @@ export type RelAtr={
 }
 
 export type RelPre={
-    precio:number | null,
-    precioanterior:number | null,
-    tipoprecio:string | null,
-    tipoprecioanterior:string | null,
+    producto: string
+    observacion: number
+    precio:number | null
+    precioanterior:number | null
+    tipoprecio:string | null
+    tipoprecioanterior:string | null
     atributos_idx:{
         [atributo:number]:RelAtr
     }
-    atributos: RelAtr[],
+    atributos: RelAtr[]
     cambio: string | null
     comentariosrelpre?: string
     precionormalizado?: number
@@ -103,27 +105,29 @@ export type RelPre={
     adv?: boolean
 }
 
+export type RelPrePadre = {
+    producto: string,
+    observaciones: RelPre []
+    observaciones_idx:{
+        [observacion:number]:RelPre
+    }
+}
+
 export type RelVis={
+    informante: number
     formulario: number
     razon: number
     comentarios: string | null
     productos_idx:{
-        [producto:string]:{
-            observaciones_idx:{
-                [observacion:number]:RelPre
-            }
-        }
+        [producto:string]:RelPrePadre
     }
-    productos: {
-        producto: string,
-        observaciones: RelPre []
-    }[]
+    productos: RelPrePadre[]
 };
 
 export type Informante={
-    informante:number,
-    nombreinformante:string,
-    direccion:string,
+    informante:number
+    nombreinformante:string
+    direccion:string
     formularios_idx:{
         [formulario:number]:RelVis
     },

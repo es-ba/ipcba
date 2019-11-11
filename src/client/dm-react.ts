@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { Informante, RelVis, RelPre, RelAtr, HojaDeRuta, Estructura } from "./dm-tipos";
+import { Informante, RelVis, RelPre, RelPrePadre, RelAtr, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
@@ -158,15 +158,15 @@ export async function dmHojaDeRuta(_addrParams){
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     //CREAMOS INDICES
-    result.hdr.informantes_idx = likeAr.createIndex(result.hdr.informantes, 'informante');
-    result.hdr.informantes.forEach(function(_informante:Informante,iInformante:number){
-        result.hdr.informantes[iInformante].formularios_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios, 'formulario');
-        result.hdr.informantes[iInformante].formularios.forEach(function(_relVis: RelVis, iRelVis:number){
-            result.hdr.informantes[iInformante].formularios[iRelVis].productos_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios[iRelVis].productos, 'producto');
-            result.hdr.informantes[iInformante].formularios[iRelVis].productos.forEach(function(_producto:{observaciones: RelPre []}, iProducto:number){
-                result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones, 'observacion');
-                result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones.forEach(function(_observacion:RelPre, iRelPre:number){
-                    result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones[iRelPre].atributos_idx = likeAr.createIndex(result.hdr.informantes[iInformante].formularios[iRelVis].productos[iProducto].observaciones[iRelPre].atributos, 'atributo');
+    result.hdr.informantes_idx = likeAr.createIndex(initialState.informantes, 'informante');
+    result.hdr.informantes.forEach(function(informante:Informante){
+        informante.formularios_idx = likeAr.createIndex(informante.formularios, 'formulario');
+        informante.formularios.forEach(function(relVis: RelVis){
+            relVis.productos_idx = likeAr.createIndex(relVis.productos, 'producto');
+            relVis.productos.forEach(function(producto:RelPrePadre){
+                producto.observaciones_idx = likeAr.createIndex(producto.observaciones, 'observacion');
+                producto.observaciones.forEach(function(observacion:RelPre){
+                    observacion.atributos_idx = likeAr.createIndex(observacion.atributos, 'atributo');
                 })
             })
         })
@@ -202,5 +202,6 @@ export async function dmHojaDeRuta(_addrParams){
 }
 
 if(typeof window !== 'undefined'){
+    // @ts-ignore para hacerlo público
     window.dmHojaDeRuta = dmHojaDeRuta;
 }
