@@ -1,5 +1,4 @@
 "use strict";
-import * as likeAr from "like-ar" ;
 /* TODO: controlar los nombres y tipos de la base
  * atributo
  * producto
@@ -83,6 +82,8 @@ export type RelAtr={
     _valor_pesos?: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
 }
 
+export type Cambio = 'C'|'='
+
 export type RelPre={
     producto: string
     observacion: number
@@ -91,7 +92,7 @@ export type RelPre={
     tipoprecio:string | null
     tipoprecioanterior:string | null
     atributos: RelAtr[]
-    cambio: string | null
+    cambio: Cambio | null
     comentariosrelpre?: string
     precionormalizado?: number
     precionormalizado_1?: number

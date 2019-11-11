@@ -1,12 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, Formulario, RelVis} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
-import * as bestGlobals from "best-globals";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
 import { Store } from "redux";
 
@@ -219,7 +218,7 @@ function PreciosRow(props:{relPre:RelPre})
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                dispatch({type: 'SET_TP', payload:{forPk:relPre, valor:tpDef.tipoprecio}})
+                                dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}})
                                 if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo){
                                     precioRef.current.focus();
                                 }
@@ -249,7 +248,7 @@ function PreciosRow(props:{relPre:RelPre})
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_TP', payload:{forPk:relPre, valor:tipoDePrecioNegativoAConfirmar}})
+                            dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tipoDePrecioNegativoAConfirmar}})
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
@@ -257,7 +256,7 @@ function PreciosRow(props:{relPre:RelPre})
                     </DialogActions>
                 </Dialog>
                 <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
-                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, valor:value}})
+                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }
@@ -360,7 +359,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                     <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} onUpdate={value=>{
-                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, valor:value}})
+                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, comentarios:value}})
                     }}/>
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
@@ -369,7 +368,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                                 setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
-                                dispatch({type: 'SET_RAZON', payload:{forPk:relVis, valor:index}})
+                                dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:index}})
                             }
                             setMenuRazon(null)
                         }}>
@@ -402,7 +401,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_RAZON', payload:{forPk:relVis, valor:razonAConfirmar.razon}})
+                            dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:razonAConfirmar.razon}})
                             setMenuConfirmarRazon(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos

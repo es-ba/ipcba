@@ -1,11 +1,9 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, RelPrePadre, RelAtr, RelInf, HojaDeRuta, Estructura } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
 import * as JSON4all from "json4all";
-import * as likeAr from "like-ar";
-import * as bestGlobals from "best-globals";
 
 var my=myOwn;
 
@@ -18,13 +16,13 @@ const SET_PRECIO           = 'SET_PRECIO';
 const COPIAR_ATRIBUTOS     = 'COPIAR_ATRIBUTOS';
 const SET_ATRIBUTO         = 'SET_ATRIBUTO';
 
-type ActionSetRAzon           = {type:'SET_RAZON'           , payload:{informante:number, formulario:number, valor:number}};
-type ActionSetComentarioRazon = {type:'SET_COMENTARIO_RAZON', payload:{informante:number, formulario:number, valor:string}};
-type ActionSetTp              = {type:'SET_TP'              , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:string}};
-type ActionCopiarTp           = {type:'COPIAR_TP'           , payload:{informante:number, formulario:number, producto:string, observacion:number}};
-type ActionSetPrecio          = {type:'SET_PRECIO'          , payload:{informante:number, formulario:number, producto:string, observacion:number, valor:number}};
-type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , payload:{informante:number, formulario:number, producto:string, observacion:number}};
-type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , payload:{informante:number, formulario:number, producto:string, observacion:number, atributo:number, valor:string}};
+type ActionSetRazon           = {type:'SET_RAZON'           , payload:{forPk:{informante:number, formulario:number}, razon:number}};
+type ActionSetComentarioRazon = {type:'SET_COMENTARIO_RAZON', payload:{forPk:{informante:number, formulario:number}, comentarios:string}};
+type ActionSetTp              = {type:'SET_TP'              , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, tipoprecio:string}};
+type ActionCopiarTp           = {type:'COPIAR_TP'           , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
+type ActionSetPrecio          = {type:'SET_PRECIO'          , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, precio:number}};
+type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
+type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, valor:string}};
 
 /*
 function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previous:T)=>U)){
@@ -34,7 +32,7 @@ function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previo
 }
 */
 
-export type ActionHdr = ActionSetRAzon | ActionSetComentarioRazon | ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
+export type ActionHdr = ActionSetRazon | ActionSetComentarioRazon | ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
 /* FIN ACCIONES */
 
 function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
@@ -48,6 +46,7 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
     return callback(object);
 }
 
+// @ts-ignore provisoriamente no me preocupa que falte _addrParams
 export async function dmHojaDeRuta(_addrParams){
     var result = await my.ajax.dm_cargar({
         periodo: 'a2019m02',
@@ -78,8 +77,11 @@ export async function dmHojaDeRuta(_addrParams){
                 )
             }))
         );
-        const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>(
-            surfRelVis(relVis=>({
+        const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>{
+            if(action.type=="SET_RAZON"||action.type=="SET_COMENTARIO_RAZON"){
+                throw new Error("internal error action.type in surfRelPre");
+            }
+            return surfRelVis(relVis=>({
                 ...relVis,
                 observaciones:relVis.observaciones.map(
                     relPre=>relPre.producto==action.payload.forPk.producto && relPre.observacion==action.payload.forPk.observacion?
@@ -87,19 +89,18 @@ export async function dmHojaDeRuta(_addrParams){
                     :relPre
                 )
             }))
-        );      
-            
-        var setTP = function setTP(tipoPrecioRedux:(miRelPre:RelPre)=>string|null){
-            return surfRelPre(miRelPre=>{
-                var tipoPrecioNuevo = tipoPrecioRedux(miRelPre);
+        };
+        var setTP = function setTP(tipoPrecioRedux:(relPre:RelPre)=>string|null){
+            return surfRelPre(relPre=>{
+                var tipoPrecioNuevo = tipoPrecioRedux(relPre);
                 var esNegativo = !tipoPrecioNuevo || !estructura.tipoPrecio[tipoPrecioNuevo].espositivo;
                 var paraLimipar=esNegativo?{
                     precio: null,
                     cambio: null,
-                    atributos_idx: likeAr(miRelPre.atributos_idx).map(relAtr=>({...relAtr, valor:null})).plain()
+                    atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
                 }:{};
                 return {
-                    ...miRelPre,
+                    ...relPre,
                     ...paraLimipar,
                     tipoprecio: tipoPrecioNuevo
                 };
@@ -110,7 +111,7 @@ export async function dmHojaDeRuta(_addrParams){
                 return surfRelVis((miRelVis:RelVis)=>{
                     return {
                         ...miRelVis,
-                        razon: action.payload.valor
+                        razon: action.payload.razon
                     }
                 });
             }
@@ -118,12 +119,12 @@ export async function dmHojaDeRuta(_addrParams){
                 return surfRelVis((miRelVis:RelVis)=>{
                     return {
                         ...miRelVis,
-                        comentarios: action.payload.valor
+                        comentarios: action.payload.comentarios
                     }
                 });
             }
             case SET_TP: {
-                return setTP(_ => action.payload.valor);
+                return setTP(_ => action.payload.tipoprecio);
             }
             case COPIAR_TP: {
                 return setTP(relPre => puedeCopiarTipoPrecio(estructura, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
@@ -133,35 +134,36 @@ export async function dmHojaDeRuta(_addrParams){
                     var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura, miRelPre);
                     return {
                         ...miRelPre,
-                        precio:puedeCambiarPrecio?action.payload.valor:miRelPre.precio,
+                        precio:puedeCambiarPrecio?action.payload.precio:miRelPre.precio,
                         tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?estructura.tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
                     }
                 });
             }
             case SET_ATRIBUTO: {
-                return surfRelPre((miRelPre:RelPre)=>{
-                    var puedeCambiarAttrs = puedeCambiarPrecioYAtributos(estructura, miRelPre);
-                    return puedeCambiarAttrs?{
-                        ...miRelPre,
+                return surfRelPre((relPre:RelPre)=>{
+                    if(!puedeCambiarPrecioYAtributos(estructura, relPre)){
+                        return relPre;
+                    }
+                    var nuevoRelPre:RelPre = {
+                        ...relPre,
                         cambio:'C',
-                        atributos_idx:{
-                            ...miRelPre.atributos_idx,
-                            [action.payload.atributo]:{
-                                ...miRelPre.atributos_idx[action.payload.atributo],
-                                valor: action.payload.valor
-                            }
-                        }
-                    }:miRelPre
+                        atributos:relPre.atributos.map(relAtr=>relAtr.atributo==action.payload.forPk.atributo?
+                            {...relAtr, valor:action.payload.valor}:
+                            relAtr
+                        )
+                    };
+                    nuevoRelPre.cambio=nuevoRelPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior)?'C':'='
+                    return nuevoRelPre;
                 });
             }
             case COPIAR_ATRIBUTOS: {
-                return surfRelPre((miRelPre:RelPre)=>{
-                    var puedeCopiarAttrs = puedeCopiarAtributos(estructura, miRelPre);
+                return surfRelPre((relPre:RelPre)=>{
+                    var puedeCopiarAttrs = puedeCopiarAtributos(estructura, relPre);
                     return puedeCopiarAttrs?{
-                        ...miRelPre,
-                        cambio:puedeCopiarAttrs?'=':miRelPre.cambio,
-                        atributos_idx:likeAr(miRelPre.atributos_idx).map(relAtr=>({...relAtr, valor:relAtr.valoranterior})).plain()
-                    }:miRelPre;
+                        ...relPre,
+                        cambio:puedeCopiarAttrs?'=':relPre.cambio,
+                        atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valoranterior}))
+                    }:relPre;
                 });
             }
             default: {
