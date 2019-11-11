@@ -306,11 +306,12 @@ function PreciosRow(props:{relPre:RelPre})
     );
 }
 
-function RelevamientoPrecios(props:{informante: number,formulario: number,}){
-    const productos = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario].productos);
+function RelevamientoPrecios(props:{relVis:RelVis}){
+    const relVis = props.relVis;
+    const observaciones = relVis.observaciones;
     return (
         <table className="formulario-precios">
-            <caption>Formulario {props.formulario}</caption>
+            <caption>Formulario {relVis.formulario}</caption>
             <thead>
                 <tr>
                     <th rowSpan={2}>producto<br/>especificación</th>
@@ -327,25 +328,19 @@ function RelevamientoPrecios(props:{informante: number,formulario: number,}){
                 </tr>
             </thead>
             <tbody>
-            {productos.map((producto) => {
-                var forProd = estructura.formularios[props.formulario].productos[producto.producto];
-                return bestGlobals.serie({from:1, to:forProd.observaciones}).map(observacion=>
-                    <PreciosRow 
-                        key={producto.producto+'/'+observacion}
-                        informante={props.informante}
-                        formulario={props.formulario}
-                        producto={producto.producto}
-                        observacion={observacion}
-                    />
-                )
-            })}
+            {observaciones.map((relPre:RelPre) => 
+                <PreciosRow 
+                    key={relPre.producto+'/'+relPre.observacion}
+                    relPre={relPre}
+                />
+            )}
             </tbody>
         </table>
     );
 }
 
-function RazonFormulario(props:{informante: number,formulario: number,}){
-    const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario]);
+function RazonFormulario(props:{relVis:RelVis}){
+    const relVis = props.relVis;
     const razones = estructura.razones;
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
@@ -365,7 +360,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                     <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} onUpdate={value=>{
-                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:value}})
+                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, valor:value}})
                     }}/>
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
@@ -374,7 +369,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                                 setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
-                                dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:index}})
+                                dispatch({type: 'SET_RAZON', payload:{forPk:relVis, valor:index}})
                             }
                             setMenuRazon(null)
                         }}>
@@ -407,7 +402,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:razonAConfirmar.razon}})
+                            dispatch({type: 'SET_RAZON', payload:{forPk:relVis, valor:razonAConfirmar.razon}})
                             setMenuConfirmarRazon(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
@@ -420,7 +415,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
     );
 }
 
-function InformanteVisita(props:{informante: number,formulario: number}){
+function InformanteVisita(props:{relVis: RelVis}){
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -445,29 +440,29 @@ function InformanteVisita(props:{informante: number,formulario: number}){
             }}>
                 {FLECHAVOLVER}
             </Button>
-            <RazonFormulario informante={props.informante} formulario={props.formulario}/>
-            <RelevamientoPrecios informante={props.informante} formulario={props.formulario}/>
+            <RazonFormulario relVis={props.relVis}/>
+            <RelevamientoPrecios relVis={props.relVis}/>
         </div>
     );
 }
 
-function InformanteRow(props:{informanteId:number}){
-    const informante = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informanteId]);
+function InformanteRow(props:{informante:RelInf}){
+    const informante = props.informante;
     return (
         <>
             <tr>
-                <td rowSpan={likeAr(informante.formularios).array().length+1}>{props.informanteId} {informante.nombreinformante}</td>
+                <td rowSpan={likeAr(informante.formularios).array().length+1}>{informante.informante} {informante.nombreinformante}</td>
             </tr>
-            {informante.formularios.map((visita:RelVis)=>
-                <tr key={props.informanteId+'/'+visita.formulario} onClick={()=>{
+            {informante.formularios.map((relVIs:RelVis)=>
+                <tr key={informante.informante+'/'+relVIs.formulario} onClick={()=>{
                     ReactDOM.render(
                         <Provider store={elStore}>
-                            <InformanteVisita informante={props.informanteId} formulario={visita.formulario}/>   
+                            <InformanteVisita relVis={relVIs}/>   
                         </Provider>,
                         document.getElementById('main_layout')
                     )
                 }}>
-                    <td>{visita.formulario} {estructura.formularios[visita.formulario].nombreformulario}</td>
+                    <td>{relVIs.formulario} {estructura.formularios[relVIs.formulario].nombreformulario}</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -492,7 +487,7 @@ function HojaDeRuta(){
             </thead>
             <tbody>
                 {informantes.map((informante:RelInf)=>
-                    <InformanteRow key={informante.informante} informanteId={informante.informante}/>
+                    <InformanteRow key={informante.informante} informante={informante}/>
                 )}
             </tbody>
         </table>

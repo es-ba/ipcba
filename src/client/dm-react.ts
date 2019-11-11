@@ -78,13 +78,16 @@ export async function dmHojaDeRuta(_addrParams){
                 )
             }))
         );
-        const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
-            surfRelVis(
-                surf('productos_idx', surf(action.payload.producto,
-                    surf('observaciones_idx', surf(action.payload.observacion,relPreReducer))
-                ))
-            );
-
+        const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>(
+            surfRelVis(relVis=>({
+                ...relVis,
+                observaciones:relVis.observaciones.map(
+                    relPre=>relPre.producto==action.payload.forPk.producto && relPre.observacion==action.payload.forPk.observacion?
+                        relPreReducer(relPre)
+                    :relPre
+                )
+            }))
+        );      
             
         var setTP = function setTP(tipoPrecioRedux:(miRelPre:RelPre)=>string|null){
             return surfRelPre(miRelPre=>{
@@ -170,20 +173,6 @@ export async function dmHojaDeRuta(_addrParams){
 
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
-    //CREAMOS INDICES
-    result.hdr.informantes_idx = likeAr.createIndex(initialState.informantes, 'informante');
-    result.hdr.informantes.forEach(function(informante:RelInf){
-        informante.formularios_idx = likeAr.createIndex(informante.formularios, 'formulario');
-        informante.formularios.forEach(function(relVis: RelVis){
-            relVis.productos_idx = likeAr.createIndex(relVis.productos, 'producto');
-            relVis.productos.forEach(function(producto:RelPrePadre){
-                producto.observaciones_idx = likeAr.createIndex(producto.observaciones, 'observacion');
-                producto.observaciones.forEach(function(observacion:RelPre){
-                    observacion.atributos_idx = likeAr.createIndex(observacion.atributos, 'atributo');
-                })
-            })
-        })
-    })
     const estructura:Estructura = result.estructura;
     const LOCAL_STORAGE_STATE_NAME = 'dm-store-v3'
     /* FIN DEFINICION STATE */
