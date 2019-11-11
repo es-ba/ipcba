@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
-import {ActionHdr} from "./dm-react";
+import {ActionHdr, dmHojaDeRuta} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -414,7 +414,16 @@ function RazonFormulario(props:{relVis:RelVis}){
     );
 }
 
-function InformanteVisita(props:{relVis: RelVis}){
+interface RelVisPk {
+    informante:number,
+    formulario:number
+}
+
+function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
+    const relVis = useSelector((hdr:HojaDeRuta)=>
+        hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
+            .formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!
+    );
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -429,39 +438,27 @@ function InformanteVisita(props:{relVis: RelVis}){
     })
     return (
         <div className="informante-visita" ref={ref}>
-            <Button color="primary" variant="outlined" onClick={()=>{
-                ReactDOM.render(
-                    <Provider store={elStore}>
-                        <HojaDeRuta/>   
-                    </Provider>,
-                    document.getElementById('main_layout')
-                )
-            }}>
+            <Button color="primary" variant="outlined" onClick={props.onReturn}>
                 {FLECHAVOLVER}
             </Button>
-            <RazonFormulario relVis={props.relVis}/>
-            <RelevamientoPrecios relVis={props.relVis}/>
+            <RazonFormulario relVis={relVis}/>
+            <RelevamientoPrecios relVis={relVis}/>
         </div>
     );
 }
 
-function InformanteRow(props:{informante:RelInf}){
+function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=>void}){
     const informante = props.informante;
     return (
         <>
-            <tr>
-                <td rowSpan={likeAr(informante.formularios).array().length+1}>{informante.informante} {informante.nombreinformante}</td>
+            <tr style={{verticalAlign:'top'}}>
+                <td rowSpan={informante.formularios.length+1}>{informante.informante} {informante.nombreinformante}</td>
             </tr>
-            {informante.formularios.map((relVIs:RelVis)=>
-                <tr key={informante.informante+'/'+relVIs.formulario} onClick={()=>{
-                    ReactDOM.render(
-                        <Provider store={elStore}>
-                            <InformanteVisita relVis={relVIs}/>   
-                        </Provider>,
-                        document.getElementById('main_layout')
-                    )
+            {informante.formularios.map((relVis:RelVis)=>
+                <tr key={informante.informante+'/'+relVis.formulario} onClick={()=>{
+                    props.onSelectVisita(relVis)
                 }}>
-                    <td>{relVIs.formulario} {estructura.formularios[relVIs.formulario].nombreformulario}</td>
+                    <td>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -471,7 +468,7 @@ function InformanteRow(props:{informante:RelInf}){
     )
 }
 
-function HojaDeRuta(){
+function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
     const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
     return (
         <table id="hoja-ruta">
@@ -486,11 +483,20 @@ function HojaDeRuta(){
             </thead>
             <tbody>
                 {informantes.map((informante:RelInf)=>
-                    <InformanteRow key={informante.informante} informante={informante}/>
+                    <InformanteRow key={informante.informante} informante={informante} onSelectVisita={props.onSelectVisita}/>
                 )}
             </tbody>
         </table>
     );
+}
+
+function AppDmIPC(){
+    const [relVisPk, setRelVisPk] = useState<RelVisPk>();
+    if(relVisPk == undefined){
+        return <HojaDeRuta onSelectVisita={setRelVisPk}/>
+    }else{
+        return <FormularioVisita relVisPk={relVisPk} onReturn={()=>setRelVisPk(undefined)}/>
+    }
 }
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
@@ -498,7 +504,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     elStore=store;
     ReactDOM.render(
         <Provider store={store}>
-            <HojaDeRuta/>
+            <AppDmIPC/>
         </Provider>,
         document.getElementById('main_layout')
     )

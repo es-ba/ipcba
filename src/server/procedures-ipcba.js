@@ -1191,7 +1191,7 @@ ProceduresIpcba = [
                 WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
             `;
             var sqlAtributos=`
-                SELECT ra.periodo, ra.visita, ra.informante, ra.producto, ra.observacion, ra.atributo, ${esSupervision?'ra.valor':'null as valor'}, ra_1.valor as valoranterior, pa.orden
+                SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ${esSupervision?'ra.valor':'null as valor'}, ra_1.valor as valoranterior, pa.orden
                     FROM relatr ra 
                         INNER JOIN relatr ra_1 
                             ON ra_1.periodo = rp.periodo_1
@@ -1207,7 +1207,7 @@ ProceduresIpcba = [
                         AND ra.producto=rp.producto
                         AND ra.observacion=rp.observacion`
             var sqlObservaciones=`                
-                SELECT periodo, visita, informante, producto, observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                SELECT periodo, visita, informante, formulario, producto, observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
                         cambio, comentariosrelpre, precionormalizado,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos
                     FROM relpre_1 rp inner join forprod fp using(formulario, producto)
