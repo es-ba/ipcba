@@ -1207,7 +1207,7 @@ ProceduresIpcba = [
                         AND ra.producto=rp.producto
                         AND ra.observacion=rp.observacion`
             var sqlObservaciones=`                
-                SELECT periodo, visita, informante, producto, observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                SELECT periodo, visita, informante, producto, observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
                         cambio, comentariosrelpre, precionormalizado,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos
                     FROM relpre_1 rp inner join forprod fp using(formulario, producto)
