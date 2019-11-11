@@ -90,9 +90,6 @@ export type RelPre={
     precioanterior:number | null
     tipoprecio:string | null
     tipoprecioanterior:string | null
-    atributos_idx:{
-        [atributo:number]:RelAtr
-    }
     atributos: RelAtr[]
     cambio: string | null
     comentariosrelpre?: string
@@ -105,32 +102,18 @@ export type RelPre={
     adv?: boolean
 }
 
-export type RelPrePadre = {
-    producto: string,
-    observaciones: RelPre []
-    observaciones_idx:{
-        [observacion:number]:RelPre
-    }
-}
-
 export type RelVis={
     informante: number
     formulario: number
     razon: number
     comentarios: string | null
-    productos_idx:{
-        [producto:string]:RelPrePadre
-    }
-    productos: RelPrePadre[]
+    observaciones: RelPre[]
 };
 
-export type Informante={
+export type RelInf={
     informante:number
     nombreinformante:string
     direccion:string
-    formularios_idx:{
-        [formulario:number]:RelVis
-    },
     formularios: RelVis[]
 }
 
@@ -138,6 +121,5 @@ export type HojaDeRuta={
     encuestador:string,
     dispositivo:string,
     fecha_carga:Date,
-    informantes_idx:{[informante:number]:Informante},
-    informantes:Informante[]
+    informantes:RelInf[]
 }

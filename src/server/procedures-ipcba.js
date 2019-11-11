@@ -1190,7 +1190,7 @@ ProceduresIpcba = [
                 WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
             `;
             var sqlAtributos=`
-                SELECT ra.atributo, ra.valor, ra_1.valor as valoranterior, pa.orden
+                SELECT ra.periodo, ra.visita, ra.informante, ra.producto, ra.observacion, ra.atributo, ra.valor, ra_1.valor as valoranterior, pa.orden
                     FROM relatr ra 
                         INNER JOIN relatr ra_1 
                             ON ra_1.periodo = rp.periodo_1
@@ -1206,27 +1206,17 @@ ProceduresIpcba = [
                         AND ra.producto=rp.producto
                         AND ra.observacion=rp.observacion`
             var sqlObservaciones=`                
-                SELECT observacion, precio, precio_1 as precioanterior, tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                SELECT periodo, visita, informante, producto, observacion, precio, precio_1 as precioanterior, tipoprecio,  tipoprecio_1 as tipoprecioanterior,
                         cambio, comentariosrelpre, precionormalizado,
-                        ${json(sqlAtributos, 'orden')} as atributos
-                    FROM relpre_1 rp
-                    WHERE periodo=rpp.periodo 
-                        AND visita=rpp.visita 
-                        AND informante=rpp.informante 
-                        AND formulario=rpp.formulario
-                        AND producto=rpp.producto`;
-            var sqlProductos=`
-                SELECT rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto, fp.orden,
-                        ${json(sqlObservaciones, 'observacion')} as observaciones
-                    FROM relpre rpp inner join forprod fp using (producto, formulario)
+                        ${json(sqlAtributos, 'orden, atributo')} as atributos
+                    FROM relpre_1 rp inner join forprod fp using(formulario, producto)
                     WHERE periodo=rv.periodo 
                         AND visita=rv.visita 
                         AND informante=rv.informante 
-                        AND formulario=rv.formulario
-                    GROUP BY rpp.periodo, rpp.visita, rpp.informante, rpp.formulario, rpp.producto, fp.orden`;
+                        AND formulario=rv.formulario`;
             var sqlFormularios=`
-                SELECT formulario, razon, comentarios, visita, orden,
-                        ${json(sqlProductos, 'orden')} as productos
+                SELECT periodo, visita, informante, formulario, razon, comentarios, visita, orden,
+                        ${json(sqlObservaciones, 'orden, producto, observacion')} as observaciones
                     FROM relvis rv  inner join formularios using (formulario)
                     WHERE periodo=rvi.periodo 
                         AND visita=rvi.visita 
@@ -1234,7 +1224,7 @@ ProceduresIpcba = [
                 `;
             var sqlInformantes=`
                 SELECT periodo, visita, informante, nombreinformante, direccion,
-                        ${json(sqlFormularios,'orden')} as formularios
+                        ${json(sqlFormularios,'orden, formulario')} as formularios
                     FROM relvis rvi INNER JOIN informantes USING (informante)
                     WHERE periodo=rt.periodo 
                         AND panel=rt.panel 
@@ -1245,7 +1235,7 @@ ProceduresIpcba = [
                 SELECT encuestador, 
                         (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                         current_date as fecha_carga,
-                        ${json(sqlInformantes,'direccion')} as informantes
+                        ${json(sqlInformantes,'direccion, informante')} as informantes
                     FROM reltar rt INNER JOIN periodos p USING (periodo)
                     WHERE rt.periodo=$1 
                         AND rt.panel=$2 

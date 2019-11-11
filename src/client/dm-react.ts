@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { Informante, RelVis, RelPre, RelPrePadre, RelAtr, HojaDeRuta, Estructura } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, RelPrePadre, RelAtr, RelInf, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
@@ -57,14 +57,27 @@ export async function dmHojaDeRuta(_addrParams){
     /* DEFINICION CONTROLADOR */
     function hdrReducer(hdrState:HojaDeRuta = initialState, action:ActionHdr):HojaDeRuta {
         var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
-
-        const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>
-            (surfStart(hdrState,
-                surf('informantes_idx', surf(action.payload.informante,
-                    surf('formularios_idx', surf(action.payload.formulario,relVisReducer))
-                ))
-            ));
-
+        
+        const surfRelInf = (relInfReducer:(relInfState:RelInf)=>RelInf)=>(
+            {
+                ...hdrState,
+                informantes:hdrState.informantes.map(
+                    relInf=>relInf.informante==action.payload.forPk.informante?
+                        relInfReducer(relInf)
+                    :relInf
+                )
+            }
+        );
+        const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>(
+            surfRelInf(relInf=>({
+                ...relInf,
+                formularios:relInf.formularios.map(
+                    relVis=>relVis.formulario==action.payload.forPk.formulario?
+                        relVisReducer(relVis)
+                    :relVis
+                )
+            }))
+        );
         const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>
             surfRelVis(
                 surf('productos_idx', surf(action.payload.producto,
@@ -159,7 +172,7 @@ export async function dmHojaDeRuta(_addrParams){
     const initialState:HojaDeRuta = result.hdr;
     //CREAMOS INDICES
     result.hdr.informantes_idx = likeAr.createIndex(initialState.informantes, 'informante');
-    result.hdr.informantes.forEach(function(informante:Informante){
+    result.hdr.informantes.forEach(function(informante:RelInf){
         informante.formularios_idx = likeAr.createIndex(informante.formularios, 'formulario');
         informante.formularios.forEach(function(relVis: RelVis){
             relVis.productos_idx = likeAr.createIndex(relVis.productos, 'producto');
@@ -202,6 +215,6 @@ export async function dmHojaDeRuta(_addrParams){
 }
 
 if(typeof window !== 'undefined'){
-    // @ts-ignore para hacerlo público
+    // @ts-ignore para hacerlo
     window.dmHojaDeRuta = dmHojaDeRuta;
 }

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon, Estructura, Informante, Formulario, RelVis} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, Formulario, RelVis} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
@@ -112,12 +112,9 @@ const EditableTd = forwardRef(function<T extends any>(props:{
     )
 });
 
-const AtributosRow = forwardRef(function(props:{
-    informante: number,
-    formulario: number,
-    producto: string,
-    observacion: number,
-    atributo: number,
+const AtributosRow = forwardRef(function(props:{ 
+    relAtr: RelAtr, 
+    relPre: RelPre,
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -125,39 +122,33 @@ const AtributosRow = forwardRef(function(props:{
     onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
-    const productosIdx = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario].productos_idx);
-    const relPre = productosIdx[props.producto].observaciones_idx[props.observacion];
-    const relAtr = productosIdx[props.producto].observaciones_idx[props.observacion].atributos_idx[props.atributo];
+    const relAtr = props.relAtr;
+    const relPre = props.relPre;
     const dispatch = useDispatch();
-    const atributo = estructura.atributos[props.atributo];
+    const atributo = estructura.atributos[relAtr.atributo];
     return (
         <tr>
             <td>{atributo.nombreatributo}</td>
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
-                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion}})
+                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr}})
                     props.onCopiarAtributos()
                 }}>{puedeCopiarAtributos(estructura, relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
                 :null}
             <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
-                dispatch({type: 'SET_ATRIBUTO', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
+                dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value}})
             }} onWantToMoveForward={props.onWantToMoveForward} ref={ref} />
         </tr>
     )
 });
 
-function PreciosRow(props:{
-    informante: number,
-    formulario: number,
-    producto:string,
-    observacion:number
-}){
-    const productosIdx = useSelector((hdr:HojaDeRuta)=>hdr.informantes_idx[props.informante].formularios_idx[props.formulario].productos_idx);
-    const relPre = productosIdx[props.producto].observaciones_idx[props.observacion];
+function PreciosRow(props:{relPre:RelPre})
+{
+    const relPre = props.relPre;
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
-    const productoDef:Producto = estructura.productos[props.producto];
+    const productoDef:Producto = estructura.productos[relPre.producto];
     const atributosRef = useRef(productoDef.lista_atributos.map(() => createRef<HTMLInputElement>()));
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
@@ -209,7 +200,7 @@ function PreciosRow(props:{
                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                         setMenuConfirmarBorradoPrecio(true)
                     }else{
-                        dispatch({type: 'COPIAR_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion}})
+                        dispatch({type: 'COPIAR_TP', payload:{forPk:relPre}});
                     }
                 }}>{(puedeCopiarTipoPrecio(estructura, relPre))?FLECHATIPOPRECIO:''}</td>
                 <td className="tipoPrecio"
@@ -228,7 +219,7 @@ function PreciosRow(props:{
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                dispatch({type: 'SET_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:tpDef.tipoprecio}})
+                                dispatch({type: 'SET_TP', payload:{forPk:relPre, valor:tpDef.tipoprecio}})
                                 if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo){
                                     precioRef.current.focus();
                                 }
@@ -258,7 +249,7 @@ function PreciosRow(props:{
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:tipoDePrecioNegativoAConfirmar}})
+                            dispatch({type: 'SET_TP', payload:{forPk:relPre, valor:tipoDePrecioNegativoAConfirmar}})
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
@@ -266,7 +257,7 @@ function PreciosRow(props:{
                     </DialogActions>
                 </Dialog>
                 <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
-                    dispatch({type: 'SET_PRECIO', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:value}})
+                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, valor:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }
@@ -279,13 +270,10 @@ function PreciosRow(props:{
                     return false;
                 }}/>
             </tr>
-            {relPre.atributos.map((atributo, index)=>
-                <AtributosRow key={props.producto+'/'+props.observacion+'/'+atributo.atributo}
-                    informante={props.informante}
-                    formulario={props.formulario}
-                    producto={props.producto}
-                    observacion={props.observacion}
-                    atributo={atributo.atributo}
+            {relPre.atributos.map((relAtr, index)=>
+                <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
+                    relPre={relPre}
+                    relAtr={relAtr}
                     primerAtributo={index==0}
                     cantidadAtributos={relPre.atributos.length}
                     ultimoAtributo={index == relPre.atributos.length-1}
@@ -503,7 +491,7 @@ function HojaDeRuta(){
                 </tr>
             </thead>
             <tbody>
-                {informantes.map((informante:Informante)=>
+                {informantes.map((informante:RelInf)=>
                     <InformanteRow key={informante.informante} informanteId={informante.informante}/>
                 )}
             </tbody>
