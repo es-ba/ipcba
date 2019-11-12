@@ -38,6 +38,7 @@ body
       grid-column span 2
       font-size letra_chica
   .caja-precios
+    table-layout fixed
     grid-column span 1
     grid-row span 1
     width 100%
@@ -47,6 +48,12 @@ body
       font-size letra_grande
       border 1px solid #ddd
       padding 2px
+      overflow-x hidden
+      overflow-wrap break-word
+      div
+        max-width 100%
+        overflow-x hidden
+        overflow-wrap break-word
       vertical-align top
       .flechaAtributos
         vertical-align middle

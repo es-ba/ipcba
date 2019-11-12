@@ -48,21 +48,27 @@ function TypedInput<T>(props:{
     }, []);
     // @ts-ignore acá hay un problema con el cambio de tipos
     var valueString:string = value==null?'':value;
-    return (
-        <input ref={inputRef} value={valueString} type={props.dataType} onChange={(event)=>{
+    return React.createElement(props.dataType=='text'?'textarea':'input',{
+        ref:inputRef, 
+        value:valueString, 
+        type:props.dataType, 
+        onChange:(event)=>{
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
             setValue(event.target.value);
-        }} onBlur={(event)=>{
+        }, 
+        onBlur:(event)=>{
             if(value!=props.value){
                 // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
                 props.onUpdate(event.target.value);
             }
             props.onFocusOut();
-        }} onMouseOut={()=>{
+        },
+        onMouseOut:()=>{
             if(document.activeElement!=inputRef.current){
                 props.onFocusOut();
             }
-        }} onKeyDown={event=>{
+        },
+        onKeyDown:event=>{
             var tecla = event.charCode || event.which;
             if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
                 if(!(props.onWantToMoveForward && props.onWantToMoveForward())){
@@ -72,7 +78,7 @@ function TypedInput<T>(props:{
                 }
                 event.preventDefault();
             }
-        }}/>
+        })
     )
 }
 
