@@ -27,8 +27,8 @@ IF OLD.transmitir_canastas IS DISTINCT FROM NEW.transmitir_canastas AND NEW.tran
     IF NEW.abierto = 'N' THEN
         IF NEW.calculo <> 0 THEN
             RAISE EXCEPTION 'ERROR No se pueden transmitir canastas para cálculos provisorios';
-        --ELSE
-            --NEW.fechatransmitircanastas = CURRENT_TIMESTAMP(3);
+        ELSE
+            NEW.fechatransmitircanastas = CURRENT_TIMESTAMP(3);
         END IF;
     ELSE
      RAISE EXCEPTION 'ERROR No se pueden transmitir canastas porque aún no se cerró el cálculo';

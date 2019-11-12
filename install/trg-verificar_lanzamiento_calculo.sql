@@ -1,4 +1,4 @@
-CREATE FUNCTION verificar_lanzamiento_calculo() RETURNS trigger
+CREATE OR REPLACE FUNCTION verificar_lanzamiento_calculo() RETURNS trigger
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
 DECLARE

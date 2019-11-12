@@ -14,7 +14,7 @@ module.exports = function(context){
         fields:[
             {name: "calcular"                    , typeName: "bigint"  , editable:false, clientSide:'calcular'},
             {name:'periodo'                      , typeName:'text'     , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'calculo'                      , typeName:'integer'  , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'calculo'                      , typeName:'integer'  , nullable:false, default:0, defaultValue:0, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'estimacion'                   , typeName:'integer'  , nullable:false, default:0, defaultValue:0, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'abierto'                      , typeName:'text'     , nullable:false, default:'S', postInput:'upperSpanish', defaultValue:'S', allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'esperiodobase'                , typeName:'text'     , default:'N', defaultValue:'N', allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
@@ -26,7 +26,7 @@ module.exports = function(context){
             {name:'valido'                       , typeName:'text'     , nullable:false, default:'N', defaultValue:'N', visible:false},
             {name:'pb_calculobase'               , typeName:'integer'  , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'motivocopia'                  , typeName:'text'     },
-            {name:'transmitir_canastas'          , typeName:'text'     , nullable:false, default:'N', defaultValue:'N', allow:{update:puedeEditar}},
+            {name:'transmitir_canastas'          , typeName:'text'     , nullable:false, default:'N', defaultValue:'N', postInput:'upperSpanish', allow:{update:puedeEditar}},
             {name:'fechatransmitircanastas'      , typeName:'timestamp', allow:{update:false}},
             {name:'hasta_panel'                  , typeName:'integer'  , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'denominadordefinitivosegimp'  , typeName:'boolean'  , nullable:false, default:true, defaultValue:true, visible:false},

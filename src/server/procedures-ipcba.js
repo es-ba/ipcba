@@ -288,10 +288,10 @@ ProceduresIpcba = [
         coreFunction:function(context, parameters){
             //context.informProgress({message:'cálculo lanzado'});
             return context.client.query(
-                `UPDATE calculos SET fechacalculo = current_timestamp(0) 
+                `UPDATE calculos SET fechageneracionexternos = COALESCE(fechageneracionexternos,current_timestamp), fechacalculo = current_timestamp
                    WHERE periodo=$1 
                      AND calculo=$2 AND abierto='S'
-                   RETURNING fechacalculo`,
+                   RETURNING fechageneracionexternos, fechacalculo`,
                 [parameters.periodo,parameters.calculo]
             ).onNotice(function(progressInfo){
                 progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
