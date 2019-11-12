@@ -11,7 +11,6 @@ import { Store } from "redux";
 
 
 export var estructura:Estructura;
-var elStore:Store<HojaDeRuta, ActionHdr>;
 
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
@@ -499,7 +498,6 @@ function AppDmIPC(){
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
     estructura=miEstructura;
-    elStore=store;
     ReactDOM.render(
         <Provider store={store}>
             <AppDmIPC/>
