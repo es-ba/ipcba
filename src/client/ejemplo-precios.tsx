@@ -51,6 +51,7 @@ function TypedInput<T>(props:{
     return React.createElement(props.dataType=='text'?'textarea':'input',{
         ref:inputRef, 
         value:valueString, 
+        "td-editable":true,
         type:props.dataType, 
         onChange:(event)=>{
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
@@ -104,7 +105,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
     return (
         <td colSpan={props.colSpan} className={props.className} onClick={
             ()=>setEditando(true && !props.disabled)
-        }>
+        } puede-editar={!props.disabled && !editando?"yes":"no"}>
             {editando?
                 <TypedInput value={props.value} dataType={props.dataType} onUpdate={value =>{
                     props.onUpdate(value);
@@ -137,10 +138,12 @@ const AtributosRow = forwardRef(function(props:{
             <td className="nombre-atributo">{atributo.nombreatributo}</td>
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
-                <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
-                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr}})
-                    props.onCopiarAtributos()
-                }}>{puedeCopiarAtributos(estructura, relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
+                <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
+                    {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
+                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr}})
+                        props.onCopiarAtributos()
+                    }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
+                </td>
                 :null}
             <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
                 dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value}})
@@ -161,6 +164,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
+    var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     return (
         <>
             <div className="caja-producto">
@@ -178,7 +182,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
                     <col style={{width:"25%"}}/>
                 </colgroup>                  
             <tr>
-                <td className="observaiones">
+                <td className="observaciones" button-container="yes">
                     <Button color="primary" variant="outlined" onClick={()=>{
                         setDialogoObservaciones(true)
                     }}>
@@ -212,17 +216,22 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
                 </td>
                 <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                 <td className="precioAnterior">{relPre.precioanterior}</td>
-                <td className="flechaTP" onClick={ () => {
-                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                        setMenuConfirmarBorradoPrecio(true)
-                    }else{
-                        dispatch({type: 'COPIAR_TP', payload:{forPk:relPre}});
-                    }
-                }}>{(puedeCopiarTipoPrecio(estructura, relPre))?FLECHATIPOPRECIO:''}</td>
-                <td className="tipoPrecio"
-                    onClick={event=>setMenuTipoPrecio(event.currentTarget)}
-                >{relPre.tipoprecio}
+                <td className="flechaTP" button-container="yes">{(puedeCopiarTipoPrecio(estructura, relPre))?
+                    <Button color="secondary" variant="outlined" onClick={ () => {
+                        if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                            setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                            setMenuConfirmarBorradoPrecio(true)
+                        }else{
+                            dispatch({type: 'COPIAR_TP', payload:{forPk:relPre}});
+                        }
+                    }}>
+                        {FLECHATIPOPRECIO}
+                    </Button>
+                :''}</td>
+                <td className="tipoPrecio" button-container="yes">
+                    <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>setMenuTipoPrecio(event.currentTarget)}>
+                        {relPre.tipoprecio||"\u00a0"}
+                    </Button>
                 </td>
                 <Menu id="simple-menu"
                     open={Boolean(menuTipoPrecio)}

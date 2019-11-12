@@ -38,6 +38,21 @@ body
       grid-column span 2
       font-size letra_chica
   .caja-precios
+    .MuiButton-root
+      min-width 16px
+      font-size letra_grande 
+      text-transform auto
+      line-height 1.1
+    .tipoPrecio
+      button
+        width 100%
+    button
+      padding 0px
+      margin 0px
+      vertical-align middle
+      text-align center
+    [button-container]
+      padding 0px
     table-layout fixed
     grid-column span 1
     grid-row span 1
@@ -46,7 +61,10 @@ body
       font-size letra_chica
     td, th
       font-size letra_grande
-      border 1px solid #ddd
+      &[puede-editar=yes]
+        border 1px solid #3f51b5
+        div
+          min-height 26px
       padding 2px
       overflow-x hidden
       overflow-wrap break-word
