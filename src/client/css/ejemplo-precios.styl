@@ -22,6 +22,8 @@ body
   &[pos-productos=izquierda]
     grid-template-columns 33% 66%
   .caja-producto
+    margin-top 8px
+    margin-bottom 8px
     width 100%
     grid-column span 1
     grid-row span 1
@@ -37,12 +39,16 @@ body
     .especificacion
       grid-column span 2
       font-size letra_chica
+      padding-right 6px
   .caja-precios
+    margin-top 8px
+    margin-bottom 8px
     .MuiButton-root
       min-width 16px
       font-size letra_grande 
       text-transform auto
-      line-height 1.1
+      line-height 1.2
+      min-height 30px
     .tipoPrecio
       button
         width 100%
@@ -58,13 +64,13 @@ body
     grid-row span 1
     width 100%
     .nombre-atributo
-      font-size letra_chica
+      font-size letra_mediana
     td, th
       font-size letra_grande
       &[puede-editar=yes]
-        border 1px solid #3f51b5
+        border-bottom 0.5px solid #3f51b5
         div
-          min-height 26px
+          min-height 30px
       padding 2px
       overflow-x hidden
       overflow-wrap break-word
@@ -98,3 +104,7 @@ body
       text-align right
       div
         margin 2px
+.hoja-ruta
+  td
+    font-size letra_grande
+    padding 6px

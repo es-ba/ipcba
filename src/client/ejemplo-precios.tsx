@@ -483,7 +483,7 @@ function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=
 function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
     const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
     return (
-        <table id="hoja-ruta">
+        <table className="hoja-ruta">
             <thead>
                 <tr>
                     <th>informante</th>
