@@ -1,5 +1,4 @@
 "use strict";
-import * as likeAr from "like-ar" ;
 /* TODO: controlar los nombres y tipos de la base
  * atributo
  * producto
@@ -75,6 +74,7 @@ export type Estructura={
 }
 
 export type RelAtr={
+    atributo: number,
     valoranterior:string
     valor:string|null
     _valornormal?: number
@@ -82,15 +82,17 @@ export type RelAtr={
     _valor_pesos?: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
 }
 
+export type Cambio = 'C'|'='
+
 export type RelPre={
-    precio:number | null,
-    precioanterior:number | null,
-    tipoprecio:string | null,
-    tipoprecioanterior:string | null,
-    atributos:{
-        [atributo:number]:RelAtr
-    }
-    cambio: string | null
+    producto: string
+    observacion: number
+    precio:number | null
+    precioanterior:number | null
+    tipoprecio:string | null
+    tipoprecioanterior:string | null
+    atributos: RelAtr[]
+    cambio: Cambio | null
     comentariosrelpre?: string
     precionormalizado?: number
     precionormalizado_1?: number
@@ -102,30 +104,23 @@ export type RelPre={
 }
 
 export type RelVis={
+    informante: number
     formulario: number
     razon: number
     comentarios: string | null
-    productos:{
-        [producto:string]:{
-            observaciones:{
-                [observacion:number]:RelPre
-            }
-        }
-    }
+    observaciones: RelPre[]
 };
 
-export type Informante={
-    informante:number,
-    nombreinformante:string,
-    direccion:string,
-    formularios:{
-        [formulario:number]:RelVis
-    }
+export type RelInf={
+    informante:number
+    nombreinformante:string
+    direccion:string
+    formularios: RelVis[]
 }
 
 export type HojaDeRuta={
     encuestador:string,
     dispositivo:string,
     fecha_carga:Date,
-    informantes:{[informante:number]:Informante}
+    informantes:RelInf[]
 }

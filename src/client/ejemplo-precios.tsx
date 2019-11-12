@@ -1,12 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, AtributoDataTypes, HojaDeRuta, Razon, Estructura} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
-import * as bestGlobals from "best-globals";
 import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
 import { Store } from "redux";
 
@@ -15,6 +14,7 @@ export var estructura:Estructura;
 
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
+const FLECHAVOLVER="←";
 
 type Focusable = {
     focus:()=>void
@@ -48,21 +48,28 @@ function TypedInput<T>(props:{
     }, []);
     // @ts-ignore acá hay un problema con el cambio de tipos
     var valueString:string = value==null?'':value;
-    return (
-        <input ref={inputRef} value={valueString} type={props.dataType} onChange={(event)=>{
+    return React.createElement(props.dataType=='text'?'textarea':'input',{
+        ref:inputRef, 
+        value:valueString, 
+        "td-editable":true,
+        type:props.dataType, 
+        onChange:(event)=>{
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
             setValue(event.target.value);
-        }} onBlur={(event)=>{
+        }, 
+        onBlur:(event)=>{
             if(value!=props.value){
                 // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
                 props.onUpdate(event.target.value);
             }
             props.onFocusOut();
-        }} onMouseOut={()=>{
+        },
+        onMouseOut:()=>{
             if(document.activeElement!=inputRef.current){
                 props.onFocusOut();
             }
-        }} onKeyDown={event=>{
+        },
+        onKeyDown:event=>{
             var tecla = event.charCode || event.which;
             if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
                 if(!(props.onWantToMoveForward && props.onWantToMoveForward())){
@@ -72,7 +79,7 @@ function TypedInput<T>(props:{
                 }
                 event.preventDefault();
             }
-        }}/>
+        })
     )
 }
 
@@ -80,7 +87,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
     disabled?:boolean,
     dataType: InputTypes,
     value:T, 
-    className?:string, colSpan?:number, rowSpan?:number, 
+    className?:string, colSpan?:number, 
     onUpdate:OnUpdate<T>, 
     onWantToMoveForward?:(()=>boolean)|null
 },
@@ -96,9 +103,9 @@ const EditableTd = forwardRef(function<T extends any>(props:{
         }
     }));    
     return (
-        <td colSpan={props.colSpan} rowSpan={props.rowSpan} className={props.className} onClick={
+        <td colSpan={props.colSpan} className={props.className} onClick={
             ()=>setEditando(true && !props.disabled)
-        }>
+        } puede-editar={!props.disabled && !editando?"yes":"no"}>
             {editando?
                 <TypedInput value={props.value} dataType={props.dataType} onUpdate={value =>{
                     props.onUpdate(value);
@@ -110,12 +117,10 @@ const EditableTd = forwardRef(function<T extends any>(props:{
     )
 });
 
-const AtributosRow = forwardRef(function(props:{
-    informante: number,
-    formulario: number,
-    producto: string,
-    observacion: number,
-    atributo: number,
+const AtributosRow = forwardRef(function(props:{ 
+    relAtr: RelAtr, 
+    relPre: RelPre,
+    relVis: RelVis, 
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -123,52 +128,61 @@ const AtributosRow = forwardRef(function(props:{
     onWantToMoveForward?:()=>boolean},
     ref:React.Ref<Focusable>
 ){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario].productos);
-    const relPre = productosState[props.producto].observaciones[props.observacion];
-    const relAtr = productosState[props.producto].observaciones[props.observacion].atributos[props.atributo];
+    const relAtr = props.relAtr;
+    const relPre = props.relPre;
+    const relVis = props.relVis;
     const dispatch = useDispatch();
-    const atributo = estructura.atributos[props.atributo];
+    const atributo = estructura.atributos[relAtr.atributo];
     return (
         <tr>
-            <td>{atributo.nombreatributo}</td>
+            <td className="nombre-atributo">{atributo.nombreatributo}</td>
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
-                <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
-                    dispatch({type: 'COPIAR_ATRIBUTOS', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion}})
-                    props.onCopiarAtributos()
-                }}>{puedeCopiarAtributos(estructura, relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
+                <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
+                    {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
+                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr}})
+                        props.onCopiarAtributos()
+                    }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
+                </td>
                 :null}
-            <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
-                dispatch({type: 'SET_ATRIBUTO', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, atributo:props.atributo, valor:value}})
+            <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
+                dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value}})
             }} onWantToMoveForward={props.onWantToMoveForward} ref={ref} />
         </tr>
     )
 });
 
-function PreciosRow(props:{
-    informante: number,
-    formulario: number,
-    producto:string,
-    observacion:number
-}){
-    const productosState = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario].productos);
-    const relPre = productosState[props.producto].observaciones[props.observacion];
+function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
+{
+    const relPre = props.relPre;
+    const relVis = props.relVis;
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
-    const productoDef:Producto = estructura.productos[props.producto];
+    const productoDef:Producto = estructura.productos[relPre.producto];
     const atributosRef = useRef(productoDef.lista_atributos.map(() => createRef<HTMLInputElement>()));
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
+    var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     return (
         <>
+            <div className="caja-producto">
+                <div className="producto">{productoDef.nombreproducto}</div>
+                <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
+                <div className="especificacion">{productoDef.especificacioncompleta}</div>
+            </div>
+            <table className="caja-precios">
+                <colgroup>
+                    <col style={{width:"26%"}}/>
+                    <col style={{width:"8%" }}/>
+                    <col style={{width:"25%"}}/>
+                    <col style={{width:"8%" }}/>
+                    <col style={{width:"8%" }}/>
+                    <col style={{width:"25%"}}/>
+                </colgroup>                  
             <tr>
-                <td className="col-prod-esp" rowSpan={productoDef.lista_atributos.length + 1}>
-                    <div className="producto">{productoDef.nombreproducto}</div>
-                    <div className="especificacion">{productoDef.especificacioncompleta}</div>
-                </td>
-                <td className="observaiones">
+                <td className="observaciones" button-container="yes">
                     <Button color="primary" variant="outlined" onClick={()=>{
                         setDialogoObservaciones(true)
                     }}>
@@ -202,17 +216,22 @@ function PreciosRow(props:{
                 </td>
                 <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                 <td className="precioAnterior">{relPre.precioanterior}</td>
-                <td className="flechaTP" onClick={ () => {
-                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                        setMenuConfirmarBorradoPrecio(true)
-                    }else{
-                        dispatch({type: 'COPIAR_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion}})
-                    }
-                }}>{(puedeCopiarTipoPrecio(estructura, relPre))?FLECHATIPOPRECIO:''}</td>
-                <td className="tipoPrecio"
-                    onClick={event=>setMenuTipoPrecio(event.currentTarget)}
-                >{relPre.tipoprecio}
+                <td className="flechaTP" button-container="yes">{(puedeCopiarTipoPrecio(estructura, relPre))?
+                    <Button color="secondary" variant="outlined" onClick={ () => {
+                        if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                            setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                            setMenuConfirmarBorradoPrecio(true)
+                        }else{
+                            dispatch({type: 'COPIAR_TP', payload:{forPk:relPre}});
+                        }
+                    }}>
+                        {FLECHATIPOPRECIO}
+                    </Button>
+                :''}</td>
+                <td className="tipoPrecio" button-container="yes">
+                    <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>setMenuTipoPrecio(event.currentTarget)}>
+                        {relPre.tipoprecio||"\u00a0"}
+                    </Button>
                 </td>
                 <Menu id="simple-menu"
                     open={Boolean(menuTipoPrecio)}
@@ -226,7 +245,7 @@ function PreciosRow(props:{
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                dispatch({type: 'SET_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:tpDef.tipoprecio}})
+                                dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}})
                                 if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo){
                                     precioRef.current.focus();
                                 }
@@ -256,15 +275,15 @@ function PreciosRow(props:{
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_TP', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:tipoDePrecioNegativoAConfirmar}})
+                            dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tipoDePrecioNegativoAConfirmar}})
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
-                    dispatch({type: 'SET_PRECIO', payload:{informante:props.informante, formulario:props.formulario, producto:props.producto, observacion:props.observacion, valor:value}})
+                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} className="precio" value={relPre.precio} onUpdate={value=>{
+                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
                     }
@@ -277,23 +296,21 @@ function PreciosRow(props:{
                     return false;
                 }}/>
             </tr>
-            {productoDef.lista_atributos.map((atributo, index)=>
-                <AtributosRow key={atributo}
-                    informante={props.informante}
-                    formulario={props.formulario}
-                    producto={props.producto}
-                    observacion={props.observacion}
-                    atributo={atributo}
+            {relPre.atributos.map((relAtr, index)=>
+                <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
+                    relVis={relVis}
+                    relPre={relPre}
+                    relAtr={relAtr}
                     primerAtributo={index==0}
-                    cantidadAtributos={productoDef.lista_atributos.length}
-                    ultimoAtributo={index == productoDef.lista_atributos.length-1}
+                    cantidadAtributos={relPre.atributos.length}
+                    ultimoAtributo={index == relPre.atributos.length-1}
                     onCopiarAtributos={()=>{
                         if(precioRef.current && !relPre.precio && puedeCopiarAtributos(estructura, relPre)){
                             precioRef.current.focus();
                         }
                     }}
                     onWantToMoveForward={()=>{
-                        if(index<productoDef.lista_atributos.length-1){
+                        if(index<relPre.atributos.length-1){
                             var nextItemRef=atributosRef.current[index+1];
                             if(nextItemRef.current!=null){
                                 nextItemRef.current.focus()
@@ -312,49 +329,29 @@ function PreciosRow(props:{
                     ref={atributosRef.current[index]}
                 />
             )}
+            </table>
         </>
     );
 }
 
-function RelevamientoPrecios(props:{informante: number,formulario: number,}){
+function RelevamientoPrecios(props:{relVis:RelVis}){
+    const relVis = props.relVis;
+    const observaciones = relVis.observaciones;
     return (
-        <table className="formulario-precios">
-            <caption>Formulario {props.formulario}</caption>
-            <thead>
-                <tr>
-                    <th rowSpan={2}>producto<br/>especificación</th>
-                    <th rowSpan={2}>obs.<br/>atributos</th>
-                    <th colSpan={2}>anterior</th>
-                    <th rowSpan={2} className="flechaTitulos"></th>
-                    <th colSpan={2}>actual</th>
-                </tr>
-                <tr>
-                    <th>TP</th>
-                    <th>precio</th>
-                    <th>TP</th>
-                    <th>precio</th>
-                </tr>
-            </thead>
-            <tbody>
-            {estructura.formularios[props.formulario].lista_productos.map((producto:string) => {
-                var forProd = estructura.formularios[props.formulario].productos[producto];
-                return bestGlobals.serie({from:1, to:forProd.observaciones}).map(observacion=>
-                    <PreciosRow 
-                        key={producto+'/'+observacion}
-                        informante={props.informante}
-                        formulario={props.formulario}
-                        producto={producto}
-                        observacion={observacion}
-                    />
-                )
-            })}
-            </tbody>
-        </table>
+        <>
+            {observaciones.map((relPre:RelPre) => 
+                <PreciosRow 
+                    key={relPre.producto+'/'+relPre.observacion}
+                    relPre={relPre}
+                    relVis={relVis}
+                />
+            )}
+        </>
     );
 }
 
-function RazonFormulario(props:{informante: number,formulario: number,}){
-    const relVis = useSelector((hdr:HojaDeRuta)=>hdr.informantes[props.informante].formularios[props.formulario]);
+function RazonFormulario(props:{relVis:RelVis}){
+    const relVis = props.relVis;
     const razones = estructura.razones;
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
@@ -374,7 +371,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                     <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} onUpdate={value=>{
-                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:value}})
+                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, comentarios:value}})
                     }}/>
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
@@ -383,7 +380,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                                 setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
-                                dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:index}})
+                                dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:index}})
                             }
                             setMenuRazon(null)
                         }}>
@@ -416,7 +413,7 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_RAZON', payload:{informante:props.informante, formulario:props.formulario, valor:razonAConfirmar.razon}})
+                            dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:razonAConfirmar.razon}})
                             setMenuConfirmarRazon(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
@@ -429,7 +426,16 @@ function RazonFormulario(props:{informante: number,formulario: number,}){
     );
 }
 
-function InformanteVisita(props:{informante: number,formulario: number}){
+interface RelVisPk {
+    informante:number,
+    formulario:number
+}
+
+function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
+    const relVis = useSelector((hdr:HojaDeRuta)=>
+        hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
+            .formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!
+    );
     const ref = useRef<HTMLTableElement>(null);
     useEffect(()=>{
         if(ref.current){
@@ -443,22 +449,73 @@ function InformanteVisita(props:{informante: number,formulario: number}){
         }
     })
     return (
-        <div className="informante-visita" ref={ref}>
-            <RazonFormulario informante={props.informante} formulario={props.formulario}/>
-            <RelevamientoPrecios informante={props.informante} formulario={props.formulario}/>
+        <div className="informante-visita" pos-productos="izquierda" ref={ref}>
+            <Button color="primary" variant="outlined" onClick={props.onReturn}>
+                {FLECHAVOLVER}
+            </Button>
+            <RazonFormulario relVis={relVis}/>
+            <RelevamientoPrecios relVis={relVis}/>
         </div>
     );
 }
 
-function HojaDeRuta(){
-    
+function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=>void}){
+    const informante = props.informante;
+    return (
+        <>
+            <tr style={{verticalAlign:'top'}}>
+                <td rowSpan={informante.formularios.length+1}>{informante.informante} {informante.nombreinformante}</td>
+            </tr>
+            {informante.formularios.map((relVis:RelVis)=>
+                <tr key={informante.informante+'/'+relVis.formulario} onClick={()=>{
+                    props.onSelectVisita(relVis)
+                }}>
+                    <td>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            )}
+        </>
+    )
+}
+
+function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
+    const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
+    return (
+        <table className="hoja-ruta">
+            <thead>
+                <tr>
+                    <th>informante</th>
+                    <th>formularios</th>
+                    <th>prod</th>
+                    <th>faltan</th>
+                    <th>adv</th>
+                </tr>
+            </thead>
+            <tbody>
+                {informantes.map((informante:RelInf)=>
+                    <InformanteRow key={informante.informante} informante={informante} onSelectVisita={props.onSelectVisita}/>
+                )}
+            </tbody>
+        </table>
+    );
+}
+
+function AppDmIPC(){
+    const [relVisPk, setRelVisPk] = useState<RelVisPk>();
+    if(relVisPk == undefined){
+        return <HojaDeRuta onSelectVisita={setRelVisPk}/>
+    }else{
+        return <FormularioVisita relVisPk={relVisPk} onReturn={()=>setRelVisPk(undefined)}/>
+    }
 }
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
-            <InformanteVisita informante={280201} formulario={161}/>
+            <AppDmIPC/>
         </Provider>,
         document.getElementById('main_layout')
     )
