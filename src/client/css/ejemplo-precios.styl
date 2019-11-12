@@ -29,7 +29,9 @@ body
     grid-row span 1
     display grid
     grid-template-columns 1fr 24px
-    align-self start
+    align-self auto
+    border-bottom 0.5px solid #ddd
+    padding-bottom 8px
     .producto
       font-weight bold
       font-size letra_mediana
@@ -43,15 +45,15 @@ body
   .caja-precios
     margin-top 8px
     margin-bottom 8px
+    border-bottom 0.5px solid #ddd
+    padding-bottom 8px
     .MuiButton-root
       min-width 16px
       font-size letra_grande 
       text-transform auto
-      line-height 1.2
+      line-height 1.5
       min-height 30px
-    .tipoPrecio
-      button
-        width 100%
+      width 100%
     button
       padding 0px
       margin 0px
@@ -78,7 +80,6 @@ body
         max-width 100%
         overflow-x hidden
         overflow-wrap break-word
-      vertical-align top
       .flechaAtributos
         vertical-align middle
       input
