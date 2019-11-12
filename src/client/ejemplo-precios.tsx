@@ -81,7 +81,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
     disabled?:boolean,
     dataType: InputTypes,
     value:T, 
-    className?:string, colSpan?:number, rowSpan?:number, 
+    className?:string, colSpan?:number, 
     onUpdate:OnUpdate<T>, 
     onWantToMoveForward?:(()=>boolean)|null
 },
@@ -97,7 +97,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
         }
     }));    
     return (
-        <td colSpan={props.colSpan} rowSpan={props.rowSpan} className={props.className} onClick={
+        <td colSpan={props.colSpan} className={props.className} onClick={
             ()=>setEditando(true && !props.disabled)
         }>
             {editando?
@@ -129,7 +129,7 @@ const AtributosRow = forwardRef(function(props:{
     const atributo = estructura.atributos[relAtr.atributo];
     return (
         <tr>
-            <td>{atributo.nombreatributo}</td>
+            <td className="nombre-atributo">{atributo.nombreatributo}</td>
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" onClick={ () => {
@@ -158,11 +158,21 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     return (
         <>
+            <div className="caja-producto">
+                <div className="producto">{productoDef.nombreproducto}</div>
+                <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
+                <div className="especificacion">{productoDef.especificacioncompleta}</div>
+            </div>
+            <table className="caja-precios">
+                <colgroup>
+                    <col style={{width:"26%"}}/>
+                    <col style={{width:"8%" }}/>
+                    <col style={{width:"25%"}}/>
+                    <col style={{width:"8%" }}/>
+                    <col style={{width:"8%" }}/>
+                    <col style={{width:"25%"}}/>
+                </colgroup>                  
             <tr>
-                <td className="col-prod-esp" rowSpan={relPre.atributos.length + 1}>
-                    <div className="producto">{productoDef.nombreproducto}</div>
-                    <div className="especificacion">{productoDef.especificacioncompleta}</div>
-                </td>
                 <td className="observaiones">
                     <Button color="primary" variant="outlined" onClick={()=>{
                         setDialogoObservaciones(true)
@@ -305,6 +315,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
                     ref={atributosRef.current[index]}
                 />
             )}
+            </table>
         </>
     );
 }
@@ -313,24 +324,7 @@ function RelevamientoPrecios(props:{relVis:RelVis}){
     const relVis = props.relVis;
     const observaciones = relVis.observaciones;
     return (
-        <table className="formulario-precios">
-            <caption>Formulario {relVis.formulario}</caption>
-            <thead>
-                <tr>
-                    <th rowSpan={2}>producto<br/>especificación</th>
-                    <th rowSpan={2}>obs.<br/>atributos</th>
-                    <th colSpan={2}>anterior</th>
-                    <th rowSpan={2} className="flechaTitulos"></th>
-                    <th colSpan={2}>actual</th>
-                </tr>
-                <tr>
-                    <th>TP</th>
-                    <th>precio</th>
-                    <th>TP</th>
-                    <th>precio</th>
-                </tr>
-            </thead>
-            <tbody>
+        <>
             {observaciones.map((relPre:RelPre) => 
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
@@ -338,8 +332,7 @@ function RelevamientoPrecios(props:{relVis:RelVis}){
                     relVis={relVis}
                 />
             )}
-            </tbody>
-        </table>
+        </>
     );
 }
 
@@ -442,7 +435,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
         }
     })
     return (
-        <div className="informante-visita" ref={ref}>
+        <div className="informante-visita" pos-productos="izquierda" ref={ref}>
             <Button color="primary" variant="outlined" onClick={props.onReturn}>
                 {FLECHAVOLVER}
             </Button>
