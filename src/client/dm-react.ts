@@ -146,7 +146,6 @@ export async function dmHojaDeRuta(_addrParams){
                     }
                     var nuevoRelPre:RelPre = {
                         ...relPre,
-                        cambio:'C',
                         atributos:relPre.atributos.map(relAtr=>relAtr.atributo==action.payload.forPk.atributo?
                             {...relAtr, valor:action.payload.valor}:
                             relAtr

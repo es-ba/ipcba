@@ -10,8 +10,12 @@ export function puedeCopiarAtributos(estructura:Estructura, relPre:RelPre){
     return relPre.cambio==null && (!relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo);
 }
 
-export function puedeCambiarPrecioYAtributos(estructura:Estructura, relPre:RelPre){
-    return relPre.tipoprecio==null || estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+export function puedeCambiarPrecioYAtributos(estructura:Estructura, relPre:RelPre, relVis:RelVis){
+    return (relPre.tipoprecio==null || estructura.tipoPrecio[relPre.tipoprecio].espositivo) && estructura.razones[relVis.razon].espositivoformulario;
+}
+
+export function puedeCambiarTP(estructura:Estructura, relVis:RelVis){
+    return estructura.razones[relVis.razon].espositivoformulario;
 }
 
 export function tpNecesitaConfirmacion(estructura:Estructura, relPre:RelPre, tipoPrecioSeleccionado:string){

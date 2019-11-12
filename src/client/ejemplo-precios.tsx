@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
-import {ActionHdr, dmHojaDeRuta} from "./dm-react";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {ActionHdr} from "./dm-react";
 import {useState, useRef, useEffect, useImperativeHandle, createRef, forwardRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -114,6 +114,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
 const AtributosRow = forwardRef(function(props:{ 
     relAtr: RelAtr, 
     relPre: RelPre,
+    relVis: RelVis, 
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -123,6 +124,7 @@ const AtributosRow = forwardRef(function(props:{
 ){
     const relAtr = props.relAtr;
     const relPre = props.relPre;
+    const relVis = props.relVis;
     const dispatch = useDispatch();
     const atributo = estructura.atributos[relAtr.atributo];
     return (
@@ -135,16 +137,17 @@ const AtributosRow = forwardRef(function(props:{
                     props.onCopiarAtributos()
                 }}>{puedeCopiarAtributos(estructura, relPre)?FLECHAATRIBUTOS:relPre.cambio}</td>
                 :null}
-            <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
+            <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
                 dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value}})
             }} onWantToMoveForward={props.onWantToMoveForward} ref={ref} />
         </tr>
     )
 });
 
-function PreciosRow(props:{relPre:RelPre})
+function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
 {
     const relPre = props.relPre;
+    const relVis = props.relVis;
     const dispatch = useDispatch();
     const precioRef = useRef<HTMLInputElement>(null);
     const productoDef:Producto = estructura.productos[relPre.producto];
@@ -255,7 +258,7 @@ function PreciosRow(props:{relPre:RelPre})
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} className="precio" value={relPre.precio} onUpdate={value=>{
+                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} className="precio" value={relPre.precio} onUpdate={value=>{
                     dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
@@ -271,6 +274,7 @@ function PreciosRow(props:{relPre:RelPre})
             </tr>
             {relPre.atributos.map((relAtr, index)=>
                 <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
+                    relVis={relVis}
                     relPre={relPre}
                     relAtr={relAtr}
                     primerAtributo={index==0}
@@ -331,6 +335,7 @@ function RelevamientoPrecios(props:{relVis:RelVis}){
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
+                    relVis={relVis}
                 />
             )}
             </tbody>
