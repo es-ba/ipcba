@@ -30,8 +30,8 @@ body
     display grid
     grid-template-columns 1fr 24px
     align-self auto
-    border-bottom 0.5px solid #ddd
-    padding-bottom 8px
+    border-top 0.5px solid #ddd
+    padding-top 8px
     .producto
       font-weight bold
       font-size letra_mediana
@@ -43,16 +43,19 @@ body
       font-size letra_chica
       padding-right 6px
   .caja-precios
+    align-self start
     margin-top 8px
     margin-bottom 8px
-    border-bottom 0.5px solid #ddd
-    padding-bottom 8px
+    border-top 0.5px solid #ddd
+    padding-top 8px
+    .observaciones
+      button
+        width 60px
     .MuiButton-root
       min-width 16px
       font-size letra_grande 
-      text-transform auto
-      line-height 1.5
-      min-height 30px
+      text-transform none
+      min-height 42px
       width 100%
     button
       padding 0px
@@ -72,7 +75,7 @@ body
       &[puede-editar=yes]
         border-bottom 0.5px solid #3f51b5
         div
-          min-height 30px
+          min-height 36px
       padding 2px
       overflow-x hidden
       overflow-wrap break-word
@@ -82,6 +85,7 @@ body
         overflow-wrap break-word
       .flechaAtributos
         vertical-align middle
+        text-align center
       input
         padding-left 2px 
         width 100%
@@ -105,6 +109,8 @@ body
       text-align right
       div
         margin 2px
+      .placeholder
+        color #3f51b5
 .hoja-ruta
   td
     font-size letra_grande

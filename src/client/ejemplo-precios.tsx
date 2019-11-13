@@ -85,6 +85,7 @@ function TypedInput<T>(props:{
 
 const EditableTd = forwardRef(function<T extends any>(props:{
     disabled?:boolean,
+    placeholder?: string,
     dataType: InputTypes,
     value:T, 
     className?:string, colSpan?:number, 
@@ -112,7 +113,8 @@ const EditableTd = forwardRef(function<T extends any>(props:{
                 }} onFocusOut={()=>{
                     setEditando(false);
                 }} onWantToMoveForward={props.onWantToMoveForward}/>
-            :<div>{props.value}</div>}
+            :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
+            }
         </td>
     )
 });
@@ -186,7 +188,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
                     <Button color="primary" variant="outlined" onClick={()=>{
                         setDialogoObservaciones(true)
                     }}>
-                        OBS
+                        obs
                     </Button>
                     <Dialog
                     open={dialogoObservaciones}
@@ -282,7 +284,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} className="precio" value={relPre.precio} onUpdate={value=>{
+                <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre, relVis)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
                     dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value}})
                     if(precioRef.current!=null){
                         precioRef.current.blur()
