@@ -175,7 +175,7 @@ export async function dmHojaDeRuta(_addrParams){
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     const estructura:Estructura = result.estructura;
-    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v4'
+    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v4';
     /* FIN DEFINICION STATE */
 
     /* CARGA Y GUARDADO DE STATE */
@@ -196,7 +196,7 @@ export async function dmHojaDeRuta(_addrParams){
     /* CREACION STORE */
     const store = createStore(hdrReducer, loadState()); 
     store.subscribe(function(){
-        saveState(store.getState());
+        // saveState(store.getState());
     });
     /* FIN CREACION STORE */
 
