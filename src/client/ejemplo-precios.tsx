@@ -122,6 +122,7 @@ const EditableTd = forwardRef(function<T extends any>(props:{
 const AtributosRow = forwardRef(function(props:{ 
     relAtr: RelAtr, 
     relPre: RelPre,
+    iRelPre: number,
     relVis: RelVis, 
     primerAtributo:boolean, 
     cantidadAtributos:number, 
@@ -142,7 +143,7 @@ const AtributosRow = forwardRef(function(props:{
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
                     {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
-                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr}})
+                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr, iRelPre:props.iRelPre}})
                         props.onCopiarAtributos()
                     }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
                 </td>
@@ -154,7 +155,7 @@ const AtributosRow = forwardRef(function(props:{
     )
 });
 
-function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
+function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
 {
     const relPre = props.relPre;
     const relVis = props.relVis;
@@ -302,6 +303,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis})
                 <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
                     relVis={relVis}
                     relPre={relPre}
+                    iRelPre={props.iRelPre}
                     relAtr={relAtr}
                     primerAtributo={index==0}
                     cantidadAtributos={relPre.atributos.length}
@@ -341,11 +343,12 @@ function RelevamientoPrecios(props:{relVis:RelVis}){
     const observaciones = relVis.observaciones;
     return (
         <>
-            {observaciones.map((relPre:RelPre) => 
+            {observaciones.map((relPre:RelPre, iRelPre:number) => 
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
                     relVis={relVis}
+                    iRelPre={iRelPre}
                 />
             )}
         </>

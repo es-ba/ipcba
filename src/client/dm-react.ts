@@ -21,7 +21,7 @@ type ActionSetComentarioRazon = {type:'SET_COMENTARIO_RAZON', payload:{forPk:{in
 type ActionSetTp              = {type:'SET_TP'              , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, tipoprecio:string}};
 type ActionCopiarTp           = {type:'COPIAR_TP'           , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
 type ActionSetPrecio          = {type:'SET_PRECIO'          , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, precio:number}};
-type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
+type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}};
 type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, valor:string}};
 
 /*
@@ -81,14 +81,22 @@ export async function dmHojaDeRuta(_addrParams){
             if(action.type=="SET_RAZON"||action.type=="SET_COMENTARIO_RAZON"){
                 throw new Error("internal error action.type in surfRelPre");
             }
-            return surfRelVis(relVis=>({
-                ...relVis,
-                observaciones:relVis.observaciones.map(
+            return surfRelVis(relVis=>{
+                var i = action.payload.iRelPre;
+                var nuevasObservaciones = i != undefined?[
+                    ...relVis.observaciones.slice(0, i),
+                    relPreReducer(relVis.observaciones[i]),
+                    ...relVis.observaciones.slice(i+1)
+                ]:relVis.observaciones.map(
                     relPre=>relPre.producto==action.payload.forPk.producto && relPre.observacion==action.payload.forPk.observacion?
                         relPreReducer(relPre)
                     :relPre
                 )
-            }))
+                return {
+                    ...relVis,
+                    observaciones:nuevasObservaciones
+                }
+            })
         };
         var setTP = function setTP(tipoPrecioRedux:(relPre:RelPre)=>string|null){
             return surfRelPre(relPre=>{
