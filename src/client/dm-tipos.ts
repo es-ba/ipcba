@@ -74,6 +74,10 @@ export type Estructura={
 }
 
 export type RelAtr={
+    informante: number
+    formulario: number
+    producto: string
+    observacion: number
     atributo: number,
     valoranterior:string
     valor:string|null
@@ -85,6 +89,8 @@ export type RelAtr={
 export type Cambio = 'C'|'='
 
 export type RelPre={
+    informante: number
+    formulario: number
     producto: string
     observacion: number
     precio:number | null
@@ -123,4 +129,5 @@ export type HojaDeRuta={
     dispositivo:string,
     fecha_carga:Date,
     informantes:RelInf[]
+    idActual?:string|null
 }

@@ -576,6 +576,7 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', src: 'client/ejemplo-precios.js' },
             { type: 'js', src: 'client/ejemplo-precios2.js' },
             { type: 'js', src: 'client/dm-react.js' },
+            { type: 'js', src: 'client/dm-react2.js' },
             { type: 'css', file: 'ejemplo-precios.css' },
             { type: 'css', file: 'ejemplo-precios2.css' },
             { type: 'css', file: 'hoja-de-ruta.css' },

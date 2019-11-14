@@ -16,10 +16,6 @@ const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
 const FLECHAVOLVER="←";
 
-type Focusable = {
-    focus:()=>void
-    blur:()=>void
-}
 type OnUpdate<T> = (data:T)=>void
 
 type InputTypes = 'date'|'number'|'tel'|'text';
@@ -32,8 +28,15 @@ function adaptAtributoDataTypes(attrDataType:AtributoDataTypes):InputTypes{
     return adapter[attrDataType]
 }
 
-type NuestroRef = {
-    current:HTMLElement|null
+function focusToId(id:string, cb?:(e:HTMLElement)=>void){
+    var element=document.getElementById(id);
+    if(element){
+        if(cb){
+            cb(element);
+        }else{
+            element.focus();
+        }
+    }
 }
 
 function TypedInput<T>(props:{
@@ -46,16 +49,12 @@ function TypedInput<T>(props:{
 }){
     var inputId=props.inputId;
     var [value, setValue] = useState(props.value);
-    const inputRef:NuestroRef = {current:null};
     useEffect(() => {
-        inputRef.current = document.getElementById(inputId);
-        if(inputRef.current != null){
-            inputRef.current.focus();
-        }
+        focusToId(inputId);
     }, []);
     // @ts-ignore acá hay un problema con el cambio de tipos
     var valueString:string = value==null?'':value;
-    return React.createElement(props.dataType=='text'?'textarea':'input',{
+    return React.createElement((props.dataType=='text'?'textarea':'input'),{
         id:inputId,
         value:valueString, 
         "td-editable":true,
@@ -72,25 +71,24 @@ function TypedInput<T>(props:{
             props.onFocusOut();
         },
         onMouseOut:()=>{
-            if(document.activeElement!=inputRef.current){
+            // if(document.?activeElement.?id==inputId){
+            if(document.activeElement && document.activeElement.id==inputId){
                 props.onFocusOut();
             }
         },
         onKeyDown:event=>{
             var tecla = event.charCode || event.which;
             if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-                if(!(props.onWantToMoveForward && props.onWantToMoveForward())){
-                    if(inputRef.current!=null){
-                        inputRef.current.blur();
-                    }
-                }
+                // if(!(props.onWantToMoveForward && props.onWantToMoveForward())){
+                    focusToId(inputId, e=>e.blur())
+                // }
                 event.preventDefault();
             }
-        },[])
-    )
+        }
+    })
 }
 
-const EditableTd = forwardRef(function<T extends any>(props:{
+const EditableTd = function<T extends any>(props:{
     inputId:string,
     disabled?:boolean,
     placeholder?: string,
@@ -100,38 +98,34 @@ const EditableTd = forwardRef(function<T extends any>(props:{
     onUpdate:OnUpdate<T>, 
     onWantToMoveForward?:(()=>boolean)|null
 }){
-    const [editando, setEditando] = useState(false);
-    /*
-    useImperativeHandle(ref, () => ({
-        focus: () => {
-            setEditando(true)
-        },
-        blur: () => {
-            setEditando(false)
-        }
-    }));    
-    */
+    const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
+    const [editando, setEditando]=useState(deboEditar)
     return (
         <td colSpan={props.colSpan} className={props.className} onClick={
             ()=>setEditando(true && !props.disabled)
         } puede-editar={!props.disabled && !editando?"yes":"no"}>
             {editando?
-                <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} onUpdate={value =>{
-                    props.onUpdate(value);
-                }} onFocusOut={()=>{
-                    setEditando(false);
-                }} onWantToMoveForward={props.onWantToMoveForward}/>
+                <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
+                    onUpdate={value =>{
+                        props.onUpdate(value);
+                    }} onFocusOut={()=>{
+                        setEditando(false);
+                    }} onWantToMoveForward={props.onWantToMoveForward}
+                />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
             }
         </td>
     )
-});
+};
 
 const AtributosRow = function(props:{ 
     relAtr: RelAtr, 
     relPre: RelPre,
     iRelPre: number,
     relVis: RelVis, 
+    inputId: string, 
+    inputIdPrecio: string, 
+    nextId: string|null, 
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -150,14 +144,23 @@ const AtributosRow = function(props:{
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
                     {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
-                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr, iRelPre:props.iRelPre}})
-                        props.onCopiarAtributos()
+                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr, iRelPre:props.iRelPre},
+                            nextId:relPre.precio?props.inputIdPrecio:null
+                        })
+                        // props.onCopiarAtributos()
                     }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
                 </td>
                 :null}
-            <EditableTd disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} colSpan={2} className="atributo-actual" dataType={adaptAtributoDataTypes(atributo.tipodato)} value={relAtr.valor} onUpdate={value=>{
-                dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value}})
-            }} onWantToMoveForward={props.onWantToMoveForward} />
+            <EditableTd colSpan={2} className="atributo-actual" inputId={props.inputId}
+                disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} 
+                dataType={adaptAtributoDataTypes(atributo.tipodato)} 
+                value={relAtr.valor} 
+                onUpdate={value=>{
+                    dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value},
+                        nextId:props.nextId
+                    })
+                }} onWantToMoveForward={props.onWantToMoveForward} 
+            />
         </tr>
     )
 };
@@ -167,10 +170,9 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
     const relPre = props.relPre;
     const relVis = props.relVis;
     const dispatch = useDispatch();
-    const precioRef:NuestroRef = {current:null};
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
+    const inputIdAtributos = relPre.atributos.map((relAtr)=>relAtr.producto+'-'+relAtr.observacion+'-'+relAtr.atributo);
     const productoDef:Producto = estructura.productos[relPre.producto];
-    const atributosRef:NuestroRef[] = productoDef.lista_atributos.map(() => {current:null});
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
@@ -256,11 +258,9 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}})
-                                precioRef.current = document.getElementById('input-'+localId);
-                                if(precioRef.current && !relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo){
-                                    precioRef.current.focus();
-                                }
+                                dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}, 
+                                    nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:null
+                                })
                             }
                         }}>
                             <ListItemText>{tpDef.tipoprecio}&nbsp;</ListItemText>
@@ -295,15 +295,13 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
                     </DialogActions>
                 </Dialog>
                 <EditableTd inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre, relVis)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
-                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value}});
-                    precioRef.current = document.getElementById(inputIdPrecio);
-                    if(precioRef.current!=null){
-                        precioRef.current.blur()
-                    }
+                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value},
+                        nextId:value && inputIdAtributos.length?inputIdAtributos[0]:null
+                    });
+                    // focusToId(inputIdPrecio,e=>e.blur());
                 }} dataType="number" onWantToMoveForward={()=>{
-                    var nextItemRef=atributosRef.current[0];
-                    if(nextItemRef.current!=null){
-                        nextItemRef.current.focus()
+                    if(inputIdAtributos.length){
+                        focusToId(inputIdAtributos[0]);
                         return true;
                     }
                     return false;
@@ -315,27 +313,25 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
                     relPre={relPre}
                     iRelPre={props.iRelPre}
                     relAtr={relAtr}
+                    inputId={inputIdAtributos[index]}
+                    inputIdPrecio={inputIdPrecio}
+                    nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
                     primerAtributo={index==0}
                     cantidadAtributos={relPre.atributos.length}
                     ultimoAtributo={index == relPre.atributos.length-1}
                     onCopiarAtributos={()=>{
-                        if(precioRef.current && !relPre.precio && puedeCopiarAtributos(estructura, relPre)){
-                            precioRef.current.focus();
-                        }
+                        // if(!relPre.precio && puedeCopiarAtributos(estructura, relPre)){
+                        //     focusToId(inputIdPrecio);
+                        // }
                     }}
                     onWantToMoveForward={()=>{
                         if(index<relPre.atributos.length-1){
-                            var nextItemRef=atributosRef.current[index+1];
-                            if(nextItemRef.current!=null){
-                                nextItemRef.current.focus()
-                                return true;
-                            }
+                            focusToId(inputIdAtributos[index+1])
+                            return true;
                         }else{
                             if(!relPre.precio){
-                                if(precioRef.current){
-                                    precioRef.current.focus();
-                                    return true;
-                                }
+                                focusToId(inputIdPrecio);
+                                return true;
                             }
                         }
                         return false;
@@ -384,9 +380,11 @@ function RazonFormulario(props:{relVis:RelVis}){
                 <tr>
                     <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} onUpdate={value=>{
-                        dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, comentarios:value}})
-                    }}/>
+                    <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
+                        onUpdate={value=>{
+                            dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, comentarios:value}})
+                        }}
+                    />
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                     {likeAr(estructura.razones).map((razon:Razon,index)=>
                         <MenuItem key={razon.nombrerazon} onClick={()=>{
@@ -515,7 +513,7 @@ function AppDmIPC(){
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr2>, miEstructura:Estructura){
     estructura=miEstructura;
-    document.documentElement.setAttribute('pos-productos','arriba');
+    document.documentElement.setAttribute('pos-productos','izquierda');
     ReactDOM.render(
         <Provider store={store}>
             <AppDmIPC/>
