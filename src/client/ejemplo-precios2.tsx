@@ -99,7 +99,10 @@ const EditableTd = function<T extends any>(props:{
     onWantToMoveForward?:(()=>boolean)|null
 }){
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
-    const [editando, setEditando]=useState(deboEditar)
+    const [editando, setEditando]=useState(deboEditar);
+    if(editando!=deboEditar){
+        setEditando(deboEditar);
+    }
     return (
         <td colSpan={props.colSpan} className={props.className} onClick={
             ()=>setEditando(true && !props.disabled)
