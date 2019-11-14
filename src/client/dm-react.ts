@@ -60,7 +60,7 @@ export async function dmHojaDeRuta(_addrParams){
         var defaultAction = function defaultAction(){
             return deepFreeze({
                 ...hdrState,
-                idActual:action.nextId?action.nextId:hdrState.idActual
+                idActual:action.nextId!==undefined?action.nextId:hdrState.idActual
             })
         };
         const surfRelInf = (relInfReducer:(relInfState:RelInf)=>RelInf)=>(

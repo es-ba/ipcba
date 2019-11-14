@@ -113,7 +113,7 @@ const EditableTd = function<T extends any>(props:{
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }} onFocusOut={()=>{
-                        setEditando(false);
+                        dispatch({type:'SET_FOCUS', nextId:null})
                     }} onWantToMoveForward={props.onWantToMoveForward}
                 />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
