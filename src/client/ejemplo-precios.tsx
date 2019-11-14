@@ -44,7 +44,6 @@ function TypedInput<T>(props:{
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
     onFocusOut:()=>void, 
-    onWantToMoveForward?:(()=>boolean)|null,
     inputId:string
 }){
     var inputId=props.inputId;
@@ -70,18 +69,16 @@ function TypedInput<T>(props:{
             }
             props.onFocusOut();
         },
-        onMouseOut:()=>{
-            // if(document.?activeElement.?id==inputId){
-            if(document.activeElement && document.activeElement.id==inputId){
-                props.onFocusOut();
-            }
-        },
+        //onMouseOut:()=>{
+        //    // if(document.?activeElement.?id==inputId){
+        //    if(document.activeElement && document.activeElement.id==inputId){
+        //        props.onFocusOut();
+        //    }
+        //},
         onKeyDown:event=>{
             var tecla = event.charCode || event.which;
             if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-                // if(!(props.onWantToMoveForward && props.onWantToMoveForward())){
-                    focusToId(inputId, e=>e.blur())
-                // }
+                focusToId(inputId, e=>e.blur())
                 event.preventDefault();
             }
         }
@@ -95,8 +92,7 @@ const EditableTd = function<T extends any>(props:{
     dataType: InputTypes,
     value:T, 
     className?:string, colSpan?:number, 
-    onUpdate:OnUpdate<T>, 
-    onWantToMoveForward?:(()=>boolean)|null
+    onUpdate:OnUpdate<T>
 }){
     const dispatch = useDispatch();
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
@@ -114,7 +110,7 @@ const EditableTd = function<T extends any>(props:{
                         props.onUpdate(value);
                     }} onFocusOut={()=>{
                         dispatch({type:'SET_FOCUS', nextId:null})
-                    }} onWantToMoveForward={props.onWantToMoveForward}
+                    }}
                 />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
             }
@@ -133,9 +129,7 @@ const AtributosRow = function(props:{
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
-    onCopiarAtributos:()=>void,
-    onWantToMoveForward?:()=>boolean}
-){
+}){
     const relAtr = props.relAtr;
     const relPre = props.relPre;
     const relVis = props.relVis;
@@ -149,9 +143,8 @@ const AtributosRow = function(props:{
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
                     {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
                         dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr, iRelPre:props.iRelPre},
-                            nextId:relPre.precio?props.inputIdPrecio:null
+                            nextId:relPre.precio?null:props.inputIdPrecio
                         })
-                        // props.onCopiarAtributos()
                     }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
                 </td>
                 :null}
@@ -163,7 +156,7 @@ const AtributosRow = function(props:{
                     dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value},
                         nextId:props.nextId
                     })
-                }} onWantToMoveForward={props.onWantToMoveForward} 
+                }} 
             />
         </tr>
     )
@@ -303,13 +296,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
                         nextId:value && inputIdAtributos.length?inputIdAtributos[0]:null
                     });
                     // focusToId(inputIdPrecio,e=>e.blur());
-                }} dataType="number" onWantToMoveForward={()=>{
-                    if(inputIdAtributos.length){
-                        focusToId(inputIdAtributos[0]);
-                        return true;
-                    }
-                    return false;
-                }}/>
+                }} dataType="number" />
             </tr>
             {relPre.atributos.map((relAtr, index)=>
                 <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
@@ -323,23 +310,6 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
                     primerAtributo={index==0}
                     cantidadAtributos={relPre.atributos.length}
                     ultimoAtributo={index == relPre.atributos.length-1}
-                    onCopiarAtributos={()=>{
-                        // if(!relPre.precio && puedeCopiarAtributos(estructura, relPre)){
-                        //     focusToId(inputIdPrecio);
-                        // }
-                    }}
-                    onWantToMoveForward={()=>{
-                        if(index<relPre.atributos.length-1){
-                            focusToId(inputIdAtributos[index+1])
-                            return true;
-                        }else{
-                            if(!relPre.precio){
-                                focusToId(inputIdPrecio);
-                                return true;
-                            }
-                        }
-                        return false;
-                    }}
                 />
             )}
             </table>
@@ -515,7 +485,7 @@ function AppDmIPC(){
     }
 }
 
-export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr2>, miEstructura:Estructura){
+export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
     estructura=miEstructura;
     document.documentElement.setAttribute('pos-productos','izquierda');
     ReactDOM.render(
