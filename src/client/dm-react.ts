@@ -15,14 +15,16 @@ const COPIAR_TP            = 'COPIAR_TP';
 const SET_PRECIO           = 'SET_PRECIO';
 const COPIAR_ATRIBUTOS     = 'COPIAR_ATRIBUTOS';
 const SET_ATRIBUTO         = 'SET_ATRIBUTO';
+const SET_FOCUS            = 'SET_FOCUS';
 
 type ActionSetRazon           = {type:'SET_RAZON'           , payload:{forPk:{informante:number, formulario:number}, razon:number}};
 type ActionSetComentarioRazon = {type:'SET_COMENTARIO_RAZON', payload:{forPk:{informante:number, formulario:number}, comentarios:string}};
-type ActionSetTp              = {type:'SET_TP'              , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, tipoprecio:string}};
-type ActionCopiarTp           = {type:'COPIAR_TP'           , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
-type ActionSetPrecio          = {type:'SET_PRECIO'          , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, precio:number}};
-type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}};
-type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, valor:string}};
+type ActionSetTp              = {type:'SET_TP'              , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, tipoprecio:string}};
+type ActionCopiarTp           = {type:'COPIAR_TP'           , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
+type ActionSetPrecio          = {type:'SET_PRECIO'          , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, precio:number}};
+type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}};
+type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, valor:string}};
+type ActionSetFocus           = {type:'SET_FOCUS'           , nextId:string|null};
 
 /*
 function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previous:T)=>U)){
@@ -32,7 +34,7 @@ function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previo
 }
 */
 
-export type ActionHdr = ActionSetRazon | ActionSetComentarioRazon | ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo;
+export type ActionHdr = ActionSetRazon | ActionSetComentarioRazon | ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo | ActionSetFocus;
 /* FIN ACCIONES */
 
 function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
@@ -55,11 +57,16 @@ export async function dmHojaDeRuta(_addrParams){
     })
     /* DEFINICION CONTROLADOR */
     function hdrReducer(hdrState:HojaDeRuta = initialState, action:ActionHdr):HojaDeRuta {
-        var defaultAction = function defaultAction(){return deepFreeze(hdrState)};
-        
+        var defaultAction = function defaultAction(){
+            return deepFreeze({
+                ...hdrState,
+                idActual:action.nextId?action.nextId:hdrState.idActual
+            })
+        };
         const surfRelInf = (relInfReducer:(relInfState:RelInf)=>RelInf)=>(
             {
                 ...hdrState,
+                idActual:action.nextId?action.nextId:hdrState.idActual,
                 informantes:hdrState.informantes.map(
                     relInf=>relInf.informante==action.payload.forPk.informante?
                         relInfReducer(relInf)
