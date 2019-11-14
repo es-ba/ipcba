@@ -98,6 +98,7 @@ const EditableTd = function<T extends any>(props:{
     onUpdate:OnUpdate<T>, 
     onWantToMoveForward?:(()=>boolean)|null
 }){
+    const dispatch = useDispatch();
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
     const [editando, setEditando]=useState(deboEditar);
     if(editando!=deboEditar){
@@ -105,7 +106,7 @@ const EditableTd = function<T extends any>(props:{
     }
     return (
         <td colSpan={props.colSpan} className={props.className} onClick={
-            ()=>setEditando(true && !props.disabled)
+            ()=>!props.disabled?dispatch({type:'SET_FOCUS', nextId:props.inputId}):null
         } puede-editar={!props.disabled && !editando?"yes":"no"}>
             {editando?
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
