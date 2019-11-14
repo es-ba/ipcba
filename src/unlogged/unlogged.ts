@@ -9,5 +9,9 @@ window.addEventListener('load', async function(){
     // @ts-ignore ready existe!
     await myOwn.ready;
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
-    dmHojaDeRuta({});
+    if(window.location.href.endsWith('demo2')){
+        dmHojaDeRuta2({});
+    }else{
+        dmHojaDeRuta({});
+    }
 })

@@ -308,6 +308,12 @@ class AppIpcba extends backendPlus.AppBackend{
             var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
+        mainApp.get(baseUrl+'/demo2',async function(req,res,_next){
+            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var {useragent} = req;
+            var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
+            MiniTools.serveText(htmlMain,'html')(req,res);
+        });
     }
     getProcedures(){
         var be = this;
@@ -568,8 +574,10 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', src: 'adapt.js' },
             { type: 'js', src: 'client/dm-funciones.js' },
             { type: 'js', src: 'client/ejemplo-precios.js' },
+            { type: 'js', src: 'client/ejemplo-precios2.js' },
             { type: 'js', src: 'client/dm-react.js' },
             { type: 'css', file: 'ejemplo-precios.css' },
+            { type: 'css', file: 'ejemplo-precios2.css' },
             { type: 'css', file: 'hoja-de-ruta.css' },
             { type: 'css', file: 'imp-formularios.css' },
             { type: 'css', file: 'menu.css' },
