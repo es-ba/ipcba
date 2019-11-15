@@ -1,7 +1,12 @@
 "use strict";
+
+const SOLO_PARA_DEMO_DM=true;
+
 var likeAr = require('like-ar');
 var pg = require('pg-promise-strict');
 pg.easy=true;
+
+var fs = require('fs-extra');
 
 var MiniTools = require('mini-tools');
 //var Comunes = require('./comunes');
@@ -10,6 +15,8 @@ var MiniTools = require('mini-tools');
 var bestGlobals = require('best-globals');
 var datetime = bestGlobals.datetime;
 var timeInterval = bestGlobals.timeInterval;
+
+var JSON4all = require('json4all');
 
 const periodo_inicial = 'a2012m07';
 const agrupacion = 'E';
@@ -1124,8 +1131,12 @@ ProceduresIpcba = [
             {name:'panel'             , typeName:'integer' , defaultValue:1},
             {name:'tarea'             , typeName:'integer' , defaultValue:3},
         ],
+        unlogged:SOLO_PARA_DEMO_DM,
         policy:'web',
         coreFunction: async function(context, parameters){
+            if(SOLO_PARA_DEMO_DM){
+                return JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+            }
             var esSupervision=false;
             var sqlEstructura=`
             SELECT 

@@ -301,13 +301,13 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     addSchrödingerServices(mainApp, baseUrl){
         var be=this;
-        super.addSchrödingerServices(mainApp, baseUrl);
         mainApp.get(baseUrl+'/demo',async function(req,res,_next){
             // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
             var {useragent} = req;
             var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
+        super.addSchrödingerServices(mainApp, baseUrl);
     }
     getProcedures(){
         var be = this;
@@ -566,9 +566,9 @@ class AppIpcba extends backendPlus.AppBackend{
             { type: 'js', module: 'react-redux', modPath:'../dist', file:'react-redux.js', fileProduction:'react-redux.min.js' },
             ...super.clientIncludes(req, opts),
             { type: 'js', src: 'adapt.js' },
-            { type: 'js', src: 'client/dm-funciones.js' },
-            { type: 'js', src: 'client/ejemplo-precios.js' },
-            { type: 'js', src: 'client/dm-react.js' },
+            { type: 'js', src: 'dm-funciones.js' },
+            { type: 'js', src: 'ejemplo-precios.js' },
+            { type: 'js', src: 'dm-react.js' },
             { type: 'css', file: 'ejemplo-precios.css' },
             { type: 'css', file: 'hoja-de-ruta.css' },
             { type: 'css', file: 'imp-formularios.css' },

@@ -1,0 +1,11 @@
+server:
+  port: 3333
+  base-url: /ipc
+nodb: true
+client-setup:
+  skin: default
+devel:
+  delay: 0
+log:
+  db:
+    on-demand: true

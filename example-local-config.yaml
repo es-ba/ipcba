@@ -1,6 +1,6 @@
 server:
   port: 3000
-  base-url: ipc
+  base-url: /ipc
 db:
   description: base de prueba
   host: localhost
@@ -15,4 +15,4 @@ devel:
   delay: 0
 log:
   db:
-    on-demand: true  
+    on-demand: true

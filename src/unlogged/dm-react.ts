@@ -211,7 +211,7 @@ export async function dmHojaDeRuta(_addrParams){
     /* CREACION STORE */
     const store = createStore(hdrReducer, loadState()); 
     store.subscribe(function(){
-        // saveState(store.getState());
+        saveState(store.getState());
     });
     /* FIN CREACION STORE */
 
