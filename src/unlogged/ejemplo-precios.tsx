@@ -160,8 +160,7 @@ const AtributosRow = function(props:{
     )
 };
 
-function PreciosRow(props:{relPre:RelPre, iRelPre:number})
-{
+var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:number}){
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
@@ -311,7 +310,7 @@ function PreciosRow(props:{relPre:RelPre, iRelPre:number})
             </table>
         </>
     );
-}
+})
 
 function RelevamientoPrecios(props:{relVis:RelVis}){
     const relVis = props.relVis;

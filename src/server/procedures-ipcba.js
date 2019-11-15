@@ -1,6 +1,6 @@
 "use strict";
 
-const SOLO_PARA_DEMO_DM=true;
+const SOLO_PARA_DEMO_DM=false;
 
 var likeAr = require('like-ar');
 var pg = require('pg-promise-strict');
