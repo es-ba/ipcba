@@ -418,7 +418,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
     );
     return (
         <div className="informante-visita">
-            <Button color="primary" variant="outlined" onClick={props.onReturn}>
+            <Button className="flecha-volver-hdr" color="primary" variant="outlined" onClick={props.onReturn}>
                 {FLECHAVOLVER}
             </Button>
             <RazonFormulario relVis={relVis}/>
