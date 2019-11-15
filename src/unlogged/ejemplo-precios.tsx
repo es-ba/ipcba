@@ -122,7 +122,6 @@ const AtributosRow = function(props:{
     relAtr: RelAtr, 
     relPre: RelPre,
     iRelPre: number,
-    relVis: RelVis, 
     inputId: string, 
     inputIdPrecio: string, 
     nextId: string|null, 
@@ -132,7 +131,6 @@ const AtributosRow = function(props:{
 }){
     const relAtr = props.relAtr;
     const relPre = props.relPre;
-    const relVis = props.relVis;
     const dispatch = useDispatch();
     const atributo = estructura.atributos[relAtr.atributo];
     return (
@@ -149,7 +147,7 @@ const AtributosRow = function(props:{
                 </td>
                 :null}
             <EditableTd colSpan={2} className="atributo-actual" inputId={props.inputId}
-                disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} 
+                disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
                 onUpdate={value=>{
@@ -162,10 +160,9 @@ const AtributosRow = function(props:{
     )
 };
 
-function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
+function PreciosRow(props:{relPre:RelPre, iRelPre:number})
 {
     const relPre = props.relPre;
-    const relVis = props.relVis;
     const dispatch = useDispatch();
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
     const inputIdAtributos = relPre.atributos.map((relAtr)=>relAtr.producto+'-'+relAtr.observacion+'-'+relAtr.atributo);
@@ -291,7 +288,7 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <EditableTd inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre, relVis)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre, relVis)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
+                <EditableTd inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
                     dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value},
                         nextId:value && inputIdAtributos.length?inputIdAtributos[0]:null
                     });
@@ -300,7 +297,6 @@ function PreciosRow(props:{relPre:RelPre, relVis:RelVis, iRelPre:number})
             </tr>
             {relPre.atributos.map((relAtr, index)=>
                 <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
-                    relVis={relVis}
                     relPre={relPre}
                     iRelPre={props.iRelPre}
                     relAtr={relAtr}
@@ -326,7 +322,6 @@ function RelevamientoPrecios(props:{relVis:RelVis}){
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
-                    relVis={relVis}
                     iRelPre={iRelPre}
                 />
             )}
