@@ -6,9 +6,48 @@ import {ActionHdr} from "./dm-react";
 import {useState, useEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
-import {Menu, MenuItem, ListItemText, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
+import * as clsx from 'clsx';
+import {
+    AppBar, Button, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    DialogTitle, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    Menu, MenuItem, SvgIcon, Toolbar, Typography
+} from "@material-ui/core";
+import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles';
 import { Store } from "redux";
 
+// https://material-ui.com/components/material-icons/
+export const materialIoIconsSvgPath={
+    Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
+    Close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
+    Code: "M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z",
+    EmojiObjects: "M12 3c-.46 0-.93.04-1.4.14-2.76.53-4.96 2.76-5.48 5.52-.48 2.61.48 5.01 2.22 6.56.43.38.66.91.66 1.47V19c0 1.1.9 2 2 2h.28c.35.6.98 1 1.72 1s1.38-.4 1.72-1H14c1.1 0 2-.9 2-2v-2.31c0-.55.22-1.09.64-1.46C18.09 13.95 19 12.08 19 10c0-3.87-3.13-7-7-7zm2 16h-4v-1h4v1zm0-2h-4v-1h4v1zm-1.5-5.59V14h-1v-2.59L9.67 9.59l.71-.71L12 10.5l1.62-1.62.71.71-1.83 1.82z",
+    ExpandLess: "M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z",
+    ExpandMore: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z",
+    Info: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z",
+    Label: "M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z",
+    LocalAtm: "M11 17h2v-1h1c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1h-3v-1h4V8h-2V7h-2v1h-1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h3v1H9v2h2v1zm9-13H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z",
+    KeyboardArrowUp: "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z",
+    Menu: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
+    SearchIcon: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
+    Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
+    ChevronLeftIcon: "M14.71 6.71a.9959.9959 0 00-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z",
+    ChevronRightIcon: "M9.29 6.71c-.39.39-.39 1.02 0 1.41L13.17 12l-3.88 3.88c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l4.59-4.59c.39-.39.39-1.02 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z",
+    MenuIcon: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
+    InboxIcon: "M19 3H4.99c-1.11 0-1.98.89-1.98 2L3 19c0 1.1.88 2 1.99 2H19c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 12h-4c0 1.66-1.35 3-3 3s-3-1.34-3-3H4.99V5H19v10z",
+    MailIcon: "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z",
+    DescriptionIcon: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
+}
+
+const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
+    <SvgIcon><path d={svgText}/></SvgIcon>
+);
+
+const ChevronLeftIcon = ICON.ChevronLeftIcon;
+const ChevronRightIcon = ICON.ChevronRightIcon;
+const MenuIcon = ICON.MenuIcon;
+const InboxIcon = ICON.InboxIcon;
+const MailIcon = ICON.MailIcon;
+const DescriptionIcon = ICON.DescriptionIcon;
 
 export var estructura:Estructura;
 
@@ -411,20 +450,169 @@ interface RelVisPk {
     formulario:number
 }
 
-function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
+const drawerWidth = 300;
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      display: 'flex',
+    },
+    appBar: {
+      zIndex: theme.zIndex.drawer + 1,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+    },
+    appBarShift: {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    menuButton: {
+      marginRight: 36,
+    },
+    hide: {
+      display: 'none',
+    },
+    drawer: {
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: 'nowrap',
+    },
+    drawerOpen: {
+      width: drawerWidth,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    drawerClose: {
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+      overflowX: 'hidden',
+      width: theme.spacing(7) + 1,
+      [theme.breakpoints.up('sm')]: {
+        width: theme.spacing(9) + 1,
+      },
+    },
+    toolbar: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      padding: theme.spacing(0, 1),
+      ...theme.mixins.toolbar,
+    },
+    content: {
+      flexGrow: 1,
+      padding: theme.spacing(3),
+    },
+  }),
+);
+
+export default function MiniDrawer() {
+  
+}
+function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelectVisita:(relVis:RelVis)=>void}){
     const relVis = useSelector((hdr:HojaDeRuta)=>
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!
     );
-    return (
-        <div className="informante-visita">
-            <Button className="flecha-volver-hdr" color="primary" variant="outlined" onClick={props.onReturn}>
-                {FLECHAVOLVER}
-            </Button>
-            <RazonFormulario relVis={relVis}/>
-            <RelevamientoPrecios relVis={relVis}/>
-        </div>
+    const formularios = useSelector((hdr:HojaDeRuta)=>
+        hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
+            .formularios
     );
+    const informanteActual = useSelector((hdr:HojaDeRuta)=>
+    hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!);
+    const classes = useStyles();
+    const theme = useTheme();
+    const [open, setOpen] = React.useState(false);
+
+    const handleDrawerOpen = () => {
+        setOpen(!open);
+    };
+
+    const handleDrawerClose = () => {
+        setOpen(false);
+    };
+
+  return (
+    <div className="menu-informante-visita">
+        <div className={classes.root}>
+            <CssBaseline />
+            <AppBar
+                position="fixed"
+                className={clsx(classes.appBar, {
+                [classes.appBarShift]: open,
+                })}
+            >
+                <Toolbar>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={handleDrawerOpen}
+                    edge="start"
+                    className={clsx(classes.menuButton, {
+                    [classes.hide]: open,
+                    })}
+                >
+                    <MenuIcon />
+                </IconButton>
+                <Typography variant="h6" noWrap>
+                    {'Precios informante ' + informanteActual.informante}
+                </Typography>
+                </Toolbar>
+            </AppBar>
+            <Drawer
+                variant="permanent"
+                className={clsx(classes.drawer, {
+                [classes.drawerOpen]: open,
+                [classes.drawerClose]: !open,
+                })}
+                classes={{
+                paper: clsx({
+                    [classes.drawerOpen]: open,
+                    [classes.drawerClose]: !open,
+                }),
+                }}
+                open={open}
+            >
+                <div className={classes.toolbar}>
+                    <IconButton onClick={handleDrawerClose}></IconButton>
+                </div>
+                <Divider />
+                <List>
+                    <ListItem button className="flecha-volver-hdr" onClick={props.onReturn}>
+                        <ListItemIcon><DescriptionIcon/></ListItemIcon>
+                        <ListItemText primary="Volver a hoja de ruta" />
+                    </ListItem>
+                </List>
+                <Divider />
+                <List>
+                    {formularios.map((relVis:RelVis) => (
+                        <ListItem button key={relVis.formulario} onClick={()=>{
+                            props.onSelectVisita(relVis)
+                        }}>
+                          <ListItemIcon>{relVis.formulario}</ListItemIcon>
+                          <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                        </ListItem>
+                    ))}
+                </List>
+            </Drawer>
+            <main className={classes.content}>
+                <RazonFormulario relVis={relVis}/>
+                <div className="informante-visita">
+                    <RelevamientoPrecios relVis={relVis}/>
+                </div>
+            </main>
+        </div>
+    </div>
+  );
 }
 
 function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=>void}){
@@ -475,7 +663,7 @@ function AppDmIPC(){
     if(relVisPk == undefined){
         return <HojaDeRuta onSelectVisita={setRelVisPk}/>
     }else{
-        return <FormularioVisita relVisPk={relVisPk} onReturn={()=>setRelVisPk(undefined)}/>
+        return <FormularioVisita relVisPk={relVisPk} onReturn={()=>setRelVisPk(undefined)} onSelectVisita={setRelVisPk}/>
     }
 }
 

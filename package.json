@@ -33,7 +33,7 @@
     "server4test": "^0.5.3",
     "types.d.ts": "^0.4.9",
     "mixin-patch": "~0.3.1",
-    "material-styles": "~0.0.3"
+    "material-styles": "~0.0.5"
   },
   "scripts": {
     "prepublish": "npm run build",
