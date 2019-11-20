@@ -8,11 +8,11 @@ import { Provider, useSelector, useDispatch } from "react-redux";
 import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
-    AppBar, Button, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    DialogTitle, Divider, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, SvgIcon, Toolbar, Typography
 } from "@material-ui/core";
-import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
 // https://material-ui.com/components/material-icons/
@@ -48,6 +48,7 @@ const MenuIcon = ICON.MenuIcon;
 const InboxIcon = ICON.InboxIcon;
 const MailIcon = ICON.MailIcon;
 const DescriptionIcon = ICON.DescriptionIcon;
+const SearchIcon = ICON.SearchIcon;
 
 export var estructura:Estructura;
 
@@ -510,8 +511,44 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     content: {
       flexGrow: 1,
-      padding: theme.spacing(3),
     },
+    search: {
+      position: 'relative',
+      borderRadius: theme.shape.borderRadius,
+      backgroundColor: fade(theme.palette.common.white, 0.15),
+      '&:hover': {
+        backgroundColor: fade(theme.palette.common.white, 0.25),
+      },
+      marginLeft: 0,
+      width: '100%',
+      [theme.breakpoints.up('sm')]: {
+        marginLeft: theme.spacing(1),
+        width: 'auto',
+      },
+    },
+    searchIcon: {
+      width: theme.spacing(7),
+      height: '100%',
+      position: 'absolute',
+      pointerEvents: 'none',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    inputRoot: {
+      color: 'inherit',
+    },
+    inputInput: {
+      padding: theme.spacing(1, 1, 1, 7),
+      transition: theme.transitions.create('width'),
+      width: '100%',
+      [theme.breakpoints.up('sm')]: {
+        width: 120,
+        '&:focus': {
+          width: 200,
+        },
+      },
+    }
   }),
 );
 
@@ -527,14 +564,13 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
     );
-    const informanteActual = useSelector((hdr:HojaDeRuta)=>
-    hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!);
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const [botonActual, setBotonActual] = React.useState<'todos'|'pendientes'|'compactar'|'advertencias'>('todos');
 
     const handleDrawerOpen = () => {
-        setOpen(!open);
+        setOpen(true);
     };
 
     const handleDrawerClose = () => {
@@ -552,38 +588,77 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                 })}
             >
                 <Toolbar>
-                <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={handleDrawerOpen}
-                    edge="start"
-                    className={clsx(classes.menuButton, {
-                    [classes.hide]: open,
-                    })}
-                >
-                    <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" noWrap>
-                    {'Precios informante ' + informanteActual.informante}
-                </Typography>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={handleDrawerOpen}
+                        edge="start"
+                        className={clsx(classes.menuButton, {
+                        [classes.hide]: open,
+                        })}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                    <Typography variant="subtitle1" noWrap>
+                        {`inf ${props.relVisPk.informante}`}
+                    </Typography>
+                    <Grid item>
+                        <ButtonGroup
+                            variant="contained"
+                            color="default"
+                            size="small"
+                            aria-label="large contained default button group"
+                        >
+                            <Button onClick={()=>{
+                                setBotonActual('compactar')
+                            }}disabled={botonActual=='compactar'}>
+                                compactar
+                            </Button>
+                            <Button onClick={()=>{
+                                setBotonActual('todos')
+                            }}disabled={botonActual=='todos'}>
+                                todos
+                            </Button>
+                            <Button onClick={()=>{
+                                setBotonActual('pendientes')
+                            }}disabled={botonActual=='pendientes'}>
+                                pendientes
+                            </Button>
+                            <Button onClick={()=>{
+                                setBotonActual('advertencias')
+                            }}disabled={botonActual=='advertencias'}>
+                                advertencias
+                            </Button>
+                        </ButtonGroup>
+                    </Grid>
+                    <div className={classes.search}>
+                        <div className={classes.searchIcon}>
+                            <SearchIcon />
+                        </div>
+                        <InputBase placeholder="Buscar..." classes={{
+                                root: classes.inputRoot,
+                                input: classes.inputInput,
+                            }} inputProps={{ 'aria-label': 'search' }}
+                        />
+                    </div>
                 </Toolbar>
             </AppBar>
             <Drawer
                 variant="permanent"
                 className={clsx(classes.drawer, {
-                [classes.drawerOpen]: open,
-                [classes.drawerClose]: !open,
-                })}
-                classes={{
-                paper: clsx({
                     [classes.drawerOpen]: open,
                     [classes.drawerClose]: !open,
-                }),
+                })}
+                classes={{
+                    paper: clsx({
+                        [classes.drawerOpen]: open,
+                        [classes.drawerClose]: !open,
+                    }),
                 }}
                 open={open}
             >
                 <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose}></IconButton>
+                    <IconButton onClick={handleDrawerClose}><ChevronLeftIcon /></IconButton>
                 </div>
                 <Divider />
                 <List>
@@ -595,7 +670,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                 <Divider />
                 <List>
                     {formularios.map((relVis:RelVis) => (
-                        <ListItem button key={relVis.formulario} onClick={()=>{
+                        <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
                             props.onSelectVisita(relVis)
                         }}>
                           <ListItemIcon>{relVis.formulario}</ListItemIcon>
@@ -639,22 +714,33 @@ function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=
 function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
     const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
     return (
-        <table className="hoja-ruta">
-            <thead>
-                <tr>
-                    <th>informante</th>
-                    <th>formularios</th>
-                    <th>prod</th>
-                    <th>faltan</th>
-                    <th>adv</th>
-                </tr>
-            </thead>
-            <tbody>
-                {informantes.map((informante:RelInf)=>
-                    <InformanteRow key={informante.informante} informante={informante} onSelectVisita={props.onSelectVisita}/>
-                )}
-            </tbody>
-        </table>
+        <>
+            <AppBar position="fixed">
+                <Toolbar>
+                    <Typography variant="h6">
+                        Hoja de ruta
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+            <main>
+                <table className="hoja-ruta">
+                    <thead>
+                        <tr>
+                            <th>informante</th>
+                            <th>formularios</th>
+                            <th>prod</th>
+                            <th>faltan</th>
+                            <th>adv</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {informantes.map((informante:RelInf)=>
+                            <InformanteRow key={informante.informante} informante={informante} onSelectVisita={props.onSelectVisita}/>
+                        )}
+                    </tbody>
+                </table>
+            </main>
+        </>
     );
 }
 
