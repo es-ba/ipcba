@@ -462,7 +462,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                             {relVis.razon}
                         </Button>
                     </td>
-                    <td style={{color: relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?SECONDARY_COLOR:PRIMARY_COLOR}}>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
+                    <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd placeholder='agregar comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
                             dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value, nextId:false}));
@@ -738,17 +738,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                 <div className={classes.toolbar}>
                     <IconButton onClick={handleDrawerClose}><ChevronLeftIcon /></IconButton>
                 </div>
-                <Divider />
                 <List>
                     <ListItem button className="flecha-volver-hdr" onClick={props.onReturn}>
                         <ListItemIcon><DescriptionIcon/></ListItemIcon>
                         <ListItemText primary="Volver a hoja de ruta" />
                     </ListItem>
-                </List>
-                <Divider />
-                <List>
                     {formularios.map((relVis:RelVis) => (
                         <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
+                            setOpen(false);
                             props.onSelectVisita(relVis)
                         }}>
                           <ListItemIcon>{relVis.formulario}</ListItemIcon>
