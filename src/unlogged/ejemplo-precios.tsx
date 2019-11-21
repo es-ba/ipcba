@@ -116,6 +116,7 @@ function TypedInput<T>(props:{
     value:T,
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
+    altoActual:number,
     onFocusOut:()=>void, 
     inputId:string
 }){
@@ -126,11 +127,13 @@ function TypedInput<T>(props:{
     }, []);
     // @ts-ignore acá hay un problema con el cambio de tipos
     var valueString:string = value==null?'':value;
+    var style=props.altoActual?{height:props.altoActual+'px'}:{};
     return React.createElement((props.dataType=='text'?'textarea':'input'),{
         id:inputId,
         value:valueString, 
         "td-editable":true,
         type:props.dataType, 
+        style,
         onChange:(event)=>{
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
             setValue(event.target.value);
@@ -170,15 +173,24 @@ const EditableTd = function<T extends any>(props:{
     const dispatch = useDispatch();
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
     const [editando, setEditando]=useState(deboEditar);
+    const [anchoSinEditar, setAnchoSinEditar] = useState(0);
     if(editando!=deboEditar){
         setEditando(deboEditar);
     }
     return (
         <td colSpan={props.colSpan} className={props.className} onClick={
-            ()=>!props.disabled?dispatch(dispatchers.SET_FOCUS({nextId:props.inputId})):null
+            (event)=>{
+                if(!props.disabled){
+                    // @ts-ignore offsetHeight debería existir porque event.target es un TD
+                    var altoActual:number = event.target.offsetHeight!;
+                    setAnchoSinEditar(altoActual);
+                    dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
+                }
+            }
         } puede-editar={!props.disabled && !editando?"yes":"no"}>
             {editando?
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
+                    altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }} onFocusOut={()=>{
