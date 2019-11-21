@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
-import {ActionHdr} from "./dm-react";
+import {ActionHdr, dispatchers } from "./dm-react";
 import {useState, useEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -14,6 +14,7 @@ import {
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
+import { prototype } from "events";
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -37,7 +38,7 @@ export const materialIoIconsSvgPath={
 
 const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
     <SvgIcon><path d={svgText}/></SvgIcon>
-);
+).plain();
 
 const ChevronLeftIcon = ICON.ChevronLeft;
 const ChevronRightIcon = ICON.ChevronRight;
@@ -172,14 +173,14 @@ const EditableTd = function<T extends any>(props:{
     }
     return (
         <td colSpan={props.colSpan} className={props.className} onClick={
-            ()=>!props.disabled?dispatch({type:'SET_FOCUS', nextId:props.inputId}):null
+            ()=>!props.disabled?dispatch(dispatchers.SET_FOCUS({nextId:props.inputId})):null
         } puede-editar={!props.disabled && !editando?"yes":"no"}>
             {editando?
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }} onFocusOut={()=>{
-                        dispatch({type:'SET_FOCUS', nextId:null})
+                        dispatch(dispatchers.UNSET_FOCUS({}))
                     }}
                 />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
@@ -194,7 +195,7 @@ const AtributosRow = function(props:{
     iRelPre: number,
     inputId: string, 
     inputIdPrecio: string, 
-    nextId: string|null, 
+    nextId: string|false, 
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -210,9 +211,11 @@ const AtributosRow = function(props:{
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
                     {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
-                        dispatch({type: 'COPIAR_ATRIBUTOS', payload:{forPk:relAtr, iRelPre:props.iRelPre},
-                            nextId:relPre.precio?null:props.inputIdPrecio
-                        })
+                        dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                            forPk:relAtr, 
+                            iRelPre:props.iRelPre,
+                            nextId:relPre.precio?false:props.inputIdPrecio
+                        }))
                     }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
                 </td>
                 :null}
@@ -221,9 +224,12 @@ const AtributosRow = function(props:{
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
                 onUpdate={value=>{
-                    dispatch({type: 'SET_ATRIBUTO', payload:{forPk:relAtr, valor:value},
+                    dispatch(dispatchers.SET_ATRIBUTO({
+                        forPk:relAtr, 
+                        iRelPre:props.iRelPre,
+                        valor:value,
                         nextId:props.nextId
-                    })
+                    }))
                 }} 
             />
         </tr>
@@ -298,7 +304,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                             setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                             setMenuConfirmarBorradoPrecio(true)
                         }else{
-                            dispatch({type: 'COPIAR_TP', payload:{forPk:relPre}});
+                            dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
                         }
                     }}>
                         {FLECHATIPOPRECIO}
@@ -321,9 +327,12 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                                 setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
                                 setMenuConfirmarBorradoPrecio(true)
                             }else{
-                                dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}, 
-                                    nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:null
-                                })
+                                dispatch(dispatchers.SET_TP({
+                                    forPk:relPre, 
+                                    iRelPre:props.iRelPre,
+                                    tipoprecio:tpDef.tipoprecio, 
+                                    nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false
+                                }))
                             }
                         }}>
                             <ListItemText>{tpDef.tipoprecio}&nbsp;</ListItemText>
@@ -350,7 +359,12 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tipoDePrecioNegativoAConfirmar}})
+                            dispatch(dispatchers.SET_TP({
+                                forPk:relPre, 
+                                iRelPre: props.iRelPre,
+                                nextId: false, 
+                                tipoprecio:tipoDePrecioNegativoAConfirmar
+                            }))
                             setMenuConfirmarBorradoPrecio(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
@@ -358,9 +372,12 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                     </DialogActions>
                 </Dialog>
                 <EditableTd inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
-                    dispatch({type: 'SET_PRECIO', payload:{forPk:relPre, precio:value},
-                        nextId:value && inputIdAtributos.length?inputIdAtributos[0]:null
-                    });
+                    dispatch(dispatchers.SET_PRECIO({
+                        forPk:relPre, 
+                        iRelPre: props.iRelPre,
+                        precio:value,
+                        nextId:value && inputIdAtributos.length?inputIdAtributos[0]:false
+                    }));
                     // focusToId(inputIdPrecio,e=>e.blur());
                 }} dataType="number" />
             </tr>
@@ -420,7 +437,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
-                            dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, comentarios:value}})
+                            dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value, nextId:false}));
                         }}
                     />
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
@@ -430,7 +447,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                                 setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
-                                dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:index}})
+                                dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index, nextId:false}));
                             }
                             setMenuRazon(null)
                         }}>
@@ -463,7 +480,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                             No borrar
                         </Button>
                         <Button onClick={()=>{
-                            dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:razonAConfirmar.razon}})
+                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon, nextId:false}));
                             setMenuConfirmarRazon(false)
                         }} color="secondary" variant="outlined">
                             Borrar precios y/o atributos
@@ -797,4 +814,9 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
         </Provider>,
         document.getElementById('main_layout')
     )
+}
+
+if(typeof window !== 'undefined'){
+    // @ts-ignore para hacerlo
+    window.mostrarHdr = mostrarHdr;
 }

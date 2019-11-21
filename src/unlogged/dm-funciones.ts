@@ -11,11 +11,11 @@ export function puedeCopiarAtributos(estructura:Estructura, relPre:RelPre){
 }
 
 export function puedeCambiarPrecioYAtributos(estructura:Estructura, relPre:RelPre){
-    return (relPre.tipoprecio==null || estructura.tipoPrecio[relPre.tipoprecio].espositivo));
+    return relPre.tipoprecio==null || estructura.tipoPrecio[relPre.tipoprecio].espositivo;
 }
 
 export function puedeCambiarTP(estructura:Estructura, relVis:RelVis){
-    return estructura.razones[relVis.razon].espositivoformulario;
+    return relVis.razon && estructura.razones[relVis.razon].espositivoformulario;
 }
 
 export function tpNecesitaConfirmacion(estructura:Estructura, relPre:RelPre, tipoPrecioSeleccionado:string){

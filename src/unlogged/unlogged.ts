@@ -12,6 +12,7 @@ window.addEventListener('load', async function(){
     if(window.location.href.endsWith('demo2')){
         dmHojaDeRuta2({});
     }else{
-        dmHojaDeRuta({});
+        const {store, estructura} = await dmHojaDeRuta({});
+        mostrarHdr(store, estructura);
     }
 })

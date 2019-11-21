@@ -3,38 +3,180 @@ import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { mostrarHdr } from "./ejemplo-precios";
+import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
 
 var my=myOwn;
 
-/* INICIO ACCIONES */
-const SET_RAZON            = 'SET_RAZON';
-const SET_COMENTARIO_RAZON = 'SET_COMENTARIO_RAZON';
-const SET_TP               = 'SET_TP';
-const COPIAR_TP            = 'COPIAR_TP';
-const SET_PRECIO           = 'SET_PRECIO';
-const COPIAR_ATRIBUTOS     = 'COPIAR_ATRIBUTOS';
-const SET_ATRIBUTO         = 'SET_ATRIBUTO';
-const SET_FOCUS            = 'SET_FOCUS';
+/* REDUCERS */
 
-type ActionSetRazon           = {type:'SET_RAZON'           , payload:{forPk:{informante:number, formulario:number}, razon:number}};
-type ActionSetComentarioRazon = {type:'SET_COMENTARIO_RAZON', payload:{forPk:{informante:number, formulario:number}, comentarios:string}};
-type ActionSetTp              = {type:'SET_TP'              , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, tipoprecio:string}};
-type ActionCopiarTp           = {type:'COPIAR_TP'           , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}}};
-type ActionSetPrecio          = {type:'SET_PRECIO'          , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, precio:number}};
-type ActionCopiarAtributos    = {type:'COPIAR_ATRIBUTOS'    , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}};
-type ActionSetAtributo        = {type:'SET_ATRIBUTO'        , nextId:string|null, payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, valor:string}};
-type ActionSetFocus           = {type:'SET_FOCUS'           , nextId:string|null};
+type NextID = string | false;
 
-/*
-function <K extends string|number, U, T extends {K:U}>red(key:K, reduxer((previous:T)=>U)){
-    return {
+var estructura:Estructura|null = null;
 
+var defaultAction = function defaultAction(
+    hdrState:HojaDeRuta, 
+    payload:{nextId:NextID}, 
+){
+    return deepFreeze({
+        ...hdrState,
+        idActual:payload.nextId==null?hdrState.idActual:(payload.nextId===false?null:payload.nextId)
+    })
+};
+const surfRelInf = (
+    hdrState:HojaDeRuta, 
+    payload:{forPk:{informante:number}, nextId:NextID}, 
+    relInfReducer:(relInfState:RelInf)=>RelInf
+)=>(
+    {
+        ...hdrState,
+        idActual:payload.nextId?payload.nextId:hdrState.idActual,
+        informantes:hdrState.informantes.map(
+            relInf=>relInf.informante==payload.forPk.informante?
+                relInfReducer(relInf)
+            :relInf
+        )
     }
+);
+const surfRelVis = (
+    hdrState:HojaDeRuta, 
+    payload:{nextId:NextID, forPk:{informante:number, formulario:number}}, 
+    relVisReducer:(productoState:RelVis)=>RelVis
+)=>(
+    surfRelInf(hdrState, payload, relInf=>({
+        ...relInf,
+        formularios:relInf.formularios.map(
+            relVis=>relVis.formulario==payload.forPk.formulario?
+                relVisReducer(relVis)
+            :relVis
+        )
+    }))
+);
+const surfRelPre = (
+    hdrState:HojaDeRuta, 
+    payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
+    relPreReducer:(productoState:RelPre)=>RelPre
+)=>{
+    /*
+    if(action.type=="SET_RAZON"||action.type=="SET_COMENTARIO_RAZON"){
+        throw new Error("internal error action.type in surfRelPre");
+    }
+    */
+    return surfRelVis(hdrState, payload, relVis=>{
+        var i = payload.iRelPre;
+        var nuevasObservaciones = i != undefined?[
+            ...relVis.observaciones.slice(0, i),
+            relPreReducer(relVis.observaciones[i]),
+            ...relVis.observaciones.slice(i+1)
+        ]:relVis.observaciones.map(
+            relPre=>relPre.producto==payload.forPk.producto && relPre.observacion==payload.forPk.observacion?
+                relPreReducer(relPre)
+            :relPre
+        )
+        return {
+            ...relVis,
+            observaciones:nuevasObservaciones
+        }
+    })
+};
+var setTP = function setTP(
+    hdrState:HojaDeRuta, 
+    payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
+    tipoPrecioRedux:(relPre:RelPre)=>string|null
+){
+    return surfRelPre(hdrState, payload, relPre=>{
+        var tipoPrecioNuevo = tipoPrecioRedux(relPre);
+        var esNegativo = !tipoPrecioNuevo || !estructura!.tipoPrecio[tipoPrecioNuevo].espositivo;
+        var paraLimipar=esNegativo?{
+            precio: null,
+            cambio: null,
+            atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
+        }:{};
+        return {
+            ...relPre,
+            ...paraLimipar,
+            tipoprecio: tipoPrecioNuevo
+        };
+    });
 }
-*/
 
-export type ActionHdr = ActionSetRazon | ActionSetComentarioRazon | ActionSetTp | ActionCopiarTp | ActionSetPrecio | ActionCopiarAtributos | ActionSetAtributo | ActionSetFocus;
+var reducers={
+    SET_RAZON            : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, razon:number|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelVis(state, payload, (miRelVis:RelVis)=>{
+                return {
+                    ...miRelVis,
+                    razon: payload.razon
+                }
+            });
+        },
+    SET_COMENTARIO_RAZON : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelVis(state, payload, (miRelVis:RelVis)=>{
+                return {
+                    ...miRelVis,
+                    comentarios: payload.comentarios
+                }
+            });
+        },
+    SET_TP               : (payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
+        function(state: HojaDeRuta){
+            return setTP(state, payload, _ => payload.tipoprecio);
+        },
+    COPIAR_TP            :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+        function(state: HojaDeRuta){
+            return setTP(state, payload, relPre => puedeCopiarTipoPrecio(estructura!, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
+        },
+    SET_PRECIO           :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelPre(state, payload, (miRelPre:RelPre)=>{
+                var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura!, miRelPre);
+                return {
+                    ...miRelPre,
+                    precio:puedeCambiarPrecio?payload.precio:miRelPre.precio,
+                    tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?estructura!.tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
+                }
+            });
+        },
+    COPIAR_ATRIBUTOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+        function(state: HojaDeRuta){
+            return surfRelPre(state, payload, (relPre:RelPre)=>{
+                var puedeCopiarAttrs = puedeCopiarAtributos(estructura!, relPre);
+                return puedeCopiarAttrs?{
+                    ...relPre,
+                    cambio:puedeCopiarAttrs?'=':relPre.cambio,
+                    atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valoranterior}))
+                }:relPre;
+            });
+        },
+    SET_ATRIBUTO         :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelPre(state, payload, (relPre:RelPre)=>{
+                if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){
+                    return relPre;
+                }
+                var nuevoRelPre:RelPre = {
+                    ...relPre,
+                    atributos:relPre.atributos.map(relAtr=>relAtr.atributo==payload.forPk.atributo?
+                        {...relAtr, valor:payload.valor}:
+                        relAtr
+                    )
+                };
+                nuevoRelPre.cambio=nuevoRelPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior)?'C':'='
+                return nuevoRelPre;
+            });
+        },
+    SET_FOCUS            :(payload: {nextId: NextID}) => 
+        function(state: HojaDeRuta){
+            return defaultAction(state, payload)
+        },    
+    UNSET_FOCUS          :(payload: {}) => 
+        function(state: HojaDeRuta){
+            return defaultAction(state, {nextId: false})
+        },    
+}
+
+export type ActionHdr = ActionsFrom<typeof reducers>;
 /* FIN ACCIONES */
 
 function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
@@ -43,6 +185,8 @@ function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[
         [key]: callback(object[key])
     });
 }
+
+export const dispatchers = createDispatchers(reducers);
 
 function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
     return callback(object);
@@ -55,144 +199,14 @@ export async function dmHojaDeRuta(_addrParams){
         panel: 1,
         tarea: 1
     })
-    /* DEFINICION CONTROLADOR */
-    function hdrReducer(hdrState:HojaDeRuta = initialState, action:ActionHdr):HojaDeRuta {
-        var defaultAction = function defaultAction(){
-            return deepFreeze({
-                ...hdrState,
-                idActual:action.nextId!==undefined?action.nextId:hdrState.idActual
-            })
-        };
-        const surfRelInf = (relInfReducer:(relInfState:RelInf)=>RelInf)=>(
-            {
-                ...hdrState,
-                idActual:action.nextId?action.nextId:hdrState.idActual,
-                informantes:hdrState.informantes.map(
-                    relInf=>relInf.informante==action.payload.forPk.informante?
-                        relInfReducer(relInf)
-                    :relInf
-                )
-            }
-        );
-        const surfRelVis = (relVisReducer:(productoState:RelVis)=>RelVis)=>(
-            surfRelInf(relInf=>({
-                ...relInf,
-                formularios:relInf.formularios.map(
-                    relVis=>relVis.formulario==action.payload.forPk.formulario?
-                        relVisReducer(relVis)
-                    :relVis
-                )
-            }))
-        );
-        const surfRelPre = (relPreReducer:(productoState:RelPre)=>RelPre)=>{
-            if(action.type=="SET_RAZON"||action.type=="SET_COMENTARIO_RAZON"){
-                throw new Error("internal error action.type in surfRelPre");
-            }
-            return surfRelVis(relVis=>{
-                var i = action.payload.iRelPre;
-                var nuevasObservaciones = i != undefined?[
-                    ...relVis.observaciones.slice(0, i),
-                    relPreReducer(relVis.observaciones[i]),
-                    ...relVis.observaciones.slice(i+1)
-                ]:relVis.observaciones.map(
-                    relPre=>relPre.producto==action.payload.forPk.producto && relPre.observacion==action.payload.forPk.observacion?
-                        relPreReducer(relPre)
-                    :relPre
-                )
-                return {
-                    ...relVis,
-                    observaciones:nuevasObservaciones
-                }
-            })
-        };
-        var setTP = function setTP(tipoPrecioRedux:(relPre:RelPre)=>string|null){
-            return surfRelPre(relPre=>{
-                var tipoPrecioNuevo = tipoPrecioRedux(relPre);
-                var esNegativo = !tipoPrecioNuevo || !estructura.tipoPrecio[tipoPrecioNuevo].espositivo;
-                var paraLimipar=esNegativo?{
-                    precio: null,
-                    cambio: null,
-                    atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
-                }:{};
-                return {
-                    ...relPre,
-                    ...paraLimipar,
-                    tipoprecio: tipoPrecioNuevo
-                };
-            });
-        }
-        switch (action.type) {
-            case SET_RAZON: {
-                return surfRelVis((miRelVis:RelVis)=>{
-                    return {
-                        ...miRelVis,
-                        razon: action.payload.razon
-                    }
-                });
-            }
-            case SET_COMENTARIO_RAZON: {
-                return surfRelVis((miRelVis:RelVis)=>{
-                    return {
-                        ...miRelVis,
-                        comentarios: action.payload.comentarios
-                    }
-                });
-            }
-            case SET_TP: {
-                return setTP(_ => action.payload.tipoprecio);
-            }
-            case COPIAR_TP: {
-                return setTP(relPre => puedeCopiarTipoPrecio(estructura, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
-            }
-            case SET_PRECIO: {
-                return surfRelPre((miRelPre:RelPre)=>{
-                    var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura, miRelPre);
-                    return {
-                        ...miRelPre,
-                        precio:puedeCambiarPrecio?action.payload.precio:miRelPre.precio,
-                        tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?estructura.tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
-                    }
-                });
-            }
-            case SET_ATRIBUTO: {
-                return surfRelPre((relPre:RelPre)=>{
-                    if(!puedeCambiarPrecioYAtributos(estructura, relPre)){
-                        return relPre;
-                    }
-                    var nuevoRelPre:RelPre = {
-                        ...relPre,
-                        atributos:relPre.atributos.map(relAtr=>relAtr.atributo==action.payload.forPk.atributo?
-                            {...relAtr, valor:action.payload.valor}:
-                            relAtr
-                        )
-                    };
-                    nuevoRelPre.cambio=nuevoRelPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior)?'C':'='
-                    return nuevoRelPre;
-                });
-            }
-            case COPIAR_ATRIBUTOS: {
-                return surfRelPre((relPre:RelPre)=>{
-                    var puedeCopiarAttrs = puedeCopiarAtributos(estructura, relPre);
-                    return puedeCopiarAttrs?{
-                        ...relPre,
-                        cambio:puedeCopiarAttrs?'=':relPre.cambio,
-                        atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valoranterior}))
-                    }:relPre;
-                });
-            }
-            default: {
-                return defaultAction();
-            }
-        }
-    }
-    /* FIN DEFINICION CONTROLADOR */
-
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
-    const estructura:Estructura = result.estructura;
+    estructura = result.estructura;
     const LOCAL_STORAGE_STATE_NAME = 'dm-store-v4';
     /* FIN DEFINICION STATE */
-
+    /* DEFINICION CONTROLADOR */
+    const hdrReducer = createReducer(reducers, initialState);
+    /* FIN DEFINICION CONTROLADOR */
     /* CARGA Y GUARDADO DE STATE */
     function loadState():HojaDeRuta{
         var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
@@ -216,7 +230,7 @@ export async function dmHojaDeRuta(_addrParams){
     /* FIN CREACION STORE */
 
     //HDR CON STORE CREADO
-    mostrarHdr(store, estructura)
+    return {store, estructura:estructura!};
 }
 
 if(typeof window !== 'undefined'){

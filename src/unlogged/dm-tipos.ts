@@ -112,7 +112,7 @@ export type RelPre={
 export type RelVis={
     informante: number
     formulario: number
-    razon: number
+    razon: number | null
     comentarios: string | null
     observaciones: RelPre[]
 };
