@@ -61,19 +61,19 @@ const surfRelPre = (
         throw new Error("internal error action.type in surfRelPre");
     }
     */
-    return surfRelVis(hdrState, payload, relVis=>{
+    return surfRelInf(hdrState, payload, relInf=>{
         var i = payload.iRelPre;
         var nuevasObservaciones = i != undefined?[
-            ...relVis.observaciones.slice(0, i),
-            relPreReducer(relVis.observaciones[i]),
-            ...relVis.observaciones.slice(i+1)
-        ]:relVis.observaciones.map(
-            relPre=>relPre.producto==payload.forPk.producto && relPre.observacion==payload.forPk.observacion?
+            ...relInf.observaciones.slice(0, i),
+            relPreReducer(relInf.observaciones[i]),
+            ...relInf.observaciones.slice(i+1)
+        ]:relInf.observaciones.map(
+            relPre=>relPre.formulario==payload.forPk.formulario && relPre.producto==payload.forPk.producto && relPre.observacion==payload.forPk.observacion?
                 relPreReducer(relPre)
             :relPre
         )
         return {
-            ...relVis,
+            ...relInf,
             observaciones:nuevasObservaciones
         }
     })
@@ -204,7 +204,7 @@ export async function dmTraerDatosHdr(){
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     estructura = result.estructura;
-    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v4';
+    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v5';
     /* FIN DEFINICION STATE */
     /* DEFINICION CONTROLADOR */
     const hdrReducer = createReducer(reducers, initialState);

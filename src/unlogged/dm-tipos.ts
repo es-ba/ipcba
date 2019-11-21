@@ -114,7 +114,6 @@ export type RelVis={
     formulario: number
     razon: number | null
     comentarios: string | null
-    observaciones: RelPre[]
 };
 
 export type RelInf={
@@ -122,6 +121,7 @@ export type RelInf={
     nombreinformante:string
     direccion:string
     formularios: RelVis[]
+    observaciones: RelPre[]
 }
 
 export type HojaDeRuta={

@@ -427,17 +427,18 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     );
 })
 
-function RelevamientoPrecios(props:{relVis:RelVis}){
-    const relVis = props.relVis;
-    const observaciones = relVis.observaciones;
+function RelevamientoPrecios(props:{relInf:RelInf, formulario:number}){
+    const relInf = props.relInf;
+    const observaciones = relInf.observaciones;
     return (
         <>
-            {observaciones.map((relPre:RelPre, iRelPre:number) => 
+            {observaciones.map((relPre:RelPre, iRelPre:number) =>
+                relPre.formulario==props.formulario? 
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
                     iRelPre={iRelPre}
-                />
+                />:<div key={relPre.producto+'/'+relPre.observacion}/>
             )}
         </>
     );
@@ -634,10 +635,11 @@ export default function MiniDrawer() {
   
 }
 function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelectVisita:(relVis:RelVis)=>void}){
-    const relVis = useSelector((hdr:HojaDeRuta)=>
-        hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
-            .formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!
-    );
+    const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
+        var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
+        var relVis=relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
+        return {relInf, relVis}
+    });
     const formularios = useSelector((hdr:HojaDeRuta)=>
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
@@ -757,7 +759,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
             <main className={classes.content}>
                 <RazonFormulario relVis={relVis}/>
                 <div className="informante-visita">
-                    <RelevamientoPrecios relVis={relVis}/>
+                    <RelevamientoPrecios relInf={relInf} formulario={relVis.formulario}/>
                 </div>
             </main>
             <ScrollTop>
