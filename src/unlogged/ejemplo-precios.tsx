@@ -339,8 +339,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                                     })
                                 }
                             }}>
-                                <ListItemText classes={{primary: classes.listItemText}} style={{fontSize: '1.2rem', color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                                <ListItemText classes={{primary: classes.listItemText}} style={{fontSize: '1.2rem', color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
                             </MenuItem>
                         )
                     })}
@@ -419,38 +419,41 @@ function RazonFormulario(props:{relVis:RelVis}){
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     const dispatch = useDispatch();
+    const classes = useStylesList();
     return (
         <table className="razon-formulario">
-            <thead>
-                <tr>
-                    <th>razon</th>
-                    <th>nombre</th>
-                    <th>comentarios</th>
-                </tr>
-            </thead>
+            <thead></thead>
             <tbody>
                 <tr>
-                    <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
-                    <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
+                    <td>
+                        <Button onClick={event=>setMenuRazon(event.currentTarget)} 
+                        color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
+                            {relVis.razon}
+                        </Button>
+                    </td>
+                    <td style={{color: relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?SECONDARY_COLOR:PRIMARY_COLOR}}>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
+                    <EditableTd placeholder='agregar comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
                             dispatch({type: 'SET_COMENTARIO_RAZON', payload:{forPk:relVis, comentarios:value}})
                         }}
                     />
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
-                    {likeAr(estructura.razones).map((razon:Razon,index)=>
-                        <MenuItem key={razon.nombrerazon} onClick={()=>{
-                            if(razonNecesitaConfirmacion(estructura, relVis,index)){
-                                setRazonAConfirmar({razon:index});
-                                setMenuConfirmarRazon(true)
-                            }else{
-                                dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:index}})
-                            }
-                            setMenuRazon(null)
-                        }}>
-                            <ListItemText>&nbsp;{index}</ListItemText>
-                            <ListItemText>&nbsp;{razon.nombrerazon}</ListItemText>
-                        </MenuItem>
+                    {likeAr(estructura.razones).map((razon:Razon,index)=>{
+                        var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
+                        return(
+                            <MenuItem key={razon.nombrerazon} onClick={()=>{
+                                if(razonNecesitaConfirmacion(estructura, relVis,index)){
+                                    setRazonAConfirmar({razon:index});
+                                    setMenuConfirmarRazon(true)
+                                }else{
+                                    dispatch({type: 'SET_RAZON', payload:{forPk:relVis, razon:index}})
+                                }
+                                setMenuRazon(null)
+                            }}>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
+                            </MenuItem>
+                        )}
                     ).array()}
                 </Menu>
                 <Dialog
