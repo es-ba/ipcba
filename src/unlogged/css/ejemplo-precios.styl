@@ -32,7 +32,7 @@ body
     grid-row span 1
     display grid
     grid-template-columns 1fr 24px
-    align-self auto
+    align-self start
     border-top 0.5px solid #ddd
     padding-top 8px
     .producto
@@ -74,9 +74,6 @@ body
     td, th
       font-size letra_grande
       vertical-align middle
-      &[puede-editar=yes]
-        border-bottom 0.5px solid #3f51b5
-        height 40px
       padding 2px
       overflow-x hidden
       overflow-wrap break-word
@@ -117,8 +114,6 @@ body
       text-align right
       div
         margin 2px
-      .placeholder
-        color #3f51b5
 .hoja-ruta
   td
     font-size letra_grande
@@ -130,6 +125,16 @@ main
   padding 60px 0
 
 .menu-informante-visita
+  .razon-formulario
+    font-size letra_mediana
+    .placeholder
+      font-size letra_chica
+  td, th
+    &[puede-editar=yes]
+      border-bottom 0.5px solid #3f51b5
+      height 40px
+  .placeholder
+    color #3f51b5
   .MuiButton-contained.Mui-disabled
     background-color #e0e0e0
   .MuiInputBase-input::placeholder

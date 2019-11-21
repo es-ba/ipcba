@@ -52,6 +52,8 @@ export var estructura:Estructura;
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
 const FLECHAVOLVER="←";
+const PRIMARY_COLOR   ="#3f51b5";
+const SECONDARY_COLOR ="#f50057";
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -236,6 +238,14 @@ const AtributosRow = function(props:{
     )
 };
 
+const useStylesList = makeStyles((theme: Theme) =>
+    createStyles({
+        listItemText:{
+            fontSize:'1.2rem',
+        }
+    }),
+);
+
 var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:number}){
     const relPre = props.relPre;
     const dispatch = useDispatch();
@@ -247,6 +257,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+    const classes = useStylesList();
     return (
         <>
             <div className="caja-producto">
@@ -320,7 +331,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                     anchorEl={menuTipoPrecio}
                     onClose={()=>setMenuTipoPrecio(null)}
                 >
-                    {estructura.tiposPrecioDef.map(tpDef=>
+                    {estructura.tiposPrecioDef.map(tpDef=>{
+                        var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
+                        return (
                         <MenuItem key={tpDef.tipoprecio} onClick={()=>{
                             setMenuTipoPrecio(null);
                             if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
@@ -335,10 +348,11 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                                 }))
                             }
                         }}>
-                            <ListItemText>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                            <ListItemText>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
                         </MenuItem>
-                    )}
+                        )
+                    })}
                 </Menu>
                 <Dialog
                     open={menuConfirmarBorradoPrecio}
@@ -422,26 +436,28 @@ function RazonFormulario(props:{relVis:RelVis}){
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     const dispatch = useDispatch();
+    const classes = useStylesList();
     return (
         <table className="razon-formulario">
-            <thead>
-                <tr>
-                    <th>razon</th>
-                    <th>nombre</th>
-                    <th>comentarios</th>
-                </tr>
-            </thead>
+            <thead></thead>
             <tbody>
                 <tr>
-                    <td onClick={event=>setMenuRazon(event.currentTarget)}>{relVis.razon}</td>
-                    <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
+                    <td>
+                        <Button onClick={event=>setMenuRazon(event.currentTarget)} 
+                        color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
+                            {relVis.razon}
+                        </Button>
+                    </td>
+                    <td style={{color: relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?SECONDARY_COLOR:PRIMARY_COLOR}}>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
+                    <EditableTd placeholder='agregar comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
                             dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value, nextId:false}));
                         }}
                     />
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
-                    {likeAr(estructura.razones).map((razon:Razon,index)=>
+                    {likeAr(estructura.razones).map((razon:Razon,index)=>{
+                        var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
+                        return(
                         <MenuItem key={razon.nombrerazon} onClick={()=>{
                             if(razonNecesitaConfirmacion(estructura, relVis,index)){
                                 setRazonAConfirmar({razon:index});
@@ -451,9 +467,10 @@ function RazonFormulario(props:{relVis:RelVis}){
                             }
                             setMenuRazon(null)
                         }}>
-                            <ListItemText>&nbsp;{index}</ListItemText>
-                            <ListItemText>&nbsp;{razon.nombrerazon}</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
                         </MenuItem>
+                        )}
                     ).array()}
                 </Menu>
                 <Dialog
@@ -732,7 +749,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                     <RelevamientoPrecios relVis={relVis}/>
                 </div>
             </main>
-            <ScrollTop {}>
+            <ScrollTop>
                 <Fab color="secondary" size="small" aria-label="scroll back to top">
                     <KeyboardArrowUpIcon />
                 </Fab>
