@@ -51,6 +51,8 @@ export var estructura:Estructura;
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
 const FLECHAVOLVER="←";
+const PRIMARY_COLOR   ="#3f51b5";
+const SECONDARY_COLOR ="#f50057";
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -230,6 +232,14 @@ const AtributosRow = function(props:{
     )
 };
 
+const useStylesList = makeStyles((theme: Theme) =>
+    createStyles({
+        listItemText:{
+            fontSize:'1.2rem',
+        }
+    }),
+);
+
 var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:number}){
     const relPre = props.relPre;
     const dispatch = useDispatch();
@@ -241,6 +251,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+    const classes = useStylesList();
     return (
         <>
             <div className="caja-producto">
@@ -314,22 +325,25 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                     anchorEl={menuTipoPrecio}
                     onClose={()=>setMenuTipoPrecio(null)}
                 >
-                    {estructura.tiposPrecioDef.map(tpDef=>
-                        <MenuItem key={tpDef.tipoprecio} onClick={()=>{
-                            setMenuTipoPrecio(null);
-                            if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
-                                setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
-                                setMenuConfirmarBorradoPrecio(true)
-                            }else{
-                                dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}, 
-                                    nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:null
-                                })
-                            }
-                        }}>
-                            <ListItemText>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                            <ListItemText>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
-                        </MenuItem>
-                    )}
+                    {estructura.tiposPrecioDef.map(tpDef=>{
+                        var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
+                        return (
+                            <MenuItem key={tpDef.tipoprecio} onClick={()=>{
+                                setMenuTipoPrecio(null);
+                                if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
+                                    setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
+                                    setMenuConfirmarBorradoPrecio(true)
+                                }else{
+                                    dispatch({type: 'SET_TP', payload:{forPk:relPre, tipoprecio:tpDef.tipoprecio}, 
+                                        nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:null
+                                    })
+                                }
+                            }}>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{fontSize: '1.2rem', color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{fontSize: '1.2rem', color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                            </MenuItem>
+                        )
+                    })}
                 </Menu>
                 <Dialog
                     open={menuConfirmarBorradoPrecio}
@@ -715,7 +729,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                     <RelevamientoPrecios relVis={relVis}/>
                 </div>
             </main>
-            <ScrollTop {}>
+            <ScrollTop>
                 <Fab color="secondary" size="small" aria-label="scroll back to top">
                     <KeyboardArrowUpIcon />
                 </Fab>
