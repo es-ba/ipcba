@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
-import {ActionHdr, dispatchers } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -182,7 +182,7 @@ const EditableTd = function<T extends any>(props:{
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }} onFocusOut={()=>{
-                        dispatch(dispatchers.UNSET_FOCUS({}))
+                        // dispatch(dispatchers.UNSET_FOCUS({}))
                     }}
                 />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
@@ -833,7 +833,13 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     )
 }
 
+// @ts-ignore addrParams tiene un tipo que acá no importa
+export async function dmHojaDeRuta(_addrParams){
+    const {store, estructura} = await dmTraerDatosHdr();
+    mostrarHdr(store, estructura);
+}
+
 if(typeof window !== 'undefined'){
     // @ts-ignore para hacerlo
-    window.mostrarHdr = mostrarHdr;
+    window.dmHojaDeRuta = dmHojaDeRuta;
 }

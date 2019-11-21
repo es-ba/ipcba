@@ -2,7 +2,6 @@ import { createStore } from "redux";
 import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
-import { mostrarHdr } from "./ejemplo-precios";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
 
@@ -193,7 +192,7 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 }
 
 // @ts-ignore provisoriamente no me preocupa que falte _addrParams
-export async function dmHojaDeRuta(_addrParams){
+export async function dmTraerDatosHdr(){
     var result = await my.ajax.dm_cargar({
         periodo: 'a2019m02',
         panel: 1,
@@ -231,9 +230,4 @@ export async function dmHojaDeRuta(_addrParams){
 
     //HDR CON STORE CREADO
     return {store, estructura:estructura!};
-}
-
-if(typeof window !== 'undefined'){
-    // @ts-ignore para hacerlo
-    window.dmHojaDeRuta = dmHojaDeRuta;
 }
