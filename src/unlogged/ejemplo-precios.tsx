@@ -182,7 +182,9 @@ const EditableTd = function<T extends any>(props:{
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }} onFocusOut={()=>{
-                        // dispatch(dispatchers.UNSET_FOCUS({}))
+                        if(deboEditar && editando){
+                            dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
+                        }
                     }}
                 />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
