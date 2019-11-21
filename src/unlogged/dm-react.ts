@@ -169,9 +169,12 @@ var reducers={
         function(state: HojaDeRuta){
             return defaultAction(state, payload)
         },    
-    UNSET_FOCUS          :(payload: {}) => 
+    UNSET_FOCUS          :(payload: {unfocusing: string}) => 
         function(state: HojaDeRuta){
-            return defaultAction(state, {nextId: false})
+            return deepFreeze({
+                ...state,
+                idActual:state.idActual==payload.unfocusing?false:state.idActual
+            })
         },    
 }
 
