@@ -109,6 +109,11 @@ export type RelPre={
     adv?: boolean
 }
 
+export type RelVisPk = {
+    informante:number,
+    formulario:number
+}
+
 export type RelVis={
     informante: number
     formulario: number
@@ -130,4 +135,5 @@ export type HojaDeRuta={
     fecha_carga:Date,
     informantes:RelInf[]
     idActual?:string|null
+    relVisPk?:RelVisPk
 }

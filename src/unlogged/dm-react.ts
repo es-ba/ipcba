@@ -176,6 +176,20 @@ var reducers={
                 idActual:state.idActual==payload.unfocusing?false:state.idActual
             })
         },    
+    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
+        function(state: HojaDeRuta){
+            return deepFreeze({
+                ...state,
+                relVisPk:{informante:payload.informante, formulario:payload.formulario}
+            })
+        },
+    UNSET_FORMULARIO_ACTUAL:(_payload: {}) => 
+        function(state: HojaDeRuta){
+            return deepFreeze({
+                ...state,
+                relVisPk:null
+            })
+        },
 }
 
 export type ActionHdr = ActionsFrom<typeof reducers>;
