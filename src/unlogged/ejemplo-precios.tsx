@@ -561,7 +561,7 @@ const useStyles = makeStyles((theme: Theme) =>
     drawer: {
       width: drawerWidth,
       flexShrink: 0,
-      whiteSpace: 'nowrap',
+      whiteSpace: (props:{open:boolean}) => props.open?'normal':'nowrap',
     },
     drawerOpen: {
       width: drawerWidth,
@@ -644,9 +644,9 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
     );
-    const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const classes = useStyles({open:open});
     const [botonActual, setBotonActual] = React.useState<'todos'|'pendientes'|'compactar'|'advertencias'>('todos');
 
     const handleDrawerOpen = () => {
