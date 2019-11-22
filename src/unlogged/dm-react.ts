@@ -211,14 +211,13 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 // @ts-ignore provisoriamente no me preocupa que falte _addrParams
 export async function dmTraerDatosHdr(){
     var result = await my.ajax.dm_cargar({
-        periodo: 'a2019m02',
-        panel: 1,
-        tarea: 1
+        // periodo: 'a2019m02', panel: 1, tarea: 1
+        periodo: 'a2019m11', panel: 3, tarea: 6
     })
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     estructura = result.estructura;
-    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v5';
+    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v8';
     /* FIN DEFINICION STATE */
     /* DEFINICION CONTROLADOR */
     const hdrReducer = createReducer(reducers, initialState);
