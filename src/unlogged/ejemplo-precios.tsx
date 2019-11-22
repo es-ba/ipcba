@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -9,12 +9,11 @@ import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
     AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    DialogTitle, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, useScrollTrigger, SvgIcon, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
-import { prototype } from "events";
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
