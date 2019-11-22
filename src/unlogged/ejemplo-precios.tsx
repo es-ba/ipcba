@@ -626,10 +626,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function MiniDrawer() {
-  
-}
-function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
+function FormularioVisita(props:{relVisPk: RelVisPk}){
     const dispatch = useDispatch();
     const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
         var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
