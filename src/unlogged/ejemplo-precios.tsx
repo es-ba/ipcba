@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect} from "react";
@@ -525,11 +525,6 @@ function RazonFormulario(props:{relVis:RelVis}){
     );
 }
 
-interface RelVisPk {
-    informante:number,
-    formulario:number
-}
-
 const drawerWidth = 300;
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -634,7 +629,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function MiniDrawer() {
   
 }
-function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelectVisita:(relVis:RelVis)=>void}){
+function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
+    const dispatch = useDispatch();
     const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
         var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
         var relVis=relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
@@ -664,7 +660,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
             <AppBar
                 position="fixed"
                 className={clsx(classes.appBar, {
-                [classes.appBarShift]: open,
+                    [classes.appBarShift]: open,
                 })}
             >
                 <Toolbar>
@@ -674,7 +670,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                         onClick={handleDrawerOpen}
                         edge="start"
                         className={clsx(classes.menuButton, {
-                        [classes.hide]: open,
+                            [classes.hide]: open,
                         })}
                     >
                         <MenuIcon />
@@ -741,14 +737,16 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
                     <IconButton onClick={handleDrawerClose}><ChevronLeftIcon /></IconButton>
                 </div>
                 <List>
-                    <ListItem button className="flecha-volver-hdr" onClick={props.onReturn}>
+                    <ListItem button className="flecha-volver-hdr" onClick={()=>
+                        dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
+                    }>
                         <ListItemIcon><DescriptionIcon/></ListItemIcon>
                         <ListItemText primary="Volver a hoja de ruta" />
                     </ListItem>
                     {formularios.map((relVis:RelVis) => (
                         <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
                             setOpen(false);
-                            props.onSelectVisita(relVis)
+                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
                         }}>
                           <ListItemIcon>{relVis.formulario}</ListItemIcon>
                           <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
@@ -772,7 +770,8 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void, onSelect
   );
 }
 
-function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=>void}){
+function InformanteRow(props:{informante:RelInf}){
+    const dispatch = useDispatch();
     const informante = props.informante;
     return (
         <>
@@ -780,8 +779,8 @@ function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=
                 <td rowSpan={informante.formularios.length+1}>{informante.informante} {informante.nombreinformante}</td>
             </tr>
             {informante.formularios.map((relVis:RelVis)=>
-                <tr key={informante.informante+'/'+relVis.formulario} onClick={()=>{
-                    props.onSelectVisita(relVis)
+                <tr key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
+                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
                 }}>
                     <td>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</td>
                     <td></td>
@@ -793,7 +792,7 @@ function InformanteRow(props:{informante:RelInf, onSelectVisita:(relVis:RelVis)=
     )
 }
 
-function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
+function HojaDeRuta(_props:{}){
     const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
     return (
         <>
@@ -817,7 +816,7 @@ function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
                     </thead>
                     <tbody>
                         {informantes.map((informante:RelInf)=>
-                            <InformanteRow key={informante.informante} informante={informante} onSelectVisita={props.onSelectVisita}/>
+                            <InformanteRow key={informante.informante} informante={informante}/>
                         )}
                     </tbody>
                 </table>
@@ -827,11 +826,11 @@ function HojaDeRuta(props:{onSelectVisita:(relVisPk:RelVisPk)=>void}){
 }
 
 function AppDmIPC(){
-    const [relVisPk, setRelVisPk] = useState<RelVisPk>();
+    const relVisPk = useSelector((hdr:HojaDeRuta)=>hdr.relVisPk);
     if(relVisPk == undefined){
-        return <HojaDeRuta onSelectVisita={setRelVisPk}/>
+        return <HojaDeRuta/>
     }else{
-        return <FormularioVisita relVisPk={relVisPk} onReturn={()=>setRelVisPk(undefined)} onSelectVisita={setRelVisPk}/>
+        return <FormularioVisita relVisPk={relVisPk} />
     }
 }
 
