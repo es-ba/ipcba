@@ -438,7 +438,7 @@ function RelevamientoPrecios(props:{relInf:RelInf, formulario:number}){
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
                     iRelPre={iRelPre}
-                />:<div key={relPre.producto+'/'+relPre.observacion}/>
+                />:null
             )}
         </>
     );
