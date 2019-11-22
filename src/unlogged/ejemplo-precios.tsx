@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, puedeCambiarTP, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -9,12 +9,11 @@ import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
     AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    DialogTitle, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, useScrollTrigger, SvgIcon, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
-import { prototype } from "events";
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -638,7 +637,7 @@ const useStyles = makeStyles((theme: Theme) =>
     drawer: {
       width: drawerWidth,
       flexShrink: 0,
-      whiteSpace: 'nowrap',
+      whiteSpace: (props:{open:boolean}) => props.open?'normal':'nowrap',
     },
     drawerOpen: {
       width: drawerWidth,
@@ -708,10 +707,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function MiniDrawer() {
-  
-}
-function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
+function FormularioVisita(props:{relVisPk: RelVisPk}){
     const dispatch = useDispatch();
     const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
         var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -722,9 +718,9 @@ function FormularioVisita(props:{relVisPk: RelVisPk, onReturn:()=>void}){
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
     );
-    const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const classes = useStyles({open:open});
     const [botonActual, setBotonActual] = React.useState<'todos'|'pendientes'|'compactar'|'advertencias'>('todos');
 
     const handleDrawerOpen = () => {
