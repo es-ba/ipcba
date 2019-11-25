@@ -46,11 +46,11 @@ var ProceduresIpcba = {};
 var cuadro = [];
 
 function json(sql, orderby){
-    return `(SELECT jsonb_agg(to_jsonb(j.*) ORDER BY ${orderby}) from (${sql}) as j)`
+    return `COALESCE((SELECT jsonb_agg(to_jsonb(j.*) ORDER BY ${orderby}) from (${sql}) as j),'[]'::jsonb)`
 }
 
 function jsono(sql, indexedby){
-    return `(SELECT jsonb_object_agg(${indexedby},to_jsonb(j.*)) from (${sql}) as j)`
+    return `COALESCE((SELECT jsonb_object_agg(${indexedby},to_jsonb(j.*)) from (${sql}) as j),'{}'::jsonb)`
 }
 
 //----------------------FUNCIONES AUXILIARES-------------------------------------------------------------------------
@@ -1154,8 +1154,19 @@ ProceduresIpcba = [
                     )} as atributos
                     , ${jsono(`
                         SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA},
-                                ${json(`SELECT atributo, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion
-                                        FROM prodatr WHERE producto=p.producto`, 'orden, atributo')} as x_atributos
+                                ${json(
+                                    `SELECT atributo, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
+                                        ${json(
+                                            `SELECT atributo, valor, orden
+                                                FROM prodatrval
+                                                WHERE producto=pa.producto
+                                                  AND atributo=pa.atributo`, 
+                                            'orden, valor'
+                                        )} as x_prodatrval
+                                        FROM prodatr pa
+                                        WHERE producto=p.producto`, 
+                                    'orden, atributo'
+                                )} as x_atributos
                             FROM productos p INNER JOIN (
                                 SELECT producto
                                     FROM relvis 
@@ -1267,6 +1278,14 @@ ProceduresIpcba = [
             likeAr(estructura.productos).forEach(p=>{
                 p.lista_atributos = p.x_atributos.map(a=>a.atributo);
                 p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                likeAr(p.atributos).forEach(a=>{
+                    // if(a.x_prodatrval==null){
+                    //     a.x_prodatrval=[];
+                    // }
+                    a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                    a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                    delete p.x_prodatrval;
+                });
                 delete p.x_atributos;
             });
             likeAr(estructura.formularios).forEach(f=>{

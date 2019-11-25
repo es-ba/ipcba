@@ -14,6 +14,8 @@ export type Atributo = {
     escantidad: boolean
 }
 
+export type LetraTipoOpciones = 'A'|'C'|'N'
+
 export type ProdAtr = {
     rangodesde: number | null
     rangohasta: number | null
@@ -21,6 +23,11 @@ export type ProdAtr = {
     normalizable: boolean
     prioridad: number | null
     tiponormalizacion: string | null
+    opciones: LetraTipoOpciones
+    prodatrval:{
+        [valor:string]:null
+    }
+    lista_prodatrval:string[]
 }
 
 export type Producto={
