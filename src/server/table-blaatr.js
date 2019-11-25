@@ -36,7 +36,7 @@ module.exports = function(context){
                 {source:'informante'      , target:'informante'  },
                 {source:'visita'          , target:'visita'      },
             ]},
-            {references:'valvalatr', fields:['periodo', 'atributo', 'valor', {source:'validar_con_valvalatr', target:'validar'}]}
+            {references:'valvalatr', fields:['producto','atributo', 'valor', {source:'validar_con_valvalatr', target:'validar'}]}
         ]
     }, context);
 }

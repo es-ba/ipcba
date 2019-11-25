@@ -37,6 +37,8 @@ module.exports = function(context){
             {name:'varmax'                           , typeName:'decimal'                  , allow:{update:false}},
             {name:'informantes1'                     , typeName:'text'                     , allow:{update:false}},
             {name:'informantes2'                     , typeName:'text'                     , allow:{update:false}},
+            {name:'informantes9'                     , typeName:'text'                     , allow:{update:false}},
+            {name:'informantes10'                    , typeName:'text'                     , allow:{update:false}},
         ],
         primaryKey:['periodo','producto'],
         foreignKeys:[
@@ -62,7 +64,7 @@ module.exports = function(context){
                     round(split_part(m.precio2,'X',1)::decimal/split_part(m.precio1,'X',1)::decimal*100-100,2) else null END as varmin,
                     CASE WHEN comun.es_numero(split_part(x.precio9,'X',1)) and comun.es_numero(split_part(x.precio10,'X',1)) THEN 
                     round(split_part(x.precio10,'X',1)::decimal/split_part(x.precio9,'X',1)::decimal*100-100,2) else null END as varmax,
-                    m.informantes1, m.informantes2
+                    m.informantes1, m.informantes2, x.informantes9, x.informantes10
                     from calprodresp cp
                          left join productos p on cp.producto = p.producto
                          left join precios_maximos_vw x on cp.periodo = x.periodo and cp.producto = x.producto
@@ -71,7 +73,8 @@ module.exports = function(context){
                          left join precios_minimos_vw m on cp.periodo = m.periodo and cp.producto = m.producto
                     where cp.calculo = 0
                     group by cp.periodo, cp.producto, cp.responsable, m.precio1, m.precio2, m.precio3, m.precio4, m.precio5,
-                    x.precio6, x.precio7, x.precio8, x.precio9, x.precio10, p.unidadmedidaabreviada, m.informantes1, m.informantes2
+                    x.precio6, x.precio7, x.precio8, x.precio9, x.precio10, p.unidadmedidaabreviada, m.informantes1, m.informantes2,
+                    x.informantes9, x.informantes10
                     )`,
             isTable: false,
         }    
