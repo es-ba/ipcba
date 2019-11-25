@@ -290,7 +290,9 @@ const EditableTd = function<T extends any>(props:{
                 onClose={()=> dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))}
             >
                 {props.value?<>
-                    <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
+                    <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
+                        <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}> > {props.titulo}</ListItemText>
+                    </MenuItem>
                     <MenuItem key='*****current value******' value={props.value}
                         onClick={(event)=>{
                             props.onUpdate(props.value);
@@ -419,7 +421,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                     <col style={{width:"8%" }}/>
                     <col style={{width:"8%" }}/>
                     <col style={{width:"25%"}}/>
-                </colgroup>                  
+                </colgroup>      
+            <tbody>
             <tr>
                 <td className="observaciones" button-container="yes">
                     <Button color="primary" variant="outlined" onClick={()=>{
@@ -554,7 +557,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                     ultimoAtributo={index == relPre.atributos.length-1}
                 />
             )}
-            </table>
+            </tbody></table>
         </>
     );
 })
