@@ -187,16 +187,20 @@ function TypedInput<T>(props:{
     }
 }
 
-function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
+function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void, onClose:()=>void}){
     const [valor, setValor] = useState(props.valor);
-    const [open, setOpen] = useState(props.open);
-    if(props.open!=open){
-        setOpen(props.open);
+    if(!props.open && valor!=props.valor){
+        setValor(props.valor);
     }
+    useEffect(() => {
+        if(props.open){
+            focusToId(props.inputId);
+        }
+    }, []);
     return <Dialog
-        open={open}
-        
-        onClose={()=>setOpen(false)}
+        open={props.open}
+        id={props.inputId}
+        onClose={()=>props.onClose()}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
     >
@@ -212,13 +216,14 @@ function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, onCanc
         </DialogContent>
         <DialogActions>
             <Button onClick={()=>{
-                setValor(props.valor);
                 props.onCancel()
+                props.onClose();
             }} color="secondary" variant="text">
                 cancelar
             </Button>
             <Button onClick={()=>{
                 props.onUpdate(valor)
+                props.onClose();
             }} color="primary" variant="contained">
                 Ok
             </Button>
@@ -318,12 +323,13 @@ const EditableTd = function<T extends any>(props:{
             :null
         }
         <DialogoSimple open={editandoOtro} titulo={props.titulo} valor={props.value} 
-            onCancel={()=>setEditandoOtro(false)} 
-            onUpdate={(value)=> {
+            inputId={props.inputId+'_otro_attr'}
+            onCancel={()=>{}}
+            onClose={()=>setEditandoOtro(false)} 
+            onUpdate={(value)=>
                 props.onUpdate(value)
-                setEditandoOtro(false);
             }
-        }/>
+        />
     </>
 };
 
