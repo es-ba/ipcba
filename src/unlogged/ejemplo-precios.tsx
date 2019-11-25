@@ -187,7 +187,7 @@ function TypedInput<T>(props:{
     }
 }
 
-function DialogoSimple(props:{open:boolean, titulo:string, valor:string, onUpdate:(valor:string)=>void}){
+function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
     const [valor, setValor] = useState(props.valor);
     const [open, setOpen] = useState(props.open);
     if(props.open!=open){
@@ -195,13 +195,15 @@ function DialogoSimple(props:{open:boolean, titulo:string, valor:string, onUpdat
     }
     return <Dialog
         open={open}
+        
         onClose={()=>setOpen(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
     >
-        <DialogTitle id="alert-dialog-title-obs">{props.titulo}</DialogTitle>
+        <DialogTitle id="alert-dialog-title-obs">{props.titulo || ''}</DialogTitle>
         <DialogContent>
-            <TextField 
+            <TextField
+                value={valor}
                 onChange={(event)=>{
                     setValor(event.target.value);
                 }}
@@ -210,13 +212,13 @@ function DialogoSimple(props:{open:boolean, titulo:string, valor:string, onUpdat
         </DialogContent>
         <DialogActions>
             <Button onClick={()=>{
-                setOpen(false)
+                setValor(props.valor);
+                props.onCancel()
             }} color="secondary" variant="text">
                 cancelar
             </Button>
             <Button onClick={()=>{
                 props.onUpdate(valor)
-                setOpen(false)
             }} color="primary" variant="contained">
                 Ok
             </Button>
@@ -239,6 +241,7 @@ const EditableTd = function<T extends any>(props:{
     const dispatch = useDispatch();
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
     const [editando, setEditando]=useState(deboEditar);
+    const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
     // const [mostrarMenu, setMostrarMenu] = useState<HTMLElement|null>(null);
     const mostrarMenu = useRef<HTMLTableDataCellElement>();
@@ -275,11 +278,11 @@ const EditableTd = function<T extends any>(props:{
         </td>
         {editaEnLista && editando?
             <Menu id="simple-menu"
-                open={editando}
+                open={editando && mostrarMenu.current !== undefined}
                 anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
-                // onClose={()=>setEditando(false)}
+                onClose={()=> dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))}
             >
                 {props.value?<>
                     <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
@@ -314,8 +317,12 @@ const EditableTd = function<T extends any>(props:{
             </Menu>
             :null
         }
-        <DialogoSimple titulo={props.titulo} valor={props.value} onUpdate={(value)=>
-            console.log(value)
+        <DialogoSimple open={editandoOtro} titulo={props.titulo} valor={props.value} 
+            onCancel={()=>setEditandoOtro(false)} 
+            onUpdate={(value)=> {
+                props.onUpdate(value)
+                setEditandoOtro(false);
+            }
         }/>
     </>
 };
