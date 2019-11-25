@@ -281,40 +281,42 @@ const EditableTd = function<T extends any>(props:{
                 anchorEl={mostrarMenu.current}
                 // onClose={()=>setEditando(false)}
             >
-            {props.value?<>
-                <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
-                <MenuItem key='*****current value******' value={props.value}
-                    onClick={(event)=>{
-                        props.onUpdate(props.value);
-                    }}
-                >
-                    <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
-                </MenuItem>
-            </>:null}
-            <Divider />
-            {(props.opciones||[]).map(label=>(
-                <MenuItem key={label} value={label}
-                    onClick={(event)=>{
-                        props.onUpdate(label);
-                    }}
-                >
-                    <ListItemText >{label}</ListItemText>                    
-                </MenuItem>
-            ))}
-            {props.tipoOpciones=='A'?<>
+                {props.value?<>
+                    <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
+                    <MenuItem key='*****current value******' value={props.value}
+                        onClick={(event)=>{
+                            props.onUpdate(props.value);
+                        }}
+                    >
+                        <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
+                    </MenuItem>
+                </>:null}
                 <Divider />
-                <MenuItem key='*****other value******' 
-                    onClick={(event)=>{
-                        setEditandoOtro(true)
-                    }}
-                >
-                    <ListItemText style={{textDecoration:'italic'}}>OTRO</ListItemText>
-                </MenuItem>
-            </>:null}
-            </Menu>:null
-            <DialogoSimple titulo={props.titulo} valor={props.value} onUpdate={(value)=>
-            }/>
+                {(props.opciones||[]).map(label=>(
+                    <MenuItem key={label} value={label}
+                        onClick={(event)=>{
+                            props.onUpdate(label);
+                        }}
+                    >
+                        <ListItemText >{label}</ListItemText>                    
+                    </MenuItem>
+                ))}
+                {props.tipoOpciones=='A'?<>
+                    <Divider />
+                    <MenuItem key='*****other value******' 
+                        onClick={(event)=>{
+                            setEditandoOtro(true)
+                        }}
+                    >
+                        <ListItemText style={{textDecoration:'italic'}}>OTRO</ListItemText>
+                    </MenuItem>
+                </>:null}
+            </Menu>
+            :null
         }
+        <DialogoSimple titulo={props.titulo} valor={props.value} onUpdate={(value)=>
+            console.log(value)
+        }/>
     </>
 };
 
