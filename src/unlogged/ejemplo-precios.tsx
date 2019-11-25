@@ -9,7 +9,7 @@ import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
     AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, useScrollTrigger, SvgIcon, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
@@ -121,26 +121,6 @@ function TypedInput<T>(props:{
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null
 }){
-    /*
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            container: {
-                display: 'flex',
-                flexWrap: 'wrap',
-            },
-            textField: {
-                marginLeft: theme.spacing(1),
-                marginRight: theme.spacing(1),
-                width: 200,
-                color:'black'
-            },
-            input:{
-                color:'black'
-            }
-        }),
-    );
-    const classes = useStyles();
-    */
     var inputId=props.inputId;
     var [value, setValue] = useState(props.value);
     useEffect(() => {
@@ -204,11 +184,44 @@ function TypedInput<T>(props:{
                 }
             }}
         />
-
     }
-    return React.createElement((props.dataType=='text'?'TextField':'input'),{
-        ...propiedades,
-    })
+}
+
+function DialogoSimple(props:{open:boolean, titulo:string, valor:string, onUpdate:(valor:string)=>void}){
+    const [valor, setValor] = useState(props.valor);
+    const [open, setOpen] = useState(props.open);
+    if(props.open!=open){
+        setOpen(props.open);
+    }
+    return <Dialog
+        open={open}
+        onClose={()=>setOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+    >
+        <DialogTitle id="alert-dialog-title-obs">{props.titulo}</DialogTitle>
+        <DialogContent>
+            <TextField 
+                onChange={(event)=>{
+                    setValor(event.target.value);
+                }}
+                // onKey = 13 ...
+            />
+        </DialogContent>
+        <DialogActions>
+            <Button onClick={()=>{
+                setOpen(false)
+            }} color="secondary" variant="text">
+                cancelar
+            </Button>
+            <Button onClick={()=>{
+                props.onUpdate(valor)
+                setOpen(false)
+            }} color="primary" variant="contained">
+                Ok
+            </Button>
+        </DialogActions>
+    </Dialog>
 }
 
 const EditableTd = function<T extends any>(props:{
@@ -220,7 +233,8 @@ const EditableTd = function<T extends any>(props:{
     className?:string, colSpan?:number, 
     onUpdate:OnUpdate<T>,
     tipoOpciones?:LetraTipoOpciones|null,
-    opciones?:string[]|null
+    opciones?:string[]|null,
+    titulo?:string
 }){
     const dispatch = useDispatch();
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
@@ -267,18 +281,39 @@ const EditableTd = function<T extends any>(props:{
                 anchorEl={mostrarMenu.current}
                 // onClose={()=>setEditando(false)}
             >
+            {props.value?<>
+                <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
+                <MenuItem key='*****current value******' value={props.value}
+                    onClick={(event)=>{
+                        props.onUpdate(props.value);
+                    }}
+                >
+                    <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
+                </MenuItem>
+            </>:null}
+            <Divider />
             {(props.opciones||[]).map(label=>(
                 <MenuItem key={label} value={label}
                     onClick={(event)=>{
-                        // dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
-                        // setEditando(false);
                         props.onUpdate(label);
                     }}
                 >
-                   {label}
+                    <ListItemText >{label}</ListItemText>                    
                 </MenuItem>
             ))}
+            {props.tipoOpciones=='A'?<>
+                <Divider />
+                <MenuItem key='*****other value******' 
+                    onClick={(event)=>{
+                        setEditandoOtro(true)
+                    }}
+                >
+                    <ListItemText style={{textDecoration:'italic'}}>OTRO</ListItemText>
+                </MenuItem>
+            </>:null}
             </Menu>:null
+            <DialogoSimple titulo={props.titulo} valor={props.value} onUpdate={(value)=>
+            }/>
         }
     </>
 };
@@ -328,6 +363,7 @@ const AtributosRow = function(props:{
                 }} 
                 tipoOpciones={prodatr.opciones}
                 opciones={prodatr.lista_prodatrval}
+                titulo={atributo.nombreatributo}
             />
         </tr>
     )
@@ -377,30 +413,30 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                         obs
                     </Button>
                     <Dialog
-                    open={dialogoObservaciones}
-                    onClose={()=>setDialogoObservaciones(false)}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description-obs">
-                            acá van las obs
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={()=>{
-                            setDialogoObservaciones(false)
-                        }} color="primary" variant="outlined">
-                            Guardar
-                        </Button>
-                        <Button onClick={()=>{
-                            setDialogoObservaciones(false)
-                        }} color="secondary" variant="outlined">
-                            Descartar Observaciones
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                        open={dialogoObservaciones}
+                        onClose={()=>setDialogoObservaciones(false)}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="alert-dialog-description-obs">
+                                acá van las obs
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={()=>{
+                                setDialogoObservaciones(false)
+                            }} color="primary" variant="outlined">
+                                Guardar
+                            </Button>
+                            <Button onClick={()=>{
+                                setDialogoObservaciones(false)
+                            }} color="secondary" variant="outlined">
+                                Descartar Observaciones
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </td>
                 <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                 <td className="precioAnterior">{relPre.precioanterior}</td>
