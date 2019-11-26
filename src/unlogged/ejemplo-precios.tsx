@@ -923,7 +923,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         searchString={searchString}
                         allForms={searchAllForms}
                         onCantResults={(cantResults)=>{
-                            setSearchAllHidden(cantResults>CANT_RESULTADOS_HABILITAN_OTROS_FORMULARIOS && !searchAllForms)
+                            setSearchAllHidden((cantResults>CANT_RESULTADOS_HABILITAN_OTROS_FORMULARIOS && !searchAllForms) || relInf.formularios.length<2)
                         }}
                     />
                 </div>
