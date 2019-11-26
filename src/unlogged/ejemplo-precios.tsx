@@ -284,15 +284,15 @@ const EditableTd = function<T extends any>(props:{
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                // anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
                 onClose={()=> dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))}
             >
-                {props.value?<>
-                    <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
-                        <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}> > {props.titulo}</ListItemText>
-                    </MenuItem>
+                <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
+                    <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
+                </MenuItem>
+                {props.value && props.opciones.indexOf(props.value)==-1?
                     <MenuItem key='*****current value******' value={props.value}
                         onClick={(event)=>{
                             props.onUpdate(props.value);
@@ -300,7 +300,7 @@ const EditableTd = function<T extends any>(props:{
                     >
                         <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
                     </MenuItem>
-                </>:null}
+                :null}
                 <Divider />
                 {(props.opciones||[]).map(label=>(
                     <MenuItem key={label} value={label}
@@ -308,11 +308,11 @@ const EditableTd = function<T extends any>(props:{
                             props.onUpdate(label);
                         }}
                     >
-                        <ListItemText >{label}</ListItemText>                    
+                        <ListItemText style={label==props.value?{color:'blue'}:{}}>{label}</ListItemText>                    
                     </MenuItem>
                 ))}
-                {props.tipoOpciones=='A'?<>
-                    <Divider />
+                {props.tipoOpciones=='A'?<Divider />:null}
+                {props.tipoOpciones=='A'?
                     <MenuItem key='*****other value******' 
                         onClick={(event)=>{
                             setEditandoOtro(true)
@@ -320,7 +320,7 @@ const EditableTd = function<T extends any>(props:{
                     >
                         <ListItemText style={{textDecoration:'italic'}}>OTRO</ListItemText>
                     </MenuItem>
-                </>:null}
+                :null}
             </Menu>
             :null
         }
