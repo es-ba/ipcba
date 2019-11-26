@@ -9,7 +9,7 @@ import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
     AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, useScrollTrigger, SvgIcon, Switch, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
@@ -938,13 +938,18 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   );
 }
 
-function InformanteRow(props:{informante:RelInf}){
+function InformanteRow(props:{informante:RelInf, letraGrandeFormulario:boolean}){
     const dispatch = useDispatch();
     const informante = props.informante;
     return (
         <>
             <tr style={{verticalAlign:'top'}}>
-                <td rowSpan={informante.formularios.length+1}>{informante.informante} {informante.nombreinformante}</td>
+                <td 
+                    rowSpan={props.letraGrandeFormulario?1:informante.formularios.length+1}
+                    colSpan={props.letraGrandeFormulario?2:1}
+                >
+                    {informante.informante} {informante.nombreinformante}
+                </td>
             </tr>
             {informante.formularios.map((relVis:RelVis)=>
                 <tr key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
@@ -960,8 +965,11 @@ function InformanteRow(props:{informante:RelInf}){
     )
 }
 
-function HojaDeRuta(_props:{}){
-    const informantes = useSelector((hdr:HojaDeRuta)=>hdr.informantes);
+function PantallaHojaDeRuta(_props:{}){
+    const {informantes, opciones} = useSelector((hdr:HojaDeRuta)=>({
+        informantes:hdr.informantes,
+        opciones:hdr.opciones||{}
+    }));
     return (
         <>
             <AppBar position="fixed">
@@ -974,8 +982,8 @@ function HojaDeRuta(_props:{}){
             <main>
                 <table className="hoja-ruta">
                     <thead>
-                        <tr>
-                            <th>informante</th>
+                        <tr className="hdr-tr-informante">
+                            <th className="oculto-en-grande"><span className="oculto-en-grande">informante</span></th>
                             <th>formularios</th>
                             <th>prod</th>
                             <th>faltan</th>
@@ -984,7 +992,7 @@ function HojaDeRuta(_props:{}){
                     </thead>
                     <tbody>
                         {informantes.map((informante:RelInf)=>
-                            <InformanteRow key={informante.informante} informante={informante}/>
+                            <InformanteRow key={informante.informante} informante={informante} letraGrandeFormulario={opciones.letraGrandeFormulario}/>
                         )}
                     </tbody>
                 </table>
@@ -993,10 +1001,41 @@ function HojaDeRuta(_props:{}){
     );
 }
 
+function PantallaOpciones(){
+    const opciones = useSelector((hdr:HojaDeRuta)=>hdr.opciones||{})
+    const dispatch = useDispatch();
+    return <div className="pantalla-opciones">
+        <Divider/>
+        <Typography variant="h4">Opciones del dispositivo móvil</Typography>
+        <Typography>
+            <Grid component="span">Letra en formulario:</Grid>
+            <Grid component="label" container alignItems="center" spacing={1}>
+                <Grid item>chica</Grid>
+                <Grid item>
+                    <Switch
+                        checked={opciones.letraGrandeFormulario}
+                        onChange={(event)=>{
+                            document.documentElement.setAttribute('pos-productos',event.target.checked?'arriba':'izquierda');
+                            dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked});
+                        }}
+                        value="letraGrandeEnFormulario"
+                        color="primary"
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                    />
+                </Grid>
+                <Grid item>Grande</Grid>
+            </Grid>            
+        </Typography>
+    </div>
+}
+
 function AppDmIPC(){
     const relVisPk = useSelector((hdr:HojaDeRuta)=>hdr.relVisPk);
     if(relVisPk == undefined){
-        return <HojaDeRuta/>
+        return <>
+            <PantallaHojaDeRuta/>
+            <PantallaOpciones/>
+        </>
     }else{
         return <FormularioVisita relVisPk={relVisPk} />
     }

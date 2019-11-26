@@ -136,6 +136,10 @@ export type RelInf={
     observaciones: RelPre[]
 }
 
+export type OpcionesHojaDeRuta={
+    letraGrandeFormulario?:boolean
+}
+
 export type HojaDeRuta={
     encuestador:string,
     dispositivo:string,
@@ -143,4 +147,5 @@ export type HojaDeRuta={
     informantes:RelInf[]
     idActual?:string|null
     relVisPk?:RelVisPk
+    opciones?:OpcionesHojaDeRuta
 }

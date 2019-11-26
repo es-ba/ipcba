@@ -190,6 +190,14 @@ var reducers={
                 relVisPk:null
             })
         },
+    SET_OPCION:(payload: {variable:string, valor:any}) => 
+        function(state: HojaDeRuta){
+            return deepFreeze({
+                ...state,
+                opciones:{...state.opciones, [payload.variable]:payload.valor}
+            })
+        },
+    }
 }
 
 export type ActionHdr = ActionsFrom<typeof reducers>;
