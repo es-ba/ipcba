@@ -187,19 +187,10 @@ function TypedInput<T>(props:{
     }
 }
 
-function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void, onClose:()=>void}){
+function DialogoSimple(props:{titulo?:string, valor:string, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
     const [valor, setValor] = useState(props.valor);
-    if(!props.open && valor!=props.valor){
-        setValor(props.valor);
-    }
-    useEffect(() => {
-        if(props.open){
-            focusToId(props.inputId);
-        }
-    }, []);
     return <Dialog
-        open={props.open}
-        id={props.inputId}
+        open={true}
         onClose={()=>props.onClose()}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
@@ -207,6 +198,7 @@ function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, inputI
         <DialogTitle id="alert-dialog-title-obs">{props.titulo || ''}</DialogTitle>
         <DialogContent>
             <TextField
+                autoFocus
                 value={valor}
                 onChange={(event)=>{
                     setValor(event.target.value);
@@ -217,13 +209,11 @@ function DialogoSimple(props:{open:boolean, titulo?:string, valor:string, inputI
         <DialogActions>
             <Button onClick={()=>{
                 props.onCancel()
-                props.onClose();
             }} color="secondary" variant="text">
                 cancelar
             </Button>
             <Button onClick={()=>{
                 props.onUpdate(valor)
-                props.onClose();
             }} color="primary" variant="contained">
                 Ok
             </Button>
@@ -284,7 +274,6 @@ const EditableTd = function<T extends any>(props:{
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
-                // anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
                 onClose={()=> dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))}
@@ -292,7 +281,7 @@ const EditableTd = function<T extends any>(props:{
                 <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
                     <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
                 </MenuItem>
-                {props.value && props.opciones.indexOf(props.value)==-1?
+                {props.value && (props.opciones||[]).indexOf(props.value)==-1?
                     <MenuItem key='*****current value******' value={props.value}
                         onClick={(event)=>{
                             props.onUpdate(props.value);
@@ -324,14 +313,16 @@ const EditableTd = function<T extends any>(props:{
             </Menu>
             :null
         }
-        <DialogoSimple open={editandoOtro} titulo={props.titulo} valor={props.value} 
-            inputId={props.inputId+'_otro_attr'}
-            onCancel={()=>{}}
-            onClose={()=>setEditandoOtro(false)} 
-            onUpdate={(value)=>
-                props.onUpdate(value)
-            }
-        />
+        {editandoOtro?
+            <DialogoSimple titulo={props.titulo} valor={props.value} 
+                inputId={props.inputId+'_otro_attr'}
+                onCancel={()=>setEditandoOtro(false)}
+                onUpdate={(value)=>{
+                    setEditandoOtro(false);
+                    props.onUpdate(value);
+                }}
+            />
+        :null}
     </>
 };
 
