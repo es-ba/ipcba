@@ -13,8 +13,8 @@ module.exports = function(context){
         },        
         fields:[
             {name:'periodo'                     , typeName:'text'     , nullable:false                             },
-            {name:'ano'                         , typeName:'integer'  , nullable:false                             },
-            {name:'mes'                         , typeName:'integer'  , nullable:false                             },
+            {name:'ano'                         , typeName:'integer'                                               },
+            {name:'mes'                         , typeName:'integer'                                               },
             {name:'ingresando'                  , typeName:'text'                                                  },
             {name: "generar"                    , typeName: "bigint"  , editable:false, clientSide:'generarPeriodo'},
             {name:'fechageneracionperiodo'      , typeName:'timestamp'                                             },                
