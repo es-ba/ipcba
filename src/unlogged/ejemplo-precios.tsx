@@ -187,7 +187,7 @@ function TypedInput<T>(props:{
     }
 }
 
-function DialogoSimple(props:{titulo?:string, valor:string, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
+function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
     const [valor, setValor] = useState(props.valor);
     return <Dialog
         open={true}
@@ -200,6 +200,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, inputId:string, onCa
             <TextField
                 autoFocus
                 value={valor}
+                type={props.dataType}
                 onChange={(event)=>{
                     setValor(event.target.value);
                 }}
@@ -314,7 +315,10 @@ const EditableTd = function<T extends any>(props:{
             :null
         }
         {editandoOtro?
-            <DialogoSimple titulo={props.titulo} valor={props.value} 
+            <DialogoSimple 
+                titulo={props.titulo} 
+                valor={props.value} 
+                dataType={props.dataType} 
                 inputId={props.inputId+'_otro_attr'}
                 onCancel={()=>setEditandoOtro(false)}
                 onUpdate={(value)=>{
