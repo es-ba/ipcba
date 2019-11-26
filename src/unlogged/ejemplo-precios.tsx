@@ -9,8 +9,8 @@ import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
     AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    Menu, MenuItem, useScrollTrigger, SvgIcon, TextField, Toolbar, Typography, Zoom
+    DialogTitle, Divider, Fab, FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    Menu, MenuItem, useScrollTrigger, SvgIcon, Switch, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
@@ -53,6 +53,7 @@ const FLECHAATRIBUTOS="➡";
 const FLECHAVOLVER="←";
 const PRIMARY_COLOR   ="#3f51b5";
 const SECONDARY_COLOR ="#f50057";
+const CANT_RESULTADOS_HABILITAN_OTROS_FORMULARIOS = 0;
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -557,18 +558,28 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     );
 })
 
-function RelevamientoPrecios(props:{relInf:RelInf, formulario:number}){
+function RelevamientoPrecios(props:{
+    relInf:RelInf, 
+    formulario:number, 
+    searchString: string|null,
+    allForms:boolean
+    onCantResults:(cantResults:number)=>void
+}){
     const relInf = props.relInf;
-    const observaciones = relInf.observaciones;
+    //mejorar con expresion regular
+    var observaciones = relInf.observaciones.filter((relPre:RelPre)=>
+        (props.allForms?true:relPre.formulario==props.formulario) &&
+        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true)
+    );
+    props.onCantResults(observaciones.length);
     return (
         <>
             {observaciones.map((relPre:RelPre, iRelPre:number) =>
-                relPre.formulario==props.formulario? 
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
                     iRelPre={iRelPre}
-                />:null
+                />
             )}
         </>
     );
@@ -768,7 +779,10 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             .formularios
     );
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState<boolean>(false);
+    const [searchAllForms, setSearchAllForms] = React.useState<boolean>(false);
+    const [searchAllHidden, setSearchAllHidden] = React.useState<boolean>(true);
+    const [searchString, setSearchString] = React.useState<string|null>(null);
     const classes = useStyles({open:open});
     const [botonActual, setBotonActual] = React.useState<'todos'|'pendientes'|'compactar'|'advertencias'>('todos');
 
@@ -842,8 +856,27 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 root: classes.inputRoot,
                                 input: classes.inputInput,
                             }} inputProps={{ 'aria-label': 'search' }}
+                            onChange={()=>setSearchString(event.target.value)}
                         />
                     </div>
+                    {!searchAllHidden?
+                        <FormControl component="fieldset">
+                            <FormGroup aria-label="position" row>
+                                <FormControlLabel
+                                    value="top"
+                                    control={
+                                        <Switch 
+                                            color="secondary"
+                                            checked={searchAllForms}
+                                            onChange={()=>setSearchAllForms(!searchAllForms)}
+                                        />
+                                    }
+                                    label="todos"
+                                    labelPlacement="start"
+                                />
+                            </FormGroup>
+                        </FormControl>
+                    :null}
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -884,7 +917,15 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             <main className={classes.content}>
                 <RazonFormulario relVis={relVis}/>
                 <div className="informante-visita">
-                    <RelevamientoPrecios relInf={relInf} formulario={relVis.formulario}/>
+                    <RelevamientoPrecios 
+                        relInf={relInf} 
+                        formulario={relVis.formulario}
+                        searchString={searchString}
+                        allForms={searchAllForms}
+                        onCantResults={(cantResults)=>{
+                            setSearchAllHidden(cantResults>CANT_RESULTADOS_HABILITAN_OTROS_FORMULARIOS && !searchAllForms)
+                        }}
+                    />
                 </div>
             </main>
             <ScrollTop>
