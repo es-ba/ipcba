@@ -566,21 +566,23 @@ function RelevamientoPrecios(props:{
     onCantResults:(cantResults:number)=>void
 }){
     const relInf = props.relInf;
-    //mejorar con expresion regular
-    var observaciones = relInf.observaciones.filter((relPre:RelPre)=>
-        (props.allForms?true:relPre.formulario==props.formulario) &&
-        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true)
-    );
-    props.onCantResults(observaciones.length);
+    var observaciones = relInf.observaciones;
+    var observacionesFiltradas:{[key:number]:RelPre}={};
+    observaciones.map((relPre:RelPre, iRelPre:number) =>
+        ((props.allForms?true:relPre.formulario==props.formulario) &&
+        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true))?
+        observacionesFiltradas[iRelPre]=relPre:null
+    )
+    props.onCantResults(likeAr(observacionesFiltradas).array().length)
     return (
         <>
-            {observaciones.map((relPre:RelPre, iRelPre:number) =>
+            {likeAr(observacionesFiltradas).map((relPre:RelPre, iRelPre:number) =>
                 <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
-                    iRelPre={iRelPre}
+                    iRelPre={Number(iRelPre)}
                 />
-            )}
+            ).array()}
         </>
     );
 }
