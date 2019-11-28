@@ -349,19 +349,31 @@ const AtributosRow = function(props:{
     const dispatch = useDispatch();
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
+    const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
+    const classes = useStylesList();
     return (
         <tr>
             <td className="nombre-atributo">{atributo.nombreatributo}</td>
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
-                    {puedeCopiarAtributos(estructura, relPre)?<Button color="primary" variant="outlined" onClick={ () => {
-                        dispatch(dispatchers.COPIAR_ATRIBUTOS({
-                            forPk:relAtr, 
-                            iRelPre:props.iRelPre,
-                            nextId:relPre.precio?false:props.inputIdPrecio
-                        }))
-                    }}>{FLECHAATRIBUTOS}</Button>:relPre.cambio}
+                    {puedeCopiarAtributos(estructura, relPre)?
+                        <Button color="primary" variant="outlined" onClick={ () => {
+                            dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                                nextId:relPre.precio?false:props.inputIdPrecio
+                            }))
+                        }}>
+                            {FLECHAATRIBUTOS}
+                        </Button>
+                    :(relPre.cambio=='C')?
+                        <Button color="primary" variant="outlined" onClick={ (event) => {
+                            setMenuCambioAtributos(event.currentTarget)                            
+                        }}>
+                            C
+                        </Button>
+                    :relPre.cambio}
                 </td>
                 :null}
             <EditableTd colSpan={2} className="atributo-actual" inputId={props.inputId}
@@ -380,6 +392,26 @@ const AtributosRow = function(props:{
                 opciones={prodatr.lista_prodatrval}
                 titulo={atributo.nombreatributo}
             />
+            <Menu id="simple-menu-cambio"
+                open={Boolean(menuCambioAtributos)}
+                anchorEl={menuCambioAtributos}
+                onClose={()=>setMenuCambioAtributos(null)}
+            >
+                <MenuItem key={} onClick={()=>{
+                    setMenuCambioAtributos(null)
+                }}>
+                    <ListItemText classes={{primary: classes.listItemText}}>
+                        Copiar el resto de los atributos vacíos
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem key={} onClick={()=>{
+                    setMenuCambioAtributos(null)
+                }}>
+                    <ListItemText classes={{primary: classes.listItemText}}>
+                        Anular el cambio pisando los valores distintos
+                    </ListItemText>
+                </MenuItem>
+            </Menu>
         </tr>
     )
 };
