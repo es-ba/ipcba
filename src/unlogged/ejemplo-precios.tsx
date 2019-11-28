@@ -12,7 +12,7 @@ import {
     DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, useScrollTrigger, SvgIcon, Switch, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
-import { createStyles, makeStyles, useTheme, Theme, fade} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
 // https://material-ui.com/components/material-icons/
@@ -20,6 +20,7 @@ export const materialIoIconsSvgPath={
     Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
     ChevronLeft: "M14.71 6.71a.9959.9959 0 00-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z",
     ChevronRight: "M9.29 6.71c-.39.39-.39 1.02 0 1.41L13.17 12l-3.88 3.88c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l4.59-4.59c.39-.39.39-1.02 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z",
+    Clear: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
     Close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
     Code: "M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z",
     Description: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
@@ -45,6 +46,7 @@ const MenuIcon = ICON.Menu;
 const DescriptionIcon = ICON.Description;
 const SearchIcon = ICON.Search;
 const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
+const ClearIcon = ICON.Clear;
 
 export var estructura:Estructura;
 
@@ -382,7 +384,7 @@ const AtributosRow = function(props:{
     )
 };
 
-const useStylesList = makeStyles((theme: Theme) =>
+const useStylesList = makeStyles((_theme: Theme) =>
     createStyles({
         listItemText:{
             fontSize:'1.2rem',
@@ -390,7 +392,7 @@ const useStylesList = makeStyles((theme: Theme) =>
     }),
 );
 
-var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:number, onSelect:()=>void}){
+var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:number, onSelect:(inputId:string)=>void}){
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
@@ -404,12 +406,12 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     const classes = useStylesList();
     return (
         <>
-            <div onClick={(event)=>props.onSelect()} className="caja-producto">
+            <div onClick={(_event)=>props.onSelect(inputIdPrecio)} className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
                 <div className="especificacion">{productoDef.especificacioncompleta}</div>
             </div>
-            <table onClick={(event)=>props.onSelect()} className="caja-precios">
+            <table onClick={(_event)=>props.onSelect(inputIdPrecio)} className="caja-precios">
                 <colgroup>
                     <col style={{width:"26%"}}/>
                     <col style={{width:"8%" }}/>
@@ -586,9 +588,12 @@ function RelevamientoPrecios(props:{
                         key={relPre.producto+'/'+relPre.observacion}
                         relPre={relPre}
                         iRelPre={Number(iRelPre)}
-                        onSelect={()=>{
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
-                            props.onResetSearchOptions();
+                        onSelect={(inputId:string)=>{
+                            if(props.searchString || props.allForms){
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+                                dispatch(dispatchers.SET_FOCUS({nextId:inputId}));
+                                props.onResetSearchOptions();
+                            }
                         }}
                     />
                 ).array()
@@ -792,7 +797,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
     );
-    const theme = useTheme();
     const [open, setOpen] = React.useState<boolean>(false);
     const [searchAllForms, setSearchAllForms] = React.useState<boolean>(false);
     const [searchAllHidden, setSearchAllHidden] = React.useState<boolean>(true);
@@ -866,12 +870,19 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         <div className={classes.searchIcon}>
                             <SearchIcon />
                         </div>
-                        <InputBase placeholder="Buscar..." value={searchString} classes={{
+                        <InputBase id="search" placeholder="Buscar..." value={searchString} classes={{
                                 root: classes.inputRoot,
                                 input: classes.inputInput,
                             }} inputProps={{ 'aria-label': 'search' }}
-                            onChange={(event)=>setSearchString(event.target.value)}
+                            onChange={(event)=>{
+                                setSearchString(event.target.value)
+                                //EVALUAR SI SE SACA
+                                //window.scroll({behavior:'auto', top:0, left:0})
+                            }}
                         />
+                        {searchString?
+                            <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>setSearchString('')}><ClearIcon /></IconButton>
+                        :null}
                     </div>
                     {!searchAllHidden?
                         <FormControl component="fieldset">
