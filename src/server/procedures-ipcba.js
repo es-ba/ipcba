@@ -1233,6 +1233,7 @@ ProceduresIpcba = [
                         cambio, comentariosrelpre, precionormalizado, 
                         f.orden as orden_formulario,
                         fp.orden as orden_producto,
+                        null as adv,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos
                     FROM relpre_1 rp inner join forprod fp using(formulario, producto)
                         inner join formularios f using (formulario)
