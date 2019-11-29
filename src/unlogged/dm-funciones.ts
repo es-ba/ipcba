@@ -7,7 +7,11 @@ export function puedeCopiarTipoPrecio(estructura:Estructura, relPre:RelPre){
 }
 
 export function puedeCopiarAtributos(estructura:Estructura, relPre:RelPre){
-    return relPre.cambio==null && (!relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo);
+    return !relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+}
+
+export function muestraFlechaCopiarAtributos(estructura:Estructura, relPre:RelPre){
+    return relPre.cambio==null && puedeCopiarAtributos(estructura, relPre);
 }
 
 export function puedeCambiarPrecioYAtributos(estructura:Estructura, relPre:RelPre){
@@ -20,6 +24,10 @@ export function puedeCambiarTP(estructura:Estructura, relVis:RelVis){
 
 export function tpNecesitaConfirmacion(estructura:Estructura, relPre:RelPre, tipoPrecioSeleccionado:string){
     return !estructura.tipoPrecio[tipoPrecioSeleccionado].espositivo && (relPre.precio != null || relPre.cambio != null)
+}
+
+export function calcularCambioAtributosEnPrecio(relPre:RelPre){
+    return relPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior)?'C':'=';
 }
 
 export function razonNecesitaConfirmacion(estructura:Estructura, relVis:RelVis, razon:number){

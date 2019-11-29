@@ -1,6 +1,6 @@
 import { createStore } from "redux";
 import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
-import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos} from "./dm-funciones";
+import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
@@ -148,6 +148,17 @@ var reducers={
                 }:relPre;
             });
         },
+    COPIAR_ATRIBUTOS_VACIOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+        function(state: HojaDeRuta){
+            return surfRelPre(state, payload, (relPre:RelPre)=>{
+                var nuevoRelPre:RelPre = {
+                    ...relPre,
+                    atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valor?relAtr.valor:relAtr.valoranterior}))
+                };
+                nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
+                return nuevoRelPre;
+            });
+        },
     SET_ATRIBUTO         :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
@@ -161,7 +172,7 @@ var reducers={
                         relAtr
                     )
                 };
-                nuevoRelPre.cambio=nuevoRelPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior)?'C':'='
+                nuevoRelPre.cambio=calcularCambioAtributosEnPrecio(nuevoRelPre)
                 return nuevoRelPre;
             });
         },

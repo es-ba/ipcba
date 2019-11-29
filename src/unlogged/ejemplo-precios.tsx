@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {puedeCopiarTipoPrecio, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -357,7 +357,7 @@ const AtributosRow = function(props:{
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
-                    {puedeCopiarAtributos(estructura, relPre)?
+                    {muestraFlechaCopiarAtributos(estructura, relPre)?
                         <Button color="primary" variant="outlined" onClick={ () => {
                             dispatch(dispatchers.COPIAR_ATRIBUTOS({
                                 forPk:relAtr, 
@@ -398,16 +398,26 @@ const AtributosRow = function(props:{
                 onClose={()=>setMenuCambioAtributos(null)}
             >
                 <MenuItem key={} onClick={()=>{
+                    dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
+                        forPk:relAtr, 
+                        iRelPre:props.iRelPre,
+                        nextId:relPre.precio?false:props.inputIdPrecio
+                    }))
                     setMenuCambioAtributos(null)
                 }}>
-                    <ListItemText classes={{primary: classes.listItemText}}>
+                    <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
                         Copiar el resto de los atributos vacíos
                     </ListItemText>
                 </MenuItem>
                 <MenuItem key={} onClick={()=>{
+                    dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                        forPk:relAtr, 
+                        iRelPre:props.iRelPre,
+                        nextId:relPre.precio?false:props.inputIdPrecio
+                    }))
                     setMenuCambioAtributos(null)
                 }}>
-                    <ListItemText classes={{primary: classes.listItemText}}>
+                    <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
                         Anular el cambio pisando los valores distintos
                     </ListItemText>
                 </MenuItem>
@@ -527,8 +537,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                                         }))
                                     }
                                 }}>
-                                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
                                 </MenuItem>
                                 )
                             })}
@@ -674,8 +684,8 @@ function RazonFormulario(props:{relVis:RelVis}){
                             }
                             setMenuRazon(null)
                         }}>
-                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
-                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
+                            <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                            <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
                         </MenuItem>
                         )}
                     ).array()}
