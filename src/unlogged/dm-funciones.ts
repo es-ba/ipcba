@@ -7,7 +7,7 @@ export function puedeCopiarTipoPrecio(estructura:Estructura, relPre:RelPre){
 }
 
 export function puedeCopiarAtributos(estructura:Estructura, relPre:RelPre){
-    return !relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+    return !relPre.atributos.every(relAtr=>relAtr.valoranterior == null) && (!relPre.tipoprecio || estructura.tipoPrecio[relPre.tipoprecio].espositivo);
 }
 
 export function muestraFlechaCopiarAtributos(estructura:Estructura, relPre:RelPre){
@@ -27,7 +27,9 @@ export function tpNecesitaConfirmacion(estructura:Estructura, relPre:RelPre, tip
 }
 
 export function calcularCambioAtributosEnPrecio(relPre:RelPre){
-    return relPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior)?'C':'=';
+    var hayAtributosActuales = relPre.atributos.some(relAtr=>relAtr.valor != null);
+    var hayDiferenciasEntreAtributos = relPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior);
+    return !hayAtributosActuales?null:(!hayDiferenciasEntreAtributos?'=':'C')
 }
 
 export function razonNecesitaConfirmacion(estructura:Estructura, relVis:RelVis, razon:number){

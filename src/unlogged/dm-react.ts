@@ -141,11 +141,15 @@ var reducers={
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var puedeCopiarAttrs = puedeCopiarAtributos(estructura!, relPre);
-                return puedeCopiarAttrs?{
+                if(!puedeCopiarAttrs){
+                    return relPre
+                }
+                var nuevoRelPre:RelPre = {
                     ...relPre,
-                    cambio:puedeCopiarAttrs?'=':relPre.cambio,
                     atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valoranterior}))
-                }:relPre;
+                };
+                nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
+                return nuevoRelPre;
             });
         },
     COPIAR_ATRIBUTOS_VACIOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 

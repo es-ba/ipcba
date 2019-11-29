@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -245,6 +245,14 @@ const EditableTd = function<T extends any>(props:{
     // const [mostrarMenu, setMostrarMenu] = useState<HTMLElement|null>(null);
     const mostrarMenu = useRef<HTMLTableDataCellElement>();
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
+    const sanitizarValor = function(valor:T){
+        if(valor==undefined || valor == null || valor.trim()==''){
+            return null
+        }else{
+            return props.dataType == 'number'?Number(valor):valor.trim()
+        }
+
+    }
     if(editando!=deboEditar){
         setEditando(deboEditar);
     }
@@ -263,7 +271,7 @@ const EditableTd = function<T extends any>(props:{
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
-                        props.onUpdate(value);
+                        props.onUpdate(sanitizarValor(value));
                     }} onFocusOut={()=>{
                         if(deboEditar && editando){
                             dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
@@ -367,7 +375,7 @@ const AtributosRow = function(props:{
                         }}>
                             {FLECHAATRIBUTOS}
                         </Button>
-                    :(relPre.cambio=='C')?
+                    :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
                         <Button color="primary" variant="outlined" onClick={ (event) => {
                             setMenuCambioAtributos(event.currentTarget)                            
                         }}>
