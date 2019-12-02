@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion} from "./dm-funciones";
+import {puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, controlarPrecio, controlarAtributo} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -226,6 +226,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
 }
 
 const EditableTd = function<T extends any>(props:{
+    backgroundColor?:string,
     inputId:string,
     disabled?:boolean,
     placeholder?: string,
@@ -257,7 +258,7 @@ const EditableTd = function<T extends any>(props:{
         setEditando(deboEditar);
     }
     return <>
-        <td colSpan={props.colSpan} className={props.className} ref={mostrarMenu} onClick={
+        <td style={{backgroundColor:props.backgroundColor?props.backgroundColor:'none'}} colSpan={props.colSpan} className={props.className} ref={mostrarMenu} onClick={
             (event)=>{
                 if(!props.disabled){
                     // @ts-ignore offsetHeight debería existir porque event.target es un TD
@@ -384,7 +385,9 @@ const AtributosRow = function(props:{
                     :relPre.cambio}
                 </td>
                 :null}
-            <EditableTd colSpan={2} className="atributo-actual" inputId={props.inputId}
+            <EditableTd
+                backgroundColor = {controlarAtributo(relAtr, relPre, estructura).color}
+                colSpan={2} className="atributo-actual" inputId={props.inputId}
                 disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
@@ -582,7 +585,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
                                 </Button>
                             </DialogActions>
                         </Dialog>
-                        <EditableTd inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
+                        <EditableTd backgroundColor = {controlarPrecio(relPre, estructura).color} inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
                             dispatch(dispatchers.SET_PRECIO({
                                 forPk:relPre, 
                                 iRelPre: props.iRelPre,

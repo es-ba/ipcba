@@ -1,6 +1,6 @@
 import { createStore } from "redux";
 import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
-import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio} from "./dm-funciones";
+import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
@@ -130,11 +130,14 @@ var reducers={
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura!, miRelPre);
-                return {
+                var nuevoRelPre:RelPre = {
                     ...miRelPre,
                     precio:puedeCambiarPrecio?payload.precio:miRelPre.precio,
                     tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?estructura!.tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
-                }
+                };
+                nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
+                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
+                return nuevoRelPre;
             });
         },
     COPIAR_ATRIBUTOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
@@ -149,6 +152,8 @@ var reducers={
                     atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valoranterior}))
                 };
                 nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
+                nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
+                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -160,6 +165,8 @@ var reducers={
                     atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:relAtr.valor?relAtr.valor:relAtr.valoranterior}))
                 };
                 nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
+                nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
+                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -177,6 +184,8 @@ var reducers={
                     )
                 };
                 nuevoRelPre.cambio=calcularCambioAtributosEnPrecio(nuevoRelPre)
+                nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
+                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -234,8 +243,8 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 // @ts-ignore provisoriamente no me preocupa que falte _addrParams
 export async function dmTraerDatosHdr(){
     var result = await my.ajax.dm_cargar({
-        // periodo: 'a2019m02', panel: 1, tarea: 1
-        periodo: 'a2019m08', panel: 3, tarea: 6
+        periodo: 'a2019m02', panel: 1, tarea: 1
+        //periodo: 'a2019m08', panel: 3, tarea: 6
     })
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;

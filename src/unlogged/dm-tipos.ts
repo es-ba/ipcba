@@ -17,6 +17,7 @@ export type Atributo = {
 export type LetraTipoOpciones = 'A'|'C'|'N'
 
 export type ProdAtr = {
+    atributo: number
     rangodesde: number | null
     rangohasta: number | null
     orden: number
@@ -27,7 +28,9 @@ export type ProdAtr = {
     prodatrval:{
         [valor:string]:null
     }
+    valornormal: number | null
     lista_prodatrval:string[]
+    mostrar_cant_um: boolean
 }
 
 export type Producto={
@@ -106,14 +109,14 @@ export type RelPre={
     tipoprecioanterior:string | null
     atributos: RelAtr[]
     cambio: Cambio | null
-    comentariosrelpre?: string
-    precionormalizado?: number
-    precionormalizado_1?: number
+    comentariosrelpre: string | null
+    precionormalizado: number | null
+    precionormalizado_1: number | null
     promobs_1?: number
     normsindato?:string
     fueraderango?:string
     sinpreciohace4meses?:string
-    adv?: boolean
+    adv: boolean
 }
 
 export type RelVisPk = {

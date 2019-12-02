@@ -1155,7 +1155,7 @@ ProceduresIpcba = [
                     , ${jsono(`
                         SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA},
                                 ${json(
-                                    `SELECT atributo, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
+                                    `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
                                         ${json(
                                             `SELECT atributo, valor, orden
                                                 FROM prodatrval
@@ -1163,7 +1163,7 @@ ProceduresIpcba = [
                                                   AND atributo=pa.atributo`, 
                                             'orden, valor'
                                         )} as x_prodatrval
-                                        FROM prodatr pa
+                                        FROM prodatr pa inner join especificaciones e using(producto)
                                         WHERE producto=p.producto`, 
                                     'orden, atributo'
                                 )} as x_atributos
@@ -1230,10 +1230,10 @@ ProceduresIpcba = [
                         AND ra.observacion=rp.observacion`
             var sqlObservaciones=`                
                 SELECT periodo, visita, informante, formulario, producto, observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
-                        cambio, comentariosrelpre, precionormalizado, 
+                        cambio, comentariosrelpre, precionormalizado, rp.precionormalizado_1, 
                         f.orden as orden_formulario,
                         fp.orden as orden_producto,
-                        null as adv,
+                        ${esSupervision?'null':'false'} as adv,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos
                     FROM relpre_1 rp inner join forprod fp using(formulario, producto)
                         inner join formularios f using (formulario)
