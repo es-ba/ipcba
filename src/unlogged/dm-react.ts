@@ -63,12 +63,17 @@ const surfRelPre = (
     */
     return surfRelInf(hdrState, payload, relInf=>{
         var i = payload.iRelPre;
+        if(i != undefined && 
+            (relInf.observaciones[i].producto != payload.forPk.producto || relInf.observaciones[i].observacion != payload.forPk.observacion )
+        ){
+            throw new Error('iRelPre en una posición no esperada');
+        }
         var nuevasObservaciones = i != undefined?[
             ...relInf.observaciones.slice(0, i),
             relPreReducer(relInf.observaciones[i]),
             ...relInf.observaciones.slice(i+1)
         ]:relInf.observaciones.map(
-            relPre=>relPre.formulario==payload.forPk.formulario && relPre.producto==payload.forPk.producto && relPre.observacion==payload.forPk.observacion?
+            relPre=>relPre.producto==payload.forPk.producto && relPre.observacion==payload.forPk.observacion?
                 relPreReducer(relPre)
             :relPre
         )

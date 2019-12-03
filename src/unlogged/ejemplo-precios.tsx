@@ -194,7 +194,6 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
     const [valor, setValor] = useState(props.valor);
     return <Dialog
         open={true}
-        onClose={()=>props.onClose()}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
     >
@@ -244,7 +243,7 @@ const EditableTd = function<T extends any>(props:{
     const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
     // const [mostrarMenu, setMostrarMenu] = useState<HTMLElement|null>(null);
-    const mostrarMenu = useRef<HTMLTableDataCellElement>();
+    const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const sanitizarValor = function(valor:T){
         if(valor==undefined || valor == null || valor.trim()==''){
@@ -257,17 +256,22 @@ const EditableTd = function<T extends any>(props:{
     if(editando!=deboEditar){
         setEditando(deboEditar);
     }
+    var stringValue = props.value == null ? props.value : props.value.toString();
     return <>
-        <td style={{backgroundColor:props.backgroundColor?props.backgroundColor:'none'}} colSpan={props.colSpan} className={props.className} ref={mostrarMenu} onClick={
-            (event)=>{
+        <td style={{backgroundColor:props.backgroundColor?props.backgroundColor:'none'}} 
+            colSpan={props.colSpan} 
+            className={props.className} 
+            ref={mostrarMenu} 
+            onClick={(event)=>{
                 if(!props.disabled){
                     // @ts-ignore offsetHeight debería existir porque event.target es un TD
                     var altoActual:number = event.target.offsetHeight!;
                     setAnchoSinEditar(altoActual);
                     dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
                 }
-            }
-        } puede-editar={!props.disabled && !editando?"yes":"no"}>
+            }} 
+            puede-editar={!props.disabled && !editando?"yes":"no"}
+        >
             {editando && !editaEnLista?
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
                     altoActual={anchoSinEditar}
@@ -294,9 +298,9 @@ const EditableTd = function<T extends any>(props:{
                 <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
                     <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
                 </MenuItem>
-                {props.value && (props.opciones||[]).indexOf(props.value)==-1?
-                    <MenuItem key='*****current value******' value={props.value}
-                        onClick={(event)=>{
+                {props.value && (props.opciones||[]).indexOf(stringValue)==-1?
+                    <MenuItem key='*****current value******' value={stringValue}
+                        onClick={()=>{
                             props.onUpdate(props.value);
                         }}
                     >
@@ -306,17 +310,17 @@ const EditableTd = function<T extends any>(props:{
                 <Divider />
                 {(props.opciones||[]).map(label=>(
                     <MenuItem key={label} value={label}
-                        onClick={(event)=>{
+                        onClick={()=>{
                             props.onUpdate(label);
                         }}
                     >
-                        <ListItemText style={label==props.value?{color:'blue'}:{}}>{label}</ListItemText>                    
+                        <ListItemText style={label == stringValue?{color:'blue'}:{}}>{label}</ListItemText>                    
                     </MenuItem>
                 ))}
                 {props.tipoOpciones=='A'?<Divider />:null}
                 {props.tipoOpciones=='A'?
                     <MenuItem key='*****other value******' 
-                        onClick={(event)=>{
+                        onClick={()=>{
                             setEditandoOtro(true)
                         }}
                     >
@@ -966,7 +970,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 open={open}
             >
                 <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose}><ChevronLeftIcon /></IconButton>
+                    <IconButton onClick={handleDrawerClose}><MenuIcon /></IconButton>
                 </div>
                 <List>
                     <ListItem button className="flecha-volver-hdr" onClick={()=>
@@ -1017,7 +1021,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   );
 }
 
-function InformanteRow(props:{informante:RelInf, letraGrandeFormulario:boolean}){
+function InformanteRow(props:{informante:RelInf, letraGrandeFormulario?:boolean}){
     const dispatch = useDispatch();
     const informante = props.informante;
     return (
@@ -1095,7 +1099,7 @@ function PantallaOpciones(){
                         checked={opciones.letraGrandeFormulario}
                         onChange={(event)=>{
                             document.documentElement.setAttribute('pos-productos',event.target.checked?'arriba':'izquierda');
-                            dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked});
+                            dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked}));
                         }}
                         value="letraGrandeEnFormulario"
                         color="primary"
