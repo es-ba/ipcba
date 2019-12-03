@@ -226,7 +226,6 @@ var reducers={
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
             })
         },
-    }
 }
 
 export type ActionHdr = ActionsFrom<typeof reducers>;

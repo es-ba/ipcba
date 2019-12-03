@@ -629,19 +629,22 @@ function RelevamientoPrecios(props:{
     relInf:RelInf, 
     formulario:number, 
     searchString: string|null,
-    allForms:boolean
-    onCantResults:(cantResults:number)=>void
     onResetSearchOptions:()=>void
 }){
     const relInf = props.relInf;
     const dispatch = useDispatch();
+    const [allForms, setAllForms] = useState(false);
     var observaciones = relInf.observaciones;
+    var criterio = (relPre:RelPre) => (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true);
     var observacionesFiltradas:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
-        ((props.allForms?true:relPre.formulario==props.formulario) &&
-        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true))?{relPre, iRelPre}:null
+        ((allForms?true:relPre.formulario==props.formulario) &&
+        criterio(relPre))?{relPre, iRelPre}:null
     ).filter(filterNotNull);
-    var cantidadResultados = likeAr(observacionesFiltradas).array().length;
-    props.onCantResults(cantidadResultados)
+    var observacionesFiltradasEnOtros:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
+        (!(allForms?true:relPre.formulario==props.formulario) &&
+        criterio(relPre))?{relPre, iRelPre}:null
+    ).filter(filterNotNull);
+    var cantidadResultados = observacionesFiltradas.length;
     return (
         <>
             {cantidadResultados?
@@ -651,7 +654,7 @@ function RelevamientoPrecios(props:{
                         relPre={relPre}
                         iRelPre={Number(iRelPre)}
                         onSelect={(inputId:string)=>{
-                            if(props.searchString || props.allForms){
+                            if(props.searchString || allForms){
                                 dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
                                 dispatch(dispatchers.SET_FOCUS({nextId:inputId}));
                                 props.onResetSearchOptions();
@@ -659,8 +662,25 @@ function RelevamientoPrecios(props:{
                         }}
                     />
                 )
-            :
-            <div>No se encontraron resultados</div>
+            :(observacionesFiltradasEnOtros.length==0?
+                <div>No se encontraron resultados</div>
+            :null)
+            }
+            {
+                observacionesFiltradasEnOtros.length>0?
+                <div className="zona-degrade">
+                    <Button className="boton-hay-mas" variant="outlined"
+                        onClick={()=>setAllForms(true)}
+                    >ver más en otros formularios</Button>
+                    {observacionesFiltradasEnOtros.map(({relPre}, i) => (
+                        i<10?
+                        <Typography 
+                            key={relPre.producto+'/'+relPre.observacion}
+                        >
+                            {estructura.productos[relPre.producto].nombreproducto}
+                        </Typography>:null
+                    ))}
+                </div>:null
             }
         </>
     );
@@ -854,7 +874,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             .formularios
     );
     const [open, setOpen] = React.useState<boolean>(false);
-    const [searchAllForms, setSearchAllForms] = React.useState<boolean>(false);
     const [searchAllHidden, setSearchAllHidden] = React.useState<boolean>(true);
     const [searchString, setSearchString] = React.useState<string>('');
     const classes = useStyles({open:open});
@@ -944,24 +963,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>setSearchString('')}><ClearIcon /></IconButton>
                         :null}
                     </div>
-                    {!searchAllHidden && false?
-                        <FormControl component="fieldset">
-                            <FormGroup aria-label="position" row>
-                                <FormControlLabel
-                                    value="top"
-                                    control={
-                                        <Switch 
-                                            color="secondary"
-                                            checked={searchAllForms}
-                                            onChange={()=>setSearchAllForms(!searchAllForms)}
-                                        />
-                                    }
-                                    label="todos"
-                                    labelPlacement="start"
-                                />
-                            </FormGroup>
-                        </FormControl>
-                    :null}
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -1000,20 +1001,13 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 </List>
             </Drawer>
             <main className={classes.content}>
-                {searchAllForms?null:
-                    <RazonFormulario relVis={relVis}/>
-                }
+                <RazonFormulario relVis={relVis}/>
                 <div className="informante-visita">
                     <RelevamientoPrecios 
                         relInf={relInf} 
                         formulario={relVis.formulario}
                         searchString={searchString}
-                        allForms={searchAllForms}
-                        onCantResults={(cantResults)=>{
-                            setSearchAllHidden((cantResults>CANT_RESULTADOS_HABILITAN_OTROS_FORMULARIOS && !searchAllForms) || relInf.formularios.length<2)
-                        }}
                         onResetSearchOptions={()=>{
-                            setSearchAllForms(false);
                             setSearchAllHidden(true);
                             setSearchString('');
                         }}
