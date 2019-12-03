@@ -18,6 +18,8 @@ import { Store } from "redux";
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
     Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
+    CheckBoxOutlineBlankOutlined: "M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z",
+    CheckBoxOutlined: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z",
     ChevronLeft: "M14.71 6.71a.9959.9959 0 00-1.41 0L8.71 11.3c-.39.39-.39 1.02 0 1.41l4.59 4.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L10.83 12l3.88-3.88c.39-.39.38-1.03 0-1.41z",
     ChevronRight: "M9.29 6.71c-.39.39-.39 1.02 0 1.41L13.17 12l-3.88 3.88c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l4.59-4.59c.39-.39.39-1.02 0-1.41L10.7 6.7c-.38-.38-1.02-.38-1.41.01z",
     Clear: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
@@ -27,6 +29,7 @@ export const materialIoIconsSvgPath={
     EmojiObjects: "M12 3c-.46 0-.93.04-1.4.14-2.76.53-4.96 2.76-5.48 5.52-.48 2.61.48 5.01 2.22 6.56.43.38.66.91.66 1.47V19c0 1.1.9 2 2 2h.28c.35.6.98 1 1.72 1s1.38-.4 1.72-1H14c1.1 0 2-.9 2-2v-2.31c0-.55.22-1.09.64-1.46C18.09 13.95 19 12.08 19 10c0-3.87-3.13-7-7-7zm2 16h-4v-1h4v1zm0-2h-4v-1h4v1zm-1.5-5.59V14h-1v-2.59L9.67 9.59l.71-.71L12 10.5l1.62-1.62.71.71-1.83 1.82z",
     ExpandLess: "M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z",
     ExpandMore: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z",
+    FormatLineSpacing: "M6 7h2.5L5 3.5 1.5 7H4v10H1.5L5 20.5 8.5 17H6V7zm4-2v2h12V5H10zm0 14h12v-2H10v2zm0-6h12v-2H10v2z",
     Info: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z",
     KeyboardArrowUp: "M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z",
     Label: "M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z",
@@ -618,6 +621,10 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     );
 })
 
+function filterNotNull<T extends {}>(x:T|null):x is T {
+    return x != null
+}
+
 function RelevamientoPrecios(props:{
     relInf:RelInf, 
     formulario:number, 
@@ -629,18 +636,16 @@ function RelevamientoPrecios(props:{
     const relInf = props.relInf;
     const dispatch = useDispatch();
     var observaciones = relInf.observaciones;
-    var observacionesFiltradas:{[key:number]:RelPre}={};
-    observaciones.map((relPre:RelPre, iRelPre:number) =>
+    var observacionesFiltradas:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
         ((props.allForms?true:relPre.formulario==props.formulario) &&
-        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true))?
-        observacionesFiltradas[iRelPre]=relPre:null
-    )
+        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true))?{relPre, iRelPre}:null
+    ).filter(filterNotNull);
     var cantidadResultados = likeAr(observacionesFiltradas).array().length;
     props.onCantResults(cantidadResultados)
     return (
         <>
             {cantidadResultados?
-                likeAr(observacionesFiltradas).map((relPre:RelPre, iRelPre:number) =>
+                observacionesFiltradas.map(({relPre, iRelPre}) =>
                     <PreciosRow 
                         key={relPre.producto+'/'+relPre.observacion}
                         relPre={relPre}
@@ -653,7 +658,7 @@ function RelevamientoPrecios(props:{
                             }
                         }}
                     />
-                ).array()
+                )
             :
             <div>No se encontraron resultados</div>
             }
@@ -863,6 +868,10 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         setOpen(false);
     };
 
+    const handleDrawerToggle = () => {
+        setOpen(!open);
+    };
+
   return (
     <div id="formulario-visita" className="menu-informante-visita">
         <div className={classes.root}>
@@ -898,22 +907,22 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             <Button onClick={()=>{
                                 setBotonActual('compactar')
                             }}disabled={botonActual=='compactar'}>
-                                compactar
+                                <ICON.FormatLineSpacing />
                             </Button>
                             <Button onClick={()=>{
                                 setBotonActual('todos')
                             }}disabled={botonActual=='todos'}>
-                                todos
+                                <ICON.CheckBoxOutlined />
                             </Button>
                             <Button onClick={()=>{
                                 setBotonActual('pendientes')
                             }}disabled={botonActual=='pendientes'}>
-                                pendientes
+                                <ICON.CheckBoxOutlineBlankOutlined />
                             </Button>
                             <Button onClick={()=>{
                                 setBotonActual('advertencias')
                             }}disabled={botonActual=='advertencias'}>
-                                advertencias
+                                <ICON.Warning />
                             </Button>
                         </ButtonGroup>
                     </Grid>
@@ -935,7 +944,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>setSearchString('')}><ClearIcon /></IconButton>
                         :null}
                     </div>
-                    {!searchAllHidden?
+                    {!searchAllHidden && false?
                         <FormControl component="fieldset">
                             <FormGroup aria-label="position" row>
                                 <FormControlLabel
@@ -970,7 +979,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 open={open}
             >
                 <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerClose}><MenuIcon /></IconButton>
+                    <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
                 </div>
                 <List>
                     <ListItem button className="flecha-volver-hdr" onClick={()=>
