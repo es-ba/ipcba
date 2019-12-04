@@ -455,7 +455,9 @@ const useStylesList = makeStyles((_theme: Theme) =>
     }),
 );
 
-var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:number, onSelect:(inputId:string)=>void}){
+var PreciosRow = React.memo(function PreciosRow(props:{
+    relPre:RelPre, iRelPre:number
+}){
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
@@ -467,14 +469,18 @@ var PreciosRow = React.memo(function PreciosRow(props:{relPre:RelPre, iRelPre:nu
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
+    const onSelect = () => {
+        dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+        dispatch(dispatchers.SET_ZOOMIN({nextId:inputIdPrecio}));
+    }
     return (
         <>
-            <div onClick={(_event)=>props.onSelect(inputIdPrecio)} className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
+            <div onClick={onSelect}  className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
                 <div className="especificacion">{productoDef.especificacioncompleta}</div>
             </div>
-            <table onClick={(_event)=>props.onSelect(inputIdPrecio)} className="caja-precios">
+            <table onClick={onSelect} className="caja-precios">
                 <colgroup>
                     <col style={{width:"26%"}}/>
                     <col style={{width:"8%" }}/>
@@ -676,6 +682,7 @@ function RelevamientoPrecios(props:{
                         key={relPre.producto+'/'+relPre.observacion}
                         relPre={relPre}
                         iRelPre={Number(iRelPre)}
+                        /*
                         onSelect={(inputId:string)=>{
                             if(props.searchString || allForms){
                                 dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
@@ -683,6 +690,7 @@ function RelevamientoPrecios(props:{
                                 props.onResetSearchOptions();
                             }
                         }}
+                        */
                     />
                 )
             :(observacionesFiltradasEnOtros.length==0 && props.queVer != 'todos'?

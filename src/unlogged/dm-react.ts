@@ -198,6 +198,10 @@ var reducers={
         function(state: HojaDeRuta){
             return defaultAction(state, payload)
         },    
+    SET_ZOOMIN           :(payload: {nextId: NextID}) => 
+        function(state: HojaDeRuta){
+            return defaultAction(state, payload)
+        },    
     UNSET_FOCUS          :(payload: {unfocusing: string}) => 
         function(state: HojaDeRuta){
             return deepFreeze({

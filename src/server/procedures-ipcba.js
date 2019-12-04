@@ -1198,15 +1198,13 @@ ProceduresIpcba = [
                         'formulario'
                     )} as formularios
                     , ${jsono(`
-                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar
-                            FROM tipopre
-                            WHERE visibleparaencuestador = 'S'`, 
+                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, visibleparaencuestador = 'S' as visibleparaencuestador 
+                            FROM tipopre`, 
                         'tipoprecio'
                     )} as "tipoPrecio"
                     , ${json(`
-                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden
-                            FROM tipopre
-                            WHERE visibleparaencuestador = 'S'`, 
+                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden, visibleparaencuestador = 'S' as visibleparaencuestador 
+                            FROM tipopre`, 
                         'orden'
                     )} as "tiposPrecioDef"
                     , ${jsono(`
