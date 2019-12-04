@@ -253,7 +253,7 @@ export async function dmTraerDatosHdr(){
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
     estructura = result.estructura;
-    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v8';
+    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v9';
     /* FIN DEFINICION STATE */
     /* DEFINICION CONTROLADOR */
     const hdrReducer = createReducer(reducers, initialState);
