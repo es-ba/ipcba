@@ -1242,19 +1242,22 @@ ProceduresIpcba = [
                         ${esSupervision?'null':'false'} as adv,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos,
                         c.promobs as promobs_1
-                    FROM relpre_1 rp inner join forprod fp using(formulario, producto)
+                    FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
+                        inner join forprod fp using(formulario, producto)
                         inner join formularios f using (formulario)
                         left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
                             and c.informante = rp.informante and c.producto = rp.producto
                             and c.observacion = rp.observacion
-                    WHERE rp.periodo=rvi.periodo 
-                        AND visita=rvi.visita 
-                        AND rp.informante=rvi.informante`;
+                    WHERE rv.periodo=rvi.periodo 
+                        AND rv.tarea=rvi.tarea
+                        AND rv.panel=rvi.panel
+                        AND rv.informante=rvi.informante`;
             var sqlFormularios=`
                 SELECT periodo, visita, informante, formulario, razon, comentarios, visita, orden
                     FROM relvis rv inner join formularios using (formulario)
                     WHERE periodo=rvi.periodo 
-                        AND visita=rvi.visita 
+                        AND tarea=rvi.tarea
+                        AND panel=rvi.panel
                         AND informante=rvi.informante
                 `;
             var sqlInformantes=`
