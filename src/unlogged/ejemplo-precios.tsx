@@ -470,8 +470,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
     const onSelect = () => {
-        dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
-        dispatch(dispatchers.SET_ZOOMIN({nextId:inputIdPrecio}));
+        //dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+        //dispatch(dispatchers.SET_ZOOMIN({nextId:inputIdPrecio}));
     }
     return (
         <>
