@@ -625,28 +625,47 @@ function filterNotNull<T extends {}>(x:T|null):x is T {
     return x != null
 }
 
+type QueVer = 'todos'|'pendientes'|'advertencias';
+
 function RelevamientoPrecios(props:{
     relInf:RelInf, 
     formulario:number, 
     searchString: string|null,
+    queVer:QueVer,
     onResetSearchOptions:()=>void
 }){
     const relInf = props.relInf;
     const dispatch = useDispatch();
     const [allForms, setAllForms] = useState(false);
+    const [opcionesAnteriores, setOpcionesAnteriores] = useState({queVer:props.queVer, searchString:props.searchString});
+    if(props.searchString != opcionesAnteriores.searchString || 
+        /* props.queVer != 'advertencias' && */ props.queVer != opcionesAnteriores.queVer
+    ){
+        setAllForms(false);
+        setOpcionesAnteriores({queVer:props.queVer, searchString:props.searchString})
+    }
     var observaciones = relInf.observaciones;
-    var criterio = (relPre:RelPre) => (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true);
+    var criterio = (relPre:RelPre) => 
+        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true)
+        && (props.queVer !='advertencias' || relPre.adv)
+        && (props.queVer !='pendientes' || relPre.tipoprecio == null || estructura.tipoPrecio[relPre.tipoprecio].espositivo && !relPre.precio);
     var observacionesFiltradas:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
         ((allForms?true:relPre.formulario==props.formulario) &&
         criterio(relPre))?{relPre, iRelPre}:null
     ).filter(filterNotNull);
     var observacionesFiltradasEnOtros:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
-        (!(allForms?true:relPre.formulario==props.formulario) &&
+        (!(allForms?true:relPre.formulario==props.formulario) && 
+        (relPre.observacion==1 || props.queVer!='todos') && // si son todos no hace falta ver las observaciones=2
         criterio(relPre))?{relPre, iRelPre}:null
     ).filter(filterNotNull);
     var cantidadResultados = observacionesFiltradas.length;
-    return (
-        <>
+    return <>
+        {props.queVer == 'pendientes'? <Typography className="titulo-pendientes">observaciones pendientes</Typography>:(
+            props.queVer == 'advertencias'? <Typography className="titulo-advertencias">observaciones con advertencias</Typography>:(
+                null
+            )
+        )}
+        <div className="informante-visita">
             {cantidadResultados?
                 observacionesFiltradas.map(({relPre, iRelPre}) =>
                     <PreciosRow 
@@ -662,8 +681,8 @@ function RelevamientoPrecios(props:{
                         }}
                     />
                 )
-            :(observacionesFiltradasEnOtros.length==0?
-                <div>No se encontraron resultados</div>
+            :(observacionesFiltradasEnOtros.length==0 && props.queVer != 'todos'?
+                <div>No hay</div>
             :null)
             }
             {
@@ -671,19 +690,19 @@ function RelevamientoPrecios(props:{
                 <div className="zona-degrade">
                     <Button className="boton-hay-mas" variant="outlined"
                         onClick={()=>setAllForms(true)}
-                    >ver más en otros formularios</Button>
+                    >ver más {props.queVer == 'todos'?'':props.queVer} en otros formularios</Button>
                     {observacionesFiltradasEnOtros.map(({relPre}, i) => (
                         i<10?
                         <Typography 
                             key={relPre.producto+'/'+relPre.observacion}
                         >
-                            {estructura.productos[relPre.producto].nombreproducto}
+                            {estructura.productos[relPre.producto].nombreproducto} {relPre.observacion>1?relPre.observacion.toString():''}
                         </Typography>:null
                     ))}
                 </div>:null
             }
-        </>
-    );
+        </div>
+    </>;
 }
 
 function RazonFormulario(props:{relVis:RelVis}){
@@ -877,7 +896,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const [searchAllHidden, setSearchAllHidden] = React.useState<boolean>(true);
     const [searchString, setSearchString] = React.useState<string>('');
     const classes = useStyles({open:open});
-    const [botonActual, setBotonActual] = React.useState<'todos'|'pendientes'|'compactar'|'advertencias'>('todos');
+    const [queVer, setQueVer] = React.useState<QueVer>('todos');
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -917,30 +936,30 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         {`inf ${props.relVisPk.informante}`}
                     </Typography>
                     <Grid item>
+                        <Button onClick={()=>{
+                            // setBotonQueVer('compactar')
+                            // TODO: ESTE TIENE QUE SER UN TOGGLE BUTTON que no modifique el botón quever
+                        }}>
+                            <ICON.FormatLineSpacing />
+                        </Button>
                         <ButtonGroup
                             variant="contained"
                             color="default"
-                            size="small"
                             aria-label="large contained default button group"
                         >
                             <Button onClick={()=>{
-                                setBotonActual('compactar')
-                            }}disabled={botonActual=='compactar'}>
-                                <ICON.FormatLineSpacing />
-                            </Button>
-                            <Button onClick={()=>{
-                                setBotonActual('todos')
-                            }}disabled={botonActual=='todos'}>
+                                setQueVer('todos')
+                            }}disabled={queVer=='todos'}>
                                 <ICON.CheckBoxOutlined />
                             </Button>
                             <Button onClick={()=>{
-                                setBotonActual('pendientes')
-                            }}disabled={botonActual=='pendientes'}>
+                                setQueVer('pendientes')
+                            }}disabled={queVer=='pendientes'}>
                                 <ICON.CheckBoxOutlineBlankOutlined />
                             </Button>
                             <Button onClick={()=>{
-                                setBotonActual('advertencias')
-                            }}disabled={botonActual=='advertencias'}>
+                                setQueVer('advertencias')
+                            }}disabled={queVer=='advertencias'}>
                                 <ICON.Warning />
                             </Button>
                         </ButtonGroup>
@@ -1002,17 +1021,16 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             </Drawer>
             <main className={classes.content}>
                 <RazonFormulario relVis={relVis}/>
-                <div className="informante-visita">
-                    <RelevamientoPrecios 
-                        relInf={relInf} 
-                        formulario={relVis.formulario}
-                        searchString={searchString}
-                        onResetSearchOptions={()=>{
-                            setSearchAllHidden(true);
-                            setSearchString('');
-                        }}
-                    />
-                </div>
+                <RelevamientoPrecios 
+                    relInf={relInf} 
+                    formulario={relVis.formulario}
+                    searchString={searchString}
+                    queVer={queVer}
+                    onResetSearchOptions={()=>{
+                        setSearchAllHidden(true);
+                        setSearchString('');
+                    }}
+                />
             </main>
             <ScrollTop>
                 <Fab color="secondary" size="small" aria-label="scroll back to top">
