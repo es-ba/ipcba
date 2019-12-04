@@ -122,7 +122,7 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
     }
     var tieneAdvertencia:boolean=false;
     var color:string;
-    if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor){
+    if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor != null){
         color='#FFCE33';
         tieneAdvertencia = true;
     }

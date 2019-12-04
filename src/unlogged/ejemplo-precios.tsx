@@ -152,7 +152,7 @@ function TypedInput<T>(props:{
                 setValue(event.target.value);
             }}
             onBlur={(event)=>{
-                if(value!=props.value){
+                if(value!==props.value){
                     // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
                     props.onUpdate(event.target.value);
                 }
@@ -178,7 +178,7 @@ function TypedInput<T>(props:{
                 setValue(event.target.value);
             }}
             onBlur={(event)=>{
-                if(value!=props.value){
+                if(value!==props.value){
                     // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
                     props.onUpdate(event.target.value);
                 }
@@ -291,7 +291,7 @@ const EditableTd = function<T extends any>(props:{
                     opciones={props.opciones}
                     backgroundColor={props.backgroundColor}
                 />
-            :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
+            :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>{props.value != null?props.value:props.placeholder||''}</div>
             }
         </td>
         {editaEnLista && editando?
