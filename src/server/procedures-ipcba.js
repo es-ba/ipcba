@@ -1261,14 +1261,14 @@ ProceduresIpcba = [
                         AND informante=rvi.informante
                 `;
             var sqlInformantes=`
-                SELECT periodo, visita, informante, nombreinformante, direccion,
+                SELECT periodo, informante, nombreinformante, direccion,
                         ${json(sqlFormularios,'orden, formulario')} as formularios,
                         ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones
                     FROM relvis rvi INNER JOIN informantes USING (informante)
                     WHERE periodo=rt.periodo 
                         AND panel=rt.panel 
                         AND tarea=rt.tarea
-                    GROUP BY periodo, visita, informante, nombreinformante, direccion
+                    GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea
                 `;
             var sqlHdR=`
                 SELECT encuestador, 
