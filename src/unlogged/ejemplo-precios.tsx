@@ -636,6 +636,7 @@ function RelevamientoPrecios(props:{
     searchString: string|null,
     queVer:QueVer,
     onResetSearchOptions:()=>void
+    onVerRazon:(allForms:boolean)=>void
 }){
     const relInf = props.relInf;
     const dispatch = useDispatch();
@@ -692,7 +693,10 @@ function RelevamientoPrecios(props:{
                 observacionesFiltradasEnOtros.length>0?
                 <div className="zona-degrade">
                     <Button className="boton-hay-mas" variant="outlined"
-                        onClick={()=>setAllForms(true)}
+                        onClick={()=>{
+                            setAllForms(true);
+                            props.onVerRazon(false);
+                        }}
                     >ver más {props.queVer == 'todos'?'':props.queVer} en otros formularios</Button>
                     {observacionesFiltradasEnOtros.map(({relPre}, i) => (
                         i<10?
@@ -708,7 +712,7 @@ function RelevamientoPrecios(props:{
     </>;
 }
 
-function RazonFormulario(props:{relVis:RelVis}){
+function RazonFormulario(props:{relVis:RelVis, verRazon:boolean}){
     const relVis = props.relVis;
     const razones = estructura.razones;
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
@@ -717,6 +721,7 @@ function RazonFormulario(props:{relVis:RelVis}){
     const dispatch = useDispatch();
     const classes = useStylesList();
     return (
+        props.verRazon?
         <table className="razon-formulario">
             <thead></thead>
             <tbody>
@@ -786,6 +791,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                 </tr>
             </tbody>
         </table>
+        :null
     );
 }
 
@@ -900,6 +906,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const [searchString, setSearchString] = React.useState<string>('');
     const classes = useStyles({open:open});
     const [queVer, setQueVer] = React.useState<QueVer>('todos');
+    const [verRazon, setVerRazon] = React.useState<boolean>(true);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -912,6 +919,12 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
+
+    const resetSearchOptions = () => {
+        setSearchAllHidden(true);
+        setSearchString('');
+        setVerRazon(true)
+    }
 
   return (
     <div id="formulario-visita" className="menu-informante-visita">
@@ -939,12 +952,19 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         {`inf ${props.relVisPk.informante}`}
                     </Typography>
                     <Grid item>
-                        <Button onClick={()=>{
-                            // setBotonQueVer('compactar')
-                            // TODO: ESTE TIENE QUE SER UN TOGGLE BUTTON que no modifique el botón quever
-                        }}>
-                            <ICON.FormatLineSpacing />
-                        </Button>
+                        <ButtonGroup
+                            variant="contained"
+                            color="default"
+                            aria-label="large contained default button group"
+                            style={{margin:'0 5px'}}
+                        >
+                            <Button onClick={()=>{
+                                // setBotonQueVer('compactar')
+                                // TODO: ESTE TIENE QUE SER UN TOGGLE BUTTON que no modifique el botón quever
+                            }}>
+                                <ICON.FormatLineSpacing />
+                            </Button>
+                        </ButtonGroup>
                         <ButtonGroup
                             variant="contained"
                             color="default"
@@ -1015,6 +1035,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
                             setOpen(false);
                             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
+                            resetSearchOptions();
                         }}>
                           <ListItemIcon>{relVis.formulario}</ListItemIcon>
                           <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
@@ -1023,16 +1044,16 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 </List>
             </Drawer>
             <main className={classes.content}>
-                <RazonFormulario relVis={relVis}/>
+                <RazonFormulario relVis={relVis} verRazon={verRazon}/>
                 <RelevamientoPrecios 
                     relInf={relInf} 
                     formulario={relVis.formulario}
                     searchString={searchString}
                     queVer={queVer}
                     onResetSearchOptions={()=>{
-                        setSearchAllHidden(true);
-                        setSearchString('');
+                        resetSearchOptions();
                     }}
+                    onVerRazon={(verRazon:boolean)=>setVerRazon(verRazon)}
                 />
             </main>
             <ScrollTop>

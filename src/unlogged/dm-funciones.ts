@@ -131,7 +131,7 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
         color='#FF9333';
     }
     if(!tieneAdvertencia){
-        color='#FFFFFF';
+        color='#FAFAFA';
     }
     return {tieneAdvertencia, color}
 }
@@ -151,7 +151,7 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura){
         color='#FF9333'; //naranja
         tieneAdvertencias = true;
     }else{
-        color='#FFFFFF'; //blanco
+        color='#FAFAFA';
         tieneAdvertencias = false;
     }
     return {tieneAdv: tieneAdvertencias, color: color};
