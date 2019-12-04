@@ -42,10 +42,10 @@ export function normalizarPrecio(relPre:RelPre, estructura:Estructura){
     var atributosNormalizables = likeAr(estructura.productos[relPre.producto].atributos).filter((prodAtr:ProdAtr)=>prodAtr.normalizable).array()
     atributosNormalizables.forEach(function(prodAtr:ProdAtr){
         vtope++;
-        //if (attribute.tiponormalizacion=='Moneda'){
-            //attribute['valor']=String(attribute['valor_pesos'])
-        //}
         var relAtr = relPre.atributos.find((relAtr:RelAtr)=>relAtr.atributo==prodAtr.atributo)!;
+        if (prodAtr.tiponormalizacion=='Moneda' && relAtr.valor){
+            relAtr.valor=String(estructura.relmon[relAtr.valor].valor_pesos);
+        }
         if (relAtr.valor && !isNaN(parseFloat(relAtr.valor))){
             vacumulador[vtope]=Number(relAtr.valor)
         }else{
@@ -143,11 +143,10 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura){
         atributoTieneAdvertencia = atributoTieneAdvertencia || controlarAtributo(relAtr, relPre, estructura).tieneAdvertencia;
     });
     var tieneAdvertencias;
-    if(relPre.precio && relPre.precionormalizado &&
-       ((relPre.comentariosrelpre == null && relPre.precionormalizado_1 && (relPre.precionormalizado < relPre.precionormalizado_1/2 || relPre.precionormalizado > relPre.precionormalizado_1*2)) ||
-        (relPre.comentariosrelpre == null && relPre.promobs_1 && (relPre.precionormalizado < relPre.promobs_1/2 || relPre.precionormalizado > relPre.promobs_1*2)) ||
-        atributoTieneAdvertencia
-       )
+    if(relPre.precio && relPre.precionormalizado && (
+        (relPre.comentariosrelpre == null && relPre.precionormalizado_1 && (relPre.precionormalizado < relPre.precionormalizado_1/2 || relPre.precionormalizado > relPre.precionormalizado_1*2)) ||
+        (relPre.comentariosrelpre == null && relPre.promobs_1 && (relPre.precionormalizado < relPre.promobs_1/2 || relPre.precionormalizado > relPre.promobs_1*2)) 
+       ) || atributoTieneAdvertencia
     ){
         color='#FF9333'; //naranja
         tieneAdvertencias = true;

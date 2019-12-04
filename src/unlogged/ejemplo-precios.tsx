@@ -126,6 +126,7 @@ function TypedInput<T>(props:{
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null
+    backgroundColor?:string,
 }){
     var inputId=props.inputId;
     var [value, setValue] = useState(props.value);
@@ -134,7 +135,8 @@ function TypedInput<T>(props:{
     }, []);
     // @ts-ignore acá hay un problema con el cambio de tipos
     var valueString:string = value==null?'':value;
-    var style=props.altoActual?{height:props.altoActual+'px'}:{};
+    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
+    style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     if(props.dataType=='text'){
         var input = <TextField
             multiline
@@ -287,6 +289,7 @@ const EditableTd = function<T extends any>(props:{
                     }}
                     tipoOpciones={props.tipoOpciones}
                     opciones={props.opciones}
+                    backgroundColor={props.backgroundColor}
                 />
             :<div className={(props.placeholder && !props.value)?"placeholder":"value"}>{props.value?props.value:props.placeholder||''}</div>
             }

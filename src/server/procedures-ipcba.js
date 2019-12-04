@@ -1141,6 +1141,12 @@ ProceduresIpcba = [
             var sqlEstructura=`
             SELECT 
                     ${jsono(`
+                        SELECT moneda, valor_pesos
+                            FROM relmon
+                            WHERE periodo = rt.periodo`,
+                            'moneda'
+                    )} as relmon
+                    , ${jsono(`
                         SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
                             FROM atributos INNER JOIN (
                                 SELECT atributo
@@ -1229,17 +1235,21 @@ ProceduresIpcba = [
                         AND ra.producto=rp.producto
                         AND ra.observacion=rp.observacion`
             var sqlObservaciones=`                
-                SELECT periodo, visita, informante, formulario, producto, observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
                         cambio, comentariosrelpre, precionormalizado, rp.precionormalizado_1, 
                         f.orden as orden_formulario,
                         fp.orden as orden_producto,
                         ${esSupervision?'null':'false'} as adv,
-                        ${json(sqlAtributos, 'orden, atributo')} as atributos
+                        ${json(sqlAtributos, 'orden, atributo')} as atributos,
+                        c.promobs as promobs_1
                     FROM relpre_1 rp inner join forprod fp using(formulario, producto)
                         inner join formularios f using (formulario)
-                    WHERE periodo=rvi.periodo 
+                        left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
+                            and c.informante = rp.informante and c.producto = rp.producto
+                            and c.observacion = rp.observacion
+                    WHERE rp.periodo=rvi.periodo 
                         AND visita=rvi.visita 
-                        AND informante=rvi.informante`;
+                        AND rp.informante=rvi.informante`;
             var sqlFormularios=`
                 SELECT periodo, visita, informante, formulario, razon, comentarios, visita, orden
                     FROM relvis rv inner join formularios using (formulario)

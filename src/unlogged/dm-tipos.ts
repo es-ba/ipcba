@@ -70,7 +70,13 @@ export type TipoPrecio = {
     puedecopiar: boolean
     espositivo: boolean
     predeterminado?:boolean
+}
 
+type TipoMoneda = 'ARS' | 'USD';
+
+export type Relmon = {
+    moneda: TipoMoneda,
+    valor_pesos: number
 }
 
 export type Estructura={
@@ -81,6 +87,7 @@ export type Estructura={
     tiposPrecioDef: TipoPrecio[],
     tipoPrecioPredeterminado: TipoPrecio,
     razones    : {[razon:number]: Razon}
+    relmon     : {[moneda:string]: Relmon}
 }
 
 export type RelAtr={
@@ -91,9 +98,6 @@ export type RelAtr={
     atributo: number,
     valoranterior:string
     valor:string|null
-    _valornormal?: number
-    _opciones?: string  
-    _valor_pesos?: number //AGREGAR A CONSULTA (actualmente viene en PRECIOS MOBILE)
 }
 
 export type Cambio = 'C'|'='
