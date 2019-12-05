@@ -1149,7 +1149,6 @@ function PantallaOpciones(){
                     <Switch
                         checked={letraGrandeFormulario}
                         onChange={(event)=>{
-                            document.documentElement.setAttribute('pos-productos',event.target.checked?'arriba':'izquierda');
                             dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked}));
                         }}
                         value="letraGrandeEnFormulario"
@@ -1164,7 +1163,10 @@ function PantallaOpciones(){
 }
 
 function AppDmIPC(){
-    const relVisPk = useSelector((hdr:HojaDeRuta)=>hdr.opciones.relVisPk);
+    const {relVisPk, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    useEffect(() => {
+        document.documentElement.setAttribute('pos-productos',letraGrandeFormulario?'arriba':'izquierda');
+    }, []);
     if(relVisPk == undefined){
         return <>
             <PantallaHojaDeRuta/>

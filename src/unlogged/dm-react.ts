@@ -267,8 +267,8 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 export async function dmTraerDatosHdr(){
     var result = await my.ajax.dm_cargar({
         //periodo: 'a2019m02', panel: 1, tarea: 1
-        //periodo: 'a2019m08', panel: 3, tarea: 6
-        periodo: 'a2019m11', panel: 3, tarea: 6
+        periodo: 'a2019m08', panel: 3, tarea: 6
+        //periodo: 'a2019m11', panel: 3, tarea: 6
     })
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
