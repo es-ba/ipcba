@@ -1,7 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, QueVer} from "./dm-tipos";
-import {puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, controlarPrecio, controlarAtributo} from "./dm-funciones";
+import {
+    puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
+    puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
+    controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente
+} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
@@ -37,6 +41,8 @@ export const materialIoIconsSvgPath={
     Menu: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
     Search: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
     Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
+    /// JULI ICONS:
+    Pendientes:"M2.4 15.35 H 104.55 V 35.65 H -104.55 M 2.4 59.35 H 104.55 V 35.65 Z M 2.4 103.35 H 104.55 V 35.65 Z  M145.6,109.35V133H121.95V109.35H145.6m6-6H115.95V139H151.6V103.35h0Z M145.6,65.35V89H121.95V65.35H145.6m6-6H115.95V95H151.6V59.35h0Z M145.6,21.35V45H121.95V21.35H145.6m6-6H115.95V51H151.6V15.35h0Z",
 }
 
 const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
@@ -55,10 +61,9 @@ export var estructura:Estructura;
 
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
-const FLECHAVOLVER="←";
 const PRIMARY_COLOR   ="#3f51b5";
 const SECONDARY_COLOR ="#f50057";
-const CANT_RESULTADOS_HABILITAN_OTROS_FORMULARIOS = 0;
+var CHECK = '✓';
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -655,8 +660,8 @@ function RelevamientoPrecios(props:{
     var observaciones = relInf.observaciones;
     var criterio = (relPre:RelPre) => 
         (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true)
-        && (props.queVer !='advertencias' || relPre.adv)
-        && (props.queVer !='pendientes' || relPre.tipoprecio == null || estructura.tipoPrecio[relPre.tipoprecio].espositivo && !relPre.precio);
+        && (props.queVer !='advertencias' || precioTieneAdvertencia(relPre))
+        && (props.queVer !='pendientes' || precioEstaPendiente(relPre, estructura));
     var observacionesFiltradas:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
         ((allForms?true:relPre.formulario==props.formulario) &&
         criterio(relPre))?{relPre, iRelPre}:null
@@ -1085,16 +1090,19 @@ function InformanteRow(props:{informante:RelInf, letraGrandeFormulario?:boolean}
                     {informante.informante} {informante.nombreinformante}
                 </td>
             </tr>
-            {informante.formularios.map((relVis:RelVis)=>
-                <tr key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
+            {informante.formularios.map((relVis:RelVis)=>{
+                var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
+                var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, estructura)).length;
+                var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre)).length;
+                return <tr key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
                     dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
                 }}>
                     <td>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td>{misObservaciones.length}</td>
+                    <td style={{backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?cantPendientes:CHECK}</td>
+                    <td style={{backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'}}>{cantAdvertencias?cantAdvertencias:'-'}</td>
                 </tr>
-            )}
+            })}
         </>
     )
 }

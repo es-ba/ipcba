@@ -157,6 +157,14 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura){
     return {tieneAdv: tieneAdvertencias, color: color};
 }
 
+export function precioTieneAdvertencia(relPre:RelPre){
+    return relPre.adv;
+}
+
+export function precioEstaPendiente(relPre:RelPre, estructura:Estructura){
+    return relPre.tipoprecio == null || estructura.tipoPrecio[relPre.tipoprecio].espositivo && !relPre.precio;
+}
+
 export function razonNecesitaConfirmacion(estructura:Estructura, relVis:RelVis, razon:number){
     return !estructura.razones[razon].espositivoformulario
 }
