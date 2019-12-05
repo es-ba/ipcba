@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, QueVer} from "./dm-tipos";
 import {puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, controlarPrecio, controlarAtributo} from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
@@ -243,7 +243,7 @@ const EditableTd = function<T extends any>(props:{
     titulo?:string
 }){
     const dispatch = useDispatch();
-    const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.idActual == props.inputId);
+    const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.opciones.idActual == props.inputId);
     const [editando, setEditando]=useState(deboEditar);
     const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
@@ -547,7 +547,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             anchorEl={menuTipoPrecio}
                             onClose={()=>setMenuTipoPrecio(null)}
                         >
-                            {estructura.tiposPrecioDef.map(tpDef=>{
+                            {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
                                 var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
                                 return (
                                 <MenuItem key={tpDef.tipoprecio} onClick={()=>{
@@ -633,8 +633,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
 function filterNotNull<T extends {}>(x:T|null):x is T {
     return x != null
 }
-
-type QueVer = 'todos'|'pendientes'|'advertencias';
 
 function RelevamientoPrecios(props:{
     relInf:RelInf, 
@@ -909,11 +907,11 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
     );
+    const queVer = useSelector((hdr:HojaDeRuta)=>hdr.opciones.queVer)
     const [open, setOpen] = React.useState<boolean>(false);
     const [searchAllHidden, setSearchAllHidden] = React.useState<boolean>(true);
     const [searchString, setSearchString] = React.useState<string>('');
     const classes = useStyles({open:open});
-    const [queVer, setQueVer] = React.useState<QueVer>('todos');
     const [verRazon, setVerRazon] = React.useState<boolean>(true);
 
     const handleDrawerOpen = () => {
@@ -979,17 +977,17 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             aria-label="large contained default button group"
                         >
                             <Button onClick={()=>{
-                                setQueVer('todos')
+                                dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'todos'}));
                             }}disabled={queVer=='todos'}>
                                 <ICON.CheckBoxOutlined />
                             </Button>
                             <Button onClick={()=>{
-                                setQueVer('pendientes')
+                                dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'pendientes'}));
                             }}disabled={queVer=='pendientes'}>
                                 <ICON.CheckBoxOutlineBlankOutlined />
                             </Button>
                             <Button onClick={()=>{
-                                setQueVer('advertencias')
+                                dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'advertencias'}));
                             }}disabled={queVer=='advertencias'}>
                                 <ICON.Warning />
                             </Button>
@@ -1138,7 +1136,7 @@ function PantallaHojaDeRuta(_props:{}){
 }
 
 function PantallaOpciones(){
-    const opciones = useSelector((hdr:HojaDeRuta)=>hdr.opciones||{})
+    const letraGrandeFormulario = useSelector((hdr:HojaDeRuta)=>hdr.opciones.letraGrandeFormulario)
     const dispatch = useDispatch();
     return <div className="pantalla-opciones">
         <Divider/>
@@ -1149,7 +1147,7 @@ function PantallaOpciones(){
                 <Grid item>chica</Grid>
                 <Grid item>
                     <Switch
-                        checked={opciones.letraGrandeFormulario}
+                        checked={letraGrandeFormulario}
                         onChange={(event)=>{
                             document.documentElement.setAttribute('pos-productos',event.target.checked?'arriba':'izquierda');
                             dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked}));
@@ -1166,7 +1164,7 @@ function PantallaOpciones(){
 }
 
 function AppDmIPC(){
-    const relVisPk = useSelector((hdr:HojaDeRuta)=>hdr.relVisPk);
+    const relVisPk = useSelector((hdr:HojaDeRuta)=>hdr.opciones.relVisPk);
     if(relVisPk == undefined){
         return <>
             <PantallaHojaDeRuta/>

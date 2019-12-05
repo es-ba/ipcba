@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
@@ -19,7 +19,10 @@ var defaultAction = function defaultAction(
 ){
     return deepFreeze({
         ...hdrState,
-        idActual:payload.nextId==null?hdrState.idActual:(payload.nextId===false?null:payload.nextId)
+        opciones:{
+            ...hdrState.opciones,
+            idActual:payload.nextId==null?hdrState.opciones.idActual:(payload.nextId===false?null:payload.nextId)
+        }
     })
 };
 const surfRelInf = (
@@ -29,7 +32,10 @@ const surfRelInf = (
 )=>(
     {
         ...hdrState,
-        idActual:payload.nextId?payload.nextId:hdrState.idActual,
+        opciones:{
+            ...hdrState.opciones,
+            idActual:payload.nextId?payload.nextId:hdrState.opciones.idActual,
+        },
         informantes:hdrState.informantes.map(
             relInf=>relInf.informante==payload.forPk.informante?
                 relInfReducer(relInf)
@@ -206,21 +212,30 @@ var reducers={
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
-                idActual:state.idActual==payload.unfocusing?false:state.idActual
+                opciones:{
+                    ...state.opciones,
+                    idActual:state.opciones.idActual==payload.unfocusing?false:state.opciones.idActual
+                }
             })
         },    
     SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
-                relVisPk:{informante:payload.informante, formulario:payload.formulario}
+                opciones:{
+                    ...state.opciones,
+                    relVisPk:{informante:payload.informante, formulario:payload.formulario}
+                }
             })
         },
     UNSET_FORMULARIO_ACTUAL:(_payload: {}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
-                relVisPk:null
+                opciones:{
+                    ...state.opciones,
+                    relVisPk:null
+                }
             })
         },
     SET_OPCION:(payload: {variable:string, valor:any}) => 
@@ -257,6 +272,7 @@ export async function dmTraerDatosHdr(){
     })
     /* DEFINICION STATE */
     const initialState:HojaDeRuta = result.hdr;
+    initialState.opciones = getDefaultOptions();
     estructura = result.estructura;
     const LOCAL_STORAGE_STATE_NAME = 'dm-store-v9';
     /* FIN DEFINICION STATE */
@@ -273,6 +289,7 @@ export async function dmTraerDatosHdr(){
             return initialState;
         }
     }
+    
     function saveState(state:HojaDeRuta){
         localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
     }

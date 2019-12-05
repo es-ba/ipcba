@@ -70,6 +70,7 @@ export type TipoPrecio = {
     puedecopiar: boolean
     espositivo: boolean
     predeterminado?:boolean
+    visibleparaencuestador: boolean
 }
 
 type TipoMoneda = 'ARS' | 'USD';
@@ -143,8 +144,22 @@ export type RelInf={
     observaciones: RelPre[]
 }
 
+export type QueVer = 'todos'|'pendientes'|'advertencias';
+
 export type OpcionesHojaDeRuta={
-    letraGrandeFormulario?:boolean
+    queVer: QueVer
+    idActual:string|null
+    relVisPk:RelVisPk | null
+    letraGrandeFormulario:boolean
+}
+
+export function getDefaultOptions():OpcionesHojaDeRuta{
+    return {
+        queVer: 'todos',
+        idActual: null,
+        relVisPk: null,
+        letraGrandeFormulario: false
+    }
 }
 
 export type HojaDeRuta={
@@ -152,7 +167,5 @@ export type HojaDeRuta={
     dispositivo:string,
     fecha_carga:Date,
     informantes:RelInf[]
-    idActual?:string|null
-    relVisPk?:RelVisPk
-    opciones?:OpcionesHojaDeRuta
+    opciones: OpcionesHojaDeRuta
 }

@@ -568,6 +568,7 @@ class AppIpcba extends backendPlus.AppBackend{
             ...super.clientIncludes(req, opts),
             { type: 'js', module: 'redux-typed-reducer', modPath:'../dist', file:'redux-typed-reducer.js' },
             { type: 'js', src: 'adapt.js' },
+            { type: 'js', src: 'dm-tipos.js' },
             { type: 'js', src: 'dm-funciones.js' },
             { type: 'js', src: 'dm-react.js' },
             { type: 'js', src: 'ejemplo-precios.js' },
