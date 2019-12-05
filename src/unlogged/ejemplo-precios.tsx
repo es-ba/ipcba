@@ -14,7 +14,7 @@ import * as clsx from 'clsx';
 import {
     AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    Menu, MenuItem, useScrollTrigger, SvgIcon, Switch, TextField, Toolbar, Typography, Zoom
+    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
@@ -1082,36 +1082,48 @@ function InformanteRow(props:{informante:RelInf, letraGrandeFormulario?:boolean}
     const informante = props.informante;
     return (
         <>
-            <tr style={{verticalAlign:'top'}}>
-                <td 
+            <TableRow style={{verticalAlign:'top'}}>
+                <TableCell 
                     rowSpan={props.letraGrandeFormulario?1:informante.formularios.length+1}
                     colSpan={props.letraGrandeFormulario?2:1}
                 >
                     {informante.informante} {informante.nombreinformante}
-                </td>
-            </tr>
+                </TableCell>
+            </TableRow>
             {informante.formularios.map((relVis:RelVis)=>{
                 var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
                 var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, estructura)).length;
                 var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre)).length;
-                return <tr key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
+                return <TableRow key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
                     dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
                 }}>
-                    <td>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</td>
-                    <td>{misObservaciones.length}</td>
-                    <td style={{backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?cantPendientes:CHECK}</td>
-                    <td style={{backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'}}>{cantAdvertencias?cantAdvertencias:'-'}</td>
-                </tr>
+                    <TableCell>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</TableCell>
+                    <TableCell>{misObservaciones.length}</TableCell>
+                    <TableCell style={{backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?cantPendientes:CHECK}</TableCell>
+                    <TableCell style={{backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'}}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
+                </TableRow>
             })}
         </>
     )
 }
+
+const useStylesTable = makeStyles({
+    root: {
+      width: '100%',
+      overflowX: 'auto',
+    },
+    table: {
+      minWidth: 650,
+    },
+  });
 
 function PantallaHojaDeRuta(_props:{}){
     const {informantes, opciones} = useSelector((hdr:HojaDeRuta)=>({
         informantes:hdr.informantes,
         opciones:hdr.opciones||{}
     }));
+    const classes = useStylesTable();
+
     return (
         <>
             <AppBar position="fixed">
@@ -1122,22 +1134,24 @@ function PantallaHojaDeRuta(_props:{}){
                 </Toolbar>
             </AppBar>
             <main>
-                <table className="hoja-ruta">
-                    <thead>
-                        <tr className="hdr-tr-informante">
-                            <th className="oculto-en-grande"><span className="oculto-en-grande">informante</span></th>
-                            <th>formularios</th>
-                            <th>prod</th>
-                            <th>faltan</th>
-                            <th>adv</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {informantes.map((informante:RelInf)=>
-                            <InformanteRow key={informante.informante} informante={informante} letraGrandeFormulario={opciones.letraGrandeFormulario}/>
-                        )}
-                    </tbody>
-                </table>
+                <Paper className={classes.root}>
+                    <Table className="hoja-ruta">
+                        <TableHead>
+                            <TableRow className="hdr-tr-informante">
+                                <TableCell className="oculto-en-grande"><span className="oculto-en-grande">informante</span></TableCell>
+                                <TableCell>formulario</TableCell>
+                                <TableCell>prod</TableCell>
+                                <TableCell>faltan</TableCell>
+                                <TableCell>adv</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {informantes.map((informante:RelInf)=>
+                                <InformanteRow key={informante.informante} informante={informante} letraGrandeFormulario={opciones.letraGrandeFormulario}/>
+                            )}
+                        </TableBody>
+                    </Table>
+                </Paper>
             </main>
         </>
     );
