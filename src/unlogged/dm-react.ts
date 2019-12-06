@@ -245,6 +245,13 @@ var reducers={
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
             })
         },
+    RESET_OPCIONES:(_payload: {}) => 
+        function(state: HojaDeRuta){
+            return deepFreeze({
+                ...state,
+                opciones: getDefaultOptions()
+            })
+        },
 }
 
 export type ActionHdr = ActionsFrom<typeof reducers>;

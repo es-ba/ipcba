@@ -1184,7 +1184,7 @@ function PantallaOpciones(){
     </div>
 }
 
-function AppDmIPC(){
+function AppDmIPCOk(){
     const {relVisPk, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
         document.documentElement.setAttribute('pos-productos',letraGrandeFormulario?'arriba':'izquierda');
@@ -1197,6 +1197,51 @@ function AppDmIPC(){
     }else{
         return <FormularioVisita relVisPk={relVisPk} />
     }
+}
+
+function ReseterForm(props:{onTryAgain:()=>void}){
+    const dispatch = useDispatch();
+    return <>
+        <Button variant="outlined"
+            onClick={()=>{
+                dispatch(dispatchers.RESET_OPCIONES({}));
+                props.onTryAgain();
+            }}
+        >Volver a la hoja de ruta</Button>
+    </>;
+}
+
+class DmIPCCaptureError extends React.Component<
+    {},
+    {hasError:boolean, error:Error|{}, info?:any}
+>{
+    constructor(props:any) {
+        super(props);
+        this.state = { hasError: false, error:{} };
+    }
+    componentDidCatch(error:Error, info:any){
+        this.setState({ hasError: true , error, info });
+    }
+    render(){
+        if(this.state.hasError){
+            return <>
+                <Typography>Hubo un problema en la programación del dipositivo móvil.</Typography>
+                <ReseterForm onTryAgain={()=>
+                    this.setState({ hasError: false, error:{} })
+                }/>
+                <Typography>Error detectado:</Typography>
+                <Typography>{this.state.error.message}</Typography>
+                <Typography>{JSON.stringify(this.state.info)}</Typography>
+            </>;
+        }
+        return this.props.children;
+    }
+}
+
+function AppDmIPC(){
+    return <DmIPCCaptureError>
+        <AppDmIPCOk />
+    </DmIPCCaptureError>
 }
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
