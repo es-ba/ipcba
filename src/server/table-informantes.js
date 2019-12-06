@@ -51,6 +51,7 @@ module.exports = function(context){
             {name:'contacto'                  , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'telcontacto'               , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'modi_fec'                  , typeName:'timestamp'               , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'barrio'                    , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
         ],
         primaryKey:['informante'],
         foreignKeys:[
