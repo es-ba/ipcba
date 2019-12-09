@@ -1087,21 +1087,28 @@ function InformanteRow(props:{informante:RelInf, letraGrandeFormulario?:boolean}
                     rowSpan={props.letraGrandeFormulario?1:informante.formularios.length+1}
                     colSpan={props.letraGrandeFormulario?2:1}
                 >
-                    {informante.informante} {informante.nombreinformante}
+                    <div>{informante.informante} {informante.nombreinformante} ({informante.cantidad_periodos_sin_informacion})</div>
+                    <div class='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
                 </TableCell>
             </TableRow>
             {informante.formularios.map((relVis:RelVis)=>{
                 var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
-                var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, estructura)).length;
-                var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre)).length;
-                return <TableRow key={relVis.informante+'/'+relVis.formulario} onClick={()=>{
-                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
-                }}>
-                    <TableCell>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}</TableCell>
-                    <TableCell>{misObservaciones.length}</TableCell>
-                    <TableCell style={{backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?cantPendientes:CHECK}</TableCell>
-                    <TableCell style={{backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'}}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
-                </TableRow>
+                var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
+                var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
+                return (
+                    <TableRow key={relVis.informante+'/'+relVis.formulario}>
+                        <TableCell>
+                            <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
+                            }>
+                                {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
+                            </Button>
+                        </TableCell>
+                        <TableCell>{misObservaciones.length}</TableCell>
+                        <TableCell style={{backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?cantPendientes:CHECK}</TableCell>
+                        <TableCell style={{backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'}}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
+                    </TableRow>
+                )
             })}
         </>
     )
