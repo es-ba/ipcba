@@ -5,7 +5,7 @@ $BODY$
 DECLARE
  vexiste integer;
 BEGIN
-IF OLD.razon IS DISTINCT FROM NEW.razon THEN
+IF OLD.razon IS DISTINCT FROM NEW.razon AND NEW.razon IS DISTINCT FROM NULL THEN
     SELECT 1 INTO vexiste
     FROM cvp.razones r, cvp.personal p
     WHERE razon = new.razon and (r.escierredefinitivofor = 'S' and p.username = session_user and p.labor = 'A'
