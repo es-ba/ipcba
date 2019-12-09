@@ -1197,11 +1197,6 @@ ProceduresIpcba = [
                             ) lista_productos USING (formulario)`, 
                         'formulario'
                     )} as formularios
-                    , ${jsono(`
-                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, visibleparaencuestador = 'S' as visibleparaencuestador 
-                            FROM tipopre`, 
-                        'tipoprecio'
-                    )} as "tipoPrecio"
                     , ${json(`
                         SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden, visibleparaencuestador = 'S' as visibleparaencuestador 
                             FROM tipopre`, 
@@ -1281,32 +1276,34 @@ ProceduresIpcba = [
             var resultEstructura = await context.client.query(
                 sqlEstructura,
                 [parameters.periodo, parameters.panel, parameters.tarea]
-            ).fetchUniqueRow();
+            ).fetchOneRowIfExists();
             var resultHdR = await context.client.query(
                 sqlHdR,
                 [parameters.periodo, parameters.panel, parameters.tarea]
-            ).fetchUniqueRow();
+            ).fetchOneRowIfExists();
             var estructura = resultEstructura.row;
-            likeAr(estructura.productos).forEach(p=>{
-                p.lista_atributos = p.x_atributos.map(a=>a.atributo);
-                p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
-                likeAr(p.atributos).forEach(a=>{
-                    // if(a.x_prodatrval==null){
-                    //     a.x_prodatrval=[];
-                    // }
-                    a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
-                    a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
-                    delete p.x_prodatrval;
+            if(estructura){
+                likeAr(estructura.productos).forEach(p=>{
+                    p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                    p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                    likeAr(p.atributos).forEach(a=>{
+                        // if(a.x_prodatrval==null){
+                        //     a.x_prodatrval=[];
+                        // }
+                        a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                        a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                        delete p.x_prodatrval;
+                    });
+                    delete p.x_atributos;
                 });
-                delete p.x_atributos;
-            });
-            likeAr(estructura.formularios).forEach(f=>{
-                f.lista_productos = f.x_productos.map(p=>p.producto);
-                f.productos = likeAr.createIndex(f.x_productos, 'producto');
-                delete f.x_productos;
-            });
-            //estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
-            estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
+                likeAr(estructura.formularios).forEach(f=>{
+                    f.lista_productos = f.x_productos.map(p=>p.producto);
+                    f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                    delete f.x_productos;
+                });
+                estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+                estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
+            }
             return {estructura,hdr:resultHdR.row};
         }
     }

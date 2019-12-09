@@ -277,38 +277,42 @@ export async function dmTraerDatosHdr(){
         //periodo: 'a2019m08', panel: 3, tarea: 6
         periodo: 'a2019m11', panel: 3, tarea: 6
     })
-    /* DEFINICION STATE */
-    const initialState:HojaDeRuta = result.hdr;
-    initialState.opciones = getDefaultOptions();
-    estructura = result.estructura;
-    const LOCAL_STORAGE_STATE_NAME = 'dm-store-v9';
-    /* FIN DEFINICION STATE */
-    /* DEFINICION CONTROLADOR */
-    const hdrReducer = createReducer(reducers, initialState);
-    /* FIN DEFINICION CONTROLADOR */
-    /* CARGA Y GUARDADO DE STATE */
-    function loadState():HojaDeRuta{
-        var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
-        if(contentJson){
-            var content:HojaDeRuta = JSON4all.parse(contentJson);
-            return content;
-        }else{
-            return initialState;
+    if(result.estructura && result.hdr){
+        /* DEFINICION STATE */
+        const initialState:HojaDeRuta = result.hdr;
+        initialState.opciones = getDefaultOptions();
+        estructura = result.estructura;
+        const LOCAL_STORAGE_STATE_NAME = 'dm-store-v9';
+        /* FIN DEFINICION STATE */
+        /* DEFINICION CONTROLADOR */
+        const hdrReducer = createReducer(reducers, initialState);
+        /* FIN DEFINICION CONTROLADOR */
+        /* CARGA Y GUARDADO DE STATE */
+        function loadState():HojaDeRuta{
+            var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+            if(contentJson){
+                var content:HojaDeRuta = JSON4all.parse(contentJson);
+                return content;
+            }else{
+                return initialState;
+            }
         }
-    }
-    
-    function saveState(state:HojaDeRuta){
-        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
-    }
-    /* FIN CARGA Y GUARDADO DE STATE */
+        
+        function saveState(state:HojaDeRuta){
+            localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
+        }
+        /* FIN CARGA Y GUARDADO DE STATE */
 
-    /* CREACION STORE */
-    const store = createStore(hdrReducer, loadState()); 
-    store.subscribe(function(){
-        saveState(store.getState());
-    });
-    /* FIN CREACION STORE */
+        /* CREACION STORE */
+        const store = createStore(hdrReducer, loadState()); 
+        store.subscribe(function(){
+            saveState(store.getState());
+        });
+        /* FIN CREACION STORE */
 
-    //HDR CON STORE CREADO
-    return {store, estructura:estructura!};
+        //HDR CON STORE CREADO
+        return {store, estructura:estructura!};
+    }else{
+        throw Error ('no hay datos para el periodo seleccionado')
+    }
 }
