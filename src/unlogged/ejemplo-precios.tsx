@@ -1098,7 +1098,7 @@ function InformanteRow(props:{informante:RelInf, letraGrandeFormulario?:boolean}
                 return (
                     <TableRow key={relVis.informante+'/'+relVis.formulario}>
                         <TableCell>
-                            <Button variant="outlined" color="primary" onClick={()=>
+                            <Button size="large" variant="outlined" color="primary" onClick={()=>
                                 dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
                             }>
                                 {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
