@@ -1147,6 +1147,16 @@ ProceduresIpcba = [
                             'moneda'
                     )} as relmon
                     , ${jsono(`
+                        SELECT informante, direccion
+                            FROM informantes INNER JOIN (
+                                SELECT informante
+                                    FROM relvis 
+                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                    GROUP BY informante
+                            ) lista_informantes USING (informante)`, 
+                            'informante'
+                    )} as informantes
+                    , ${jsono(`
                         SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
                             FROM atributos INNER JOIN (
                                 SELECT atributo
@@ -1254,14 +1264,21 @@ ProceduresIpcba = [
                         AND informante=rvi.informante
                 `;
             var sqlInformantes=`
-                SELECT periodo, informante, nombreinformante, direccion,
+                SELECT periodo, informante, nombreinformante, direccion, 
                         ${json(sqlFormularios,'orden, formulario')} as formularios,
-                        ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones
-                    FROM relvis rvi INNER JOIN informantes USING (informante)
+                        ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones,
+                        distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion
+                    FROM relvis rvi INNER JOIN informantes USING (informante),
+                    lateral(
+                        SELECT 
+                            CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado
+                                FROM relvis rvis
+                                WHERE razon = 1 and rvis.informante = rvi.informante
+                            ) as max_periodos
                     WHERE periodo=rt.periodo 
                         AND panel=rt.panel 
                         AND tarea=rt.tarea
-                    GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea
+                    GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea, maxperiodoinformado
                 `;
             var sqlHdR=`
                 SELECT encuestador, 

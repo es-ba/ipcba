@@ -57,6 +57,11 @@ export type Formulario={
     lista_productos:string[]
 }
 
+export type Informante={
+    informante :number
+    direccion :string
+}
+
 export type Razon={
     nombrerazon: string
     espositivoformulario: boolean
@@ -84,6 +89,7 @@ export type Estructura={
     atributos  : {[atributo:number]: Atributo}
     productos  : {[producto:string]: Producto}
     formularios: {[formulario:number]: Formulario}
+    informantes: {[informante:number]: Informante}
     tipoPrecio : {[tipoPrecio:string]: TipoPrecio}
     tiposPrecioDef: TipoPrecio[],
     tipoPrecioPredeterminado: TipoPrecio,
@@ -142,6 +148,7 @@ export type RelInf={
     direccion:string
     formularios: RelVis[]
     observaciones: RelPre[]
+    cantidad_periodos_sin_informacion: number
 }
 
 export type QueVer = 'todos'|'pendientes'|'advertencias';
