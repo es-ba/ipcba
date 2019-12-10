@@ -1160,7 +1160,7 @@ function PantallaHojaDeRuta(_props:{}){
         opciones:hdr.opciones
     }));
     const classes = useStylesTable();
-
+    const dispatch = useDispatch();
     return (
         <>
             <AppBar position="fixed">
@@ -1170,7 +1170,9 @@ function PantallaHojaDeRuta(_props:{}){
                     </Typography>
                     <Button style={{marginTop:'2px'}}
                         color="inherit"
-                        onClick={}
+                        onClick={()=>
+                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
+                        }
                     >
                         <SettingsIcon/>
                     </Button>
@@ -1210,40 +1212,58 @@ function PantallaHojaDeRuta(_props:{}){
 function PantallaOpciones(){
     const letraGrandeFormulario = useSelector((hdr:HojaDeRuta)=>hdr.opciones.letraGrandeFormulario)
     const dispatch = useDispatch();
-    return <div className="pantalla-opciones">
-        <Divider/>
-        <Typography variant="h4">Opciones del dispositivo móvil</Typography>
-        <Typography>
-            <Grid component="span">Letra en formulario:</Grid>
-            <Grid component="label" container alignItems="center" spacing={1}>
-                <Grid item>chica</Grid>
-                <Grid item>
-                    <Switch
-                        checked={letraGrandeFormulario}
-                        onChange={(event)=>{
-                            dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked}));
-                        }}
-                        value="letraGrandeEnFormulario"
-                        color="primary"
-                        inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
-                </Grid>
-                <Grid item>Grande</Grid>
-            </Grid>            
-        </Typography>
-    </div>
+    return (
+        <>
+            <AppBar position="fixed">
+                <Toolbar>
+                    <Typography variant="h6">Opciones del dispositivo móvil</Typography>
+                </Toolbar>
+            </AppBar>
+            <main>
+                <Typography>
+                    <Grid component="span">Letra en formulario:</Grid>
+                    <Grid component="label" container alignItems="center" spacing={1}>
+                        <Grid item>chica</Grid>
+                        <Grid item>
+                            <Switch
+                                checked={letraGrandeFormulario}
+                                onChange={(event)=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked}));
+                                }}
+                                value="letraGrandeEnFormulario"
+                                color="primary"
+                                inputProps={{ 'aria-label': 'primary checkbox' }}
+                            />
+                        </Grid>
+                        <Grid item>Grande</Grid>
+                    </Grid>            
+                </Typography>
+                <Button style={{marginTop:'2px'}}
+                    color="primary"
+                    variant="contained"
+                    onClick={()=>
+                        dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
+                    }
+                >
+                    <DescriptionIcon/>
+                    Volver a hoja de ruta
+                </Button>
+            </main>
+        </>
+    )
 }
 
 function AppDmIPCOk(){
-    const {relVisPk, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {relVisPk, letraGrandeFormulario, pantallaOpciones} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
         document.documentElement.setAttribute('pos-productos',letraGrandeFormulario?'arriba':'izquierda');
     }, []);
     if(relVisPk == undefined){
-        return <>
-            <PantallaHojaDeRuta/>
-            <PantallaOpciones/>
-        </>
+        if(pantallaOpciones){
+            return <PantallaOpciones/>
+        }else{
+            return <PantallaHojaDeRuta/>
+        }
     }else{
         return <FormularioVisita relVisPk={relVisPk} />
     }

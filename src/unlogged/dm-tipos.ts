@@ -154,6 +154,7 @@ export type RelInf={
 export type QueVer = 'todos'|'pendientes'|'advertencias';
 
 export type OpcionesHojaDeRuta={
+    pantallaOpciones: boolean
     queVer: QueVer
     idActual:string|null
     relVisPk:RelVisPk | null
@@ -162,6 +163,7 @@ export type OpcionesHojaDeRuta={
 
 export function getDefaultOptions():OpcionesHojaDeRuta{
     return {
+        pantallaOpciones: false,
         queVer: 'todos',
         idActual: null,
         relVisPk: null,
