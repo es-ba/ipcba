@@ -18,6 +18,7 @@ import {
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
+import { changing } from "best-globals";
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -40,6 +41,7 @@ export const materialIoIconsSvgPath={
     LocalAtm: "M11 17h2v-1h1c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1h-3v-1h4V8h-2V7h-2v1h-1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h3v1H9v2h2v1zm9-13H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z",
     Menu: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
     Search: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
+    Settings: "M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z",
     Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
     /// JULI ICONS:
     Pendientes:"M2.4 15.35 H 104.55 V 35.65 H -104.55 M 2.4 59.35 H 104.55 V 35.65 Z M 2.4 103.35 H 104.55 V 35.65 Z  M145.6,109.35V133H121.95V109.35H145.6m6-6H115.95V139H151.6V103.35h0Z M145.6,65.35V89H121.95V65.35H145.6m6-6H115.95V95H151.6V59.35h0Z M145.6,21.35V45H121.95V21.35H145.6m6-6H115.95V51H151.6V15.35h0Z",
@@ -56,6 +58,7 @@ const DescriptionIcon = ICON.Description;
 const SearchIcon = ICON.Search;
 const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
 const ClearIcon = ICON.Clear;
+const SettingsIcon = ICON.Settings;
 
 export var estructura:Estructura;
 
@@ -1077,37 +1080,64 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   );
 }
 
-function InformanteRow(props:{informante:RelInf, letraGrandeFormulario?:boolean}){
+function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
     const dispatch = useDispatch();
+    const informante = props.informante;
+    const relVis = props.relVis;
+    var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
+    var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
+    var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
+    var numbersStyles = {
+        textAlign: 'right',
+        paddingRight: '15px'
+    }
+    return(
+        <>
+            <TableCell>
+                <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>
+                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
+                }>
+                    {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
+                </Button>
+            </TableCell>
+            <TableCell style={numbersStyles}>{misObservaciones.length}</TableCell>
+            <TableCell style={changing(numbersStyles, {backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'})}>{cantPendientes?cantPendientes:CHECK}</TableCell>
+            <TableCell style={changing(numbersStyles, {backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'})}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
+        </>
+    )
+}
+
+function InformanteRow(props:{informante:RelInf}){
+    const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
     return (
         <>
-            <TableRow style={{verticalAlign:'top'}}>
-                <TableCell 
-                    rowSpan={props.letraGrandeFormulario?1:informante.formularios.length+1}
-                    colSpan={props.letraGrandeFormulario?2:1}
-                >
-                    <div>{informante.informante} {informante.nombreinformante} ({informante.cantidad_periodos_sin_informacion})</div>
-                    <div class='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
-                </TableCell>
-            </TableRow>
-            {informante.formularios.map((relVis:RelVis)=>{
-                var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
-                var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
-                var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
+            {informante.formularios.map((relVis:RelVis, index:number)=>{
                 return (
-                    <TableRow key={relVis.informante+'/'+relVis.formulario}>
-                        <TableCell>
-                            <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
-                            }>
-                                {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
-                            </Button>
-                        </TableCell>
-                        <TableCell>{misObservaciones.length}</TableCell>
-                        <TableCell style={{backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?cantPendientes:CHECK}</TableCell>
-                        <TableCell style={{backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'}}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
-                    </TableRow>
+                    <>
+                        <TableRow key={relVis.informante+'/'+relVis.formulario} style={{
+                            verticalAlign:'top',
+                            borderTop:opciones.letraGrandeFormulario?"2px solid":"none"
+                        }}>
+                            {index==0?
+                                <TableCell 
+                                    rowSpan={opciones.letraGrandeFormulario?1:informante.formularios.length}
+                                    colSpan={opciones.letraGrandeFormulario?4:1}
+                                >
+                                    <div>{informante.informante} {informante.nombreinformante} ({informante.cantidad_periodos_sin_informacion})</div>
+                                    <div class='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
+                                </TableCell>
+                            :null}
+                            {opciones.letraGrandeFormulario?null:
+                                <FormulariosRows informante={props.informante} relVis={relVis}/>
+                            }
+                        </TableRow>
+                        {opciones.letraGrandeFormulario?
+                            <TableRow>
+                                <FormulariosRows informante={props.informante} relVis={relVis}/>
+                            </TableRow>
+                        :null}
+                    </>
                 )
             })}
         </>
@@ -1127,7 +1157,7 @@ const useStylesTable = makeStyles({
 function PantallaHojaDeRuta(_props:{}){
     const {informantes, opciones} = useSelector((hdr:HojaDeRuta)=>({
         informantes:hdr.informantes,
-        opciones:hdr.opciones||{}
+        opciones:hdr.opciones
     }));
     const classes = useStylesTable();
 
@@ -1138,14 +1168,27 @@ function PantallaHojaDeRuta(_props:{}){
                     <Typography variant="h6">
                         Hoja de ruta
                     </Typography>
+                    <Button style={{marginTop:'2px'}}
+                        color="inherit"
+                        onClick={}
+                    >
+                        <SettingsIcon/>
+                    </Button>
                 </Toolbar>
             </AppBar>
             <main>
                 <Paper className={classes.root}>
                     <Table className="hoja-ruta">
+                        <colgroup>
+                        {opciones.letraGrandeFormulario?null:<col style={{width:"36%"}}/>}
+                            <col style={{width:opciones.letraGrandeFormulario?"79%":"43%"}}/>
+                            <col style={{width:"7%"}}/>
+                            <col style={{width:"7%" }}/>
+                            <col style={{width:"7%" }}/>
+                        </colgroup>      
                         <TableHead>
                             <TableRow className="hdr-tr-informante">
-                                <TableCell className="oculto-en-grande"><span className="oculto-en-grande">informante</span></TableCell>
+                                {opciones.letraGrandeFormulario?null:<TableCell>informante</TableCell>}
                                 <TableCell>formulario</TableCell>
                                 <TableCell>prod</TableCell>
                                 <TableCell>faltan</TableCell>
@@ -1154,7 +1197,7 @@ function PantallaHojaDeRuta(_props:{}){
                         </TableHead>
                         <TableBody>
                             {informantes.map((informante:RelInf)=>
-                                <InformanteRow key={informante.informante} informante={informante} letraGrandeFormulario={opciones.letraGrandeFormulario}/>
+                                <InformanteRow key={informante.informante} informante={informante}/>
                             )}
                         </TableBody>
                     </Table>
