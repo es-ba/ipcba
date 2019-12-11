@@ -245,6 +245,17 @@ var reducers={
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
             })
         },
+    RESET_SEARCH:(_payload: {}) => 
+        function(state: HojaDeRuta){
+            return deepFreeze({
+                ...state,
+                opciones:{...state.opciones,
+                    searchString: '',
+                    verRazon: true,
+                    allForms: false
+                }
+            })
+        },
     RESET_OPCIONES:(_payload: {}) => 
         function(state: HojaDeRuta){
             return deepFreeze({

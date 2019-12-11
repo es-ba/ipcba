@@ -135,11 +135,13 @@ function TypedInput<T>(props:{
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null
     backgroundColor?:string,
+    onFocus?:()=>void
 }){
     var inputId=props.inputId;
     var [value, setValue] = useState(props.value);
     useEffect(() => {
         focusToId(inputId);
+        props.onFocus?props.onFocus():null;
     }, []);
     // @ts-ignore acá hay un problema con el cambio de tipos
     var valueString:string = value==null?'':value;
@@ -170,6 +172,7 @@ function TypedInput<T>(props:{
                 var tecla = event.charCode || event.which;
                 if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
                     focusToId(inputId, e=>e.blur())
+                    props.onFocus?props.onFocus():null;
                     event.preventDefault();
                 }
             }}
@@ -196,6 +199,7 @@ function TypedInput<T>(props:{
                 var tecla = event.charCode || event.which;
                 if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
                     focusToId(inputId, e=>e.blur())
+                    props.onFocus?props.onFocus():null;
                     event.preventDefault();
                 }
             }}
@@ -248,7 +252,8 @@ const EditableTd = function<T extends any>(props:{
     onUpdate:OnUpdate<T>,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null,
-    titulo?:string
+    titulo?:string,
+    onFocus?:()=>void
 }){
     const dispatch = useDispatch();
     const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.opciones.idActual == props.inputId);
@@ -281,6 +286,7 @@ const EditableTd = function<T extends any>(props:{
                     var altoActual:number = event.target.offsetHeight!;
                     setAnchoSinEditar(altoActual);
                     dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
+                    props.onFocus?props.onFocus():null;
                 }
             }} 
             puede-editar={!props.disabled && !editando?"yes":"no"}
@@ -298,6 +304,7 @@ const EditableTd = function<T extends any>(props:{
                     tipoOpciones={props.tipoOpciones}
                     opciones={props.opciones}
                     backgroundColor={props.backgroundColor}
+                    onFocus={()=>{props.onFocus?props.onFocus():null}}
                 />
             :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>{props.value != null?props.value:props.placeholder||''}</div>
             }
@@ -370,6 +377,7 @@ const AtributosRow = function(props:{
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
+    onSelection:()=>void
 }){
     const relAtr = props.relAtr;
     const relPre = props.relPre;
@@ -377,6 +385,7 @@ const AtributosRow = function(props:{
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
+    const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const classes = useStylesList();
     return (
         <tr>
@@ -386,6 +395,7 @@ const AtributosRow = function(props:{
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
                     {muestraFlechaCopiarAtributos(estructura, relPre)?
                         <Button color="primary" variant="outlined" onClick={ () => {
+                            props.onSelection();
                             dispatch(dispatchers.COPIAR_ATRIBUTOS({
                                 forPk:relAtr, 
                                 iRelPre:props.iRelPre,
@@ -396,6 +406,7 @@ const AtributosRow = function(props:{
                         </Button>
                     :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
                         <Button color="primary" variant="outlined" onClick={ (event) => {
+                            props.onSelection();
                             setMenuCambioAtributos(event.currentTarget)                            
                         }}>
                             C
@@ -420,6 +431,9 @@ const AtributosRow = function(props:{
                 tipoOpciones={prodatr.opciones}
                 opciones={prodatr.lista_prodatrval}
                 titulo={atributo.nombreatributo}
+                onFocus={()=>{
+                    props.onSelection();
+                }}
             />
             <Menu id="simple-menu-cambio"
                 open={Boolean(menuCambioAtributos)}
@@ -466,6 +480,7 @@ const useStylesList = makeStyles((_theme: Theme) =>
 var PreciosRow = React.memo(function PreciosRow(props:{
     relPre:RelPre, iRelPre:number
 }){
+    const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
@@ -477,18 +492,20 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
-    const onSelect = () => {
-        //dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
-        //dispatch(dispatchers.SET_ZOOMIN({nextId:inputIdPrecio}));
+    var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
+        if(searchString || allForms){
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+            dispatch(dispatchers.RESET_SEARCH({}))
+        }
     }
     return (
         <>
-            <div onClick={onSelect}  className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
+            <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
                 <div className="especificacion">{productoDef.especificacioncompleta}</div>
             </div>
-            <table onClick={onSelect} className="caja-precios">
+            <table className="caja-precios">
                 <colgroup>
                     <col style={{width:"26%"}}/>
                     <col style={{width:"8%" }}/>
@@ -501,6 +518,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     <tr>
                         <td className="observaciones" button-container="yes">
                             <Button color="primary" variant="outlined" onClick={()=>{
+                                handleSelection(relPre, searchString, allForms);
                                 setDialogoObservaciones(true)
                             }}>
                                 obs
@@ -535,6 +553,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         <td className="precioAnterior">{relPre.precioanterior}</td>
                         <td className="flechaTP" button-container="yes">{(puedeCopiarTipoPrecio(estructura, relPre))?
                             <Button color="secondary" variant="outlined" onClick={ () => {
+                                handleSelection(relPre, searchString, allForms);
                                 if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                                     setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                                     setMenuConfirmarBorradoPrecio(true)
@@ -546,7 +565,10 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </Button>
                         :''}</td>
                         <td className="tipoPrecio" button-container="yes">
-                            <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>setMenuTipoPrecio(event.currentTarget)}>
+                            <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
+                                handleSelection(relPre, searchString, allForms);
+                                setMenuTipoPrecio(event.currentTarget)
+                            }}>
                                 {relPre.tipoprecio||"\u00a0"}
                             </Button>
                         </td>
@@ -617,7 +639,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 nextId:value && inputIdAtributos.length?inputIdAtributos[0]:false
                             }));
                             // focusToId(inputIdPrecio,e=>e.blur());
-                        }} dataType="number" />
+                        }} dataType="number" onFocus={()=>{
+                            handleSelection(relPre, searchString, allForms);
+                        }}/>
                     </tr>
                     {relPre.atributos.map((relAtr, index)=>
                         <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
@@ -630,6 +654,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             primerAtributo={index==0}
                             cantidadAtributos={relPre.atributos.length}
                             ultimoAtributo={index == relPre.atributos.length-1}
+                            onSelection={()=>handleSelection(relPre,searchString,allForms)}
                         />
                     )}
                 </tbody>
@@ -644,40 +669,31 @@ function filterNotNull<T extends {}>(x:T|null):x is T {
 
 function RelevamientoPrecios(props:{
     relInf:RelInf, 
-    formulario:number, 
-    searchString: string|null,
-    queVer:QueVer,
-    onResetSearchOptions:()=>void
-    onVerRazon:(allForms:boolean)=>void
+    relVis: RelVis,
+    formulario:number
 }){
     const relInf = props.relInf;
+    const relVis = props.relVis;
+    const {queVer, searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
-    const [allForms, setAllForms] = useState(false);
-    const [opcionesAnteriores, setOpcionesAnteriores] = useState({queVer:props.queVer, searchString:props.searchString});
-    if(props.searchString != opcionesAnteriores.searchString || 
-        /* props.queVer != 'advertencias' && */ props.queVer != opcionesAnteriores.queVer
-    ){
-        setAllForms(false);
-        setOpcionesAnteriores({queVer:props.queVer, searchString:props.searchString})
-    }
     var observaciones = relInf.observaciones;
     var criterio = (relPre:RelPre) => 
-        (props.searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(props.searchString.toLocaleLowerCase())>-1:true)
-        && (props.queVer !='advertencias' || precioTieneAdvertencia(relPre))
-        && (props.queVer !='pendientes' || precioEstaPendiente(relPre, estructura));
+        (searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(searchString.toLocaleLowerCase())>-1:true)
+        && (queVer !='advertencias' || precioTieneAdvertencia(relPre, relVis, estructura))
+        && (queVer !='pendientes' || precioEstaPendiente(relPre, relVis, estructura));
     var observacionesFiltradas:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
         ((allForms?true:relPre.formulario==props.formulario) &&
         criterio(relPre))?{relPre, iRelPre}:null
     ).filter(filterNotNull);
     var observacionesFiltradasEnOtros:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
         (!(allForms?true:relPre.formulario==props.formulario) && 
-        (relPre.observacion==1 || props.queVer!='todos') && // si son todos no hace falta ver las observaciones=2
+        (relPre.observacion==1 || queVer!='todos') && // si son todos no hace falta ver las observaciones=2
         criterio(relPre))?{relPre, iRelPre}:null
     ).filter(filterNotNull);
     var cantidadResultados = observacionesFiltradas.length;
     return <>
-        {props.queVer == 'pendientes'? <Typography className="titulo-pendientes">observaciones pendientes</Typography>:(
-            props.queVer == 'advertencias'? <Typography className="titulo-advertencias">observaciones con advertencias</Typography>:(
+        {queVer == 'pendientes'? <Typography className="titulo-pendientes">observaciones pendientes</Typography>:(
+            queVer == 'advertencias'? <Typography className="titulo-advertencias">observaciones con advertencias</Typography>:(
                 null
             )
         )}
@@ -688,18 +704,9 @@ function RelevamientoPrecios(props:{
                         key={relPre.producto+'/'+relPre.observacion}
                         relPre={relPre}
                         iRelPre={Number(iRelPre)}
-                        /*
-                        onSelect={(inputId:string)=>{
-                            if(props.searchString || allForms){
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
-                                dispatch(dispatchers.SET_FOCUS({nextId:inputId}));
-                                props.onResetSearchOptions();
-                            }
-                        }}
-                        */
                     />
                 )
-            :(observacionesFiltradasEnOtros.length==0 && props.queVer != 'todos'?
+            :(observacionesFiltradasEnOtros.length==0 && queVer != 'todos'?
                 <div>No hay</div>
             :null)
             }
@@ -708,10 +715,10 @@ function RelevamientoPrecios(props:{
                 <div className="zona-degrade">
                     <Button className="boton-hay-mas" variant="outlined"
                         onClick={()=>{
-                            setAllForms(true);
-                            props.onVerRazon(false);
+                            dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:true}))
+                            dispatch(dispatchers.SET_OPCION({variable:'verRazon',valor:false}))
                         }}
-                    >ver más {props.queVer == 'todos'?'':props.queVer} en otros formularios</Button>
+                    >ver más {queVer == 'todos'?'':queVer} en otros formularios</Button>
                     {observacionesFiltradasEnOtros.map(({relPre}, i) => (
                         i<10?
                         <Typography 
@@ -726,16 +733,17 @@ function RelevamientoPrecios(props:{
     </>;
 }
 
-function RazonFormulario(props:{relVis:RelVis, verRazon:boolean}){
+function RazonFormulario(props:{relVis:RelVis}){
     const relVis = props.relVis;
     const razones = estructura.razones;
+    const {verRazon} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     const dispatch = useDispatch();
     const classes = useStylesList();
     return (
-        props.verRazon?
+        verRazon?
         <table className="razon-formulario">
             <thead></thead>
             <tbody>
@@ -905,6 +913,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
+    const {queVer, searchString} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
         var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -915,12 +924,8 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
             .formularios
     );
-    const queVer = useSelector((hdr:HojaDeRuta)=>hdr.opciones.queVer)
     const [open, setOpen] = React.useState<boolean>(false);
-    const [searchAllHidden, setSearchAllHidden] = React.useState<boolean>(true);
-    const [searchString, setSearchString] = React.useState<string>('');
     const classes = useStyles({open:open});
-    const [verRazon, setVerRazon] = React.useState<boolean>(true);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -933,12 +938,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
-
-    const resetSearchOptions = () => {
-        setSearchAllHidden(true);
-        setSearchString('');
-        setVerRazon(true)
-    }
 
   return (
     <div id="formulario-visita" className="menu-informante-visita">
@@ -1010,13 +1009,13 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 input: classes.inputInput,
                             }} inputProps={{ 'aria-label': 'search' }}
                             onChange={(event)=>{
-                                setSearchString(event.target.value)
+                                dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:event.target.value}))
                                 //EVALUAR SI SE SACA
                                 //window.scroll({behavior:'auto', top:0, left:0})
                             }}
                         />
                         {searchString?
-                            <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>setSearchString('')}><ClearIcon /></IconButton>
+                            <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:''}))}><ClearIcon /></IconButton>
                         :null}
                     </div>
                 </Toolbar>
@@ -1049,7 +1048,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
                             setOpen(false);
                             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
-                            resetSearchOptions();
+                            dispatch(dispatchers.RESET_SEARCH({}));
                         }}>
                           <ListItemIcon>{relVis.formulario}</ListItemIcon>
                           <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
@@ -1058,16 +1057,11 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 </List>
             </Drawer>
             <main className={classes.content}>
-                <RazonFormulario relVis={relVis} verRazon={verRazon}/>
+                <RazonFormulario relVis={relVis}/>
                 <RelevamientoPrecios 
                     relInf={relInf} 
+                    relVis={relVis}
                     formulario={relVis.formulario}
-                    searchString={searchString}
-                    queVer={queVer}
-                    onResetSearchOptions={()=>{
-                        resetSearchOptions();
-                    }}
-                    onVerRazon={(verRazon:boolean)=>setVerRazon(verRazon)}
                 />
             </main>
             <ScrollTop>
@@ -1094,9 +1088,10 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
     return(
         <>
             <TableCell>
-                <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>
-                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
-                }>
+                <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>{
+                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                    dispatch(dispatchers.RESET_SEARCH({}));
+                }}>
                     {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
                 </Button>
             </TableCell>

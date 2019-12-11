@@ -159,6 +159,9 @@ export type OpcionesHojaDeRuta={
     idActual:string|null
     relVisPk:RelVisPk | null
     letraGrandeFormulario:boolean
+    allForms: boolean
+    searchString: string
+    verRazon: boolean
 }
 
 export function getDefaultOptions():OpcionesHojaDeRuta{
@@ -167,7 +170,10 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         queVer: 'todos',
         idActual: null,
         relVisPk: null,
-        letraGrandeFormulario: false
+        letraGrandeFormulario: false,
+        allForms: false,
+        searchString: '',
+        verRazon: true
     }
 }
 
