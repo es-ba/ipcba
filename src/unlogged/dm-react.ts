@@ -151,6 +151,17 @@ var reducers={
                 return nuevoRelPre;
             });
         },
+    SET_COMENTARIO_PRECIO:(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelPre(state, payload, (miRelPre:RelPre)=>{
+                var nuevoRelPre:RelPre = {
+                    ...miRelPre,
+                    comentariosrelpre: payload.comentario
+                };
+                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
+                return nuevoRelPre;
+            });
+        },
     COPIAR_ATRIBUTOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{

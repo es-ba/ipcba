@@ -490,6 +490,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
+    const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
     var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
@@ -525,23 +526,35 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </Button>
                             <Dialog
                                 open={dialogoObservaciones}
-                                onClose={()=>setDialogoObservaciones(false)}
+                                onClose={()=>{
+                                    setDialogoObservaciones(false)
+                                    setObservacionAConfirmar(relPre.comentariosrelpre);
+                                }}
                                 aria-labelledby="alert-dialog-title"
                                 aria-describedby="alert-dialog-description"
                             >
                                 <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText id="alert-dialog-description-obs">
-                                        acá van las obs
+                                    <EditableTd inputId={inputIdPrecio+"_comentarios"} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
+                                        setObservacionAConfirmar(value);
+                                    }} dataType="text"/>
                                     </DialogContentText>
                                 </DialogContent>
                                 <DialogActions>
                                     <Button onClick={()=>{
+                                        dispatch(dispatchers.SET_COMENTARIO_PRECIO({
+                                            forPk:relPre, 
+                                            iRelPre: props.iRelPre,
+                                            comentario:observacionAConfirmar,
+                                            nextId: false
+                                        }));
                                         setDialogoObservaciones(false)
                                     }} color="primary" variant="outlined">
                                         Guardar
                                     </Button>
                                     <Button onClick={()=>{
+                                        setObservacionAConfirmar(relPre.comentariosrelpre)
                                         setDialogoObservaciones(false)
                                     }} color="secondary" variant="outlined">
                                         Descartar Observaciones

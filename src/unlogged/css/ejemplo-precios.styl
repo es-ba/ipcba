@@ -129,6 +129,13 @@ body
 main
   padding 60px 0
 
+td, th
+  &[puede-editar=yes]
+    border-bottom 0.5px solid #3f51b5
+
+.placeholder
+  color #3f51b5
+
 .menu-informante-visita
   .razon-formulario
     font-size letra_mediana
@@ -136,10 +143,7 @@ main
       font-size letra_chica
   td, th
     &[puede-editar=yes]
-      border-bottom 0.5px solid #3f51b5
       height 40px
-  .placeholder
-    color #3f51b5
   .MuiButton-contained.Mui-disabled
     background-color #e0e0e0
   #buscar
