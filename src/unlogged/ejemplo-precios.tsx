@@ -1168,7 +1168,7 @@ function PantallaHojaDeRuta(_props:{}){
                     <Typography variant="h6">
                         Hoja de ruta
                     </Typography>
-                    <Button style={{marginTop:'2px'}}
+                    <Button style={{marginTop:'5px'}}
                         color="inherit"
                         onClick={()=>
                             dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
@@ -1229,6 +1229,7 @@ function PantallaOpciones(){
                                 checked={letraGrandeFormulario}
                                 onChange={(event)=>{
                                     dispatch(dispatchers.SET_OPCION({variable:'letraGrandeFormulario',valor:event.target.checked}));
+                                    document.documentElement.setAttribute('pos-productos',event.target.checked?'arriba':'izquierda');
                                 }}
                                 value="letraGrandeEnFormulario"
                                 color="primary"
@@ -1255,9 +1256,7 @@ function PantallaOpciones(){
 
 function AppDmIPCOk(){
     const {relVisPk, letraGrandeFormulario, pantallaOpciones} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
-    useEffect(() => {
-        document.documentElement.setAttribute('pos-productos',letraGrandeFormulario?'arriba':'izquierda');
-    }, []);
+    document.documentElement.setAttribute('pos-productos', letraGrandeFormulario?'arriba':'izquierda');
     if(relVisPk == undefined){
         if(pantallaOpciones){
             return <PantallaOpciones/>
@@ -1316,7 +1315,6 @@ function AppDmIPC(){
 
 export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estructura){
     estructura=miEstructura;
-    document.documentElement.setAttribute('pos-productos','izquierda');
     ReactDOM.render(
         <Provider store={store}>
             <AppDmIPC/>
