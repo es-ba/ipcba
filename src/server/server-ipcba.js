@@ -573,7 +573,7 @@ class AppIpcba extends backendPlus.AppBackend{
     clientIncludes(req, opts) {
         var be = this;
         var menuedResources=req && opts && !opts.skipMenu ? [
-            { type:'js' , src:'client.js' },
+            { type:'js' , src: 'client/client.js' },
             { type: 'js', src: 'client/hoja-de-ruta.js' },
             { type: 'js', src: 'client/imp-formularios.js' },
         ]:[

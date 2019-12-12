@@ -1,5 +1,5 @@
 CACHE MANIFEST
-#dm191212
+#dm191212b
 
 CACHE:
 #--------------------------- JS ------------------------------------
@@ -33,7 +33,6 @@ CACHE:
 ../lib/cliente-en-castellano.js
 ../client/client.js
 ../client/hoja-de-ruta.js
-../client/menu.js
 
 #------------------------------ CSS ---------------------------------
 ../dialog-promise/dialog-promise.css
