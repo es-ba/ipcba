@@ -1283,11 +1283,12 @@ ProceduresIpcba = [
                     GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea, maxperiodoinformado
                 `;
             var sqlHdR=`
-                SELECT encuestador, 
+                SELECT encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
                         (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                         current_date as fecha_carga,
+                        rt.panel, rt.tarea,
                         ${json(sqlInformantes,'direccion, informante')} as informantes
-                    FROM reltar rt INNER JOIN periodos p USING (periodo)
+                    FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
                     WHERE rt.periodo=$1 
                         AND rt.panel=$2 
                         AND rt.tarea=$3

@@ -1169,12 +1169,18 @@ const useStylesTable = makeStyles({
   });
 
 function PantallaHojaDeRuta(_props:{}){
-    const {informantes, opciones} = useSelector((hdr:HojaDeRuta)=>({
+    const {informantes, opciones, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>({
         informantes:hdr.informantes,
-        opciones:hdr.opciones
+        opciones:hdr.opciones,
+        panel: hdr.panel,
+        tarea: hdr.tarea,
+        encuestador: hdr.encuestador,
+        nombreencuestador: hdr.nombreencuestador,
+        apellidoencuestador: hdr.apellidoencuestador
     }));
     const classes = useStylesTable();
     const dispatch = useDispatch();
+    const stylesTableHeader = {fontSize: "1.3rem"}
     return (
         <>
             <AppBar position="fixed">
@@ -1194,7 +1200,10 @@ function PantallaHojaDeRuta(_props:{}){
             </AppBar>
             <main>
                 <Paper className={classes.root}>
-                    <Table className="hoja-ruta">
+                    <Typography component="p" style={{fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"}}>
+                        Panel: {panel} Tarea: {tarea} Encuestador/a: {apellidoencuestador}, {nombreencuestador} ({encuestador})
+                    </Typography>
+                    <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
                         {opciones.letraGrandeFormulario?null:<col style={{width:"36%"}}/>}
                             <col style={{width:opciones.letraGrandeFormulario?"79%":"43%"}}/>
@@ -1202,13 +1211,13 @@ function PantallaHojaDeRuta(_props:{}){
                             <col style={{width:"7%" }}/>
                             <col style={{width:"7%" }}/>
                         </colgroup>      
-                        <TableHead>
+                        <TableHead style={{fontSize: "1.2rem"}}>
                             <TableRow className="hdr-tr-informante">
-                                {opciones.letraGrandeFormulario?null:<TableCell>informante</TableCell>}
-                                <TableCell>formulario</TableCell>
-                                <TableCell>prod</TableCell>
-                                <TableCell>faltan</TableCell>
-                                <TableCell>adv</TableCell>
+                                {opciones.letraGrandeFormulario?null:<TableCell style={stylesTableHeader}>informante</TableCell>}
+                                <TableCell style={stylesTableHeader}>formulario</TableCell>
+                                <TableCell style={stylesTableHeader}>prod</TableCell>
+                                <TableCell style={stylesTableHeader}>faltan</TableCell>
+                                <TableCell style={stylesTableHeader}>adv</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

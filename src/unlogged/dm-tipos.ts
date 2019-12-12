@@ -180,6 +180,10 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
 
 export type HojaDeRuta={
     encuestador:string,
+    nombreencuestador:string,
+    apellidoencuestador:string,
+    panel: number,
+    tarea: number,
     dispositivo:string,
     fecha_carga:Date,
     informantes:RelInf[]
