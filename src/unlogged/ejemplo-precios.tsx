@@ -45,6 +45,7 @@ export const materialIoIconsSvgPath={
     Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
     /// JULI ICONS:
     Pendientes:"M2.4 15.35 H 104.55 V 35.65 H -104.55 M 2.4 59.35 H 104.55 V 35.65 Z M 2.4 103.35 H 104.55 V 35.65 Z  M145.6,109.35V133H121.95V109.35H145.6m6-6H115.95V139H151.6V103.35h0Z M145.6,65.35V89H121.95V65.35H145.6m6-6H115.95V95H151.6V59.35h0Z M145.6,21.35V45H121.95V21.35H145.6m6-6H115.95V51H151.6V15.35h0Z",
+    Repregunta:"M19.9,13.3c0,4.4-3.6,7.9-7.9,7.9s-7.9-3.6-7.9-7.9S7.6,5.4,12,5.4V8l5.3-4l-5.3-4v2.6C6.1,2.7,1.4,7.5,1.4,13.3 S6.1,23.9,12,23.9s10.6-4.7,10.6-10.6H19.9z M8.9,17.8v-7.6h3.2c0.8,0,1.4,0.1,1.8,0.2c0.4,0.1,0.7,0.4,0.9,0.7 c0.2,0.4,0.3,0.7,0.3,1.2c0,0.6-0.2,1-0.5,1.4c-0.3,0.4-0.8,0.6-1.5,0.7c0.3,0.2,0.6,0.4,0.8,0.6c0.2,0.2,0.5,0.6,0.9,1.2l0.9,1.5 h-1.8l-1.1-1.7c-0.4-0.6-0.7-1-0.8-1.1c-0.1-0.2-0.3-0.3-0.5-0.3c-0.2-0.1-0.4-0.1-0.8-0.1h-0.3v3.2H8.9z M10.4,13.4h1.1 c0.7,0,1.2,0,1.4-0.1c0.2-0.1,0.3-0.2,0.4-0.3c0.1-0.2,0.2-0.3,0.2-0.6c0-0.3-0.1-0.5-0.2-0.6c-0.1-0.2-0.3-0.3-0.6-0.3 c-0.1,0-0.5,0-1.1,0h-1.2V13.4z",
 }
 
 const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
@@ -59,6 +60,7 @@ const SearchIcon = ICON.Search;
 const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
 const ClearIcon = ICON.Clear;
 const SettingsIcon = ICON.Settings;
+const RepreguntaIcon = ICON.Repregunta;
 
 export var estructura:Estructura;
 
@@ -385,7 +387,6 @@ const AtributosRow = function(props:{
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
-    const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const classes = useStylesList();
     return (
         <tr>
@@ -564,19 +565,24 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </td>
                         <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                         <td className="precioAnterior">{relPre.precioanterior}</td>
-                        <td className="flechaTP" button-container="yes">{(puedeCopiarTipoPrecio(estructura, relPre))?
-                            <Button color="secondary" variant="outlined" onClick={ () => {
-                                handleSelection(relPre, searchString, allForms);
-                                if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                                    setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                                    setMenuConfirmarBorradoPrecio(true)
-                                }else{
-                                    dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
-                                }
-                            }}>
-                                {FLECHATIPOPRECIO}
-                            </Button>
-                        :''}</td>
+                        <td className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
+                            {relPre.repregunta?
+                                <RepreguntaIcon/>
+                            :((puedeCopiarTipoPrecio(estructura, relPre))?
+                                <Button color="secondary" variant="outlined" onClick={ () => {
+                                    handleSelection(relPre, searchString, allForms);
+                                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                                        setMenuConfirmarBorradoPrecio(true)
+                                    }else{
+                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
+                                    }
+                                }}>
+                                    {FLECHATIPOPRECIO}
+                                </Button>
+                                :'')
+                            }
+                        </td>
                         <td className="tipoPrecio" button-container="yes">
                             <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
                                 handleSelection(relPre, searchString, allForms);

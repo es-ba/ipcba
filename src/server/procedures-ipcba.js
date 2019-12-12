@@ -1242,6 +1242,7 @@ ProceduresIpcba = [
                         cambio, comentariosrelpre, precionormalizado, rp.precionormalizado_1, 
                         f.orden as orden_formulario,
                         fp.orden as orden_producto,
+                        p.periodo is not null as repregunta,
                         ${esSupervision?'null':'false'} as adv,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos,
                         c.promobs as promobs_1
@@ -1251,6 +1252,7 @@ ProceduresIpcba = [
                         left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
                             and c.informante = rp.informante and c.producto = rp.producto
                             and c.observacion = rp.observacion
+                        left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante
                     WHERE rv.periodo=rvi.periodo 
                         AND rv.tarea=rvi.tarea
                         AND rv.panel=rvi.panel

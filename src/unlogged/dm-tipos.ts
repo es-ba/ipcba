@@ -127,6 +127,7 @@ export type RelPre={
     normsindato?:string
     fueraderango?:string
     sinpreciohace4meses?:string
+    repregunta: boolean
     adv: boolean
 }
 
