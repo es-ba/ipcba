@@ -31,9 +31,9 @@ CACHE:
 ../lib/my-menu.js
 ../lib/my-skin.js
 ../lib/cliente-en-castellano.js
+../client/client.js
 ../client/hoja-de-ruta.js
 ../client/menu.js
-../client/client.js
 
 #------------------------------ CSS ---------------------------------
 ../dialog-promise/dialog-promise.css
