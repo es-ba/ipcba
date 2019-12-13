@@ -1169,7 +1169,7 @@ ProceduresIpcba = [
                             'atributo'
                     )} as atributos
                     , ${jsono(`
-                        SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA},
+                        SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA}, e.destacada as destacado,
                                 ${json(
                                     `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
                                         ${json(
@@ -1239,20 +1239,32 @@ ProceduresIpcba = [
                         AND ra.observacion=rp.observacion`
             var sqlObservaciones=`                
                 SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
-                        cambio, comentariosrelpre, precionormalizado, rp.precionormalizado_1, 
+                        cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
                         f.orden as orden_formulario,
                         fp.orden as orden_producto,
                         p.periodo is not null as repregunta,
                         ${esSupervision?'null':'false'} as adv,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos,
-                        c.promobs as promobs_1
+                        c.promobs as promobs_1,
+                        re.ultimoperiodoconprecio,
+                        r_his.sinpreciohace4meses
                     FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
                         inner join forprod fp using(formulario, producto)
                         inner join formularios f using (formulario)
                         left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
                             and c.informante = rp.informante and c.producto = rp.producto
                             and c.observacion = rp.observacion
-                        left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante
+                        left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante,
+                        lateral (select max(substr(periodo,2,4)||'/'||substr(periodo,7,2)||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
+                            from relpre
+                            where precio is not null and rp.informante = informante and rp.producto = producto and rp.observacion = observacion and rp.visita = visita 
+                            and periodo < rp.periodo
+                        ) re,
+                        lateral(
+                            select CASE WHEN count(*) = 4 THEN 'S' ELSE null END as sinpreciohace4meses
+                            from relpre rp_2_3
+                            where moverperiodos(rp.periodo,-1) >= rp_2_3.periodo and moverperiodos(rp.periodo,-4) <= rp_2_3.periodo and rp.producto = rp_2_3.producto and rp.observacion = rp_2_3.observacion and rp.informante = rp_2_3.informante and rp.visita = rp_2_3.visita and rp_2_3.tipoprecio in ('S',null)
+                        ) r_his
                     WHERE rv.periodo=rvi.periodo 
                         AND rv.tarea=rvi.tarea
                         AND rv.panel=rvi.panel

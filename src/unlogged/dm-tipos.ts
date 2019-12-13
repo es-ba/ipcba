@@ -37,7 +37,7 @@ export type Producto={
     producto:string
     nombreproducto:string
     especificacioncompleta: string
-    _especificaciones__mostrar_cant_um?: string
+    destacado: boolean
     atributos:{
         [atributo:string]: ProdAtr
     }
@@ -121,12 +121,13 @@ export type RelPre={
     atributos: RelAtr[]
     cambio: Cambio | null
     comentariosrelpre: string | null
+    comentariosrelpre_1: string | null
+    esvisiblecomentarioendm_1: boolean
     precionormalizado: number | null
     precionormalizado_1: number | null
-    promobs_1?: number
-    normsindato?:string
-    fueraderango?:string
-    sinpreciohace4meses?:string
+    promobs_1: number
+    sinpreciohace4meses:string | null
+    ultimoperiodoconprecio: string | null
     repregunta: boolean
     adv: boolean
 }
@@ -160,6 +161,7 @@ export type OpcionesHojaDeRuta={
     idActual:string|null
     relVisPk:RelVisPk | null
     letraGrandeFormulario:boolean
+    mostrarColumnasFaltantesYAdvertencias: boolean
     allForms: boolean
     searchString: string
     verRazon: boolean
@@ -172,6 +174,7 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         idActual: null,
         relVisPk: null,
         letraGrandeFormulario: false,
+        mostrarColumnasFaltantesYAdvertencias: true,
         allForms: false,
         searchString: '',
         verRazon: true

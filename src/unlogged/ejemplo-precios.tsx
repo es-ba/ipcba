@@ -12,7 +12,7 @@ import { Provider, useSelector, useDispatch } from "react-redux";
 import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
-    AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
@@ -1093,8 +1093,29 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   );
 }
 
+const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
+const useStylesBadge = makeStyles((theme: Theme) =>
+  createStyles({
+    margin: {
+      margin: theme.spacing(0),
+    },
+    padding: {
+      padding: theme.spacing(0, 2),
+    },
+    customBadge: {
+        backgroundColor: COLOR_ADVERTENCIAS,
+        color: "white"
+      }
+  }),
+);
+
+const ConditionalWrapper = ({ condition, wrapper, children }) => 
+  condition ? wrapper(children) : children;
+
 function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
+    const classes = useStylesBadge();
     const dispatch = useDispatch();
+    const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
     const relVis = props.relVis;
     var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
@@ -1107,16 +1128,27 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
     return(
         <>
             <TableCell>
-                <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>{
-                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                    dispatch(dispatchers.RESET_SEARCH({}));
-                }}>
-                    {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
-                </Button>
+                <ConditionalWrapper
+                    condition={!mostrarColumnasFaltantesYAdvertencias}
+                    wrapper={children => 
+                        <Badge style={{width:"100%"}} badgeContent={cantAdvertencias} 
+                            classes={{ badge: classes.customBadge }} className={classes.margin}>{children}
+                        </Badge>
+                    }
+                >
+                    <Button style={{width:'100%'}} size="large" variant="outlined" color="primary" 
+                        className={"boton-ir-formulario"}   onClick={()=>{
+                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                            dispatch(dispatchers.RESET_SEARCH({}));
+                        }
+                    }>
+                        {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
+                    </Button>
+                </ConditionalWrapper>
             </TableCell>
-            <TableCell style={numbersStyles}>{misObservaciones.length}</TableCell>
-            <TableCell style={changing(numbersStyles, {backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'})}>{cantPendientes?cantPendientes:CHECK}</TableCell>
-            <TableCell style={changing(numbersStyles, {backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'})}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{misObservaciones.length}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={changing(numbersStyles, {backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'})}>{cantPendientes?cantPendientes:CHECK}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={changing(numbersStyles, {backgroundColor:cantAdvertencias?COLOR_ADVERTENCIAS:'none'})}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>:null}
         </>
     )
 }
@@ -1169,7 +1201,7 @@ const useStylesTable = makeStyles({
   });
 
 function PantallaHojaDeRuta(_props:{}){
-    const {informantes, opciones, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>({
+    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>({
         informantes:hdr.informantes,
         opciones:hdr.opciones,
         panel: hdr.panel,
@@ -1178,6 +1210,7 @@ function PantallaHojaDeRuta(_props:{}){
         nombreencuestador: hdr.nombreencuestador,
         apellidoencuestador: hdr.apellidoencuestador
     }));
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const dispatch = useDispatch();
     const stylesTableHeader = {fontSize: "1.3rem"}
@@ -1205,19 +1238,19 @@ function PantallaHojaDeRuta(_props:{}){
                     </Typography>
                     <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
-                        {opciones.letraGrandeFormulario?null:<col style={{width:"36%"}}/>}
-                            <col style={{width:opciones.letraGrandeFormulario?"79%":"43%"}}/>
-                            <col style={{width:"7%"}}/>
-                            <col style={{width:"7%" }}/>
-                            <col style={{width:"7%" }}/>
+                            {letraGrandeFormulario?null:<col style={{width:"33%"}}/>}
+                            <col style={{width:letraGrandeFormulario?"79%":"46%"}}/>
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
                         </colgroup>      
                         <TableHead style={{fontSize: "1.2rem"}}>
                             <TableRow className="hdr-tr-informante">
-                                {opciones.letraGrandeFormulario?null:<TableCell style={stylesTableHeader}>informante</TableCell>}
-                                <TableCell style={stylesTableHeader}>formulario</TableCell>
-                                <TableCell style={stylesTableHeader}>prod</TableCell>
-                                <TableCell style={stylesTableHeader}>faltan</TableCell>
-                                <TableCell style={stylesTableHeader}>adv</TableCell>
+                                {letraGrandeFormulario || !mostrarColumnasFaltantesYAdvertencias?null:<TableCell style={stylesTableHeader}>informante</TableCell>}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>formulario</TableCell>:null}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>prod</TableCell>:null}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>faltan</TableCell>:null}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>adv</TableCell>:null}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -1233,7 +1266,7 @@ function PantallaHojaDeRuta(_props:{}){
 }
 
 function PantallaOpciones(){
-    const letraGrandeFormulario = useSelector((hdr:HojaDeRuta)=>hdr.opciones.letraGrandeFormulario)
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>hdr.opciones)
     const dispatch = useDispatch();
     return (
         <>
@@ -1260,6 +1293,24 @@ function PantallaOpciones(){
                             />
                         </Grid>
                         <Grid item>Grande</Grid>
+                    </Grid>            
+                </Typography>
+                <Typography>
+                    <Grid component="span">Mostrar advertencias en hoja de ruta</Grid>
+                    <Grid component="label" container alignItems="center" spacing={1}>
+                        <Grid item>no</Grid>
+                        <Grid item>
+                            <Switch
+                                checked={mostrarColumnasFaltantesYAdvertencias}
+                                onChange={(event)=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'mostrarColumnasFaltantesYAdvertencias',valor:event.target.checked}));
+                                }}
+                                value="mostrarColumnasFaltantesYAdvertencias"
+                                color="primary"
+                                inputProps={{ 'aria-label': 'primary checkbox' }}
+                            />
+                        </Grid>
+                        <Grid item>sí</Grid>
                     </Grid>            
                 </Typography>
                 <Button style={{marginTop:'2px'}}
