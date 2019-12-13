@@ -12,7 +12,7 @@ import { Provider, useSelector, useDispatch } from "react-redux";
 import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
-    AppBar, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
@@ -45,6 +45,7 @@ export const materialIoIconsSvgPath={
     Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
     /// JULI ICONS:
     Pendientes:"M2.4 15.35 H 104.55 V 35.65 H -104.55 M 2.4 59.35 H 104.55 V 35.65 Z M 2.4 103.35 H 104.55 V 35.65 Z  M145.6,109.35V133H121.95V109.35H145.6m6-6H115.95V139H151.6V103.35h0Z M145.6,65.35V89H121.95V65.35H145.6m6-6H115.95V95H151.6V59.35h0Z M145.6,21.35V45H121.95V21.35H145.6m6-6H115.95V51H151.6V15.35h0Z",
+    Repregunta:"M19.9,13.3c0,4.4-3.6,7.9-7.9,7.9s-7.9-3.6-7.9-7.9S7.6,5.4,12,5.4V8l5.3-4l-5.3-4v2.6C6.1,2.7,1.4,7.5,1.4,13.3 S6.1,23.9,12,23.9s10.6-4.7,10.6-10.6H19.9z M8.9,17.8v-7.6h3.2c0.8,0,1.4,0.1,1.8,0.2c0.4,0.1,0.7,0.4,0.9,0.7 c0.2,0.4,0.3,0.7,0.3,1.2c0,0.6-0.2,1-0.5,1.4c-0.3,0.4-0.8,0.6-1.5,0.7c0.3,0.2,0.6,0.4,0.8,0.6c0.2,0.2,0.5,0.6,0.9,1.2l0.9,1.5 h-1.8l-1.1-1.7c-0.4-0.6-0.7-1-0.8-1.1c-0.1-0.2-0.3-0.3-0.5-0.3c-0.2-0.1-0.4-0.1-0.8-0.1h-0.3v3.2H8.9z M10.4,13.4h1.1 c0.7,0,1.2,0,1.4-0.1c0.2-0.1,0.3-0.2,0.4-0.3c0.1-0.2,0.2-0.3,0.2-0.6c0-0.3-0.1-0.5-0.2-0.6c-0.1-0.2-0.3-0.3-0.6-0.3 c-0.1,0-0.5,0-1.1,0h-1.2V13.4z",
 }
 
 const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
@@ -59,6 +60,7 @@ const SearchIcon = ICON.Search;
 const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
 const ClearIcon = ICON.Clear;
 const SettingsIcon = ICON.Settings;
+const RepreguntaIcon = ICON.Repregunta;
 
 export var estructura:Estructura;
 
@@ -385,7 +387,6 @@ const AtributosRow = function(props:{
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
-    const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const classes = useStylesList();
     return (
         <tr>
@@ -564,19 +565,24 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </td>
                         <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                         <td className="precioAnterior">{relPre.precioanterior}</td>
-                        <td className="flechaTP" button-container="yes">{(puedeCopiarTipoPrecio(estructura, relPre))?
-                            <Button color="secondary" variant="outlined" onClick={ () => {
-                                handleSelection(relPre, searchString, allForms);
-                                if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                                    setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                                    setMenuConfirmarBorradoPrecio(true)
-                                }else{
-                                    dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
-                                }
-                            }}>
-                                {FLECHATIPOPRECIO}
-                            </Button>
-                        :''}</td>
+                        <td className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
+                            {relPre.repregunta?
+                                <RepreguntaIcon/>
+                            :((puedeCopiarTipoPrecio(estructura, relPre))?
+                                <Button color="secondary" variant="outlined" onClick={ () => {
+                                    handleSelection(relPre, searchString, allForms);
+                                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                                        setMenuConfirmarBorradoPrecio(true)
+                                    }else{
+                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
+                                    }
+                                }}>
+                                    {FLECHATIPOPRECIO}
+                                </Button>
+                                :'')
+                            }
+                        </td>
                         <td className="tipoPrecio" button-container="yes">
                             <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
                                 handleSelection(relPre, searchString, allForms);
@@ -1087,8 +1093,29 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   );
 }
 
+const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
+const useStylesBadge = makeStyles((theme: Theme) =>
+  createStyles({
+    margin: {
+      margin: theme.spacing(0),
+    },
+    padding: {
+      padding: theme.spacing(0, 2),
+    },
+    customBadge: {
+        backgroundColor: COLOR_ADVERTENCIAS,
+        color: "white"
+      }
+  }),
+);
+
+const ConditionalWrapper = ({ condition, wrapper, children }) => 
+  condition ? wrapper(children) : children;
+
 function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
+    const classes = useStylesBadge();
     const dispatch = useDispatch();
+    const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
     const relVis = props.relVis;
     var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
@@ -1101,16 +1128,27 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
     return(
         <>
             <TableCell>
-                <Button style={{minWidth:'100%'}} size="large" variant="outlined" color="primary" onClick={()=>{
-                    dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                    dispatch(dispatchers.RESET_SEARCH({}));
-                }}>
-                    {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
-                </Button>
+                <ConditionalWrapper
+                    condition={!mostrarColumnasFaltantesYAdvertencias}
+                    wrapper={children => 
+                        <Badge style={{width:"100%"}} badgeContent={cantAdvertencias} 
+                            classes={{ badge: classes.customBadge }} className={classes.margin}>{children}
+                        </Badge>
+                    }
+                >
+                    <Button style={{width:'100%'}} size="large" variant="outlined" color="primary" 
+                        className={"boton-ir-formulario"}   onClick={()=>{
+                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                            dispatch(dispatchers.RESET_SEARCH({}));
+                        }
+                    }>
+                        {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
+                    </Button>
+                </ConditionalWrapper>
             </TableCell>
-            <TableCell style={numbersStyles}>{misObservaciones.length}</TableCell>
-            <TableCell style={changing(numbersStyles, {backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'})}>{cantPendientes?cantPendientes:CHECK}</TableCell>
-            <TableCell style={changing(numbersStyles, {backgroundColor:cantAdvertencias?'rgb(255, 147, 51)':'none'})}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{misObservaciones.length}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={changing(numbersStyles, {backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'})}>{cantPendientes?cantPendientes:CHECK}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={changing(numbersStyles, {backgroundColor:cantAdvertencias?COLOR_ADVERTENCIAS:'none'})}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>:null}
         </>
     )
 }
@@ -1163,12 +1201,19 @@ const useStylesTable = makeStyles({
   });
 
 function PantallaHojaDeRuta(_props:{}){
-    const {informantes, opciones} = useSelector((hdr:HojaDeRuta)=>({
+    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>({
         informantes:hdr.informantes,
-        opciones:hdr.opciones
+        opciones:hdr.opciones,
+        panel: hdr.panel,
+        tarea: hdr.tarea,
+        encuestador: hdr.encuestador,
+        nombreencuestador: hdr.nombreencuestador,
+        apellidoencuestador: hdr.apellidoencuestador
     }));
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const dispatch = useDispatch();
+    const stylesTableHeader = {fontSize: "1.3rem"}
     return (
         <>
             <AppBar position="fixed">
@@ -1188,21 +1233,24 @@ function PantallaHojaDeRuta(_props:{}){
             </AppBar>
             <main>
                 <Paper className={classes.root}>
-                    <Table className="hoja-ruta">
+                    <Typography component="p" style={{fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"}}>
+                        Panel: {panel} Tarea: {tarea} Encuestador/a: {apellidoencuestador}, {nombreencuestador} ({encuestador})
+                    </Typography>
+                    <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
-                        {opciones.letraGrandeFormulario?null:<col style={{width:"36%"}}/>}
-                            <col style={{width:opciones.letraGrandeFormulario?"79%":"43%"}}/>
-                            <col style={{width:"7%"}}/>
-                            <col style={{width:"7%" }}/>
-                            <col style={{width:"7%" }}/>
+                            {letraGrandeFormulario?null:<col style={{width:"33%"}}/>}
+                            <col style={{width:letraGrandeFormulario?"79%":"46%"}}/>
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
                         </colgroup>      
-                        <TableHead>
+                        <TableHead style={{fontSize: "1.2rem"}}>
                             <TableRow className="hdr-tr-informante">
-                                {opciones.letraGrandeFormulario?null:<TableCell>informante</TableCell>}
-                                <TableCell>formulario</TableCell>
-                                <TableCell>prod</TableCell>
-                                <TableCell>faltan</TableCell>
-                                <TableCell>adv</TableCell>
+                                {letraGrandeFormulario || !mostrarColumnasFaltantesYAdvertencias?null:<TableCell style={stylesTableHeader}>informante</TableCell>}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>formulario</TableCell>:null}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>prod</TableCell>:null}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>faltan</TableCell>:null}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>adv</TableCell>:null}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -1218,7 +1266,7 @@ function PantallaHojaDeRuta(_props:{}){
 }
 
 function PantallaOpciones(){
-    const letraGrandeFormulario = useSelector((hdr:HojaDeRuta)=>hdr.opciones.letraGrandeFormulario)
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>hdr.opciones)
     const dispatch = useDispatch();
     return (
         <>
@@ -1245,6 +1293,24 @@ function PantallaOpciones(){
                             />
                         </Grid>
                         <Grid item>Grande</Grid>
+                    </Grid>            
+                </Typography>
+                <Typography>
+                    <Grid component="span">Mostrar advertencias en hoja de ruta</Grid>
+                    <Grid component="label" container alignItems="center" spacing={1}>
+                        <Grid item>no</Grid>
+                        <Grid item>
+                            <Switch
+                                checked={mostrarColumnasFaltantesYAdvertencias}
+                                onChange={(event)=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'mostrarColumnasFaltantesYAdvertencias',valor:event.target.checked}));
+                                }}
+                                value="mostrarColumnasFaltantesYAdvertencias"
+                                color="primary"
+                                inputProps={{ 'aria-label': 'primary checkbox' }}
+                            />
+                        </Grid>
+                        <Grid item>sí</Grid>
                     </Grid>            
                 </Typography>
                 <Button style={{marginTop:'2px'}}

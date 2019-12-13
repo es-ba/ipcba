@@ -123,6 +123,9 @@ body
     padding 6px
     .direccion-informante
       font-size letra_mediana
+  .boton-ir-formulario
+    span.MuiButton-label
+      justify-content left
 .flecha-volver-hdr
   width 60px
 
@@ -144,6 +147,13 @@ td, th
   td, th
     &[puede-editar=yes]
       height 40px
+    &[es-repregunta=yes]
+      svg
+        color #3db09c
+        font-size 3rem
+        vertical-align middle
+        width 100%
+        padding-right 8%
   .MuiButton-contained.Mui-disabled
     background-color #e0e0e0
   #buscar
