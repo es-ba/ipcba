@@ -1246,8 +1246,10 @@ ProceduresIpcba = [
                         ${esSupervision?'null':'false'} as adv,
                         ${json(sqlAtributos, 'orden, atributo')} as atributos,
                         c.promobs as promobs_1,
-                        re.ultimoperiodoconprecio,
-                        r_his.sinpreciohace4meses
+                        distanciaperiodos(rv.periodo,ultimoperiodoconprecio) cantidadperiodossinprecio,
+                        split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
+                        split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
+                        r_his.sinpreciohace4meses = 'S' sinpreciohace4meses
                     FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
                         inner join forprod fp using(formulario, producto)
                         inner join formularios f using (formulario)
@@ -1255,7 +1257,7 @@ ProceduresIpcba = [
                             and c.informante = rp.informante and c.producto = rp.producto
                             and c.observacion = rp.observacion
                         left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante,
-                        lateral (select max(substr(periodo,2,4)||'/'||substr(periodo,7,2)||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
+                        lateral (select max(periodo||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
                             from relpre
                             where precio is not null and rp.informante = informante and rp.producto = producto and rp.observacion = observacion and rp.visita = visita 
                             and periodo < rp.periodo

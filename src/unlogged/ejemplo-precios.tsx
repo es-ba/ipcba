@@ -12,7 +12,7 @@ import { Provider, useSelector, useDispatch } from "react-redux";
 import * as likeAr from "like-ar";
 import * as clsx from 'clsx';
 import {
-    AppBar, Badge, Button, ButtonGroup, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, Button, ButtonGroup, Chip, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
@@ -494,6 +494,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
+    const classesBadge = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
         if(searchString || allForms){
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
@@ -564,7 +565,17 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </Dialog>
                         </td>
                         <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
-                        <td className="precioAnterior">{relPre.precioanterior}</td>
+                        {(relPre.ultimoprecioinformado && relPre.tipoprecioanterior == 'S')?
+                            <Badge style={{width:"100%", marginTop:"6px"}} badgeContent={relPre.cantidadperiodossinprecio}
+                                classes={{ badge: classesBadge.customBadge }} className={classesBadge.margin}
+                            >
+                                <td className="precioAnterior" style={{width: "100%"}}>
+                                    <Chip style={{backgroundColor:'#66b58b', color:"#ffffff", width:"100%", fontSize: "1rem"}} label={relPre.ultimoprecioinformado}></Chip>
+                                </td>
+                            </Badge>
+                        :
+                            <td className="precioAnterior">{relPre.precioanterior}</td>                            
+                        }
                         <td className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
                             {relPre.repregunta?
                                 <RepreguntaIcon/>
@@ -1093,7 +1104,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   );
 }
 
-const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
 const useStylesBadge = makeStyles((theme: Theme) =>
   createStyles({
     margin: {
@@ -1103,8 +1113,8 @@ const useStylesBadge = makeStyles((theme: Theme) =>
       padding: theme.spacing(0, 2),
     },
     customBadge: {
-        backgroundColor: COLOR_ADVERTENCIAS,
-        color: "white"
+        backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
+        color: (props:{color:string}) => props.color?props.color:'white',
       }
   }),
 );
@@ -1113,7 +1123,8 @@ const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(children) : children;
 
 function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
-    const classes = useStylesBadge();
+    const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
+    const classes = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
     const dispatch = useDispatch();
     const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
@@ -1171,7 +1182,7 @@ function InformanteRow(props:{informante:RelInf}){
                                     colSpan={opciones.letraGrandeFormulario?4:1}
                                 >
                                     <div>{informante.informante} {informante.nombreinformante} ({informante.cantidad_periodos_sin_informacion})</div>
-                                    <div class='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
+                                    <div className='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:

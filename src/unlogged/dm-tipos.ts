@@ -126,8 +126,10 @@ export type RelPre={
     precionormalizado: number | null
     precionormalizado_1: number | null
     promobs_1: number
-    sinpreciohace4meses:string | null
+    sinpreciohace4meses:boolean
     ultimoperiodoconprecio: string | null
+    cantidadperiodossinprecio: number | null
+    ultimoprecioinformado: number | null
     repregunta: boolean
     adv: boolean
 }
