@@ -1,7 +1,8 @@
-#set BACKEND_PLUS_LOCAL_CONFIG = nombre_de_archivo
+#set BACKEND_PLUS_LOCAL_CONFIG=nombre_de_archivo
 server:
   port: 3333
   base-url: /ipc
+  policy: web
 nodb: true
 client-setup:
   skin: default
