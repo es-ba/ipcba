@@ -1,3 +1,4 @@
+#set BACKEND_PLUS_LOCAL_CONFIG = nombre_de_archivo
 server:
   port: 3333
   base-url: /ipc
