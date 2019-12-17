@@ -335,7 +335,7 @@ class AppIpcba extends backendPlus.AppBackend{
         if(this.config.server.policy=='web'){
             return {menu:[
                 {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true, selectedByDefault: true},
-                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador, analista, coordinador, jefeCampo]},
+                {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista]},
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalacion actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
                 {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
@@ -381,9 +381,9 @@ class AppIpcba extends backendPlus.AppBackend{
                 ]},
                 {menuType:'table', name:'periodos_novpre_recep', label:'anulación de precios (recep)', onlyVisibleFor:[programador,jefeCampo,recepcionista,recepGabinete]},
                 {menuType:'menu', name:'supervisiones', menuContent:[
-                    {menuType:'table', name:'periodos_hojaderutasupervisor'  , label:'hoja de ruta del supervisor', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                    {menuType:'table', name:'periodos_hojaderutasupervisor'  , label:'hoja de ruta del supervisor', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'periodos_reltar', label:'observaciones de paneles-tareas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
-                    {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
+                    {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                 ]},
