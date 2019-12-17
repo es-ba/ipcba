@@ -68,6 +68,7 @@ const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
 const PRIMARY_COLOR   ="#3f51b5";
 const SECONDARY_COLOR ="#f50057";
+const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
 var CHECK = '✓';
 
 type OnUpdate<T> = (data:T)=>void
@@ -245,6 +246,9 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
 
 const EditableTd = function<T extends any>(props:{
     backgroundColor?:string,
+    badgeCondition?:boolean,
+    badgeBackgroundColor?:any,
+    borderBottomColor?:string,
     inputId:string,
     disabled?:boolean,
     placeholder?: string,
@@ -265,6 +269,7 @@ const EditableTd = function<T extends any>(props:{
     // const [mostrarMenu, setMostrarMenu] = useState<HTMLElement|null>(null);
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
+    const badgeCondition = props.badgeCondition || false;
     const sanitizarValor = function(valor:T){
         if(valor==undefined || valor == null || valor.trim()==''){
             return null
@@ -276,9 +281,14 @@ const EditableTd = function<T extends any>(props:{
     if(editando!=deboEditar){
         setEditando(deboEditar);
     }
+    const classesBadge = useStylesBadge({backgroundColor: props.badgeBackgroundColor});
     var stringValue = props.value == null ? props.value : props.value.toString();
     return <>
-        <td style={{backgroundColor:props.backgroundColor?props.backgroundColor:'none'}} 
+        <td style={{
+            backgroundColor:props.backgroundColor?props.backgroundColor:'none', 
+            borderBottomColor:props.borderBottomColor?props.borderBottomColor:"#3f51b5",
+            overflowX: badgeCondition?'unset':'hidden'
+        }} 
             colSpan={props.colSpan} 
             className={props.className} 
             ref={mostrarMenu} 
@@ -293,6 +303,14 @@ const EditableTd = function<T extends any>(props:{
             }} 
             puede-editar={!props.disabled && !editando?"yes":"no"}
         >
+            <ConditionalWrapper
+                condition={badgeCondition}
+                wrapper={children => 
+                    <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
+                    style={{width:"100%"}} classes={{ badge: classesBadge.badge }} className={classesBadge.margin}>{children}
+                    </Badge>
+                }
+            >
             {editando && !editaEnLista?
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
                     altoActual={anchoSinEditar}
@@ -310,6 +328,7 @@ const EditableTd = function<T extends any>(props:{
                 />
             :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>{props.value != null?props.value:props.placeholder||''}</div>
             }
+            </ConditionalWrapper>
         </td>
         {editaEnLista && editando?
             <Menu id="simple-menu"
@@ -388,6 +407,7 @@ const AtributosRow = function(props:{
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
     const classes = useStylesList();
+    const {color, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <tr>
             <td className="nombre-atributo">{atributo.nombreatributo}</td>
@@ -414,9 +434,11 @@ const AtributosRow = function(props:{
                         </Button>
                     :relPre.cambio}
                 </td>
-                :null}
+            :null}
             <EditableTd
-                backgroundColor = {controlarAtributo(relAtr, relPre, estructura).color}
+                borderBottomColor={color}
+                badgeCondition={tieneAdv}
+                badgeBackgroundColor={color}
                 colSpan={2} className="atributo-actual" inputId={props.inputId}
                 disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
@@ -436,6 +458,7 @@ const AtributosRow = function(props:{
                     props.onSelection();
                 }}
             />
+            
             <Menu id="simple-menu-cambio"
                 open={Boolean(menuCambioAtributos)}
                 anchorEl={menuCambioAtributos}
@@ -495,6 +518,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
     const classesBadge = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
+    const {color, tieneAdv} = controlarPrecio(relPre, estructura);
+    const classesBadgePrecio = useStylesBadge({backgroundColor: color});
     var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
         if(searchString || allForms){
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
@@ -566,8 +591,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </td>
                         <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                         {(relPre.ultimoprecioinformado && relPre.tipoprecioanterior == 'S')?
-                            <Badge style={{width:"100%", marginTop:"6px"}} badgeContent={relPre.cantidadperiodossinprecio}
-                                classes={{ badge: classesBadge.customBadge }} className={classesBadge.margin}
+                            <Badge style={{width:"100%"}} badgeContent={relPre.cantidadperiodossinprecio}
+                                classes={{ badge: classesBadge.badge }} className={classesBadge.margin}
                             >
                                 <td className="precioAnterior" style={{width: "100%"}}>
                                     <Chip style={{backgroundColor:'#66b58b', color:"#ffffff", width:"100%", fontSize: "1rem"}} label={relPre.ultimoprecioinformado}></Chip>
@@ -661,7 +686,12 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 </Button>
                             </DialogActions>
                         </Dialog>
-                        <EditableTd backgroundColor = {controlarPrecio(relPre, estructura).color} inputId={inputIdPrecio} disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
+                        <EditableTd 
+                            borderBottomColor={color}
+                            badgeCondition={tieneAdv}
+                            badgeBackgroundColor={color}
+                            inputId={inputIdPrecio} 
+                            disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
                             dispatch(dispatchers.SET_PRECIO({
                                 forPk:relPre, 
                                 iRelPre: props.iRelPre,
@@ -672,6 +702,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         }} dataType="number" onFocus={()=>{
                             handleSelection(relPre, searchString, allForms);
                         }}/>
+                        
                     </tr>
                     {relPre.atributos.map((relAtr, index)=>
                         <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
@@ -1112,10 +1143,10 @@ const useStylesBadge = makeStyles((theme: Theme) =>
     padding: {
       padding: theme.spacing(0, 2),
     },
-    customBadge: {
-        backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
-        color: (props:{color:string}) => props.color?props.color:'white',
-      }
+    badge: {
+      backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
+      color: (props:{color:string}) => props.color?props.color:'white',
+    }
   }),
 );
 
@@ -1123,7 +1154,6 @@ const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(children) : children;
 
 function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
-    const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
     const classes = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
     const dispatch = useDispatch();
     const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
@@ -1142,8 +1172,8 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
                 <ConditionalWrapper
                     condition={!mostrarColumnasFaltantesYAdvertencias}
                     wrapper={children => 
-                        <Badge style={{width:"100%"}} badgeContent={cantAdvertencias} 
-                            classes={{ badge: classes.customBadge }} className={classes.margin}>{children}
+                        <Badge style={{width:"calc(100% - 5px)"}} badgeContent={cantAdvertencias} 
+                            classes={{ badge: classes.badge }} className={classes.margin}>{children}
                         </Badge>
                     }
                 >

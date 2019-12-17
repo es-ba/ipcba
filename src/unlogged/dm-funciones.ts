@@ -121,7 +121,7 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
         return prodAtr.valornormal && prodAtr.normalizable && relAtr.valor == null && relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     }
     var tieneAdvertencia:boolean=false;
-    var color:string;
+    var color:string|undefined = undefined;
     if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor != null){
         color='#FFCE33';
         tieneAdvertencia = true;
@@ -130,17 +130,14 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
         tieneAdvertencia = true;
         color='#FF9333';
     }
-    if(!tieneAdvertencia){
-        color='#FAFAFA';
-    }
-    return {tieneAdvertencia, color}
+    return {tieneAdv: tieneAdvertencia, color}
 }
 
 export function controlarPrecio(relPre:RelPre, estructura:Estructura){
     var atributoTieneAdvertencia:boolean=false;
-    var color:string;
+    var color:string|undefined = undefined;
     relPre.atributos.forEach(function(relAtr){
-        atributoTieneAdvertencia = atributoTieneAdvertencia || controlarAtributo(relAtr, relPre, estructura).tieneAdvertencia;
+        atributoTieneAdvertencia = atributoTieneAdvertencia || controlarAtributo(relAtr, relPre, estructura).tieneAdv;
     });
     var tieneAdvertencias;
     if(relPre.precio && relPre.precionormalizado && (
@@ -151,7 +148,6 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura){
         color='#FF9333'; //naranja
         tieneAdvertencias = true;
     }else{
-        color='#FAFAFA';
         tieneAdvertencias = false;
     }
     return {tieneAdv: tieneAdvertencias, color: color};
