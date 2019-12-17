@@ -553,7 +553,7 @@ ProceduresIpcba = [
             {name:'periodo'    , typeName:'text', references:'periodos'},
             {name:'panel'      , typeName:'integer'                    },
         ],
-        roles:['programador','coordinador','analista','jefe_campo','supervisor'],
+        roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 //`SELECT generar_para_supervisiones($1,$2);`,
@@ -575,7 +575,7 @@ ProceduresIpcba = [
             {name:'periodo'    , typeName:'text', references:'periodos'},
             {name:'panel'      , typeName:'integer'                    },
         ],
-        roles:['programador','coordinador','analista','jefe_campo','supervisor'],
+        roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `select CASE WHEN max(disponible) is null THEN 'Debe especificar al menos un supervisor disponible'::text 
