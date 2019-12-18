@@ -517,7 +517,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
-    const classesBadge = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
+    const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
+    const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000"});
+    const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS});
     const {color, tieneAdv} = controlarPrecio(relPre, estructura);
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = relPre.precioanterior || relPre.ultimoprecioinformado;
@@ -533,7 +535,27 @@ var PreciosRow = React.memo(function PreciosRow(props:{
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
-                <div className="especificacion">{productoDef.especificacioncompleta}</div>
+                <ConditionalWrapper
+                    condition={(productoDef.destacado)}
+                    wrapper={children => 
+                        <Badge style={{width:"100%"}} badgeContent=" " 
+                            classes={{ badge: classesBadgeProdDestacado.badge }} className={classesBadgeProdDestacado.margin}>{children}
+                        </Badge>
+                    }
+                >
+                    <div className="especificacion">{productoDef.especificacioncompleta}</div>
+                </ConditionalWrapper>
+                <ConditionalWrapper
+                    condition={(relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1)}
+                    wrapper={children => 
+                        <Badge style={{width:"100%"}} badgeContent=" " classes={{ badge: classesBadgeComentariosAnalista.badge }} 
+                            className={classesBadgeComentariosAnalista.margin}>
+                            {children}    
+                        </Badge>
+                    }
+                >
+                    <div className="comentario-analista">{relPre.comentariosrelpre_1}</div>
+                </ConditionalWrapper>
             </div>
             <table className="caja-precios">
                 <colgroup>
@@ -597,7 +619,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 condition={(badgeCondition)}
                                 wrapper={children => 
                                     <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
-                                        classes={{ badge: classesBadge.badge }} className={classesBadge.margin}>{children}
+                                        classes={{ badge: classesBadgeCantidadMeses.badge }} className={classesBadgeCantidadMeses.margin}>{children}
                                     </Badge>
                                 }
                             >
@@ -1169,6 +1191,7 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
     var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
     var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
     var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
+    var todoListo = cantAdvertencias == 0 && cantPendientes == 0
     var numbersStyles = {
         textAlign: 'right',
         paddingRight: '15px'
@@ -1184,13 +1207,13 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
                         </Badge>
                     }
                 >
-                    <Button style={{width:'100%'}} size="large" variant="outlined" color="primary" 
+                    <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
                         className={"boton-ir-formulario"}   onClick={()=>{
                             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                             dispatch(dispatchers.RESET_SEARCH({}));
                         }
                     }>
-                        {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario}    
+                        {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} {(todoListo)?CHECK:null}
                     </Button>
                 </ConditionalWrapper>
             </TableCell>
