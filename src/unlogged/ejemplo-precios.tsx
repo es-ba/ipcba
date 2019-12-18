@@ -519,7 +519,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classes = useStylesList();
     const classesBadge = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     const {color, tieneAdv} = controlarPrecio(relPre, estructura);
-    const classesBadgePrecio = useStylesBadge({backgroundColor: color});
+    const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
+    const precioAnteriorAMostrar = relPre.precioanterior || relPre.ultimoprecioinformado;
+    const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
         if(searchString || allForms){
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
@@ -590,17 +592,22 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </Dialog>
                         </td>
                         <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
-                        {(relPre.ultimoprecioinformado && relPre.tipoprecioanterior == 'S')?
-                            <Badge style={{width:"100%"}} badgeContent={relPre.cantidadperiodossinprecio}
-                                classes={{ badge: classesBadge.badge }} className={classesBadge.margin}
+                        <td className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
+                            <ConditionalWrapper
+                                condition={(badgeCondition)}
+                                wrapper={children => 
+                                    <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
+                                        classes={{ badge: classesBadge.badge }} className={classesBadge.margin}>{children}
+                                    </Badge>
+                                }
                             >
-                                <td className="precioAnterior" style={{width: "100%"}}>
-                                    <Chip style={{backgroundColor:'#66b58b', color:"#ffffff", width:"100%", fontSize: "1rem"}} label={relPre.ultimoprecioinformado}></Chip>
-                                </td>
-                            </Badge>
-                        :
-                            <td className="precioAnterior">{relPre.precioanterior}</td>                            
-                        }
+                                {chipColor?
+                                    <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                                :
+                                    precioAnteriorAMostrar
+                                }
+                            </ConditionalWrapper>
+                        </td>
                         <td className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
                             {relPre.repregunta?
                                 <RepreguntaIcon/>
