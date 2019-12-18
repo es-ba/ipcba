@@ -1183,6 +1183,7 @@ const ConditionalWrapper = ({ condition, wrapper, children }) =>
   condition ? wrapper(children) : children;
 
 function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
+    const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
     const dispatch = useDispatch();
     const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
@@ -1191,7 +1192,7 @@ function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
     var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
     var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
     var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
-    var todoListo = cantAdvertencias == 0 && cantPendientes == 0
+    var todoListo = cantAdvertencias == 0 && cantPendientes == 0 && !opciones.mostrarColumnasFaltantesYAdvertencias
     var numbersStyles = {
         textAlign: 'right',
         paddingRight: '15px'
