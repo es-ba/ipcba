@@ -1032,7 +1032,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
   return (
     <div id="formulario-visita" className="menu-informante-visita">
         <div className={classes.root}>
-            <CssBaseline />
             <AppBar
                 position="fixed"
                 className={clsx(classes.appBar, {
@@ -1455,6 +1454,7 @@ class DmIPCCaptureError extends React.Component<
 
 function AppDmIPC(){
     return <DmIPCCaptureError>
+        <CssBaseline />
         <AppDmIPCOk />
     </DmIPCCaptureError>
 }
