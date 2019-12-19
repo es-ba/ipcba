@@ -847,14 +847,14 @@ ProceduresIpcba = [
                     ,
                     [parameters.encuestador]
                 ).execute();
-                await context.client.query(
+                var dueDate = await context.client.query(
                     `update reltar
                         set vencimiento_sincronizacion = $4
                         where periodo = $1 and panel = $2 and tarea = $3`
                     ,
                     [parameters.periodo, parameters.panel, parameters.tarea, tokenDueDate]
                 ).execute();
-                return 'ok'
+                return {status: 'ok', vencimientoSincronizacion: tokenDueDate}
             }catch(err){
                 console.log('ERROR',err.message);
                 throw err;
@@ -1340,7 +1340,61 @@ ProceduresIpcba = [
             }
             return {estructura,hdr:resultHdR.row};
         }
-    }
+    },
+    {
+        action:'dm_preparar',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+            {name:'encuestador'       , typeName:'text'    },
+        ],
+        coreFunction: async function(context, parameters){
+            var be = context.be;
+            const result = await be.procedure.dm_cargar.coreFunction(context,parameters);
+            const MANIFIEST_FILENAME = `dist/client/carga-dm/manifiest_${parameters.periodo}p${parameters.panel}t${parameters.tarea}.manifiest`;
+            const ESTRUCTURA_FILENAME = `dist/client/carga-dm/estructura_${parameters.periodo}p${parameters.panel}t${parameters.tarea}.js`;
+            const HDR_FILENAME = `dist/client/carga-dm/hdr_${parameters.periodo}p${parameters.panel}t${parameters.tarea}.json`;
+            await fs.writeFile(ESTRUCTURA_FILENAME, JSON.stringify(result.estructura));
+            await fs.writeFile(HDR_FILENAME, JSON.stringify(result.hdr));
+            var manifiest = 
+`CACHE MANIFEST
+#${parameters.periodo}p${parameters.panel}t${parameters.tarea}
+
+CACHE:
+#--------------------------- JS ------------------------------------
+../../lib/react.development.js
+../../lib/react-dom.development.js
+../../lib/material-ui.development.js
+../../lib/material-styles.development.js
+../../lib/clsx.min.js
+../../lib/redux.js
+../../lib/react-redux.js
+../../lib/require-bro.js
+../../lib/like-ar.js
+../../lib/best-globals.js
+../../lib/json4all.js
+../../lib/js-to-html.js
+../../lib/redux-typed-reducer.js
+../../adapt.js
+../../dm-tipos.js
+../../dm-funciones.js
+../../dm-react.js
+../../ejemplo-precios.js
+../../unlogged.js
+#------------------------------ CSS ---------------------------------
+css/ejemplo-precios.css
+default/css/ejemplo-precios.css
+
+NETWORK:
+*
+
+`
+            await fs.writeFile(MANIFIEST_FILENAME, manifiest);
+            var {vencimientoSincronizacion} = await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters);
+            return {status: 'ok', vencimientoSincronizacion}
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;

@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'descargado'                 , typeName:'timestamp', title: 'descargado de dm' , allow:{update:puedeEditarMigracion}},
             {name:'vencimiento_sincronizacion' , typeName:'timestamp'                            , allow:{update:puedeEditarMigracion}},
             {name:'habilitar_sincronizacion'   , typeName:'text'     , editable:false            , clientSide:'habilitarSincronizacion'},
+            {name:'preparar_dm'                , typeName:'text'     , editable:false            , visible: context.user.usu_rol.programador, clientSide:'prepararDM'},
             {name:'puntos'                     , typeName:'integer', allow:{update:false}        , visible:false                 },
         ],
         primaryKey:['periodo','panel','tarea'],

@@ -1335,6 +1335,25 @@ myOwn.clientSides.habilitarSincronizacion={
     }
 }
 
+myOwn.clientSides.prepararDM={
+    update: false,
+    prepare: function(depot, fieldName){
+        var td = depot.rowControls[fieldName];
+        var boton = html.button({class:'boton-sincronizacion'},'preparar dm').create();
+        td.appendChild(boton);
+        boton.onclick=function(){
+            my.ajax.dm_preparar({
+                periodo: depot.row.periodo,
+                panel: depot.row.panel,
+                tarea: depot.row.tarea,
+                encuestador: depot.row.encuestador,
+            }).then(function(result){
+                depot.rowControls.vencimiento_sincronizacion.setTypedValue(result.vencimientoSincronizacion);
+            }).catch(my.alertError);
+        }
+    }
+}
+
 myOwn.wScreens.preparar_instalacion={
     parameters:[
         {name:'numero_encuestador'       , typeName:'text'   },
