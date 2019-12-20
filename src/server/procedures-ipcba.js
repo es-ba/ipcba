@@ -1342,7 +1342,7 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'dm_preparar',
+        action:'dm2_preparar',
         parameters:[
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
             {name:'panel'             , typeName:'integer' },
@@ -1352,9 +1352,9 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             var be = context.be;
             const result = await be.procedure.dm_cargar.coreFunction(context,parameters);
-            const MANIFIEST_FILENAME = `dist/client/carga-dm/manifiest_${parameters.periodo}p${parameters.panel}t${parameters.tarea}.manifiest`;
-            const ESTRUCTURA_FILENAME = `dist/client/carga-dm/estructura_${parameters.periodo}p${parameters.panel}t${parameters.tarea}.js`;
-            const HDR_FILENAME = `dist/client/carga-dm/hdr_${parameters.periodo}p${parameters.panel}t${parameters.tarea}.json`;
+            const MANIFIEST_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifiest.manifiest`;
+            const ESTRUCTURA_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
+            const HDR_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
             await fs.writeFile(ESTRUCTURA_FILENAME, JSON.stringify(result.estructura));
             await fs.writeFile(HDR_FILENAME, JSON.stringify(result.hdr));
             var manifiest = 

@@ -1342,14 +1342,23 @@ myOwn.clientSides.prepararDM={
         var boton = html.button({class:'boton-sincronizacion'},'preparar dm').create();
         td.appendChild(boton);
         boton.onclick=function(){
-            my.ajax.dm_preparar({
+            boton.disabled=true;
+            var waitGif=html.img({src:'img/loading16.gif'}).create()
+            td.appendChild(waitGif);
+            my.ajax.dm2_preparar({
                 periodo: depot.row.periodo,
                 panel: depot.row.panel,
                 tarea: depot.row.tarea,
                 encuestador: depot.row.encuestador,
             }).then(function(result){
-                depot.rowControls.vencimiento_sincronizacion.setTypedValue(result.vencimientoSincronizacion);
-            }).catch(my.alertError);
+                boton.disabled=false;
+                waitGif.style.display = 'none';
+                depot.rowControls.vencimiento_sincronizacion.setTypedValue(result.vencimientoSincronizacion, true);
+            }).catch(function(err){
+                my.alertError(err);
+                boton.disabled=false;
+                waitGif.style.display = 'none';
+            });
         }
     }
 }
