@@ -1125,220 +1125,27 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'dm_cargar',
+        action:'dm2_cargar',
         parameters:[
-            {name:'periodo'           , typeName:'text'    , defaultValue:'a2019m07', references:'periodos'},
-            {name:'panel'             , typeName:'integer' , defaultValue:1},
-            {name:'tarea'             , typeName:'integer' , defaultValue:3},
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+            {name:'token_instalacion'   , typeName:'text'  },
         ],
         unlogged:SOLO_PARA_DEMO_DM,
         policy:'web',
         coreFunction: async function(context, parameters){
-            if(SOLO_PARA_DEMO_DM){
-                return JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
-            }
-            var esSupervision=false;
-            var sqlEstructura=`
-            SELECT 
-                    ${jsono(`
-                        SELECT moneda, valor_pesos
-                            FROM relmon
-                            WHERE periodo = rt.periodo`,
-                            'moneda'
-                    )} as relmon
-                    , ${jsono(`
-                        SELECT informante, direccion
-                            FROM informantes INNER JOIN (
-                                SELECT informante
-                                    FROM relvis 
-                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                    GROUP BY informante
-                            ) lista_informantes USING (informante)`, 
-                            'informante'
-                    )} as informantes
-                    , ${jsono(`
-                        SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
-                            FROM atributos INNER JOIN (
-                                SELECT atributo
-                                    FROM relvis 
-                                        INNER JOIN forprod USING (formulario)
-                                        INNER JOIN prodatr USING (producto)
-                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                    GROUP BY atributo
-                            ) lista_atributos USING (atributo)`, 
-                            'atributo'
-                    )} as atributos
-                    , ${jsono(`
-                        SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA}, e.destacada as destacado,
-                                ${json(
-                                    `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
-                                        ${json(
-                                            `SELECT atributo, valor, orden
-                                                FROM prodatrval
-                                                WHERE producto=pa.producto
-                                                  AND atributo=pa.atributo`, 
-                                            'orden, valor'
-                                        )} as x_prodatrval
-                                        FROM prodatr pa inner join especificaciones e using(producto)
-                                        WHERE producto=p.producto`, 
-                                    'orden, atributo'
-                                )} as x_atributos
-                            FROM productos p INNER JOIN (
-                                SELECT producto
-                                    FROM relvis 
-                                        INNER JOIN forprod USING (formulario)
-                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                    GROUP BY producto
-                            ) lista_productos USING (producto)
-                                INNER JOIN especificaciones e ON p.producto=e.producto AND e.especificacion=1
-                            `, 
-                        'producto'
-                    )} as productos
-                    , ${jsono(`
-                        SELECT formulario, nombreformulario, orden, 
-                                ${json(`SELECT producto, COALESCE(pr.cantobs,CASE WHEN despacho = 'A' THEN 2 ELSE 1 END) as observaciones, orden
-                                            FROM forprod INNER JOIN productos pr using (producto) 
-                                            WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
-                            FROM formularios f INNER JOIN (
-                                SELECT formulario
-                                    FROM relvis
-                                    WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
-                                    GROUP BY formulario
-                            ) lista_productos USING (formulario)`, 
-                        'formulario'
-                    )} as formularios
-                    , ${json(`
-                        SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden, visibleparaencuestador = 'S' as visibleparaencuestador 
-                            FROM tipopre`, 
-                        'orden'
-                    )} as "tiposPrecioDef"
-                    , ${jsono(`
-                        SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
-                            FROM razones
-                            WHERE visibleparaencuestador='S'`, 
-                        'razon'
-                    )} as razones
-                FROM reltar rt
-                WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
-            `;
-            var sqlAtributos=`
-                SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ${esSupervision?'ra.valor':'null as valor'}, ra_1.valor as valoranterior, pa.orden
-                    FROM relatr ra 
-                        INNER JOIN relatr ra_1 
-                            ON ra_1.periodo = rp.periodo_1
-                            AND ra_1.visita = ra.visita
-                            AND ra_1.informante = ra.informante
-                            AND ra_1.producto=ra.producto
-                            AND ra_1.observacion=ra.observacion
-                            AND ra_1.atributo=ra.atributo
-                        INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
-                    WHERE ra.periodo=rp.periodo 
-                        AND ra.visita=rp.visita 
-                        AND ra.informante=rp.informante 
-                        AND ra.producto=rp.producto
-                        AND ra.observacion=rp.observacion`
-            var sqlObservaciones=`                
-                SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
-                        cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
-                        f.orden as orden_formulario,
-                        fp.orden as orden_producto,
-                        p.periodo is not null as repregunta,
-                        ${esSupervision?'null':'false'} as adv,
-                        ${json(sqlAtributos, 'orden, atributo')} as atributos,
-                        c.promobs as promobs_1,
-                        distanciaperiodos(rv.periodo,ultimoperiodoconprecio) cantidadperiodossinprecio,
-                        split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
-                        split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
-                        r_his.sinpreciohace4meses = 'S' sinpreciohace4meses
-                    FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
-                        inner join forprod fp using(formulario, producto)
-                        inner join formularios f using (formulario)
-                        left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
-                            and c.informante = rp.informante and c.producto = rp.producto
-                            and c.observacion = rp.observacion
-                        left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante,
-                        lateral (select max(periodo||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
-                            from relpre
-                            where precio is not null and rp.informante = informante and rp.producto = producto and rp.observacion = observacion and rp.visita = visita 
-                            and periodo < rp.periodo
-                        ) re,
-                        lateral(
-                            select CASE WHEN count(*) = 4 THEN 'S' ELSE null END as sinpreciohace4meses
-                            from relpre rp_2_3
-                            where moverperiodos(rp.periodo,-1) >= rp_2_3.periodo and moverperiodos(rp.periodo,-4) <= rp_2_3.periodo and rp.producto = rp_2_3.producto and rp.observacion = rp_2_3.observacion and rp.informante = rp_2_3.informante and rp.visita = rp_2_3.visita and rp_2_3.tipoprecio in ('S',null)
-                        ) r_his
-                    WHERE rv.periodo=rvi.periodo 
-                        AND rv.tarea=rvi.tarea
-                        AND rv.panel=rvi.panel
-                        AND rv.informante=rvi.informante`;
-            var sqlFormularios=`
-                SELECT periodo, visita, informante, formulario, razon, comentarios, visita, orden
-                    FROM relvis rv inner join formularios using (formulario)
-                    WHERE periodo=rvi.periodo 
-                        AND tarea=rvi.tarea
-                        AND panel=rvi.panel
-                        AND informante=rvi.informante
-                `;
-            var sqlInformantes=`
-                SELECT periodo, informante, nombreinformante, direccion, 
-                        ${json(sqlFormularios,'orden, formulario')} as formularios,
-                        ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones,
-                        distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion
-                    FROM relvis rvi INNER JOIN informantes USING (informante),
-                    lateral(
-                        SELECT 
-                            CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado
-                                FROM relvis rvis
-                                WHERE razon = 1 and rvis.informante = rvi.informante
-                            ) as max_periodos
-                    WHERE periodo=rt.periodo 
-                        AND panel=rt.panel 
-                        AND tarea=rt.tarea
-                    GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea, maxperiodoinformado
-                `;
-            var sqlHdR=`
-                SELECT encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
-                        (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
-                        current_date as fecha_carga,
-                        rt.panel, rt.tarea,
-                        ${json(sqlInformantes,'direccion, informante')} as informantes
-                    FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
-                    WHERE rt.periodo=$1 
-                        AND rt.panel=$2 
-                        AND rt.tarea=$3
-            `;
-            var resultEstructura = await context.client.query(
-                sqlEstructura,
-                [parameters.periodo, parameters.panel, parameters.tarea]
-            ).fetchOneRowIfExists();
-            var resultHdR = await context.client.query(
-                sqlHdR,
-                [parameters.periodo, parameters.panel, parameters.tarea]
-            ).fetchOneRowIfExists();
-            var estructura = resultEstructura.row;
-            if(estructura){
-                likeAr(estructura.productos).forEach(p=>{
-                    p.lista_atributos = p.x_atributos.map(a=>a.atributo);
-                    p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
-                    likeAr(p.atributos).forEach(a=>{
-                        // if(a.x_prodatrval==null){
-                        //     a.x_prodatrval=[];
-                        // }
-                        a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
-                        a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
-                        delete p.x_prodatrval;
-                    });
-                    delete p.x_atributos;
-                });
-                likeAr(estructura.formularios).forEach(f=>{
-                    f.lista_productos = f.x_productos.map(p=>p.producto);
-                    f.productos = likeAr.createIndex(f.x_productos, 'producto');
-                    delete f.x_productos;
-                });
-                estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
-                estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
-            }
-            return {estructura,hdr:resultHdR.row};
+            var idInstalacion = await context.client.query(
+                `select id_instalacion from instalaciones where token_instalacion = $1`,
+                [parameters.token_instalacion]
+            ).fetchUniqueValue();
+            await context.client.query(
+                `update reltar
+                    set cargado = current_timestamp, descargado = null, id_instalacion = $4
+                    where periodo = $1 and panel = $2 and tarea = $3`
+                ,
+                [parameters.periodo, parameters.panel, parameters.tarea, idInstalacion.value]
+            ).execute();
         }
     },
     {
@@ -1347,19 +1154,235 @@ ProceduresIpcba = [
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
             {name:'panel'             , typeName:'integer' },
             {name:'tarea'             , typeName:'integer' },
-            {name:'encuestador'       , typeName:'text'    },
+            {name:'sincronizar'       , typeName:'boolean' },
         ],
         coreFunction: async function(context, parameters){
             var be = context.be;
-            const result = await be.procedure.dm_cargar.coreFunction(context,parameters);
-            const MANIFIEST_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifiest.manifiest`;
-            const ESTRUCTURA_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
-            const HDR_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
-            await fs.writeFile(ESTRUCTURA_FILENAME, JSON.stringify(result.estructura));
-            await fs.writeFile(HDR_FILENAME, JSON.stringify(result.hdr));
-            var manifiest = 
+            if(SOLO_PARA_DEMO_DM){
+                return JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+            }
+            try{
+                //await context.client.query(
+                //    `update relvis
+                //        set razon = 0
+                //        where periodo = $1 and panel = $2 and tarea = $3 and razon is null /*and razon <> 0*/`
+                //    ,
+                //    [params.periodo, params.panel, params.tarea]
+                //).execute();
+                var esSupervision=false;
+                var sqlEstructura=`
+                  SELECT 
+                        ${jsono(`
+                            SELECT moneda, valor_pesos
+                                FROM relmon
+                                WHERE periodo = rt.periodo`,
+                                'moneda'
+                        )} as relmon
+                        , ${jsono(`
+                            SELECT informante, direccion
+                                FROM informantes INNER JOIN (
+                                    SELECT informante
+                                        FROM relvis 
+                                        WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                        GROUP BY informante
+                                ) lista_informantes USING (informante)`, 
+                                'informante'
+                        )} as informantes
+                        , ${jsono(`
+                            SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
+                                FROM atributos INNER JOIN (
+                                    SELECT atributo
+                                        FROM relvis 
+                                            INNER JOIN forprod USING (formulario)
+                                            INNER JOIN prodatr USING (producto)
+                                        WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                        GROUP BY atributo
+                                ) lista_atributos USING (atributo)`, 
+                                'atributo'
+                        )} as atributos
+                        , ${jsono(`
+                            SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA}, e.destacada as destacado,
+                                    ${json(
+                                        `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
+                                            ${json(
+                                                `SELECT atributo, valor, orden
+                                                    FROM prodatrval
+                                                    WHERE producto=pa.producto
+                                                    AND atributo=pa.atributo`, 
+                                                'orden, valor'
+                                            )} as x_prodatrval
+                                            FROM prodatr pa inner join especificaciones e using(producto)
+                                            WHERE producto=p.producto`, 
+                                        'orden, atributo'
+                                    )} as x_atributos
+                                FROM productos p INNER JOIN (
+                                    SELECT producto
+                                        FROM relvis 
+                                            INNER JOIN forprod USING (formulario)
+                                        WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                        GROUP BY producto
+                                ) lista_productos USING (producto)
+                                    INNER JOIN especificaciones e ON p.producto=e.producto AND e.especificacion=1
+                                `, 
+                            'producto'
+                        )} as productos
+                        , ${jsono(`
+                            SELECT formulario, nombreformulario, orden, 
+                                    ${json(`SELECT producto, COALESCE(pr.cantobs,CASE WHEN despacho = 'A' THEN 2 ELSE 1 END) as observaciones, orden
+                                                FROM forprod INNER JOIN productos pr using (producto) 
+                                                WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
+                                FROM formularios f INNER JOIN (
+                                    SELECT formulario
+                                        FROM relvis
+                                        WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
+                                        GROUP BY formulario
+                                ) lista_productos USING (formulario)`, 
+                            'formulario'
+                        )} as formularios
+                        , ${json(`
+                            SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden, visibleparaencuestador = 'S' as visibleparaencuestador 
+                                FROM tipopre`, 
+                            'orden'
+                        )} as "tiposPrecioDef"
+                        , ${jsono(`
+                            SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
+                                FROM razones
+                                WHERE visibleparaencuestador='S'`, 
+                            'razon'
+                        )} as razones
+                    FROM reltar rt
+                    WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
+                `;
+                var sqlAtributos=`
+                    SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ${esSupervision?'ra.valor':'null as valor'}, ra_1.valor as valoranterior, pa.orden
+                        FROM relatr ra 
+                            INNER JOIN relatr ra_1 
+                                ON ra_1.periodo = rp.periodo_1
+                                AND ra_1.visita = ra.visita
+                                AND ra_1.informante = ra.informante
+                                AND ra_1.producto=ra.producto
+                                AND ra_1.observacion=ra.observacion
+                                AND ra_1.atributo=ra.atributo
+                            INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
+                        WHERE ra.periodo=rp.periodo 
+                            AND ra.visita=rp.visita 
+                            AND ra.informante=rp.informante 
+                            AND ra.producto=rp.producto
+                            AND ra.observacion=rp.observacion`
+                var sqlObservaciones=`                
+                    SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                            cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
+                            f.orden as orden_formulario,
+                            fp.orden as orden_producto,
+                            p.periodo is not null as repregunta,
+                            ${esSupervision?'null':'false'} as adv,
+                            ${json(sqlAtributos, 'orden, atributo')} as atributos,
+                            c.promobs as promobs_1,
+                            distanciaperiodos(rv.periodo,ultimoperiodoconprecio) cantidadperiodossinprecio,
+                            split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
+                            split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
+                            r_his.sinpreciohace4meses = 'S' sinpreciohace4meses
+                        FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
+                            inner join forprod fp using(formulario, producto)
+                            inner join formularios f using (formulario)
+                            left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
+                                and c.informante = rp.informante and c.producto = rp.producto
+                                and c.observacion = rp.observacion
+                            left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante,
+                            lateral (select max(periodo||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
+                                from relpre
+                                where precio is not null and rp.informante = informante and rp.producto = producto and rp.observacion = observacion and rp.visita = visita 
+                                and periodo < rp.periodo
+                            ) re,
+                            lateral(
+                                select CASE WHEN count(*) = 4 THEN 'S' ELSE null END as sinpreciohace4meses
+                                from relpre rp_2_3
+                                where moverperiodos(rp.periodo,-1) >= rp_2_3.periodo and moverperiodos(rp.periodo,-4) <= rp_2_3.periodo and rp.producto = rp_2_3.producto and rp.observacion = rp_2_3.observacion and rp.informante = rp_2_3.informante and rp.visita = rp_2_3.visita and rp_2_3.tipoprecio in ('S',null)
+                            ) r_his
+                        WHERE rv.periodo=rvi.periodo 
+                            AND rv.tarea=rvi.tarea
+                            AND rv.panel=rvi.panel
+                            AND rv.informante=rvi.informante`;
+                var sqlFormularios=`
+                    SELECT periodo, visita, informante, formulario, razon, comentarios, visita, orden
+                        FROM relvis rv inner join formularios using (formulario)
+                        WHERE periodo=rvi.periodo 
+                            AND tarea=rvi.tarea
+                            AND panel=rvi.panel
+                            AND informante=rvi.informante
+                    `;
+                var sqlInformantes=`
+                    SELECT periodo, informante, nombreinformante, direccion, 
+                            ${json(sqlFormularios,'orden, formulario')} as formularios,
+                            ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones,
+                            distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion
+                        FROM relvis rvi INNER JOIN informantes USING (informante),
+                        lateral(
+                            SELECT 
+                                CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado
+                                    FROM relvis rvis
+                                    WHERE razon = 1 and rvis.informante = rvi.informante
+                                ) as max_periodos
+                        WHERE periodo=rt.periodo 
+                            AND panel=rt.panel 
+                            AND tarea=rt.tarea
+                        GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea, maxperiodoinformado
+                    `;
+                var sqlHdR=`
+                    SELECT encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
+                            (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
+                            current_date as fecha_carga,
+                            rt.panel, rt.tarea,
+                            ${json(sqlInformantes,'direccion, informante')} as informantes
+                        FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
+                        WHERE rt.periodo=$1 
+                            AND rt.panel=$2 
+                            AND rt.tarea=$3
+                `;
+                var resultEstructura = await context.client.query(
+                    sqlEstructura,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchOneRowIfExists();
+                var resultHdR = await context.client.query(
+                    sqlHdR,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchOneRowIfExists();
+                var estructura = resultEstructura.row;
+                if(estructura){
+                    likeAr(estructura.productos).forEach(p=>{
+                        p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                        p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                        likeAr(p.atributos).forEach(a=>{
+                            // if(a.x_prodatrval==null){
+                            //     a.x_prodatrval=[];
+                            // }
+                            a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                            a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                            delete p.x_prodatrval;
+                        });
+                        delete p.x_atributos;
+                    });
+                    likeAr(estructura.formularios).forEach(f=>{
+                        f.lista_productos = f.x_productos.map(p=>p.producto);
+                        f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                        delete f.x_productos;
+                    });
+                    estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+                    estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
+                }
+                
+                //habilito sincronizacion
+                var {vencimientoSincronizacion} = parameters.sincronizar?await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters):{vencimientoSincronizacion:null};
+
+                //genero archivos
+                const MANIFIEST_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifiest.manifiest`;
+                const ESTRUCTURA_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
+                const HDR_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
+                await fs.writeFile(ESTRUCTURA_FILENAME, "var estructura=" + JSON.stringify(estructura));
+                await fs.writeFile(HDR_FILENAME, JSON.stringify(resultHdR.row));
+                var manifiest = 
 `CACHE MANIFEST
-#${parameters.periodo}p${parameters.panel}t${parameters.tarea}
+#${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
 
 CACHE:
 #--------------------------- JS ------------------------------------
@@ -1387,14 +1410,32 @@ css/ejemplo-precios.css
 default/css/ejemplo-precios.css
 
 NETWORK:
-*
+*`
+                await fs.writeFile(MANIFIEST_FILENAME, manifiest);
 
-`
-            await fs.writeFile(MANIFIEST_FILENAME, manifiest);
-            var {vencimientoSincronizacion} = await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters);
-            return {status: 'ok', vencimientoSincronizacion}
+                //resultado
+                return {status: 'ok', vencimientoSincronizacion, estructura,hdr:resultHdR.row}
+            }catch(err){
+                throw err
+            }
         }
     },
+    {
+        action:'hdr_json_leer',
+        policy:'web',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+        ],
+        coreFunction: async function(context, parameters){
+            var content = await fs.readFile(
+                `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`,
+                'utf8'
+            );
+            return JSON4all.parse(content);
+        }
+    }
 ];
 
 module.exports = ProceduresIpcba;

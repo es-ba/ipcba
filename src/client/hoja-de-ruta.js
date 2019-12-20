@@ -1349,7 +1349,7 @@ myOwn.clientSides.prepararDM={
                 periodo: depot.row.periodo,
                 panel: depot.row.panel,
                 tarea: depot.row.tarea,
-                encuestador: depot.row.encuestador,
+                sincronizar: true
             }).then(function(result){
                 boton.disabled=false;
                 waitGif.style.display = 'none';
