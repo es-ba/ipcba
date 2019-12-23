@@ -308,6 +308,14 @@ class AppIpcba extends backendPlus.AppBackend{
             var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
+        mainApp.get(baseUrl+'/hdr',async function(req,res,_next){
+            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var {useragent, user} = req;
+            var parameters = req.query;
+            var manifestPath = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_manifest.manifest`
+            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath: manifestPath}).toHtmlDoc();
+            MiniTools.serveText(htmlMain,'html')(req,res);
+        });
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     getProcedures(){

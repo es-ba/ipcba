@@ -1384,43 +1384,78 @@ ProceduresIpcba = [
                 var {vencimientoSincronizacion} = parameters.sincronizar?await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters):{vencimientoSincronizacion:null};
 
                 //genero archivos
-                const MANIFIEST_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifiest.manifiest`;
+                const MANIFEST_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifest.manifest`;
                 const ESTRUCTURA_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
                 const HDR_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
                 await fs.writeFile(ESTRUCTURA_FILENAME, "var estructura=" + JSON.stringify(estructura));
                 await fs.writeFile(HDR_FILENAME, JSON.stringify(hdr));
-                var manifiest = 
+                var manifest = 
 `CACHE MANIFEST
 #${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
 
 CACHE:
 #--------------------------- JS ------------------------------------
-../../lib/react.development.js
-../../lib/react-dom.development.js
-../../lib/material-ui.development.js
-../../lib/material-styles.development.js
-../../lib/clsx.min.js
-../../lib/redux.js
-../../lib/react-redux.js
-../../lib/require-bro.js
-../../lib/like-ar.js
-../../lib/best-globals.js
-../../lib/json4all.js
-../../lib/js-to-html.js
-../../lib/redux-typed-reducer.js
-../../adapt.js
-../../dm-tipos.js
-../../dm-funciones.js
-../../dm-react.js
-../../ejemplo-precios.js
-../../unlogged.js
+../lib/react.development.js
+../lib/react-dom.development.js
+../lib/material-ui.development.js
+../lib/material-styles.development.js
+../lib/clsx.min.js
+../lib/redux.js
+../lib/react-redux.js
+../lib/require-bro.js
+../lib/like-ar.js
+../lib/best-globals.js
+../lib/json4all.js
+../lib/js-to-html.js
+../lib/redux-typed-reducer.js
+../adapt.js
+../dm-tipos.js
+../dm-funciones.js
+../dm-react.js
+../ejemplo-precios.js
+../unlogged.js
+../lib/js-yaml.js
+../lib/xlsx.core.min.js
+../lib/lazy-some.js
+../lib/sql-tools.js
+../dialog-promise/dialog-promise.js
+../moment/min/moment.js
+../pikaday/pikaday.js
+../lib/polyfills-bro.js
+../lib/big.js
+../lib/type-store.js
+../lib/typed-controls.js
+../lib/ajax-best-promise.js
+../my-ajax.js
+../lib/my-localdb.js
+../lib/my-websqldb.js
+../lib/my-localdb.js.map
+../lib/my-websqldb.js.map
+../lib/my-things.js
+../lib/my-tables.js
+../lib/my-inform-net-status.js
+../lib/my-menu.js
+../lib/my-skin.js
+../lib/cliente-en-castellano.js
+../client/client.js
+../client/hoja-de-ruta.js
+
 #------------------------------ CSS ---------------------------------
-css/ejemplo-precios.css
-default/css/ejemplo-precios.css
+../dialog-promise/dialog-promise.css
+../pikaday/pikaday.css
+../css/my-things.css
+../css/my-tables.css
+../css/my-menu.css
+../default/css/my-things.css
+../default/css/my-tables.css
+../default/css/my-menu.css
+../css/hoja-de-ruta.css
+../css/ejemplo-precios.css
+../default/css/ejemplo-precios.css
 
 NETWORK:
 *`
-                await fs.writeFile(MANIFIEST_FILENAME, manifiest);
+                await fs.writeFile(MANIFEST_FILENAME, manifest);
 
                 //resultado
                 return {status: 'ok', vencimientoSincronizacion, estructura, hdr}
