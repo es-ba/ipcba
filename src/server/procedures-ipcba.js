@@ -1158,8 +1158,9 @@ ProceduresIpcba = [
         ],
         coreFunction: async function(context, parameters){
             var be = context.be;
+            var fileResult;
             if(SOLO_PARA_DEMO_DM){
-                return JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
             }
             try{
                 //await context.client.query(
@@ -1339,38 +1340,46 @@ ProceduresIpcba = [
                             AND rt.panel=$2 
                             AND rt.tarea=$3
                 `;
-                var resultEstructura = await context.client.query(
-                    sqlEstructura,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).fetchOneRowIfExists();
-                var resultHdR = await context.client.query(
-                    sqlHdR,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).fetchOneRowIfExists();
-                var estructura = resultEstructura.row;
-                if(estructura){
-                    likeAr(estructura.productos).forEach(p=>{
-                        p.lista_atributos = p.x_atributos.map(a=>a.atributo);
-                        p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
-                        likeAr(p.atributos).forEach(a=>{
-                            // if(a.x_prodatrval==null){
-                            //     a.x_prodatrval=[];
-                            // }
-                            a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
-                            a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
-                            delete p.x_prodatrval;
+                var estructura;
+                var hdr;
+                if(SOLO_PARA_DEMO_DM){
+                    estructura = fileResult.estructura;
+                    hdr = fileResult.hdr;
+                }else{
+                    var resultEstructura = await context.client.query(
+                        sqlEstructura,
+                        [parameters.periodo, parameters.panel, parameters.tarea]
+                    ).fetchOneRowIfExists();
+                    var resultHdR = await context.client.query(
+                        sqlHdR,
+                        [parameters.periodo, parameters.panel, parameters.tarea]
+                    ).fetchOneRowIfExists();
+                    estructura = resultEstructura.row;
+                    hdr = resultHdR.row;
+                    if(estructura){
+                        likeAr(estructura.productos).forEach(p=>{
+                            p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                            p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                            likeAr(p.atributos).forEach(a=>{
+                                // if(a.x_prodatrval==null){
+                                //     a.x_prodatrval=[];
+                                // }
+                                a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                                a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                                delete p.x_prodatrval;
+                            });
+                            delete p.x_atributos;
                         });
-                        delete p.x_atributos;
-                    });
-                    likeAr(estructura.formularios).forEach(f=>{
-                        f.lista_productos = f.x_productos.map(p=>p.producto);
-                        f.productos = likeAr.createIndex(f.x_productos, 'producto');
-                        delete f.x_productos;
-                    });
-                    estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
-                    estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
+                        likeAr(estructura.formularios).forEach(f=>{
+                            f.lista_productos = f.x_productos.map(p=>p.producto);
+                            f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                            delete f.x_productos;
+                        });
+                        estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+                        estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
+                    }
                 }
-                
+
                 //habilito sincronizacion
                 var {vencimientoSincronizacion} = parameters.sincronizar?await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters):{vencimientoSincronizacion:null};
 
@@ -1379,7 +1388,7 @@ ProceduresIpcba = [
                 const ESTRUCTURA_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
                 const HDR_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
                 await fs.writeFile(ESTRUCTURA_FILENAME, "var estructura=" + JSON.stringify(estructura));
-                await fs.writeFile(HDR_FILENAME, JSON.stringify(resultHdR.row));
+                await fs.writeFile(HDR_FILENAME, JSON.stringify(hdr));
                 var manifiest = 
 `CACHE MANIFEST
 #${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
@@ -1414,7 +1423,7 @@ NETWORK:
                 await fs.writeFile(MANIFIEST_FILENAME, manifiest);
 
                 //resultado
-                return {status: 'ok', vencimientoSincronizacion, estructura,hdr:resultHdR.row}
+                return {status: 'ok', vencimientoSincronizacion, estructura, hdr}
             }catch(err){
                 throw err
             }
