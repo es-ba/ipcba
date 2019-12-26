@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
@@ -294,48 +294,60 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
     return callback(object);
 }
 
-// @ts-ignore provisoriamente no me preocupa que falte _addrParams
-export async function dmTraerDatosHdr(){
-    var result = await my.ajax.dm2_preparar({
-        periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
-        //periodo: 'a2019m08', panel: 3, tarea: 6
-        //periodo: 'a2019m11', panel: 3, tarea: 6
-    })
-    if(result.estructura && result.hdr){
-        /* DEFINICION STATE */
-        const initialState:HojaDeRuta = result.hdr;
-        initialState.opciones = getDefaultOptions();
-        estructura = result.estructura;
-        /* FIN DEFINICION STATE */
-        /* DEFINICION CONTROLADOR */
-        const hdrReducer = createReducer(reducers, initialState);
-        /* FIN DEFINICION CONTROLADOR */
-        /* CARGA Y GUARDADO DE STATE */
-        function loadState():HojaDeRuta{
-            var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
-            if(contentJson){
-                var content:HojaDeRuta = JSON4all.parse(contentJson);
-                return content;
-            }else{
-                return initialState;
-            }
+export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
+    var result:any = {hdr:null,estructura:null};
+    var initialState:HojaDeRuta;
+    if(addrParams.periodo && addrParams.panel && addrParams.tarea){
+        var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+        if(content){
+            result = JSON4all.parse(content);
+            initialState = result.hdr;
+        }else{
+            throw Error('no se cargó correctamente la hoja de ruta')
         }
-        
-        function saveState(state:HojaDeRuta){
-            localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
-        }
-        /* FIN CARGA Y GUARDADO DE STATE */
-
-        /* CREACION STORE */
-        const store = createStore(hdrReducer, loadState()); 
-        store.subscribe(function(){
-            saveState(store.getState());
-        });
-        /* FIN CREACION STORE */
-
-        //HDR CON STORE CREADO
-        return {store, estructura:estructura!};
     }else{
-        throw Error ('no hay datos para el periodo seleccionado')
+        //DEMO
+        result = await my.ajax.dm2_preparar({
+            periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
+            //periodo: 'a2019m08', panel: 3, tarea: 6
+            //periodo: 'a2019m11', panel: 3, tarea: 6
+        })
+        estructura = result.estructura;
+        if(result.hdr){
+            initialState = result.hdr;
+            initialState.opciones = getDefaultOptions();
+        }else{
+            throw Error ('no hay datos para el periodo seleccionado')
+        }
     }
+
+    /* DEFINICION CONTROLADOR */
+    const hdrReducer = createReducer(reducers, initialState);
+    /* FIN DEFINICION CONTROLADOR */
+    /* CARGA Y GUARDADO DE STATE */
+    function loadState():HojaDeRuta{
+        var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+        if(contentJson){
+            var content:HojaDeRuta = JSON4all.parse(contentJson);
+            return content;
+        }else{
+            return initialState;
+        }
+    }
+    
+    function saveState(state:HojaDeRuta){
+        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
+    }
+    /* FIN CARGA Y GUARDADO DE STATE */
+
+    /* CREACION STORE */
+    const store = createStore(hdrReducer, loadState()); 
+    store.subscribe(function(){
+        saveState(store.getState());
+    });
+    /* FIN CREACION STORE */
+
+    //HDR CON STORE CREADO
+    return {store, estructura:estructura!};
+   
 }

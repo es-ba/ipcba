@@ -46,8 +46,8 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
         localStorage.setItem('descargado',JSON.stringify(false));
         localStorage.setItem('vaciado',JSON.stringify(false));
-        history.replaceState(null, null, `${location.origin}/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
-        my.showPage();
+        history.replaceState(null, null, `${location.origin}/ipcba/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
+        location.reload();
     }
     if(hojaDeRutaEnOtroDispositivo){
         mainLayout.appendChild(html.div({},[

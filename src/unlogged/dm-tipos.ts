@@ -194,3 +194,9 @@ export type HojaDeRuta={
     informantes:RelInf[]
     opciones: OpcionesHojaDeRuta
 }
+
+export type AddrParamsHdr={
+    periodo: string
+    panel: number
+    tarea: number
+} | null
