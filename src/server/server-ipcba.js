@@ -479,7 +479,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 ]},
                 {menuType:'table', name:'relmon', label:'cotización moneda extranjera', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},                        
-            ]},                
+            ], onlyVisibleFor:[programador,coordinador,analista,migracion]},                
             {menuType:'menu', name:'resultados', menuContent:[
                 {menuType:'table', name:'calculos_calgru_vw', label:'vista de calgru'},
                 {menuType:'table', name:'calculos_caldiv_vw', label:'vista de caldiv'},
