@@ -1157,6 +1157,7 @@ ProceduresIpcba = [
             {name:'tarea'             , typeName:'integer' },
             {name:'sincronizar'       , typeName:'boolean' },
         ],
+        policy:'web',
         coreFunction: async function(context, parameters){
             var be = context.be;
             var fileResult;
