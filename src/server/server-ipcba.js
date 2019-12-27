@@ -312,8 +312,14 @@ class AppIpcba extends backendPlus.AppBackend{
             // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
             var {useragent, user} = req;
             var parameters = req.query;
-            var manifestPath = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_manifest.manifest`
-            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath: manifestPath}).toHtmlDoc();
+            var manifestPath = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_manifest.manifest`;
+            const ESTRUCTURA_FILENAME = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_estructura.js`;
+            const HDR_FILENAME = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_hdr.json`;
+            var extraFiles = [
+                { type: 'js', src:ESTRUCTURA_FILENAME },
+                { type: 'js', src:HDR_FILENAME }
+            ];
+            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath: manifestPath, extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         super.addSchrödingerServices(mainApp, baseUrl);
@@ -348,6 +354,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
                 {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 //{menuType:'hoja_ruta 2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true, onlyVisibleFor:[programador] },
+                {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 //{menuType:'vaciar 2', name:'vaciar_dm2', label:'vaciar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
@@ -587,10 +594,14 @@ class AppIpcba extends backendPlus.AppBackend{
         var menuedResources=req && opts && !opts.skipMenu ? [
             { type:'js' , src: 'client/client.js' },
             { type: 'js', src: 'client/hoja-de-ruta.js' },
+            { type: 'js', src: 'client/hoja-de-ruta-react.js' },
             { type: 'js', src: 'client/imp-formularios.js' },
         ]:[
             {type:'js' , src:'unlogged.js' },
         ];
+        if(opts && opts.extraFiles){
+            menuedResources = menuedResources.concat(opts.extraFiles);
+        }
         return [
             { type: 'js', module: 'react', modPath: 'umd', file:'react.development.js', fileProduction:'react.production.min.js' },
             { type: 'js', module: 'react-dom', modPath: 'umd', file:'react-dom.development.js', fileProduction:'react-dom.production.min.js' },

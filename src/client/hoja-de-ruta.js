@@ -1917,5 +1917,3 @@ my.autoSetupFunctions.push(function(){
         })
     }
 })
-
-myOwn.wScreens.demo_dm = dmHojaDeRuta;

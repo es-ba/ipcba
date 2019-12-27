@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, QueVer} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, QueVer, AddrParamsHdr} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
@@ -1469,9 +1469,9 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     )
 }
 
-// @ts-ignore addrParams tiene un tipo que acá no importa
-export async function dmHojaDeRuta(_addrParams){
-    const {store, estructura} = await dmTraerDatosHdr();
+
+export async function dmHojaDeRuta(addrParams:AddrParamsHdr){
+    const {store, estructura} = await dmTraerDatosHdr(addrParams);
     mostrarHdr(store, estructura);
 }
 

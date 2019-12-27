@@ -1,216 +1,13 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
-import {html} from "js-to-html";
 
 var my=myOwn;
 
-const LOCAL_STORAGE_STATE_NAME = 'dm-store-v11';
-
-async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
-    var mainLayout = document.getElementById('main_layout')!;
-    try{
-        var reltarHabilitada = await my.ajax.hojaderuta_traer({
-            token_instalacion: tokenInstalacion
-        })
-    }catch(err){
-        mainLayout.appendChild(html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador).create());
-        throw err
-    }
-    var periodo = reltarHabilitada.periodo;
-    var panel = reltarHabilitada.panel;
-    var tarea = reltarHabilitada.tarea;
-    var cargado = reltarHabilitada.cargado;
-    var descargado = reltarHabilitada.descargado;
-    var id_instalacion = reltarHabilitada.id_instalacion;
-    var ipad = reltarHabilitada.ipad;
-    var encuestador_instalacion = reltarHabilitada.encuestador_instalacion;
-    var nombre = reltarHabilitada.nombre;
-    var apellido = reltarHabilitada.apellido;
-    var hojaDeRutaEnOtroDispositivo = cargado && !descargado && id_instalacion;
-    var cargarFun = async function cargarFun(){
-        // una vez que confirmo debe deshabilitarse el boton cargar (para no confundir al usuario)
-        // el boton debe habilitarse al final (tanto por error como por exito)
-        if(my.offline.mode){
-            throw new Error('No se puede asignar una tarea en modo avion');
-        }
-        mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
-        var hdr = await my.ajax.hdr_json_leer({
-            periodo: periodo,
-            panel: panel,
-            tarea: tarea
-        });
-        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
-        await my.ajax.dm2_cargar({
-            periodo: periodo,
-            panel: panel,
-            tarea: tarea,
-            token_instalacion: tokenInstalacion
-        });
-        mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-        localStorage.setItem('descargado',JSON.stringify(false));
-        localStorage.setItem('vaciado',JSON.stringify(false));
-        history.replaceState(null, null, location.origin+location.pathname+my.menuSeparator+'w=hoja_ruta');
-        my.changeOfflineMode();
-        return 'ok'
-    }
-    if(hojaDeRutaEnOtroDispositivo){
-        mainLayout.appendChild(html.div({},[
-            html.div({class:'danger'}, `El panel ${panel}, tarea ${tarea} se encuentra cargado en el  dispositivo ${ipad}, 
-                en poder de ${nombre} ${apellido} (${encuestador_instalacion}). Si continua no se podrá descargar
-                el dispositivo.`
-            )
-        ]).create());
-        var inputForzar = html.input({class:'input-forzar'}).create();
-        mainLayout.appendChild(html.div([
-            html.div(['Se puede forzar la carga ',inputForzar])
-        ]).create());
-        var clearButton = html.button({class:'load-ipad-button'},'forzar carga').create();
-        mainLayout.appendChild(clearButton);
-        clearButton.onclick = async function(){
-            if(inputForzar.value=='forzar'){
-                await confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton});
-                clearButton.disabled=true;
-                cargarFun()
-            }else{
-                alertPromise('si necesita cargar el D.M. escriba forzar.',{underElement:clearButton})
-            }
-        }
-    }else{
-        try{
-            await confirmPromise(`confirma carga del período ${periodo}, panel ${panel}, tarea ${tarea}`);
-            cargarFun();
-        }catch(err){
-            mainLayout.appendChild(html.p('carga cancelada').create());    
-        }
-    }
-    
-    
- 
-}
-
-function descargarDispositivo2(tokenInstalacion, encuestador){
-    var mainLayout = document.getElementById('main_layout')!;
-    var waitGif = mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
-    mainLayout.appendChild(html.p([
-        'descargando, por favor espere',
-        waitGif
-    ]).create());
-    var promiseChain = Promise.resolve();
-    var data = {};
-    var mobileTables = ['mobile_hoja_de_ruta', 'mobile_visita', 'mobile_precios', 'mobile_atributos'];
-    mobileTables.forEach(function(tableName){
-        promiseChain = promiseChain.then(function(){
-            return my.ldb.getAll(tableName).then(function(results){
-                data[tableName] = results;
-            });
-        })
-    });
-    promiseChain = promiseChain.then(function(){
-        return my.ajax.dm_descargar({
-            token_instalacion: tokenInstalacion,
-            data: JSON.stringify(data),
-            encuestador: encuestador
-        }).then(function(message){
-            waitGif.style.display = 'none';
-            if(message=='descarga completa'){
-                localStorage.setItem('descargado',JSON.stringify(true));
-            }
-            mainLayout.appendChild(html.p(message).create());
-        });
-    });
-    return promiseChain;
-}
-
-//myOwn.wScreens.sincronizar_dm2=function(){
-//    var mainLayout = document.getElementById('main_layout')!;
-//    var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
-//    var ipad = localStorage.getItem('ipad') || null;
-//    var encuestador = localStorage.getItem('encuestador') || null;
-//    if(tokenInstalacion && ipad && encuestador){
-//        if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
-//            mainLayout.appendChild(html.p('El dispositivo tiene información cargada').create());
-//            var downloadButton = html.button({class:'download-ipad-button'},'descargar').create();
-//            mainLayout.appendChild(downloadButton);
-//            downloadButton.onclick = function(){
-//                confirmPromise('¿confirma descarga de D.M.?').then(function(){
-//                    downloadButton.disabled=true;
-//                    descargarDispositivo2(tokenInstalacion, encuestador).then(function(){
-//                        downloadButton.disabled=false;
-//                    },function(err){
-//                        alertPromise(err.message);
-//                        downloadButton.disabled=true;
-//                    })
-//                })
-//            }
-//        }else{
-//            mainLayout.appendChild(html.p('El dispositivo no tiene hoja de ruta cargada').create());
-//            var loadButton = html.button({class:'load-ipad-button'},'cargar').create();
-//            mainLayout.appendChild(loadButton);
-//            loadButton.onclick = async function(){
-//                try{
-//                    loadButton.disabled=true;
-//                    await cargarDispositivo2(tokenInstalacion, encuestador);
-//                    loadButton.disabled=false;
-//                }catch(err){
-//                    alertPromise(err.message);
-//                    loadButton.disabled=true;
-//                }
-//            }  
-//        }
-//    }else{
-//        mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
-//    }
-//};//
-
-//myOwn.wScreens.vaciar_dm2=function(){
-//    //var mainLayout = document.getElementById('main_layout');
-//    //var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
-//    //var ipad = localStorage.getItem('ipad') || null;
-//    //var encuestador = localStorage.getItem('encuestador') || null;
-//    //if(tokenInstalacion && ipad && encuestador){
-//    //    return my.ldb.existsStructure('mobile_hoja_de_ruta').then(function(existsStructure){
-//    //        if(existsStructure){
-//    //            return my.ldb.isEmpty('mobile_hoja_de_ruta').then(function(isEmptyLocalDatabase){
-//    //                var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
-//    //                if(isEmptyLocalDatabase || vaciado){
-//    //                    mainLayout.appendChild(html.p('El D.M. está vacío.').create());
-//    //                }else{
-//    //                    var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
-//    //                    var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
-//    //                    var inputForzar = html.input({class:'input-forzar'}).create();
-//    //                    if(!fueDescargadoAntes){
-//    //                        mainLayout.appendChild(html.div([
-//    //                            html.div({class:'danger'},'El dispositivo todavía no fue descargado'),
-//    //                            html.div(['Se puede forzar el vaciado ',inputForzar])
-//    //                        ]).create());
-//    //                    }
-//    //                    mainLayout.appendChild(clearButton);
-//    //                    clearButton.onclick = function(){
-//    //                        if(fueDescargadoAntes || inputForzar.value=='forzar'){
-//    //                            confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton}).then(function(){
-//    //                                clearButton.disabled=true;
-//    //                                localStorage.setItem('vaciado',JSON.stringify(true));
-//    //                            }).then(function(){
-//    //                                mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
-//    //                            });
-//    //                        }else{
-//    //                            alertPromise('si necesita vaciar el D.M. puede forzar.',{underElement:clearButton})
-//    //                        }
-//    //                    }
-//    //                }
-//    //            });
-//    //        }else{
-//    //            mainLayout.appendChild(html.p('No existe la tabla mobile_hoja_de_ruta. Por favor reinstale el dispositivo').create());
-//    //        }
-//    //    })
-//    //}else{
-//    //    mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
-//    //}
-//};
+export const LOCAL_STORAGE_STATE_NAME = 'dm-store-v11';
 
 /* REDUCERS */
 
@@ -497,48 +294,60 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
     return callback(object);
 }
 
-// @ts-ignore provisoriamente no me preocupa que falte _addrParams
-export async function dmTraerDatosHdr(){
-    var result = await my.ajax.dm2_preparar({
-        periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
-        //periodo: 'a2019m08', panel: 3, tarea: 6
-        //periodo: 'a2019m11', panel: 3, tarea: 6
-    })
-    if(result.estructura && result.hdr){
-        /* DEFINICION STATE */
-        const initialState:HojaDeRuta = result.hdr;
-        initialState.opciones = getDefaultOptions();
-        estructura = result.estructura;
-        /* FIN DEFINICION STATE */
-        /* DEFINICION CONTROLADOR */
-        const hdrReducer = createReducer(reducers, initialState);
-        /* FIN DEFINICION CONTROLADOR */
-        /* CARGA Y GUARDADO DE STATE */
-        function loadState():HojaDeRuta{
-            var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
-            if(contentJson){
-                var content:HojaDeRuta = JSON4all.parse(contentJson);
-                return content;
-            }else{
-                return initialState;
-            }
+export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
+    var result:any = {hdr:null,estructura:null};
+    var initialState:HojaDeRuta;
+    if(addrParams.periodo && addrParams.panel && addrParams.tarea){
+        var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+        if(content){
+            result = JSON4all.parse(content);
+            initialState = result.hdr;
+        }else{
+            throw Error('no se cargó correctamente la hoja de ruta')
         }
-        
-        function saveState(state:HojaDeRuta){
-            localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
-        }
-        /* FIN CARGA Y GUARDADO DE STATE */
-
-        /* CREACION STORE */
-        const store = createStore(hdrReducer, loadState()); 
-        store.subscribe(function(){
-            saveState(store.getState());
-        });
-        /* FIN CREACION STORE */
-
-        //HDR CON STORE CREADO
-        return {store, estructura:estructura!};
     }else{
-        throw Error ('no hay datos para el periodo seleccionado')
+        //DEMO
+        result = await my.ajax.dm2_preparar({
+            periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
+            //periodo: 'a2019m08', panel: 3, tarea: 6
+            //periodo: 'a2019m11', panel: 3, tarea: 6
+        })
+        estructura = result.estructura;
+        if(result.hdr){
+            initialState = result.hdr;
+            initialState.opciones = getDefaultOptions();
+        }else{
+            throw Error ('no hay datos para el periodo seleccionado')
+        }
     }
+
+    /* DEFINICION CONTROLADOR */
+    const hdrReducer = createReducer(reducers, initialState);
+    /* FIN DEFINICION CONTROLADOR */
+    /* CARGA Y GUARDADO DE STATE */
+    function loadState():HojaDeRuta{
+        var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+        if(contentJson){
+            var content:HojaDeRuta = JSON4all.parse(contentJson);
+            return content;
+        }else{
+            return initialState;
+        }
+    }
+    
+    function saveState(state:HojaDeRuta){
+        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
+    }
+    /* FIN CARGA Y GUARDADO DE STATE */
+
+    /* CREACION STORE */
+    const store = createStore(hdrReducer, loadState()); 
+    store.subscribe(function(){
+        saveState(store.getState());
+    });
+    /* FIN CREACION STORE */
+
+    //HDR CON STORE CREADO
+    return {store, estructura:estructura!};
+   
 }

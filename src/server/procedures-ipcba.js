@@ -1146,6 +1146,7 @@ ProceduresIpcba = [
                 ,
                 [parameters.periodo, parameters.panel, parameters.tarea, idInstalacion.value]
             ).execute();
+            return "ok"
         }
     },
     {
@@ -1156,6 +1157,7 @@ ProceduresIpcba = [
             {name:'tarea'             , typeName:'integer' },
             {name:'sincronizar'       , typeName:'boolean' },
         ],
+        policy:'web',
         coreFunction: async function(context, parameters){
             var be = context.be;
             var fileResult;
@@ -1333,7 +1335,7 @@ ProceduresIpcba = [
                     SELECT encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
                             (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                             current_date as fecha_carga,
-                            rt.panel, rt.tarea,
+                            rt.panel, rt.tarea, rt.periodo,
                             ${json(sqlInformantes,'direccion, informante')} as informantes
                         FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
                         WHERE rt.periodo=$1 
@@ -1384,11 +1386,12 @@ ProceduresIpcba = [
                 var {vencimientoSincronizacion} = parameters.sincronizar?await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters):{vencimientoSincronizacion:null};
 
                 //genero archivos
-                const MANIFEST_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifest.manifest`;
-                const ESTRUCTURA_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
-                const HDR_FILENAME = `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
-                await fs.writeFile(ESTRUCTURA_FILENAME, "var estructura=" + JSON.stringify(estructura));
-                await fs.writeFile(HDR_FILENAME, JSON.stringify(hdr));
+                const PATH = 'dist/client/carga-dm/';
+                const MANIFEST_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifest.manifest`;
+                const ESTRUCTURA_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
+                const HDR_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
+                await fs.writeFile(PATH + ESTRUCTURA_FILENAME, "var estructura=" + JSON.stringify(estructura));
+                await fs.writeFile(PATH + HDR_FILENAME, JSON.stringify(hdr));
                 var manifest = 
 `CACHE MANIFEST
 #${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
@@ -1439,6 +1442,9 @@ CACHE:
 ../lib/cliente-en-castellano.js
 ../client/client.js
 ../client/hoja-de-ruta.js
+../client/hoja-de-ruta-react.js
+${ESTRUCTURA_FILENAME}
+${HDR_FILENAME}
 
 #------------------------------ CSS ---------------------------------
 ../dialog-promise/dialog-promise.css
@@ -1455,7 +1461,7 @@ CACHE:
 
 NETWORK:
 *`
-                await fs.writeFile(MANIFEST_FILENAME, manifest);
+                await fs.writeFile(PATH + MANIFEST_FILENAME, manifest);
 
                 //resultado
                 return {status: 'ok', vencimientoSincronizacion, estructura, hdr}
