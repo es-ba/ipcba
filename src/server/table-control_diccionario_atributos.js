@@ -3,7 +3,7 @@
 module.exports = function(context){
     //var puedeEditar = context.user.usu_rol ==='admin';
     return context.be.tableDefAdapt({
-        name:'control_diciconario_atributos',
+        name:'control_diccionario_atributos',
         editable:false,
         dbOrigin:'view',
         fields:[
@@ -31,7 +31,8 @@ module.exports = function(context){
                     join cvp.relpre pre on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
                     join cvp.relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
                     left join cvp.prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
-                    where pa.validaropciones and p.valor is null)`,
+                    left join cvp.tipopre t on pre.tipoprecio = t.tipoprecio
+                    where pa.validaropciones and p.valor is null and t.activo ='S' and t.espositivo = 'S')`,
             /*
                 from:`(select a.periodo, vis.panel, vis.tarea, a.producto, o.nombreproducto, pre.formulario, a.informante, a.visita, a.observacion, a.valor marca   
                     from cvp.relatr a 
