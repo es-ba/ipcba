@@ -300,8 +300,9 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
     if(addrParams.periodo && addrParams.panel && addrParams.tarea){
         var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(content){
-            result = JSON4all.parse(content);
+            result.hdr = JSON4all.parse(content);
             initialState = result.hdr;
+            estructura=structFromManifest;
         }else{
             throw Error('no se cargó correctamente la hoja de ruta')
         }
@@ -315,7 +316,6 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         estructura = result.estructura;
         if(result.hdr){
             initialState = result.hdr;
-            initialState.opciones = getDefaultOptions();
         }else{
             throw Error ('no hay datos para el periodo seleccionado')
         }
@@ -329,8 +329,10 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(contentJson){
             var content:HojaDeRuta = JSON4all.parse(contentJson);
+            content.opciones = content.opciones || getDefaultOptions();
             return content;
         }else{
+            initialState.opciones = initialState.opciones||getDefaultOptions();
             return initialState;
         }
     }

@@ -1390,7 +1390,7 @@ ProceduresIpcba = [
                 const MANIFEST_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifest.manifest`;
                 const ESTRUCTURA_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
                 const HDR_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
-                await fs.writeFile(PATH + ESTRUCTURA_FILENAME, "var estructura=" + JSON.stringify(estructura));
+                await fs.writeFile(PATH + ESTRUCTURA_FILENAME, "var structFromManifest=" + JSON.stringify(estructura));
                 await fs.writeFile(PATH + HDR_FILENAME, JSON.stringify(hdr));
                 var manifest = 
 `CACHE MANIFEST
