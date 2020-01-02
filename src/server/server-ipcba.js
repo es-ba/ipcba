@@ -391,10 +391,12 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_hdrexportarefectivossinprecio'  , label:'efectivos sin precio', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_normalizables_sindato'  , label:'normalizables sin dato', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
-                    {menuType:'table', name:'periodos_control_diccionario_atributos'  , label:'inconsistencias de diccionario de atributos', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table', name:'periodos_control_diccionario_atributos'  , label:'inconsistencias de diccionario de atributos', onlyVisibleFor:[programador,coordinador,recepcionista,analista]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
+                    {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
+                    {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista]},
+                    {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                     {menuType:'table', name:'periodos_control_comentariosrelpre'      , label:'comentarios por producto', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                 ]},
                 {menuType:'table', name:'periodos_novpre_recep', label:'anulación de precios (recep)', onlyVisibleFor:[programador,jefeCampo,recepcionista,recepGabinete]},
@@ -436,7 +438,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'canasta_ipcba', label:'canasta de IPCBA', menuContent:[
                 {menuType:'table', name:'grupos'   , onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'productos', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo,recepGabinete,supervisor]},
-                {menuType:'table', name:'periodos_vista_control_diccionario', label:'diccionario valores de atributos', onlyVisibleFor:[programador,coordinador,analista]},
+                //{menuType:'table', name:'periodos_vista_control_diccionario', label:'diccionario valores de atributos', onlyVisibleFor:[programador,coordinador,analista]},
             ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo,recepGabinete,supervisor]},
             {menuType:'menu', name:'analisis', label:'análisis', menuContent:[
                 {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
