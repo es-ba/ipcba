@@ -1353,6 +1353,9 @@ myOwn.clientSides.prepararDM={
             }).then(function(result){
                 boton.disabled=false;
                 waitGif.style.display = 'none';
+                if(result.tieneprecioscargados){
+                    alertPromise('La hoja de ruta tiene precios cargados')
+                }
                 depot.rowControls.vencimiento_sincronizacion.setTypedValue(result.vencimientoSincronizacion, true);
             }).catch(function(err){
                 my.alertError(err);

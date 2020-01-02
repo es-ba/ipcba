@@ -142,7 +142,7 @@ export type RelVisPk = {
 export type RelVis={
     informante: number
     formulario: number
-    razon: number | null
+    razon: number
     comentarios: string | null
 };
 

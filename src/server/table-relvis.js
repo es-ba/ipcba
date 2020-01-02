@@ -31,6 +31,7 @@ module.exports = function(context){
             {name:'ultima_visita'             , typeName:'boolean'                             , allow:{update:false}, visible:false},
             {name:'verificado_rec'            , typeName:'text'                                , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'fechageneracion'           , typeName:'timestamp'                           , allow:{update:false}, visible:false},
+            {name:'preciosgenerados'          , typeName:'boolean'                             , allow:{update:false}, visible:false},
             {name:'orden'                     , typeName:'integer'                             , allow:{update:false}, visible:false, inTable:false},
             {name:'raz__escierredefinitivoinf', typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
             {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
@@ -68,7 +69,7 @@ module.exports = function(context){
             from:`(
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                  v.fechageneracion, f.orden, i.direccion, 
+                  v.fechageneracion, f.orden, i.direccion, v.preciosgenerados,
                   CASE WHEN rec.labor = 'R' THEN rec.persona 
                        WHEN per.labor = 'R' THEN per.persona 
                        ELSE rec.persona END operadorrec                 

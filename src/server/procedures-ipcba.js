@@ -1165,14 +1165,20 @@ ProceduresIpcba = [
                  fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
             }
             try{
-                //await context.client.query(
-                //    `update relvis
-                //        set razon = 0
-                //        where periodo = $1 and panel = $2 and tarea = $3 and razon is null /*and razon <> 0*/`
-                //    ,
-                //    [params.periodo, params.panel, params.tarea]
-                //).execute();
-                var esSupervision=false;
+                await context.client.query(
+                    `update relvis
+                        set preciosgenerados = true
+                        where periodo = $1 and panel = $2 and tarea = $3`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).execute();
+                var hojaDeRutaConPrecios = await context.client.query(
+                    `SELECT count(*) > 0 as tieneprecioscargados
+                        FROM relvis
+                        WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND razon IS NOT NULL`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchUniqueValue();
                 var sqlEstructura=`
                   SELECT 
                         ${jsono(`
@@ -1257,7 +1263,7 @@ ProceduresIpcba = [
                     WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
                 `;
                 var sqlAtributos=`
-                    SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ${esSupervision?'ra.valor':'null as valor'}, ra_1.valor as valoranterior, pa.orden
+                    SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ra.valor, ra_1.valor as valoranterior, pa.orden
                         FROM relatr ra 
                             INNER JOIN relatr ra_1 
                                 ON ra_1.periodo = rp.periodo_1
@@ -1273,12 +1279,12 @@ ProceduresIpcba = [
                             AND ra.producto=rp.producto
                             AND ra.observacion=rp.observacion`
                 var sqlObservaciones=`                
-                    SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, ${esSupervision?'':'null as '} precio, precio_1 as precioanterior, ${esSupervision?'':'null as '} tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+                    SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, rp.tipoprecio,  tipoprecio_1 as tipoprecioanterior,
                             cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
                             f.orden as orden_formulario,
                             fp.orden as orden_producto,
                             p.periodo is not null as repregunta,
-                            ${esSupervision?'null':'false'} as adv,
+                            false as adv,
                             ${json(sqlAtributos, 'orden, atributo')} as atributos,
                             c.promobs as promobs_1,
                             distanciaperiodos(rv.periodo,ultimoperiodoconprecio) cantidadperiodossinprecio,
@@ -1303,11 +1309,11 @@ ProceduresIpcba = [
                                 where moverperiodos(rp.periodo,-1) >= rp_2_3.periodo and moverperiodos(rp.periodo,-4) <= rp_2_3.periodo and rp.producto = rp_2_3.producto and rp.observacion = rp_2_3.observacion and rp.informante = rp_2_3.informante and rp.visita = rp_2_3.visita and rp_2_3.tipoprecio in ('S',null)
                             ) r_his
                         WHERE rv.periodo=rvi.periodo 
-                            AND rv.tarea=rvi.tarea
                             AND rv.panel=rvi.panel
+                            AND rv.tarea=rvi.tarea
                             AND rv.informante=rvi.informante`;
                 var sqlFormularios=`
-                    SELECT periodo, visita, informante, formulario, razon, comentarios, visita, orden
+                    SELECT periodo, visita, informante, formulario, CASE WHEN razon is null THEN 1 ELSE razon END as razon, comentarios, visita, orden
                         FROM relvis rv inner join formularios using (formulario)
                         WHERE periodo=rvi.periodo 
                             AND tarea=rvi.tarea
@@ -1464,7 +1470,7 @@ NETWORK:
                 await fs.writeFile(PATH + MANIFEST_FILENAME, manifest);
 
                 //resultado
-                return {status: 'ok', vencimientoSincronizacion, estructura, hdr}
+                return {status: 'ok', vencimientoSincronizacion, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value}
             }catch(err){
                 throw err
             }
@@ -1485,7 +1491,7 @@ NETWORK:
             );
             return JSON4all.parse(content);
         }
-    }
+    },
 ];
 
 module.exports = ProceduresIpcba;

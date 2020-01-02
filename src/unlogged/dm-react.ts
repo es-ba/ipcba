@@ -301,7 +301,6 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(content){
             result.hdr = JSON4all.parse(content);
-            initialState = result.hdr;
             estructura=structFromManifest;
         }else{
             throw Error('no se cargó correctamente la hoja de ruta')
@@ -330,6 +329,9 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         if(contentJson){
             var content:HojaDeRuta = JSON4all.parse(contentJson);
             content.opciones = content.opciones || getDefaultOptions();
+            content.informantes.forEach(
+                (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=>observacion.adv = controlarPrecio(observacion, estructura).tieneAdv)
+            )
             return content;
         }else{
             initialState.opciones = initialState.opciones||getDefaultOptions();

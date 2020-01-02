@@ -31,18 +31,18 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     var hojaDeRutaEnOtroDispositivo = cargado && !descargado && id_instalacion;
     var cargarFun = async function cargarFun(){
         mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
-        var hdr = await my.ajax.hdr_json_leer({
-            periodo: periodo,
-            panel: panel,
-            tarea: tarea
-        });
-        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
         await my.ajax.dm2_cargar({
             periodo: periodo,
             panel: panel,
             tarea: tarea,
             token_instalacion: tokenInstalacion
         });
+        var hdr = await my.ajax.hdr_json_leer({
+            periodo: periodo,
+            panel: panel,
+            tarea: tarea
+        });
+        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
         localStorage.setItem('descargado',JSON.stringify(false));
         localStorage.setItem('vaciado',JSON.stringify(false));
