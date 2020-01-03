@@ -6,7 +6,7 @@ var definnerPeriodo = require('../server/table-periodos.js');
 module.exports = function(context){
     var defNewElement = definnerPeriodo(context);
     defNewElement=changing(defNewElement,{
-        name:'periodos_control_sinvaraicion',
+        name:'periodos_control_sinvariacion',
         //title:'control sin variación',
         tableName:'periodos',
         editable:false,
