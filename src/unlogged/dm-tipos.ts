@@ -176,7 +176,7 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         idActual: null,
         relVisPk: null,
         letraGrandeFormulario: false,
-        mostrarColumnasFaltantesYAdvertencias: true,
+        mostrarColumnasFaltantesYAdvertencias: false,
         allForms: false,
         searchString: '',
         verRazon: true

@@ -1284,13 +1284,14 @@ function PantallaHojaDeRuta(_props:{}){
     const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const dispatch = useDispatch();
+    const appVersion = localStorage.getItem('app-cache-version');
     const stylesTableHeader = {fontSize: "1.3rem"}
     return (
         <>
             <AppBar position="fixed">
                 <Toolbar>
                     <Typography variant="h6">
-                        Hoja de ruta
+                        Hoja de ruta - {appVersion}
                     </Typography>
                     <Button style={{marginTop:'5px'}}
                         color="inherit"

@@ -1168,7 +1168,7 @@ ProceduresIpcba = [
                 await context.client.query(
                     `update relvis
                         set preciosgenerados = true
-                        where periodo = $1 and panel = $2 and tarea = $3`
+                        where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
                     ,
                     [parameters.periodo, parameters.panel, parameters.tarea]
                 ).execute();
@@ -1436,6 +1436,7 @@ CACHE:
 ../lib/typed-controls.js
 ../lib/ajax-best-promise.js
 ../my-ajax.js
+../my-start.js
 ../lib/my-localdb.js
 ../lib/my-websqldb.js
 ../lib/my-localdb.js.map
@@ -1447,6 +1448,7 @@ CACHE:
 ../lib/my-skin.js
 ../lib/cliente-en-castellano.js
 ../client/client.js
+../client/menu.js
 ../client/hoja-de-ruta.js
 ../client/hoja-de-ruta-react.js
 ${ESTRUCTURA_FILENAME}
@@ -1458,12 +1460,18 @@ ${HDR_FILENAME}
 ../css/my-things.css
 ../css/my-tables.css
 ../css/my-menu.css
+../css/menu.css
+../css/offline-mode.css
+../css/hoja-de-ruta.css
 ../default/css/my-things.css
 ../default/css/my-tables.css
 ../default/css/my-menu.css
-../css/hoja-de-ruta.css
 ../css/ejemplo-precios.css
 ../default/css/ejemplo-precios.css
+
+#------------------------------ IMAGES ---------------------------------
+../img/logo.png
+../img/main-loading.gif
 
 NETWORK:
 *`

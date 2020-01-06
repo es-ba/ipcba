@@ -353,7 +353,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalacion actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
                 {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
-                //{menuType:'hoja_ruta 2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true, onlyVisibleFor:[programador] },
+                {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta 2', showInOfflineMode: true, onlyVisibleFor:[programador] },
                 {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 //{menuType:'vaciar 2', name:'vaciar_dm2', label:'vaciar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
