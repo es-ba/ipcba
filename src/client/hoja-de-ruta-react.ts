@@ -8,6 +8,11 @@ function getVersionSistema(){
     return document.body.getAttribute('app-version');
 }
 
+function hayHojaDeRuta(){
+    return localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('vaciado') !==null && !(JSON.parse(localStorage.getItem('vaciado'))) ||
+        localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('vaciado') ===null
+}
+
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     var mainLayout = document.getElementById('main_layout')!;
     try{
@@ -121,7 +126,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
     var ipad = localStorage.getItem('ipad') || null;
     var encuestador = localStorage.getItem('encuestador') || null;
     if(tokenInstalacion && ipad && encuestador){
-        if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
+        if(hayHojaDeRuta()){
             mainLayout.appendChild(html.p('El dispositivo tiene información cargada').create());
             var downloadButton = html.button({class:'download-ipad-button'},'descargar').create();
             mainLayout.appendChild(downloadButton);
@@ -159,7 +164,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
 myOwn.wScreens.hoja_ruta_2=function(){
     var mainLayout = document.getElementById('main_layout')!;
     try{
-        if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
+        if(hayHojaDeRuta()){
             var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
             mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
             localStorage.setItem('descargado',JSON.stringify(false));
@@ -175,49 +180,41 @@ myOwn.wScreens.hoja_ruta_2=function(){
 };
 
 myOwn.wScreens.vaciar_dm2=function(){
-    //var mainLayout = document.getElementById('main_layout');
-    //var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
-    //var ipad = localStorage.getItem('ipad') || null;
-    //var encuestador = localStorage.getItem('encuestador') || null;
-    //if(tokenInstalacion && ipad && encuestador){
-    //    return my.ldb.existsStructure('mobile_hoja_de_ruta').then(function(existsStructure){
-    //        if(existsStructure){
-    //            return my.ldb.isEmpty('mobile_hoja_de_ruta').then(function(isEmptyLocalDatabase){
-    //                var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
-    //                if(isEmptyLocalDatabase || vaciado){
-    //                    mainLayout.appendChild(html.p('El D.M. está vacío.').create());
-    //                }else{
-    //                    var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
-    //                    var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
-    //                    var inputForzar = html.input({class:'input-forzar'}).create();
-    //                    if(!fueDescargadoAntes){
-    //                        mainLayout.appendChild(html.div([
-    //                            html.div({class:'danger'},'El dispositivo todavía no fue descargado'),
-    //                            html.div(['Se puede forzar el vaciado ',inputForzar])
-    //                        ]).create());
-    //                    }
-    //                    mainLayout.appendChild(clearButton);
-    //                    clearButton.onclick = function(){
-    //                        if(fueDescargadoAntes || inputForzar.value=='forzar'){
-    //                            confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton}).then(function(){
-    //                                clearButton.disabled=true;
-    //                                localStorage.setItem('vaciado',JSON.stringify(true));
-    //                            }).then(function(){
-    //                                mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
-    //                            });
-    //                        }else{
-    //                            alertPromise('si necesita vaciar el D.M. puede forzar.',{underElement:clearButton})
-    //                        }
-    //                    }
-    //                }
-    //            });
-    //        }else{
-    //            mainLayout.appendChild(html.p('No existe la tabla mobile_hoja_de_ruta. Por favor reinstale el dispositivo').create());
-    //        }
-    //    })
-    //}else{
-    //    mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
-    //}
+    var mainLayout = document.getElementById('main_layout')!;
+    var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
+    var ipad = localStorage.getItem('ipad') || null;
+    var encuestador = localStorage.getItem('encuestador') || null;
+    if(tokenInstalacion && ipad && encuestador){
+        var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
+        if(vaciado){
+            mainLayout.appendChild(html.p('El D.M. está vacío.').create());
+        }else{
+            var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
+            var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
+            var inputForzar = html.input({class:'input-forzar'}).create();
+            if(!fueDescargadoAntes){
+                mainLayout.appendChild(html.div([
+                    html.div({class:'danger'},'El dispositivo todavía no fue descargado'),
+                    html.div(['Se puede forzar el vaciado ',inputForzar])
+                ]).create());
+            }
+            mainLayout.appendChild(clearButton);
+            clearButton.onclick = async function(){
+                if(fueDescargadoAntes || inputForzar.value=='forzar'){
+                    var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton});
+                    if(confirma){
+                        clearButton.disabled=true;
+                        localStorage.setItem('vaciado',JSON.stringify(true));
+                        mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
+                    };
+                }else{
+                    alertPromise('si necesita vaciar el D.M. puede forzar.',{underElement:clearButton})
+                }
+            }
+        }
+    }else{
+        mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
+    }
 };
 
 myOwn.wScreens.preparar_instalacion2={
