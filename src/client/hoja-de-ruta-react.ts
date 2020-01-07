@@ -87,37 +87,23 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     }
 }
 
-function descargarDispositivo2(tokenInstalacion: string, encuestador: string){
+async function descargarDispositivo2(tokenInstalacion: string, encuestador: string){
     var mainLayout = document.getElementById('main_layout')!;
     var waitGif = mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
     mainLayout.appendChild(html.p([
         'descargando, por favor espere',
         waitGif
     ]).create());
-    var promiseChain = Promise.resolve();
-    var data = {};
-    var mobileTables = ['mobile_hoja_de_ruta', 'mobile_visita', 'mobile_precios', 'mobile_atributos'];
-    mobileTables.forEach(function(tableName){
-        promiseChain = promiseChain.then(function(){
-            return my.ldb.getAll(tableName).then(function(results){
-                data[tableName] = results;
-            });
-        })
+    var message = await my.ajax.dm2_descargar({
+        token_instalacion: tokenInstalacion,
+        hoja_de_ruta: JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!),
+        encuestador: encuestador
     });
-    promiseChain = promiseChain.then(function(){
-        return my.ajax.dm_descargar({
-            token_instalacion: tokenInstalacion,
-            data: JSON.stringify(data),
-            encuestador: encuestador
-        }).then(function(message){
-            waitGif.style.display = 'none';
-            if(message=='descarga completa'){
-                localStorage.setItem('descargado',JSON.stringify(true));
-            }
-            mainLayout.appendChild(html.p(message).create());
-        });
-    });
-    return promiseChain;
+    waitGif.style.display = 'none';
+    if(message=='descarga completa'){
+        localStorage.setItem('descargado',JSON.stringify(true));
+    }
+    mainLayout.appendChild(html.p(message).create());
 }
 
 myOwn.wScreens.sincronizar_dm2=function(){

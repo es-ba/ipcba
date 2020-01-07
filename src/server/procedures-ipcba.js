@@ -1500,6 +1500,100 @@ NETWORK:
             return JSON4all.parse(content);
         }
     },
+    {
+        action: 'dm2_descargar',
+        parameters:[
+            {name:'token_instalacion'  , typeName:'text' },
+            {name:'hoja_de_ruta'       , typeName:'jsonb' },
+            {name:'encuestador'        , typeName:'text' },
+        ],
+        policy:'web',
+        coreFunction:async function(context, params){
+            var token = params.token_instalacion;
+            try{
+                var idInstalacion = await context.client.query(
+                    `select id_instalacion from instalaciones where token_instalacion = $1`,
+                    [token]
+                ).fetchUniqueValue();
+                var result = await context.client.query(
+                    `update reltar
+                        set descargado = current_timestamp, vencimiento_sincronizacion = null
+                        where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
+                        returning *`
+                ,[idInstalacion.value]).fetchAll();
+                var tiposDePrecio = await context.client.query(
+                    `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
+                ,[]).fetchAll();
+                tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
+                if(result.rowCount){
+                    var hoja_de_ruta = params.hoja_de_ruta;
+                    for(var informante of hoja_de_ruta.informantes){
+                        for(var formulario of informante.formularios){
+                            try{
+                                await context.client.query(`
+                                    update relvis
+                                        set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
+                                        where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada`
+                                ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, formulario.comentarios, context.user.usu_usu]).execute()
+                            }catch(err){
+                                throw new Error('Error al actualizar razón para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
+                            }
+                        };
+                        for(var observacion of informante.observaciones){
+                            try{
+                                observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
+                                await context.client.query(`
+                                    update relpre
+                                        set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
+                                        where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada`
+                                ,[
+                                    observacion.tipoprecio, 
+                                    observacion.precio, 
+                                    observacion.cambio,
+                                    observacion.periodo, 
+                                    observacion.informante, 
+                                    observacion.visita, 
+                                    observacion.producto, 
+                                    observacion.observacion,
+                                    observacion.comentariosrelpre
+                                ]).execute()
+                            }catch(err){
+                                throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                            }
+                            for(var atributo of observacion.atributos){
+                                //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
+                                if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo/* && atributo.valor*/){
+                                    try{
+                                        await context.client.query(`
+                                            update relatr
+                                                set valor = $1
+                                                where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada`
+                                        ,[
+                                            atributo.valor?atributo.valor.toString().trim().toUpperCase():null, 
+                                            atributo.periodo, 
+                                            atributo.informante, 
+                                            atributo.visita, 
+                                            atributo.producto, 
+                                            atributo.observacion,
+                                            atributo.atributo
+                                        ]).execute()
+                                    }catch(err){
+                                        throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                    }
+                                }
+                            }
+                        }
+                    };              
+                    return 'descarga completa';
+                }else{
+                    return 'sincronizacion deshabilitada o vencida para el encuestador ' + params.encuestador
+                }
+            }catch(err){
+                console.log('ERROR',err.message);
+                throw err;
+            }
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
