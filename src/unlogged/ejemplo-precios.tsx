@@ -32,6 +32,7 @@ export const materialIoIconsSvgPath={
     Code: "M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z",
     Description: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
     EmojiObjects: "M12 3c-.46 0-.93.04-1.4.14-2.76.53-4.96 2.76-5.48 5.52-.48 2.61.48 5.01 2.22 6.56.43.38.66.91.66 1.47V19c0 1.1.9 2 2 2h.28c.35.6.98 1 1.72 1s1.38-.4 1.72-1H14c1.1 0 2-.9 2-2v-2.31c0-.55.22-1.09.64-1.46C18.09 13.95 19 12.08 19 10c0-3.87-3.13-7-7-7zm2 16h-4v-1h4v1zm0-2h-4v-1h4v1zm-1.5-5.59V14h-1v-2.59L9.67 9.59l.71-.71L12 10.5l1.62-1.62.71.71-1.83 1.82z",
+    ExitToApp: "M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z",
     ExpandLess: "M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z",
     ExpandMore: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z",
     FormatLineSpacing: "M6 7h2.5L5 3.5 1.5 7H4v10H1.5L5 20.5 8.5 17H6V7zm4-2v2h12V5H10zm0 14h12v-2H10v2zm0-6h12v-2H10v2z",
@@ -61,6 +62,7 @@ const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
 const ClearIcon = ICON.Clear;
 const SettingsIcon = ICON.Settings;
 const RepreguntaIcon = ICON.Repregunta;
+const ExitToAppIcon = ICON.ExitToApp;
 
 export var estructura:Estructura;
 
@@ -1271,6 +1273,12 @@ const useStylesTable = makeStyles({
     },
   });
 
+const useStylesButton = makeStyles({
+    toolbarButtons: {
+      marginLeft: 'auto',
+    },
+});
+
 function PantallaHojaDeRuta(_props:{}){
     const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>({
         informantes:hdr.informantes,
@@ -1283,9 +1291,11 @@ function PantallaHojaDeRuta(_props:{}){
     }));
     const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
+    const classesButton = useStylesButton();
     const dispatch = useDispatch();
     const appVersion = localStorage.getItem('app-cache-version');
     const stylesTableHeader = {fontSize: "1.3rem"}
+    
     return (
         <>
             <AppBar position="fixed">
@@ -1293,14 +1303,25 @@ function PantallaHojaDeRuta(_props:{}){
                     <Typography variant="h6">
                         Hoja de ruta - {appVersion}
                     </Typography>
-                    <Button style={{marginTop:'5px'}}
-                        color="inherit"
-                        onClick={()=>
-                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
-                        }
-                    >
-                        <SettingsIcon/>
-                    </Button>
+                    <div className={classesButton.toolbarButtons}>
+                        <Button style={{marginTop:'3px'}}
+                            color="inherit"
+                            onClick={()=>
+                                dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
+                            }
+                        >
+                            <SettingsIcon/>
+                        </Button>
+                        <Button
+                            color="inherit"
+                            onClick={()=>{
+                                history.replaceState(null, null, `${location.origin}/ipcba/menu#i=dm2`);
+                                location.reload();   
+                            }}
+                        >
+                            <ExitToAppIcon/>
+                        </Button>
+                    </div>
                 </Toolbar>
             </AppBar>
             <main>
