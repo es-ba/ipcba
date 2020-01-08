@@ -1183,7 +1183,7 @@ const useStylesBadge = makeStyles((theme: Theme) =>
 const ConditionalWrapper = ({ condition, wrapper, children }) => 
   condition ? wrapper(children) : children;
 
-function FormulariosRows(props:{informante:RelInf, relVis:RelVis}){
+function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
     const dispatch = useDispatch();
@@ -1248,12 +1248,12 @@ function InformanteRow(props:{informante:RelInf}){
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:
-                                <FormulariosRows informante={props.informante} relVis={relVis}/>
+                                <FormulariosCols informante={props.informante} relVis={relVis}/>
                             }
                         </TableRow>
                         {opciones.letraGrandeFormulario?
                             <TableRow>
-                                <FormulariosRows informante={props.informante} relVis={relVis}/>
+                                <FormulariosCols informante={props.informante} relVis={relVis}/>
                             </TableRow>
                         :null}
                     </>
