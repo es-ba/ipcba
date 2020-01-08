@@ -48,12 +48,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             panel: panel,
             tarea: tarea
         });
-        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
-        mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-        localStorage.setItem('descargado',JSON.stringify(false));
-        localStorage.setItem('vaciado',JSON.stringify(false));
-        history.replaceState(null, null, `${location.origin}/ipcba/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
-        location.reload();
+        myOwn.wScreens.hoja_ruta_2();
     }
     if(hojaDeRutaEnOtroDispositivo){
         mainLayout.appendChild(html.div({},[
@@ -155,7 +150,7 @@ myOwn.wScreens.hoja_ruta_2=function(){
             mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
             localStorage.setItem('descargado',JSON.stringify(false));
             localStorage.setItem('vaciado',JSON.stringify(false));
-            history.replaceState(null, null, `${location.origin}/ipcba/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
+            history.replaceState(null, null, `${location.origin}/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
             location.reload();
         }else{
             throw Error("No hay hoja de ruta cargada")

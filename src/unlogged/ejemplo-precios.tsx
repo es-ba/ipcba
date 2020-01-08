@@ -1315,7 +1315,7 @@ function PantallaHojaDeRuta(_props:{}){
                         <Button
                             color="inherit"
                             onClick={()=>{
-                                history.replaceState(null, null, `${location.origin}/ipcba/menu#i=dm2`);
+                                history.replaceState(null, null, `${location.origin}/menu`);
                                 location.reload();   
                             }}
                         >
