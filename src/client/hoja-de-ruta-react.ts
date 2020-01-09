@@ -48,6 +48,10 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             panel: panel,
             tarea: tarea
         });
+        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
+        mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
+        localStorage.setItem('descargado',JSON.stringify(false));
+        localStorage.setItem('vaciado',JSON.stringify(false));
         myOwn.wScreens.hoja_ruta_2();
     }
     if(hojaDeRutaEnOtroDispositivo){
@@ -147,10 +151,7 @@ myOwn.wScreens.hoja_ruta_2=function(){
     try{
         if(hayHojaDeRuta()){
             var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
-            mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-            localStorage.setItem('descargado',JSON.stringify(false));
-            localStorage.setItem('vaciado',JSON.stringify(false));
-            history.replaceState(null, null, `${location.origin}/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
+            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
             location.reload();
         }else{
             throw Error("No hay hoja de ruta cargada")
