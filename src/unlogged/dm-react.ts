@@ -310,7 +310,7 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
             //periodo: 'a2019m08', panel: 3, tarea: 6, sincronizar: false
-            periodo: 'a2019m12', panel: 3, tarea: 6, sincronizar: false
+            periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, sincronizar: false
         })
         estructura = result.estructura;
         if(result.hdr){

@@ -1295,7 +1295,12 @@ function PantallaHojaDeRuta(_props:{}){
     const dispatch = useDispatch();
     const appVersion = localStorage.getItem('app-cache-version');
     const stylesTableHeader = {fontSize: "1.3rem"}
-    
+    const updateOnlineStatus = function(){
+        setOnline(window.navigator.onLine);
+    }
+    const [online, setOnline] = useState(window.navigator.onLine);
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
     return (
         <>
             <AppBar position="fixed">
@@ -1312,15 +1317,17 @@ function PantallaHojaDeRuta(_props:{}){
                         >
                             <SettingsIcon/>
                         </Button>
-                        <Button
-                            color="inherit"
-                            onClick={()=>{
-                                history.replaceState(null, null, `${location.origin+location.pathname}/../menu`);
-                                location.reload();   
-                            }}
-                        >
-                            <ExitToAppIcon/>
-                        </Button>
+                        {online?
+                            <Button
+                                color="inherit"
+                                onClick={()=>{
+                                    history.replaceState(null, null, `${location.origin+location.pathname}/../menu`);
+                                    location.reload();   
+                                }}
+                            >
+                                <ExitToAppIcon/>
+                            </Button>
+                        :null}
                     </div>
                 </Toolbar>
             </AppBar>

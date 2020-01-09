@@ -1155,6 +1155,7 @@ ProceduresIpcba = [
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
             {name:'panel'             , typeName:'integer' },
             {name:'tarea'             , typeName:'integer' },
+            {name:'encuestador'       , typeName:'text'    },
             {name:'sincronizar'       , typeName:'boolean' },
         ],
         policy:'web',
