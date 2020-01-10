@@ -322,6 +322,19 @@ class AppIpcba extends backendPlus.AppBackend{
             var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath: manifestPath, extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
+        mainApp.get(baseUrl+'/archivos/crear',async function(req,res,_next){
+            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var {useragent, user} = req;
+            var parameters = req.query;
+            try{
+                var context = be.getContext(req);
+                context.client = await be.getDbClient(req);
+                var {estructura, hdr } = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters);
+                MiniTools.serveJson({status: 'ok', estructura, hdr},'html')(req,res);
+            }catch(err){
+                MiniTools.serveJson({status: 'err', message:'error al crear archivos. ' + err.message})(req,res);
+            }
+        });
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     getProcedures(){

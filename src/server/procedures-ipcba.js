@@ -13,6 +13,8 @@ var MiniTools = require('mini-tools');
 //var Tedede = require('./tedede2');
 
 var bestGlobals = require('best-globals');
+var http = require('http');
+
 var datetime = bestGlobals.datetime;
 var timeInterval = bestGlobals.timeInterval;
 
@@ -1150,36 +1152,17 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'dm2_preparar',
+        action:'dm2_archivospreparar',
         parameters:[
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
             {name:'panel'             , typeName:'integer' },
-            {name:'tarea'             , typeName:'integer' },
-            {name:'encuestador'       , typeName:'text'    },
-            {name:'sincronizar'       , typeName:'boolean' },
+            {name:'tarea'             , typeName:'integer' }
         ],
         policy:'web',
+        unlogged: true,
         coreFunction: async function(context, parameters){
             var be = context.be;
-            var fileResult;
-            if(SOLO_PARA_DEMO_DM){
-                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
-            }
             try{
-                await context.client.query(
-                    `update relvis
-                        set preciosgenerados = true
-                        where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
-                    ,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).execute();
-                var hojaDeRutaConPrecios = await context.client.query(
-                    `SELECT count(*) > 0 as tieneprecioscargados
-                        FROM relvis
-                        WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND razon IS NOT NULL`
-                    ,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).fetchUniqueValue();
                 var sqlEstructura=`
                   SELECT 
                         ${jsono(`
@@ -1351,46 +1334,39 @@ ProceduresIpcba = [
                 `;
                 var estructura;
                 var hdr;
-                if(SOLO_PARA_DEMO_DM){
-                    estructura = fileResult.estructura;
-                    hdr = fileResult.hdr;
-                }else{
-                    var resultEstructura = await context.client.query(
-                        sqlEstructura,
-                        [parameters.periodo, parameters.panel, parameters.tarea]
-                    ).fetchOneRowIfExists();
-                    var resultHdR = await context.client.query(
-                        sqlHdR,
-                        [parameters.periodo, parameters.panel, parameters.tarea]
-                    ).fetchOneRowIfExists();
-                    estructura = resultEstructura.row;
-                    hdr = resultHdR.row;
-                    if(estructura){
-                        likeAr(estructura.productos).forEach(p=>{
-                            p.lista_atributos = p.x_atributos.map(a=>a.atributo);
-                            p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
-                            likeAr(p.atributos).forEach(a=>{
-                                // if(a.x_prodatrval==null){
-                                //     a.x_prodatrval=[];
-                                // }
-                                a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
-                                a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
-                                delete p.x_prodatrval;
-                            });
-                            delete p.x_atributos;
+                
+                var resultEstructura = await context.client.query(
+                    sqlEstructura,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchOneRowIfExists();
+                var resultHdR = await context.client.query(
+                    sqlHdR,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchOneRowIfExists();
+                estructura = resultEstructura.row;
+                hdr = resultHdR.row;
+                if(estructura){
+                    likeAr(estructura.productos).forEach(p=>{
+                        p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                        p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                        likeAr(p.atributos).forEach(a=>{
+                            // if(a.x_prodatrval==null){
+                            //     a.x_prodatrval=[];
+                            // }
+                            a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                            a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                            delete p.x_prodatrval;
                         });
-                        likeAr(estructura.formularios).forEach(f=>{
-                            f.lista_productos = f.x_productos.map(p=>p.producto);
-                            f.productos = likeAr.createIndex(f.x_productos, 'producto');
-                            delete f.x_productos;
-                        });
-                        estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
-                        estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
-                    }
+                        delete p.x_atributos;
+                    });
+                    likeAr(estructura.formularios).forEach(f=>{
+                        f.lista_productos = f.x_productos.map(p=>p.producto);
+                        f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                        delete f.x_productos;
+                    });
+                    estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+                    estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
                 }
-
-                //habilito sincronizacion
-                var {vencimientoSincronizacion} = parameters.sincronizar?await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters):{vencimientoSincronizacion:null};
 
                 //genero archivos
                 const PATH = 'dist/client/carga-dm/';
@@ -1477,6 +1453,53 @@ ${HDR_FILENAME}
 NETWORK:
 *`
                 await fs.writeFile(PATH + MANIFEST_FILENAME, manifest);
+
+                //resultado
+                return {status: 'ok', estructura, hdr}
+            }catch(err){
+                throw err
+            }
+        }
+    },
+    {
+        action:'dm2_preparar',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+            {name:'encuestador'       , typeName:'text'    },
+            {name:'demo'              , typeName:'boolean' },
+        ],
+        policy:'web',
+        coreFunction: async function(context, parameters){
+            var be = context.be;
+            var fileResult;
+            if(SOLO_PARA_DEMO_DM){
+                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+            }
+            try{
+                await context.client.query(
+                    `update relvis
+                        set preciosgenerados = true
+                        where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).execute();
+                var hojaDeRutaConPrecios = await context.client.query(
+                    `SELECT count(*) > 0 as tieneprecioscargados
+                        FROM relvis
+                        WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND razon IS NOT NULL`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchUniqueValue();
+                //creo archivos y traigo hdr
+                if(parameters.demo){
+                    var {estructura, hdr} = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters)
+                }else{
+                    var {estructura, hdr} = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters);
+                }
+                //habilito sincronizacion
+                var {vencimientoSincronizacion} = parameters.demo?{vencimientoSincronizacion:null}:await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters);
 
                 //resultado
                 return {status: 'ok', vencimientoSincronizacion, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value}
