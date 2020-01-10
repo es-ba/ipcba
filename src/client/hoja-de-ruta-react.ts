@@ -8,6 +8,11 @@ function getVersionSistema(){
     return document.body.getAttribute('app-version');
 }
 
+function hayHojaDeRuta(){
+    return localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('vaciado') !==null && !(JSON.parse(localStorage.getItem('vaciado'))) ||
+        localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('vaciado') ===null
+}
+
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     var mainLayout = document.getElementById('main_layout')!;
     try{
@@ -15,8 +20,9 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             token_instalacion: tokenInstalacion
         })
     }catch(err){
-        mainLayout.appendChild(html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador).create());
-        throw err
+        var message = 'La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador + '. ' + err.message;
+        mainLayout.appendChild(html.p(message).create());
+        throw new Error(message)
     }
     var periodo = reltarHabilitada.periodo;
     var panel = reltarHabilitada.panel;
@@ -46,8 +52,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
         localStorage.setItem('descargado',JSON.stringify(false));
         localStorage.setItem('vaciado',JSON.stringify(false));
-        history.replaceState(null, null, `${location.origin}/ipcba/hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
-        location.reload();
+        myOwn.wScreens.hoja_ruta_2();
     }
     if(hojaDeRutaEnOtroDispositivo){
         mainLayout.appendChild(html.div({},[
@@ -81,37 +86,23 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     }
 }
 
-function descargarDispositivo2(tokenInstalacion: string, encuestador: string){
+async function descargarDispositivo2(tokenInstalacion: string, encuestador: string){
     var mainLayout = document.getElementById('main_layout')!;
     var waitGif = mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
     mainLayout.appendChild(html.p([
         'descargando, por favor espere',
         waitGif
     ]).create());
-    var promiseChain = Promise.resolve();
-    var data = {};
-    var mobileTables = ['mobile_hoja_de_ruta', 'mobile_visita', 'mobile_precios', 'mobile_atributos'];
-    mobileTables.forEach(function(tableName){
-        promiseChain = promiseChain.then(function(){
-            return my.ldb.getAll(tableName).then(function(results){
-                data[tableName] = results;
-            });
-        })
+    var message = await my.ajax.dm2_descargar({
+        token_instalacion: tokenInstalacion,
+        hoja_de_ruta: JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!),
+        encuestador: encuestador
     });
-    promiseChain = promiseChain.then(function(){
-        return my.ajax.dm_descargar({
-            token_instalacion: tokenInstalacion,
-            data: JSON.stringify(data),
-            encuestador: encuestador
-        }).then(function(message){
-            waitGif.style.display = 'none';
-            if(message=='descarga completa'){
-                localStorage.setItem('descargado',JSON.stringify(true));
-            }
-            mainLayout.appendChild(html.p(message).create());
-        });
-    });
-    return promiseChain;
+    waitGif.style.display = 'none';
+    if(message=='descarga completa'){
+        localStorage.setItem('descargado',JSON.stringify(true));
+    }
+    mainLayout.appendChild(html.p(message).create());
 }
 
 myOwn.wScreens.sincronizar_dm2=function(){
@@ -120,7 +111,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
     var ipad = localStorage.getItem('ipad') || null;
     var encuestador = localStorage.getItem('encuestador') || null;
     if(tokenInstalacion && ipad && encuestador){
-        if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
+        if(hayHojaDeRuta()){
             mainLayout.appendChild(html.p('El dispositivo tiene información cargada').create());
             var downloadButton = html.button({class:'download-ipad-button'},'descargar').create();
             mainLayout.appendChild(downloadButton);
@@ -131,7 +122,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
                         downloadButton.disabled=false;
                     },function(err){
                         alertPromise(err.message);
-                        downloadButton.disabled=true;
+                        downloadButton.disabled=false;
                     })
                 })
             }
@@ -146,7 +137,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
                     loadButton.disabled=false;
                 }catch(err){
                     alertPromise(err.message);
-                    loadButton.disabled=true;
+                    loadButton.disabled=false;
                 }
             }  
         }
@@ -155,50 +146,57 @@ myOwn.wScreens.sincronizar_dm2=function(){
     }
 };
 
+myOwn.wScreens.hoja_ruta_2=function(){
+    var mainLayout = document.getElementById('main_layout')!;
+    try{
+        if(hayHojaDeRuta()){
+            var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
+            location.reload();
+        }else{
+            throw Error("No hay hoja de ruta cargada")
+        }
+    }catch(err){
+        mainLayout.appendChild(html.p('Error al cargar hoja de ruta. ' + err.message).create());
+    }
+};
+
 myOwn.wScreens.vaciar_dm2=function(){
-    //var mainLayout = document.getElementById('main_layout');
-    //var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
-    //var ipad = localStorage.getItem('ipad') || null;
-    //var encuestador = localStorage.getItem('encuestador') || null;
-    //if(tokenInstalacion && ipad && encuestador){
-    //    return my.ldb.existsStructure('mobile_hoja_de_ruta').then(function(existsStructure){
-    //        if(existsStructure){
-    //            return my.ldb.isEmpty('mobile_hoja_de_ruta').then(function(isEmptyLocalDatabase){
-    //                var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
-    //                if(isEmptyLocalDatabase || vaciado){
-    //                    mainLayout.appendChild(html.p('El D.M. está vacío.').create());
-    //                }else{
-    //                    var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
-    //                    var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
-    //                    var inputForzar = html.input({class:'input-forzar'}).create();
-    //                    if(!fueDescargadoAntes){
-    //                        mainLayout.appendChild(html.div([
-    //                            html.div({class:'danger'},'El dispositivo todavía no fue descargado'),
-    //                            html.div(['Se puede forzar el vaciado ',inputForzar])
-    //                        ]).create());
-    //                    }
-    //                    mainLayout.appendChild(clearButton);
-    //                    clearButton.onclick = function(){
-    //                        if(fueDescargadoAntes || inputForzar.value=='forzar'){
-    //                            confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton}).then(function(){
-    //                                clearButton.disabled=true;
-    //                                localStorage.setItem('vaciado',JSON.stringify(true));
-    //                            }).then(function(){
-    //                                mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
-    //                            });
-    //                        }else{
-    //                            alertPromise('si necesita vaciar el D.M. puede forzar.',{underElement:clearButton})
-    //                        }
-    //                    }
-    //                }
-    //            });
-    //        }else{
-    //            mainLayout.appendChild(html.p('No existe la tabla mobile_hoja_de_ruta. Por favor reinstale el dispositivo').create());
-    //        }
-    //    })
-    //}else{
-    //    mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
-    //}
+    var mainLayout = document.getElementById('main_layout')!;
+    var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
+    var ipad = localStorage.getItem('ipad') || null;
+    var encuestador = localStorage.getItem('encuestador') || null;
+    if(tokenInstalacion && ipad && encuestador){
+        var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
+        if(vaciado){
+            mainLayout.appendChild(html.p('El D.M. está vacío.').create());
+        }else{
+            var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
+            var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
+            var inputForzar = html.input({class:'input-forzar'}).create();
+            if(!fueDescargadoAntes){
+                mainLayout.appendChild(html.div([
+                    html.div({class:'danger'},'El dispositivo todavía no fue descargado'),
+                    html.div(['Se puede forzar el vaciado ',inputForzar])
+                ]).create());
+            }
+            mainLayout.appendChild(clearButton);
+            clearButton.onclick = async function(){
+                if(fueDescargadoAntes || inputForzar.value=='forzar'){
+                    var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton});
+                    if(confirma){
+                        clearButton.disabled=true;
+                        localStorage.setItem('vaciado',JSON.stringify(true));
+                        mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
+                    };
+                }else{
+                    alertPromise('si necesita vaciar el D.M. puede forzar.',{underElement:clearButton})
+                }
+            }
+        }
+    }else{
+        mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
+    }
 };
 
 myOwn.wScreens.preparar_instalacion2={

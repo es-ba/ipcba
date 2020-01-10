@@ -1349,12 +1349,13 @@ myOwn.clientSides.prepararDM={
                 periodo: depot.row.periodo,
                 panel: depot.row.panel,
                 tarea: depot.row.tarea,
-                sincronizar: true
+                encuestador: depot.row.encuestador,
+                demo: false
             }).then(function(result){
                 boton.disabled=false;
                 waitGif.style.display = 'none';
                 if(result.tieneprecioscargados){
-                    alertPromise('La hoja de ruta tiene precios cargados')
+                    alertPromise('La hoja de ruta que preparó tiene precios cargados')
                 }
                 depot.rowControls.vencimiento_sincronizacion.setTypedValue(result.vencimientoSincronizacion, true);
             }).catch(function(err){
@@ -1780,16 +1781,14 @@ appCache.addEventListener('downloading', function(e) {
     
 }, false);
 appCache.addEventListener('error', function(e) {
-    if(appCache.status!=1){
-        console.log('error al descargar cache')
-        awaitForCacheLayout.then(function(layout){
-            document.getElementById('app-status');
-            layout.insertBefore(
-                html.p({id:'cache-status', class:'danger'},'error al descargar la aplicación').create(), 
-                layout.firstChild
-            );
-        })
-    }
+    console.log('error al descargar cache')
+    awaitForCacheLayout.then(function(layout){
+        document.getElementById('app-status');
+        layout.insertBefore(
+            html.p({id:'cache-status', class:'danger'},'error al descargar la aplicación').create(), 
+            layout.firstChild
+        );
+    })
 }, false);
 
 function cacheReady(){

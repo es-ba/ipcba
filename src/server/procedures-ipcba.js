@@ -13,6 +13,8 @@ var MiniTools = require('mini-tools');
 //var Tedede = require('./tedede2');
 
 var bestGlobals = require('best-globals');
+var http = require('http');
+
 var datetime = bestGlobals.datetime;
 var timeInterval = bestGlobals.timeInterval;
 
@@ -1150,35 +1152,17 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'dm2_preparar',
+        action:'dm2_archivospreparar',
         parameters:[
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
             {name:'panel'             , typeName:'integer' },
-            {name:'tarea'             , typeName:'integer' },
-            {name:'sincronizar'       , typeName:'boolean' },
+            {name:'tarea'             , typeName:'integer' }
         ],
         policy:'web',
+        unlogged: true,
         coreFunction: async function(context, parameters){
             var be = context.be;
-            var fileResult;
-            if(SOLO_PARA_DEMO_DM){
-                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
-            }
             try{
-                await context.client.query(
-                    `update relvis
-                        set preciosgenerados = true
-                        where periodo = $1 and panel = $2 and tarea = $3`
-                    ,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).execute();
-                var hojaDeRutaConPrecios = await context.client.query(
-                    `SELECT count(*) > 0 as tieneprecioscargados
-                        FROM relvis
-                        WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND razon IS NOT NULL`
-                    ,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).fetchUniqueValue();
                 var sqlEstructura=`
                   SELECT 
                         ${jsono(`
@@ -1350,46 +1334,39 @@ ProceduresIpcba = [
                 `;
                 var estructura;
                 var hdr;
-                if(SOLO_PARA_DEMO_DM){
-                    estructura = fileResult.estructura;
-                    hdr = fileResult.hdr;
-                }else{
-                    var resultEstructura = await context.client.query(
-                        sqlEstructura,
-                        [parameters.periodo, parameters.panel, parameters.tarea]
-                    ).fetchOneRowIfExists();
-                    var resultHdR = await context.client.query(
-                        sqlHdR,
-                        [parameters.periodo, parameters.panel, parameters.tarea]
-                    ).fetchOneRowIfExists();
-                    estructura = resultEstructura.row;
-                    hdr = resultHdR.row;
-                    if(estructura){
-                        likeAr(estructura.productos).forEach(p=>{
-                            p.lista_atributos = p.x_atributos.map(a=>a.atributo);
-                            p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
-                            likeAr(p.atributos).forEach(a=>{
-                                // if(a.x_prodatrval==null){
-                                //     a.x_prodatrval=[];
-                                // }
-                                a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
-                                a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
-                                delete p.x_prodatrval;
-                            });
-                            delete p.x_atributos;
+                
+                var resultEstructura = await context.client.query(
+                    sqlEstructura,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchOneRowIfExists();
+                var resultHdR = await context.client.query(
+                    sqlHdR,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchOneRowIfExists();
+                estructura = resultEstructura.row;
+                hdr = resultHdR.row;
+                if(estructura){
+                    likeAr(estructura.productos).forEach(p=>{
+                        p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                        p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                        likeAr(p.atributos).forEach(a=>{
+                            // if(a.x_prodatrval==null){
+                            //     a.x_prodatrval=[];
+                            // }
+                            a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                            a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                            delete p.x_prodatrval;
                         });
-                        likeAr(estructura.formularios).forEach(f=>{
-                            f.lista_productos = f.x_productos.map(p=>p.producto);
-                            f.productos = likeAr.createIndex(f.x_productos, 'producto');
-                            delete f.x_productos;
-                        });
-                        estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
-                        estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
-                    }
+                        delete p.x_atributos;
+                    });
+                    likeAr(estructura.formularios).forEach(f=>{
+                        f.lista_productos = f.x_productos.map(p=>p.producto);
+                        f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                        delete f.x_productos;
+                    });
+                    estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+                    estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
                 }
-
-                //habilito sincronizacion
-                var {vencimientoSincronizacion} = parameters.sincronizar?await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters):{vencimientoSincronizacion:null};
 
                 //genero archivos
                 const PATH = 'dist/client/carga-dm/';
@@ -1436,6 +1413,7 @@ CACHE:
 ../lib/typed-controls.js
 ../lib/ajax-best-promise.js
 ../my-ajax.js
+../my-start.js
 ../lib/my-localdb.js
 ../lib/my-websqldb.js
 ../lib/my-localdb.js.map
@@ -1447,6 +1425,7 @@ CACHE:
 ../lib/my-skin.js
 ../lib/cliente-en-castellano.js
 ../client/client.js
+../client/menu.js
 ../client/hoja-de-ruta.js
 ../client/hoja-de-ruta-react.js
 ${ESTRUCTURA_FILENAME}
@@ -1458,16 +1437,69 @@ ${HDR_FILENAME}
 ../css/my-things.css
 ../css/my-tables.css
 ../css/my-menu.css
+../css/menu.css
+../css/offline-mode.css
+../css/hoja-de-ruta.css
 ../default/css/my-things.css
 ../default/css/my-tables.css
 ../default/css/my-menu.css
-../css/hoja-de-ruta.css
 ../css/ejemplo-precios.css
 ../default/css/ejemplo-precios.css
+
+#------------------------------ IMAGES ---------------------------------
+../img/logo.png
+../img/main-loading.gif
 
 NETWORK:
 *`
                 await fs.writeFile(PATH + MANIFEST_FILENAME, manifest);
+
+                //resultado
+                return {status: 'ok', estructura, hdr}
+            }catch(err){
+                throw err
+            }
+        }
+    },
+    {
+        action:'dm2_preparar',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+            {name:'encuestador'       , typeName:'text'    },
+            {name:'demo'              , typeName:'boolean' },
+        ],
+        policy:'web',
+        coreFunction: async function(context, parameters){
+            var be = context.be;
+            var fileResult;
+            if(SOLO_PARA_DEMO_DM){
+                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+            }
+            try{
+                await context.client.query(
+                    `update relvis
+                        set preciosgenerados = true
+                        where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).execute();
+                var hojaDeRutaConPrecios = await context.client.query(
+                    `SELECT count(*) > 0 as tieneprecioscargados
+                        FROM relvis
+                        WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND razon IS NOT NULL`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchUniqueValue();
+                //creo archivos y traigo hdr
+                if(parameters.demo){
+                    var {estructura, hdr} = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters)
+                }else{
+                    var {estructura, hdr} = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters);
+                }
+                //habilito sincronizacion
+                var {vencimientoSincronizacion} = parameters.demo?{vencimientoSincronizacion:null}:await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters);
 
                 //resultado
                 return {status: 'ok', vencimientoSincronizacion, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value}
@@ -1490,6 +1522,100 @@ NETWORK:
                 'utf8'
             );
             return JSON4all.parse(content);
+        }
+    },
+    {
+        action: 'dm2_descargar',
+        parameters:[
+            {name:'token_instalacion'  , typeName:'text' },
+            {name:'hoja_de_ruta'       , typeName:'jsonb' },
+            {name:'encuestador'        , typeName:'text' },
+        ],
+        policy:'web',
+        coreFunction:async function(context, params){
+            var token = params.token_instalacion;
+            try{
+                var idInstalacion = await context.client.query(
+                    `select id_instalacion from instalaciones where token_instalacion = $1`,
+                    [token]
+                ).fetchUniqueValue();
+                var result = await context.client.query(
+                    `update reltar
+                        set descargado = current_timestamp, vencimiento_sincronizacion = null
+                        where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
+                        returning *`
+                ,[idInstalacion.value]).fetchAll();
+                var tiposDePrecio = await context.client.query(
+                    `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
+                ,[]).fetchAll();
+                tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
+                if(result.rowCount){
+                    var hoja_de_ruta = params.hoja_de_ruta;
+                    for(var informante of hoja_de_ruta.informantes){
+                        for(var formulario of informante.formularios){
+                            try{
+                                await context.client.query(`
+                                    update relvis
+                                        set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
+                                        where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada`
+                                ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, formulario.comentarios, context.user.usu_usu]).execute()
+                            }catch(err){
+                                throw new Error('Error al actualizar razón para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
+                            }
+                        };
+                        for(var observacion of informante.observaciones){
+                            try{
+                                observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
+                                await context.client.query(`
+                                    update relpre
+                                        set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
+                                        where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada`
+                                ,[
+                                    observacion.tipoprecio, 
+                                    observacion.precio, 
+                                    observacion.cambio,
+                                    observacion.periodo, 
+                                    observacion.informante, 
+                                    observacion.visita, 
+                                    observacion.producto, 
+                                    observacion.observacion,
+                                    observacion.comentariosrelpre
+                                ]).execute()
+                            }catch(err){
+                                throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                            }
+                            for(var atributo of observacion.atributos){
+                                //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
+                                if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo/* && atributo.valor*/){
+                                    try{
+                                        await context.client.query(`
+                                            update relatr
+                                                set valor = $1
+                                                where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada`
+                                        ,[
+                                            atributo.valor?atributo.valor.toString().trim().toUpperCase():null, 
+                                            atributo.periodo, 
+                                            atributo.informante, 
+                                            atributo.visita, 
+                                            atributo.producto, 
+                                            atributo.observacion,
+                                            atributo.atributo
+                                        ]).execute()
+                                    }catch(err){
+                                        throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                    }
+                                }
+                            }
+                        }
+                    };              
+                    return 'descarga completa';
+                }else{
+                    return 'sincronizacion deshabilitada o vencida para el encuestador ' + params.encuestador
+                }
+            }catch(err){
+                console.log('ERROR',err.message);
+                throw err;
+            }
         }
     },
 ];

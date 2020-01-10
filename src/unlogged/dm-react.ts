@@ -308,9 +308,9 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
     }else{
         //DEMO
         result = await my.ajax.dm2_preparar({
-            periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
-            //periodo: 'a2019m08', panel: 3, tarea: 6
-            //periodo: 'a2019m11', panel: 3, tarea: 6
+            //periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
+            //periodo: 'a2019m08', panel: 3, tarea: 6, sincronizar: false
+            periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, demo: true
         })
         estructura = result.estructura;
         if(result.hdr){
@@ -330,11 +330,22 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
             var content:HojaDeRuta = JSON4all.parse(contentJson);
             content.opciones = content.opciones || getDefaultOptions();
             content.informantes.forEach(
-                (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=>observacion.adv = controlarPrecio(observacion, estructura).tieneAdv)
+                (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
+                    observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;
+                    observacion.cambio = calcularCambioAtributosEnPrecio(observacion);
+
+                })
             )
             return content;
         }else{
             initialState.opciones = initialState.opciones||getDefaultOptions();
+            initialState.informantes.forEach(
+                (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
+                    observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;
+                    observacion.cambio = calcularCambioAtributosEnPrecio(observacion);
+
+                })
+            )
             return initialState;
         }
     }
