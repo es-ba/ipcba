@@ -20,6 +20,8 @@ module.exports = function(context){
             {name:'recepcionista'                ,typeName:'text'   },
             {name:'precionormalizado'            ,typeName:'decimal'},
             {name:'cantprecios'                  ,title:'cantperiodosconigualprecio',typeName:'integer'},
+            {name:'tipoprecio'                   ,typeName:'text'   }, 
+            {name:'comentariosrelpre'            ,typeName:'text'   }
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
         sql:{

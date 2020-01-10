@@ -22,7 +22,7 @@ BEGIN
                    END,
                    CASE WHEN max(de.divisionespecial)<>min(de.divisionespecial) -- <> implica not null para ambos. 
                             THEN 'ERROR' -- ESTO NO APARECE SE FILTRA EN EL HAVING y se inserta el error ahí.
-                        WHEN r.tipoprecio = 'I' THEN 'IRM' --Imputacion Registrada Manualmente
+                        WHEN COUNT(case when r.tipoprecio = 'I' then 1 else null end) = 1 THEN 'IRM' --Imputacion Registrada Manualmente
                         WHEN max(de.divisionespecial) IS NOT NULL THEN 'RA' 
                         ELSE 'R' 
                    END, 
@@ -56,7 +56,7 @@ BEGIN
                   AND (c.periodo <=cbo.periodo_anterior_baja or cbo.periodo_anterior_baja is null)
                   ) 
               )
-       GROUP BY r.periodo, pcalculo, r.producto, r.informante, r.observacion, v.es_vigencia, pd.division, i.muestra, pd.sindividir, r.tipoprecio
+       GROUP BY r.periodo, pcalculo, r.producto, r.informante, r.observacion, v.es_vigencia, pd.division, i.muestra, pd.sindividir
        HAVING
             CASE WHEN max(de.divisionespecial)<>min(de.divisionespecial) 
                THEN Cal_Mensajes(r.Periodo, pCalculo, 'CalObs_promedio', pTipo:='error', 

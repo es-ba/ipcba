@@ -656,6 +656,7 @@ my.wScreens.controles_formulario={
             {table:'control_rangos', abr:'RAN', label:'Control de rangos de precios', fields:['periodo','informante','visita','formulario']},
             {table:'controlvigencias', abr:'VIG', label:'Control de atributo vigencia', fields:['periodo','informante']},
             {table:'control_diccionario_atributos', abr:'DIC', label:'Control de diccionario de atributos', fields:['periodo','informante','visita','formulario']},
+            {table:'control_verificar_precio', abr:'CVP', label:'Control para verificar precio', fields:['periodo','informante','visita','formulario']},
         ];
         return Promise.all(detailTables.map(function(det){
             var divGrilla=html.div().create();
