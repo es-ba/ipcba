@@ -59,7 +59,9 @@ IF OLD.ingresando IS DISTINCT FROM NEW.ingresando THEN
       NEW.fecha_cierre_ingreso=CURRENT_TIMESTAMP(3);
       /*Blanquear el vencimiento_sincronizacion al cerrar el periodo*/
       UPDATE cvp.reltar SET vencimiento_sincronizacion = null
-      WHERE periodo = NEW.periodo AND vencimiento_sincronizacion IS NOT NULL;      
+          WHERE periodo = NEW.periodo AND vencimiento_sincronizacion IS NOT NULL;      
+      UPDATE cvp.reltar SET vencimiento_sincronizacion2 = null
+          WHERE periodo = NEW.periodo AND vencimiento_sincronizacion2 IS NOT NULL;      
   ELSIF NEW.ingresando='S'  AND vescoordinacion=1 THEN -- abrir
       SELECT  abierto INTO vabierto
       FROM cvp.calculos

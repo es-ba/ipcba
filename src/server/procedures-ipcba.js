@@ -754,6 +754,40 @@ ProceduresIpcba = [
         }
     },
     {
+        action: 'hojaderuta_traer2',
+        parameters:[
+            {name:'token_instalacion'   , typeName:'text'},
+        ],
+        policy:'web',
+        coreFunction:async function(context, parameters){
+            var now = datetime.now();
+            try{
+                var persona = await context.client.query(
+                    `select *
+                        from personal 
+                        where id_instalacion = (select id_instalacion from instalaciones where token_instalacion = $1)`
+                    ,
+                    [parameters.token_instalacion]
+                ).fetchUniqueRow();
+                var result = await context.client.query(
+                    `select r.*, i.id_instalacion, i.ipad, i.encuestador as encuestador_instalacion, p.nombre, p.apellido
+                        from reltar r
+                        left join instalaciones i using (id_instalacion)
+                        left join personal p on p.persona = i.encuestador
+                        where r.encuestador = $1 and 
+                              vencimiento_sincronizacion2 is not null and 
+                              vencimiento_sincronizacion2 > current_timestamp`
+                    ,
+                    [persona.row.persona]
+                ).fetchUniqueRow();
+                return result.row;
+            }catch(err){
+                console.log('ERROR',err.message);
+                throw err;
+            }
+        }
+    },
+    {
         action:'tareamodoavion_crear',
         parameters:[
             {name:'periodo'             , typeName:'text', references:'periodos'},
@@ -857,6 +891,39 @@ ProceduresIpcba = [
                     [parameters.periodo, parameters.panel, parameters.tarea, tokenDueDate]
                 ).execute();
                 return {status: 'ok', vencimientoSincronizacion: tokenDueDate}
+            }catch(err){
+                console.log('ERROR',err.message);
+                throw err;
+            }
+        }
+    },
+    {
+        action: 'sincronizacion_habilitar2',
+        parameters:[
+            {name:'periodo'      , typeName:'text', references:'periodos'},
+            {name:'panel'        , typeName:'integer'                    },
+            {name:'tarea'        , typeName:'integer'                    },
+            {name:'encuestador'  , typeName:'text'                       },
+        ],
+        coreFunction:async function(context, parameters){
+            var now = datetime.now();
+            var tokenDueDate = now.add({hours:1});
+            try{
+                await context.client.query(
+                    `update reltar
+                        set vencimiento_sincronizacion2 = null
+                        where encuestador = $1 and vencimiento_sincronizacion2 is not null`
+                    ,
+                    [parameters.encuestador]
+                ).execute();
+                var dueDate = await context.client.query(
+                    `update reltar
+                        set vencimiento_sincronizacion2 = $4
+                        where periodo = $1 and panel = $2 and tarea = $3`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea, tokenDueDate]
+                ).execute();
+                return {status: 'ok', vencimientoSincronizacion2: tokenDueDate}
             }catch(err){
                 console.log('ERROR',err.message);
                 throw err;
@@ -1450,6 +1517,9 @@ ${HDR_FILENAME}
 ../img/logo.png
 ../img/main-loading.gif
 
+FALLBACK:
+../menu ../hdr?per=${parameters.periodo}&pan=${parameters.panel}&tar=${parameters.tarea}
+
 NETWORK:
 *`
                 await fs.writeFile(PATH + MANIFEST_FILENAME, manifest);
@@ -1475,7 +1545,7 @@ NETWORK:
             var be = context.be;
             var fileResult;
             if(SOLO_PARA_DEMO_DM){
-                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+                fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
             }
             try{
                 await context.client.query(
@@ -1499,10 +1569,10 @@ NETWORK:
                     var {estructura, hdr} = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters);
                 }
                 //habilito sincronizacion
-                var {vencimientoSincronizacion} = parameters.demo?{vencimientoSincronizacion:null}:await be.procedure.sincronizacion_habilitar.coreFunction(context,parameters);
+                var {vencimientoSincronizacion2} = parameters.demo?{vencimientoSincronizacion2:null}:await be.procedure.sincronizacion_habilitar2.coreFunction(context,parameters);
 
                 //resultado
-                return {status: 'ok', vencimientoSincronizacion, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value}
+                return {status: 'ok', vencimientoSincronizacion2, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value}
             }catch(err){
                 throw err
             }
@@ -1541,8 +1611,8 @@ NETWORK:
                 ).fetchUniqueValue();
                 var result = await context.client.query(
                     `update reltar
-                        set descargado = current_timestamp, vencimiento_sincronizacion = null
-                        where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
+                        set descargado = current_timestamp, vencimiento_sincronizacion2 = null
+                        where id_instalacion = $1 and vencimiento_sincronizacion2 > current_timestamp
                         returning *`
                 ,[idInstalacion.value]).fetchAll();
                 var tiposDePrecio = await context.client.query(

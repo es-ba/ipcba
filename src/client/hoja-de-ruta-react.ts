@@ -16,7 +16,7 @@ function hayHojaDeRuta(){
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     var mainLayout = document.getElementById('main_layout')!;
     try{
-        var reltarHabilitada = await my.ajax.hojaderuta_traer({
+        var reltarHabilitada = await my.ajax.hojaderuta_traer2({
             token_instalacion: tokenInstalacion
         })
     }catch(err){
