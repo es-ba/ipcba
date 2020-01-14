@@ -362,7 +362,6 @@ class AppIpcba extends backendPlus.AppBackend{
         ].forEach(function(def){
             be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
                 var client = await be.getDbClient(req);
-                console.log('client', client)
                 try{
                     const {value} = await client.query(`
                         SELECT ${be.db.quoteIdent(def.fieldName)}

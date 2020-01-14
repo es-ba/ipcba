@@ -9,8 +9,8 @@ function getVersionSistema(){
 }
 
 function hayHojaDeRuta(){
-    return localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('vaciado') !==null && !(JSON.parse(localStorage.getItem('vaciado'))) ||
-        localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('vaciado') ===null
+    return localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('ipc2.0-vaciado') !==null && !(JSON.parse(localStorage.getItem('ipc2.0-vaciado'))) ||
+        localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('ipc2.0-vaciado') ===null
 }
 
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
@@ -50,8 +50,8 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         });
         localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-        localStorage.setItem('descargado',JSON.stringify(false));
-        localStorage.setItem('vaciado',JSON.stringify(false));
+        localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
+        localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
         myOwn.wScreens.hoja_ruta_2();
     }
     if(hojaDeRutaEnOtroDispositivo){
@@ -100,34 +100,39 @@ async function descargarDispositivo2(tokenInstalacion: string, encuestador: stri
     });
     waitGif.style.display = 'none';
     if(message=='descarga completa'){
-        localStorage.setItem('descargado',JSON.stringify(true));
+        localStorage.setItem('ipc2.0-descargado',JSON.stringify(true));
     }
     mainLayout.appendChild(html.p(message).create());
 }
 
 myOwn.wScreens.sincronizar_dm2=function(){
     var mainLayout = document.getElementById('main_layout')!;
-    var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
-    var ipad = localStorage.getItem('ipad') || null;
-    var encuestador = localStorage.getItem('encuestador') || null;
+    var tokenInstalacion = localStorage.getItem('ipc2.0-token_instalacion') || null;
+    var ipad = localStorage.getItem('ipc2.0-ipad') || null;
+    var encuestador = localStorage.getItem('ipc2.0-encuestador') || null;
     if(tokenInstalacion && ipad && encuestador){
-        if(hayHojaDeRuta()){
+        if(hayHojaDeRuta() && (localStorage.getItem('ipc2.0-descargado') == null || localStorage.getItem('ipc2.0-descargado') == 'false')){
             mainLayout.appendChild(html.p('El dispositivo tiene información cargada').create());
             var downloadButton = html.button({class:'download-ipad-button'},'descargar').create();
             mainLayout.appendChild(downloadButton);
             downloadButton.onclick = function(){
-                confirmPromise('¿confirma descarga de D.M.?').then(function(){
+                confirmPromise('¿confirma descarga de D.M.?').then(async function(){
                     downloadButton.disabled=true;
-                    descargarDispositivo2(tokenInstalacion, encuestador).then(function(){
-                        downloadButton.disabled=false;
-                    },function(err){
+                    try{
+                        await descargarDispositivo2(tokenInstalacion, encuestador);
+                    }catch(err){
                         alertPromise(err.message);
+                    }finally{
                         downloadButton.disabled=false;
-                    })
+                    }
                 })
             }
         }else{
-            mainLayout.appendChild(html.p('El dispositivo no tiene hoja de ruta cargada').create());
+            mainLayout.appendChild(html.p(
+                hayHojaDeRuta()
+                ?'el dispositivo tiene su hoja de ruta ya descargada'
+                :'El dispositivo no tiene hoja de ruta cargada'
+            ).create());
             var loadButton = html.button({class:'load-ipad-button'},'cargar').create();
             mainLayout.appendChild(loadButton);
             loadButton.onclick = async function(){
@@ -163,16 +168,16 @@ myOwn.wScreens.hoja_ruta_2=function(){
 
 myOwn.wScreens.vaciar_dm2=function(){
     var mainLayout = document.getElementById('main_layout')!;
-    var tokenInstalacion = localStorage.getItem('token_instalacion') || null;
-    var ipad = localStorage.getItem('ipad') || null;
-    var encuestador = localStorage.getItem('encuestador') || null;
+    var tokenInstalacion = localStorage.getItem('ipc2.0-token_instalacion') || null;
+    var ipad = localStorage.getItem('ipc2.0-ipad') || null;
+    var encuestador = localStorage.getItem('ipc2.0-encuestador') || null;
     if(tokenInstalacion && ipad && encuestador){
-        var vaciado = JSON.parse(localStorage.getItem('vaciado')||'false');
+        var vaciado = JSON.parse(localStorage.getItem('ipc2.0-vaciado')||'false');
         if(vaciado){
             mainLayout.appendChild(html.p('El D.M. está vacío.').create());
         }else{
             var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
-            var fueDescargadoAntes = JSON.parse(localStorage.getItem('descargado')||'false');
+            var fueDescargadoAntes = JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false');
             var inputForzar = html.input({class:'input-forzar'}).create();
             if(!fueDescargadoAntes){
                 mainLayout.appendChild(html.div([
@@ -186,7 +191,7 @@ myOwn.wScreens.vaciar_dm2=function(){
                     var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton});
                     if(confirma){
                         clearButton.disabled=true;
-                        localStorage.setItem('vaciado',JSON.stringify(true));
+                        localStorage.setItem('ipc2.0-vaciado',JSON.stringify(true));
                         mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
                     };
                 }else{
@@ -291,16 +296,16 @@ function install2(numeroEncuestador, numeroIpad, divResult){
     return my.ajax.instalacion_crear({
         numero_encuestador: numeroEncuestador,
         numero_ipad: numeroIpad,
-        token_original: localStorage.getItem('token_instalacion'),
+        token_original: localStorage.getItem('ipc2.0-token_instalacion'),
         version_sistema: getVersionSistema()
     }).then(function(token){
-        localStorage.setItem('id_instalacion', token.id_instalacion);
-        localStorage.setItem('token_instalacion', token.token_instalacion);
-        localStorage.setItem('fecha_hora_instalacion', token.fecha_hora.toYmdHms());
-        localStorage.setItem('encuestador', token.encuestador);
-        localStorage.setItem('ipad', token.ipad);
-        localStorage.removeItem('descargado');
-        localStorage.removeItem('vaciado');
+        localStorage.setItem('ipc2.0-id_instalacion', token.id_instalacion);
+        localStorage.setItem('ipc2.0-token_instalacion', token.token_instalacion);
+        localStorage.setItem('ipc2.0-fecha_hora_instalacion', token.fecha_hora.toYmdHms());
+        localStorage.setItem('ipc2.0-encuestador', token.encuestador);
+        localStorage.setItem('ipc2.0-ipad', token.ipad);
+        localStorage.removeItem('ipc2.0-descargado');
+        localStorage.removeItem('ipc2.0-vaciado');
         localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
         divResult.appendChild(html.p('instalacion finalizada! Ya puede sincronizar el dispositivo.').create());
         waitGif.style.display = 'none';

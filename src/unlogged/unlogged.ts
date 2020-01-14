@@ -55,7 +55,7 @@ async function cacheReady(){
         url:`carga-dm/${periodo}p${panel}t${tarea}_manifest.manifest`,
         data:{}
     });
-    localStorage.setItem('app-cache-version',result.split('\n')[1]);
+    localStorage.setItem('ipc2.0-app-cache-version',result.split('\n')[1]);
     setTimeout(function(){
         var cacheStatusElement = document.getElementById('cache-status');
         if(!cacheStatusElement){

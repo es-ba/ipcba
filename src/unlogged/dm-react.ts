@@ -7,7 +7,7 @@ import * as JSON4all from "json4all";
 
 var my=myOwn;
 
-export const LOCAL_STORAGE_STATE_NAME = 'dm-store-v11';
+export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
 
 /* REDUCERS */
 

@@ -1030,6 +1030,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
+    const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
 
   return (
     <div id="formulario-visita" className="menu-informante-visita">
@@ -1040,7 +1041,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     [classes.appBarShift]: open,
                 })}
             >
-                <Toolbar>
+                <Toolbar style={toolbarStyle}>
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
@@ -1293,7 +1294,7 @@ function PantallaHojaDeRuta(_props:{}){
     const classes = useStylesTable();
     const classesButton = useStylesButton();
     const dispatch = useDispatch();
-    const appVersion = localStorage.getItem('app-cache-version');
+    const appVersion = localStorage.getItem('ipc2.0-app-cache-version');
     const stylesTableHeader = {fontSize: "1.3rem"}
     const updateOnlineStatus = function(){
         setOnline(window.navigator.onLine);
@@ -1301,10 +1302,11 @@ function PantallaHojaDeRuta(_props:{}){
     const [online, setOnline] = useState(window.navigator.onLine);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
+    const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
     return (
         <>
             <AppBar position="fixed">
-                <Toolbar>
+                <Toolbar style={toolbarStyle} >
                     <Typography variant="h6">
                         Hoja de ruta - {appVersion}
                     </Typography>
