@@ -1302,7 +1302,10 @@ ProceduresIpcba = [
                     WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
                 `;
                 var sqlAtributos=`
-                    SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ra.valor, ra_1.valor as valoranterior, pa.orden
+                    SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
+                            case when rp.tipoprecio is null then null else ra.valor end as valor, 
+                            ra_1.valor as valoranterior, 
+                            pa.orden
                         FROM relatr ra 
                             INNER JOIN relatr ra_1 
                                 ON ra_1.periodo = rp.periodo_1
