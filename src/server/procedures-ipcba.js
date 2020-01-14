@@ -1513,7 +1513,7 @@ NETWORK:
                     [
                         manifest,
                         "var structFromManifest=" + JSON.stringify(estructura),
-                        JSON.stringify(hdr),
+                        JSON4all.stringify(hdr),
                         parameters.periodo,
                         parameters.panel,
                         parameters.tarea,
@@ -1582,10 +1582,12 @@ NETWORK:
             {name:'tarea'             , typeName:'integer' },
         ],
         coreFunction: async function(context, parameters){
-            var content = await fs.readFile(
-                `dist/client/carga-dm/${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`,
-                'utf8'
-            );
+            var {value: content} = await context.client.query(
+                `SELECT archivo_hdr
+                    FROM reltar
+                    WHERE periodo = $1 AND panel = $2 AND tarea = $3`,
+                [parameters.periodo, parameters.panel, parameters.tarea]
+            ).fetchUniqueValue();
             return JSON4all.parse(content);
         }
     },

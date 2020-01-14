@@ -341,7 +341,44 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveJson({status: 'err', message:'error al crear archivos. ' + err.message})(req,res);
             }
         });
+        //[
+        //    {sufix:`manifest.manifest`, fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
+        //    {sufix:`estructura.js`    , fieldName:'archivo_estructura', mimeType:'application/javascript'},
+        //    {sufix:`hdr.json`         , fieldName:'archivo_hdr'       , mimeType:'application/json'},
+        //].forEach(function(def){
+        //    mainApp.get(baseUrl+`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
+        //        next();
+        //    });
+        //});
         super.addSchrödingerServices(mainApp, baseUrl);
+    }
+    addLoggedServices(opts){
+        var be=this;
+        [
+            {sufix:`manifest.manifest`, fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
+            {sufix:`estructura.js`    , fieldName:'archivo_estructura', mimeType:'application/javascript'},
+            {sufix:`hdr.json`         , fieldName:'archivo_hdr'       , mimeType:'application/json'},
+
+        ].forEach(function(def){
+            be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
+                var client = await be.getDbClient(req);
+                console.log('client', client)
+                try{
+                    const {value} = await client.query(`
+                        SELECT ${be.db.quoteIdent(def.fieldName)}
+                            FROM reltar
+                            WHERE periodo = $1 AND panel = $2 AND tarea = $3
+                        `, [req.params.periodo, req.params.panel, req.params.tarea]
+                    ).fetchUniqueValue();
+                    MiniTools.serveText(value, def.mimeType)(req,res);
+                }catch(err){
+                    console.log(err);
+                    MiniTools.serveErr(req, res, next)(err);
+                }
+            })
+
+        });
+        super.addLoggedServices(opts);
     }
     getProcedures(){
         var be = this;
