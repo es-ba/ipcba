@@ -119,7 +119,6 @@ function enviar_a_procesar(params){
         estado:null,
         impresion:{validar:es_booleano}
     });
-    console.log("params ",params);
     /*
     var elemento_rta=elemento_existente('proceso_formulario_respuesta');
     if(!params.voy_por){
@@ -501,12 +500,6 @@ ProceduresIpcba = [
             var piehogar = previusResult.row.piehogar;
             var pie = previusResult.row.pie;
             var pie1 = previusResult.row.pie1;
-            /*
-            console.log('funcion_a_llamar ',funcion_a_llamar);
-            console.log('parametros_funcion ', parametros_funcion);
-            console.log('separador_decimal ',separador_decimal);
-            console.log('encabezado ',encabezado);
-            */
             return context.client.query(
                 `SELECT * FROM ${funcion_a_llamar}(${parametros_funcion},$1) resultado`,
                 [separador_decimal]
@@ -616,14 +609,12 @@ ProceduresIpcba = [
             };
             async function pasaje(esquema, configDb){
                 async function oriquery(query){
-                    console.log(query.substr(0,70).replace(/\n.*$/,''));
                     var result = await ori.query(query).fetchAll();
                     return result.rows;
                 }
                 async function bulkInsert(tableName, esquema, onerror){
                     context.informProgress({message:'copiando '+tableName});
                     var rows=data[tableName];
-                    console.log('INS:',tableName,(rows||{length:'ERROR, SIN DATOS'}).length)
                     return des.bulkInsert({
                         schema:esquema,
                         table:tableName,
@@ -715,7 +706,6 @@ ProceduresIpcba = [
                 context.informProgress({message:'PASAJE A LA APP'});
                 await pasaje('public', config.precios_app.destino); // OTRO SERVIDOR
             }
-            console.log('listo');
             return 'listo';
         }
     },
@@ -1225,10 +1215,8 @@ ProceduresIpcba = [
             {name:'panel'             , typeName:'integer' },
             {name:'tarea'             , typeName:'integer' }
         ],
-        policy:'web',
-        unlogged: true,
         coreFunction: async function(context, parameters){
-            var be = context.be;
+            var {be, client} = context;
             try{
                 var sqlEstructura=`
                   SELECT 
@@ -1438,8 +1426,6 @@ ProceduresIpcba = [
                 //genero archivos
                 const PATH = 'dist/client/';
                 const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
-                await fs.writeFile(PATH + estructuraPath, "var structFromManifest=" + JSON.stringify(estructura));
-                await fs.writeFile(PATH + hdrPath, JSON.stringify(hdr));
                 var manifest = 
 `CACHE MANIFEST
 #${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
@@ -1519,9 +1505,20 @@ FALLBACK:
 ../menu* ../hdr?periodo=${parameters.periodo}&panel=${parameters.panel}&tarea=${parameters.tarea}
 
 NETWORK:
-*`
-                await fs.writeFile(PATH + manifestPath, manifest);
-
+*`;
+                await client.query(`
+                    UPDATE reltar 
+                        SET archivo_manifiesto = $1, archivo_estructura = $2, archivo_hdr = $3
+                        WHERE periodo = $4 AND panel=$5 AND tarea = $6`,
+                    [
+                        manifest,
+                        "var structFromManifest=" + JSON.stringify(estructura),
+                        JSON.stringify(hdr),
+                        parameters.periodo,
+                        parameters.panel,
+                        parameters.tarea,
+                    ]
+                ).execute();
                 //resultado
                 return {status: 'ok', estructura, hdr}
             }catch(err){

@@ -63,7 +63,6 @@ function enviar_a_procesar(params){
         estado:null,
         impresion:{validar:es_booleano}
     });
-    console.log("params ",params);
     /*
     var elemento_rta=elemento_existente('proceso_formulario_respuesta');
     if(!params.voy_por){

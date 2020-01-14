@@ -28,6 +28,9 @@ module.exports = function(context){
             {name:'habilitar_sincronizacion'   , typeName:'text'     , editable:false            , clientSide:'habilitarSincronizacion'},
             {name:'preparar_dm'                , typeName:'text'     , editable:false            , visible: context.user.usu_rol.programador, clientSide:'prepararDM'},
             {name:'puntos'                     , typeName:'integer', allow:{update:false}        , visible:false                 },
+            {name:'archivo_manifiesto'         , typeName:'text'   , allow:{update:false}        , visible:false                 },
+            {name:'archivo_estructura'         , typeName:'text'   , allow:{update:false}        , visible:false                 },
+            {name:'archivo_hdr'                , typeName:'text'   , allow:{update:false}        , visible:false                 },
         ],
         primaryKey:['periodo','panel','tarea'],
         foreignKeys:[

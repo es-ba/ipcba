@@ -301,10 +301,7 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     getManifestPaths(parameters){
-        // console.log('xxxxxxxxx ver ', `${parameters.periodo}p${parameters.panel}t${parameters.tarea}`,parameters);
         const centralPart=`${parameters.periodo}p${parameters.panel}t${parameters.tarea}`;
-        // var centralPart2=`${parameters.periodo}p${parameters.panel}t${parameters.tarea}`;
-        // console.log(centralPart, centralPart2)        
         return {
             manifestPath: `carga-dm/${centralPart}_manifest.manifest`,
             estructuraPath: `carga-dm/${centralPart}_estructura.js`,
