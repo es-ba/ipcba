@@ -71,6 +71,7 @@ const FLECHAATRIBUTOS="➡";
 const PRIMARY_COLOR   ="#3f51b5";
 const SECONDARY_COLOR ="#f50057";
 const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
+const COLOR_PENDIENTES = "rgb(63, 81, 181)";
 var CHECK = '✓';
 
 type OnUpdate<T> = (data:T)=>void
@@ -1186,7 +1187,8 @@ const ConditionalWrapper = ({ condition, wrapper, children }) =>
 
 function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
-    const classes = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
+    const classesAdvertencia = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
+    const classesPendientes = useStylesBadge({backgroundColor: COLOR_PENDIENTES});
     const dispatch = useDispatch();
     const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
@@ -1205,18 +1207,21 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                 <ConditionalWrapper
                     condition={!mostrarColumnasFaltantesYAdvertencias}
                     wrapper={children => 
-                        <Badge style={{width:"calc(100% - 5px)"}} badgeContent={cantAdvertencias} 
-                            classes={{ badge: classes.badge }} className={classes.margin}>{children}
+                        <Badge style={{width:"calc(100% - 5px)"}} 
+                            badgeContent={cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)} 
+                            classes={{ badge: cantAdvertencias ? classesAdvertencia.badge : classesPendientes.badge}} 
+                            className={cantAdvertencias ? classesAdvertencia.margin : classesPendientes.margin}>{children}
                         </Badge>
                     }
                 >
                     <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
-                        className={"boton-ir-formulario"}   onClick={()=>{
+                        className={"boton-ir-formulario"}   
+                        onClick={()=>{
                             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                             dispatch(dispatchers.RESET_SEARCH({}));
                         }
                     }>
-                        {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} {(todoListo)?CHECK:null}
+                        {relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} {(!cantPendientes)?CHECK:null}
                     </Button>
                 </ConditionalWrapper>
             </TableCell>
