@@ -368,11 +368,11 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 ]},
                 
-                {menuType:'menu', name:'dm2', label:'D.M. v2', onlyVisibleFor:[programador], menuContent:[
-                    {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta 2', showInOfflineMode: true, onlyVisibleFor:[programador] },
-                    {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
-                    {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
-                    {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar 2', showInOfflineMode: false, onlyVisibleFor:[programador]},
+                {menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:[programador], menuContent:[
+                    {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true, onlyVisibleFor:[programador] },
+                    {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador]},
+                    {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:[programador]},
+                    {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalacion actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 

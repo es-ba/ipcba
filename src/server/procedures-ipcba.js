@@ -1518,7 +1518,7 @@ ${HDR_FILENAME}
 ../img/main-loading.gif
 
 FALLBACK:
-../menu ../hdr?per=${parameters.periodo}&pan=${parameters.panel}&tar=${parameters.tarea}
+../menu* ../hdr?per=${parameters.periodo}&pan=${parameters.panel}&tar=${parameters.tarea}
 
 NETWORK:
 *`
