@@ -1436,12 +1436,10 @@ ProceduresIpcba = [
                 }
 
                 //genero archivos
-                const PATH = 'dist/client/carga-dm/';
-                const MANIFEST_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_manifest.manifest`;
-                const ESTRUCTURA_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_estructura.js`;
-                const HDR_FILENAME = `${parameters.periodo}p${parameters.panel}t${parameters.tarea}_hdr.json`;
-                await fs.writeFile(PATH + ESTRUCTURA_FILENAME, "var structFromManifest=" + JSON.stringify(estructura));
-                await fs.writeFile(PATH + HDR_FILENAME, JSON.stringify(hdr));
+                const PATH = 'dist/client/';
+                const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
+                await fs.writeFile(PATH + estructuraPath, "var structFromManifest=" + JSON.stringify(estructura));
+                await fs.writeFile(PATH + hdrPath, JSON.stringify(hdr));
                 var manifest = 
 `CACHE MANIFEST
 #${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
@@ -1495,8 +1493,8 @@ CACHE:
 ../client/menu.js
 ../client/hoja-de-ruta.js
 ../client/hoja-de-ruta-react.js
-${ESTRUCTURA_FILENAME}
-${HDR_FILENAME}
+../${estructuraPath}
+../${hdrPath}
 
 #------------------------------ CSS ---------------------------------
 ../dialog-promise/dialog-promise.css
@@ -1518,11 +1516,11 @@ ${HDR_FILENAME}
 ../img/main-loading.gif
 
 FALLBACK:
-../menu* ../hdr?per=${parameters.periodo}&pan=${parameters.panel}&tar=${parameters.tarea}
+../menu* ../hdr?periodo=${parameters.periodo}&panel=${parameters.panel}&tarea=${parameters.tarea}
 
 NETWORK:
 *`
-                await fs.writeFile(PATH + MANIFEST_FILENAME, manifest);
+                await fs.writeFile(PATH + manifestPath, manifest);
 
                 //resultado
                 return {status: 'ok', estructura, hdr}

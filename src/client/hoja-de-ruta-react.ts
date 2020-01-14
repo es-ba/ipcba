@@ -151,7 +151,7 @@ myOwn.wScreens.hoja_ruta_2=function(){
     try{
         if(hayHojaDeRuta()){
             var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
-            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?per=${periodo}&pan=${panel}&tar=${tarea}`);
+            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
         }else{
             throw Error("No hay hoja de ruta cargada")

@@ -300,6 +300,17 @@ class AppIpcba extends backendPlus.AppBackend{
             res.end('echo');
         });
     }
+    getManifestPaths(parameters){
+        // console.log('xxxxxxxxx ver ', `${parameters.periodo}p${parameters.panel}t${parameters.tarea}`,parameters);
+        const centralPart=`${parameters.periodo}p${parameters.panel}t${parameters.tarea}`;
+        // var centralPart2=`${parameters.periodo}p${parameters.panel}t${parameters.tarea}`;
+        // console.log(centralPart, centralPart2)        
+        return {
+            manifestPath: `carga-dm/${centralPart}_manifest.manifest`,
+            estructuraPath: `carga-dm/${centralPart}_estructura.js`,
+            hdrPath: `carga-dm/${centralPart}_hdr.json`,
+        }        
+    }
     addSchrödingerServices(mainApp, baseUrl){
         var be=this;
         mainApp.get(baseUrl+'/demo',async function(req,res,_next){
@@ -312,12 +323,10 @@ class AppIpcba extends backendPlus.AppBackend{
             // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
             var {useragent, user} = req;
             var parameters = req.query;
-            var manifestPath = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_manifest.manifest`;
-            const ESTRUCTURA_FILENAME = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_estructura.js`;
-            const HDR_FILENAME = `carga-dm/${parameters.per}p${parameters.pan}t${parameters.tar}_hdr.json`;
+            const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
             var extraFiles = [
-                { type: 'js', src:ESTRUCTURA_FILENAME },
-                { type: 'js', src:HDR_FILENAME }
+                { type: 'js', src:estructuraPath },
+                { type: 'js', src:hdrPath }
             ];
             var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath: manifestPath, extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);

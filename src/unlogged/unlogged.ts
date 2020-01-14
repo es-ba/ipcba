@@ -14,9 +14,9 @@ window.addEventListener('load', async function(){
     await myOwn.ready;
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
     var url = new URL(window.location.href);
-    var periodo = url.searchParams.get("per");
-    var panel = url.searchParams.get("pan");
-    var tarea = url.searchParams.get("tar");
+    var periodo = url.searchParams.get("periodo");
+    var panel = url.searchParams.get("panel");
+    var tarea = url.searchParams.get("tarea");
     dmHojaDeRuta({periodo, panel, tarea});
 })
 
