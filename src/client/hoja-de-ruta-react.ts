@@ -20,8 +20,11 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             token_instalacion: tokenInstalacion
         })
     }catch(err){
-        var message = 'La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador + '. ' + err.message;
-        mainLayout.appendChild(html.p(message).create());
+        var m=html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador+ '. E:'+err.message).create();
+        mainLayout.appendChild(m);
+        m.onclick=function(){
+            mainLayout.appendChild(html.pre(err.stack.toString));
+        }
         throw new Error(message)
     }
     var periodo = reltarHabilitada.periodo;

@@ -413,6 +413,7 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     getManifestContent(parameters){
+        var be = this;
         if(parameters.periodo){
             var {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
         }
@@ -494,6 +495,7 @@ ${especifico}
 
 #------------------------------ IMAGES ---------------------------------
 ../img/logo.png
+../img/logo-dm.png
 ../img/main-loading.gif
 
 FALLBACK:
@@ -526,8 +528,7 @@ NETWORK:
                     {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:[programador]},
                     {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:[programador]},
                 ]},
-                {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalacion actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
-                
+                {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
         }
         var menuPrincipal = [

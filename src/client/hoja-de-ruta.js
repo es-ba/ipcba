@@ -1630,7 +1630,11 @@ function cargarDispositivo(tokenInstalacion, encuestador){
             })
         }
     }).catch(function(err){
-        mainLayout.appendChild(html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador).create());
+        var m=html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador+ '. e='+err.message).create();
+        mainLayout.appendChild(m);
+        m.onclick=function(){
+            mainLayout.appendChild(html.pre(err.stack.toString));
+        }
     })
 }
 
