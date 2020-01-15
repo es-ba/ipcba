@@ -413,6 +413,9 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     getManifestContent(parameters){
+        if(parameters.periodo){
+            var {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
+        }
         const especifico=parameters.periodo?`
 ../${estructuraPath}
 ../${hdrPath}
