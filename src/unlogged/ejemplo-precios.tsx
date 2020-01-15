@@ -1258,7 +1258,7 @@ function InformanteRow(props:{informante:RelInf}){
                             }
                         </TableRow>
                         {opciones.letraGrandeFormulario?
-                            <TableRow>
+                            <TableRow key={relVis.informante+'/'+relVis.formulario+'_letra_grande'}>
                                 <FormulariosCols informante={props.informante} relVis={relVis}/>
                             </TableRow>
                         :null}

@@ -3,8 +3,9 @@
 var Path = require('path');
 var backendPlus = require("backend-plus");
 var MiniTools = require('mini-tools');
+var uptime = new Date().toString();
 
-var changing = require('best-globals').changing;
+var {changing, datetime} = require('best-globals');
 
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
@@ -323,9 +324,20 @@ class AppIpcba extends backendPlus.AppBackend{
             const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
             var extraFiles = [
                 { type: 'js', src:estructuraPath },
-                { type: 'js', src:hdrPath }
+                // { type: 'js', src:hdrPath } no va, es un JSON
             ];
-            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath: manifestPath, extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath, extraFiles}).toHtmlDoc();
+            MiniTools.serveText(htmlMain,'html')(req,res);
+        });
+        mainApp.get(baseUrl+'/dm',async function(req,res,_next){
+            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var manifestPath = 'carga-dm/dm-manifest.manifest';
+            var {useragent, user} = req;
+            var parameters = req.query;
+            var extraFiles = [
+                // { type: 'js', src:'dm-main.js' },
+            ];
+            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.get(baseUrl+'/archivos/crear',async function(req,res,_next){
@@ -375,7 +387,15 @@ class AppIpcba extends backendPlus.AppBackend{
                     MiniTools.serveErr(req, res, next)(err);
                 }
             })
-
+        });
+        be.app.get(`/carga-dm/dm-manifest.manifest`, async function(req, res, next){
+            try{
+                const content = be.getManifestContent({});
+                MiniTools.serveText(content, 'text/cache-manifest')(req,res);
+            }catch(err){
+                console.log(err);
+                MiniTools.serveErr(req, res, next)(err);
+            }
         });
         super.addLoggedServices(opts);
     }
@@ -391,6 +411,94 @@ class AppIpcba extends backendPlus.AppBackend{
                 return procedureDef;
             });
         });
+    }
+    getManifestContent(parameters){
+        const especifico=parameters.periodo?`
+../${estructuraPath}
+../${hdrPath}
+../dm
+`:'';
+        const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}`:uptime;
+        return (
+`CACHE MANIFEST
+#${version}
+
+CACHE:
+#--------------------------- JS ------------------------------------
+../lib/react.development.js
+../lib/react-dom.development.js
+../lib/material-ui.development.js
+../lib/material-styles.development.js
+../lib/clsx.min.js
+../lib/redux.js
+../lib/react-redux.js
+../lib/require-bro.js
+../lib/like-ar.js
+../lib/best-globals.js
+../lib/json4all.js
+../lib/js-to-html.js
+../lib/redux-typed-reducer.js
+../adapt.js
+../dm-tipos.js
+../dm-funciones.js
+../dm-react.js
+../ejemplo-precios.js
+../unlogged.js
+../lib/js-yaml.js
+../lib/xlsx.core.min.js
+../lib/lazy-some.js
+../lib/sql-tools.js
+../dialog-promise/dialog-promise.js
+../moment/min/moment.js
+../pikaday/pikaday.js
+../lib/polyfills-bro.js
+../lib/big.js
+../lib/type-store.js
+../lib/typed-controls.js
+../lib/ajax-best-promise.js
+../my-ajax.js
+../my-start.js
+../lib/my-localdb.js
+../lib/my-websqldb.js
+../lib/my-localdb.js.map
+../lib/my-websqldb.js.map
+../lib/my-things.js
+../lib/my-tables.js
+../lib/my-inform-net-status.js
+../lib/my-menu.js
+../lib/my-skin.js
+../lib/cliente-en-castellano.js
+../client/client.js
+../client/menu.js
+../client/hoja-de-ruta.js
+../client/hoja-de-ruta-react.js
+${especifico}
+
+#------------------------------ CSS ---------------------------------
+../dialog-promise/dialog-promise.css
+../pikaday/pikaday.css
+../css/my-things.css
+../css/my-tables.css
+../css/my-menu.css
+../css/menu.css
+../css/offline-mode.css
+../css/hoja-de-ruta.css
+../default/css/my-things.css
+../default/css/my-tables.css
+../default/css/my-menu.css
+../css/ejemplo-precios.css
+../default/css/ejemplo-precios.css
+
+#------------------------------ IMAGES ---------------------------------
+../img/logo.png
+../img/main-loading.gif
+
+FALLBACK:
+../menu* ../dm
+
+NETWORK:
+*`
+        );
     }
     getMenu(context){
         var programador = {role:'programador'};
@@ -409,8 +517,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},    
                     {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 ]},
-                
-                {menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:[programador], menuContent:[
+                {menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], menuContent:[
                     {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true, onlyVisibleFor:[programador] },
                     {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador]},
                     {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:[programador]},

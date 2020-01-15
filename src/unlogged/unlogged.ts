@@ -14,10 +14,25 @@ window.addEventListener('load', async function(){
     await myOwn.ready;
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
     var url = new URL(window.location.href);
-    var periodo = url.searchParams.get("periodo");
-    var panel = url.searchParams.get("panel");
-    var tarea = url.searchParams.get("tarea");
-    dmHojaDeRuta({periodo, panel, tarea});
+    if(location.pathname.endsWith('/dm')){
+        if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
+            var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
+            location.reload();
+        }else{
+            layout.appendChild(html.div([
+                html.p('Dispositivo sin carga'), 
+                html.p('Sitio seguro para sacar el ícono'), 
+                html.img({src:'img/logo-dm.png'}),
+                html.p([html.a({href:'./menu#i=dm2,sincronizar_dm2'},'ir a sincronizar')])
+            ]).create());        
+        }
+    }else{
+        var periodo = url.searchParams.get("periodo");
+        var panel = url.searchParams.get("panel");
+        var tarea = url.searchParams.get("tarea");
+        dmHojaDeRuta({periodo, panel, tarea});
+    }
 })
 
 var wasDownloading=false;
@@ -50,9 +65,9 @@ appCache.addEventListener('error', async function(e) {
 
 async function cacheReady(){
     wasDownloading=false;
-    var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME));
+    var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)||'{}');
     var result = await AjaxBestPromise.get({
-        url:`carga-dm/${periodo}p${panel}t${tarea}_manifest.manifest`,
+        url:`carga-dm/${periodo?`${periodo}p${panel}t${tarea}_manifest.manifest`:'dm-manifest.manifest'}`,
         data:{}
     });
     localStorage.setItem('ipc2.0-app-cache-version',result.split('\n')[1]);

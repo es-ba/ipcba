@@ -1,6 +1,6 @@
 {
   "name": "ipcba",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "license": "MIT",
   "description": "Indice de Precios al Consumidor",
   "main": "dist/server/server-ipcba.js",
@@ -16,7 +16,7 @@
     "react-dom": "^16.12.0",
     "redux": "^4.0.4",
     "react-redux": "^7.1.3",
-    "backend-plus": "~0.31.8",
+    "backend-plus": "~0.31.9",
     "ajax-best-promise": "^0.3.7",
     "best-globals": "^0.10.23",
     "like-ar": "^0.2.19",

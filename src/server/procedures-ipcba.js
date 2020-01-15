@@ -738,7 +738,7 @@ ProceduresIpcba = [
                 ).fetchUniqueRow();
                 return result.row;
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -772,7 +772,7 @@ ProceduresIpcba = [
                 ).fetchUniqueRow();
                 return result.row;
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -882,7 +882,7 @@ ProceduresIpcba = [
                 ).execute();
                 return {status: 'ok', vencimientoSincronizacion: tokenDueDate}
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -915,7 +915,7 @@ ProceduresIpcba = [
                 ).execute();
                 return {status: 'ok', vencimientoSincronizacion2: tokenDueDate}
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -963,7 +963,7 @@ ProceduresIpcba = [
                 result.supera_advertencia = diff > intervalLimit.row.diferencia_horaria_advertencia_ipad;
                 return result;
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -1001,7 +1001,7 @@ ProceduresIpcba = [
                 ).execute();
                 return result.row
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -1113,7 +1113,7 @@ ProceduresIpcba = [
                     return 'sincronizacion deshabilitada o vencida para el encuestador ' + params.encuestador
                 }
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }
@@ -1429,86 +1429,7 @@ ProceduresIpcba = [
                 //genero archivos
                 const PATH = 'dist/client/';
                 const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
-                var manifest = 
-`CACHE MANIFEST
-#${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}
-
-CACHE:
-#--------------------------- JS ------------------------------------
-../lib/react.development.js
-../lib/react-dom.development.js
-../lib/material-ui.development.js
-../lib/material-styles.development.js
-../lib/clsx.min.js
-../lib/redux.js
-../lib/react-redux.js
-../lib/require-bro.js
-../lib/like-ar.js
-../lib/best-globals.js
-../lib/json4all.js
-../lib/js-to-html.js
-../lib/redux-typed-reducer.js
-../adapt.js
-../dm-tipos.js
-../dm-funciones.js
-../dm-react.js
-../ejemplo-precios.js
-../unlogged.js
-../lib/js-yaml.js
-../lib/xlsx.core.min.js
-../lib/lazy-some.js
-../lib/sql-tools.js
-../dialog-promise/dialog-promise.js
-../moment/min/moment.js
-../pikaday/pikaday.js
-../lib/polyfills-bro.js
-../lib/big.js
-../lib/type-store.js
-../lib/typed-controls.js
-../lib/ajax-best-promise.js
-../my-ajax.js
-../my-start.js
-../lib/my-localdb.js
-../lib/my-websqldb.js
-../lib/my-localdb.js.map
-../lib/my-websqldb.js.map
-../lib/my-things.js
-../lib/my-tables.js
-../lib/my-inform-net-status.js
-../lib/my-menu.js
-../lib/my-skin.js
-../lib/cliente-en-castellano.js
-../client/client.js
-../client/menu.js
-../client/hoja-de-ruta.js
-../client/hoja-de-ruta-react.js
-../${estructuraPath}
-../${hdrPath}
-
-#------------------------------ CSS ---------------------------------
-../dialog-promise/dialog-promise.css
-../pikaday/pikaday.css
-../css/my-things.css
-../css/my-tables.css
-../css/my-menu.css
-../css/menu.css
-../css/offline-mode.css
-../css/hoja-de-ruta.css
-../default/css/my-things.css
-../default/css/my-tables.css
-../default/css/my-menu.css
-../css/ejemplo-precios.css
-../default/css/ejemplo-precios.css
-
-#------------------------------ IMAGES ---------------------------------
-../img/logo.png
-../img/main-loading.gif
-
-FALLBACK:
-../menu* ../hdr?periodo=${parameters.periodo}&panel=${parameters.panel}&tarea=${parameters.tarea}
-
-NETWORK:
-*`;
+                var manifest = be.getManifestContent(parameters);
                 await client.query(`
                     UPDATE reltar 
                         SET archivo_manifiesto = $1, archivo_estructura = $2, archivo_hdr = $3
@@ -1683,7 +1604,7 @@ NETWORK:
                     return 'sincronizacion deshabilitada o vencida para el encuestador ' + params.encuestador
                 }
             }catch(err){
-                console.log('ERROR',err.message);
+                console.log('ERROR',err);
                 throw err;
             }
         }

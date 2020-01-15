@@ -158,8 +158,11 @@ myOwn.wScreens.hoja_ruta_2=function(){
             var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
             history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
+        }else if(!location.pathname.endsWith('/dm')){
+            history.replaceState(null, null, `./dm`);
+            location.reload();
         }else{
-            throw Error("No hay hoja de ruta cargada")
+            mainLayout.appendChild(html.div([html.p('Dispositivo sin carga'), html.p('Sitio seguro para sacar el ícono'), html.img({src:'img/logo-dm.png'})]).create());        
         }
     }catch(err){
         mainLayout.appendChild(html.p('Error al cargar hoja de ruta. ' + err.message).create());

@@ -333,7 +333,6 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
                 (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
                     observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;
                     observacion.cambio = calcularCambioAtributosEnPrecio(observacion);
-
                 })
             )
             return content;
