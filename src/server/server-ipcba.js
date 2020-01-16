@@ -515,18 +515,19 @@ NETWORK:
         var recepGabinete = {role:'recep_gabinete'};
         var migracion = {role:'migracion'};
         if(this.config.server.policy=='web'){
+            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista]
             return {menu:[
-                {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], menuContent:[
+                {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
                     {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true, selectedByDefault: true},
-                    {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista]},
+                    {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                     {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},    
                     {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 ]},
-                {menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], menuContent:[
-                    {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true, onlyVisibleFor:[programador] },
-                    {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:[programador]},
-                    {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:[programador]},
-                    {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:[programador]},
+                {menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:asignadores, menuContent:[
+                    {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true },
+                    {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
+                    {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:asignadores},
+                    {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                 ]},
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
