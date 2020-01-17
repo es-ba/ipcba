@@ -133,7 +133,7 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
     return {tieneAdv: tieneAdvertencia, color}
 }
 
-export function controlarPrecio(relPre:RelPre, estructura:Estructura){
+export function controlarPrecio(relPre:RelPre, estructura:Estructura, esElActual?:boolean){
     var atributoTieneAdvertencia:boolean=false;
     var color:string|undefined = undefined;
     relPre.atributos.forEach(function(relAtr){
@@ -146,6 +146,12 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura){
        ) || atributoTieneAdvertencia
     ){
         color='#FF9333'; //naranja
+        tieneAdvertencias = true;
+    }else if(!esElActual && !relPre.precio && (relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo || relPre.cambio)){
+        color='#BA7AFF'; //violeta
+        tieneAdvertencias = true;
+    }else if(!esElActual && relPre.cambio && !(relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo)){
+        color='#FF3535'; //rojo
         tieneAdvertencias = true;
     }else{
         tieneAdvertencias = false;
@@ -161,11 +167,11 @@ export function precioEstaPendiente(relPre:RelPre, relVis: RelVis, estructura:Es
     return (relPre.tipoprecio == null || estructura.tipoPrecio[relPre.tipoprecio].espositivo && !relPre.precio) && estructura.razones[relVis.razon!].espositivoformulario;
 }
 
-export function razonNecesitaConfirmacion(estructura:Estructura, relVis:RelVis, razon:number){
+export function razonNecesitaConfirmacion(estructura:Estructura, _relVis:RelVis, razon:number){
     return !estructura.razones[razon].espositivoformulario
 }
 
-export function hayPreciosOAtributosCargadosEnFormulario(estructura:Estructura, relVis:RelVis){
+export function hayPreciosOAtributosCargadosEnFormulario(_estructura:Estructura, _relVis:RelVis){
     //Revisar
     //return likeAr(relVis.productos).map(function(producto:{observaciones:{[o:number]:RelPre}}){
     //    return likeAr(producto.observaciones).filter(function(relPre:RelPre){
