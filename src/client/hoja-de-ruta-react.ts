@@ -9,8 +9,10 @@ function getVersionSistema(){
 }
 
 function hayHojaDeRuta(){
-    return localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('ipc2.0-vaciado') !==null && !(JSON.parse(localStorage.getItem('ipc2.0-vaciado'))) ||
-        localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && localStorage.getItem('ipc2.0-vaciado') ===null
+    var vaciadoStr:string|null=localStorage.getItem('ipc2.0-vaciado')
+    var storageStr:string|null=localStorage.getItem(LOCAL_STORAGE_STATE_NAME)
+    return storageStr && vaciadoStr !==null && !(JSON.parse(vaciadoStr)) ||
+        storageStr && vaciadoStr===null;
 }
 
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
@@ -23,9 +25,9 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         var m=html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador+ '. E:'+err.message).create();
         mainLayout.appendChild(m);
         m.onclick=function(){
-            mainLayout.appendChild(html.pre(err.stack.toString));
+            mainLayout.appendChild(html.pre(err instanceof Error?(err.stack||err.message).toString():err.toString()).create());
         }
-        throw new Error(message)
+        throw new Error(err)
     }
     var periodo = reltarHabilitada.periodo;
     var panel = reltarHabilitada.panel;
@@ -55,7 +57,8 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
         localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
         localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
-        myOwn.wScreens.hoja_ruta_2();
+        // @ts-ignore sabemos que hoja_ruta_2 es función
+        myOwn.wScreens.hoja_ruta_2({});
     }
     if(hojaDeRutaEnOtroDispositivo){
         mainLayout.appendChild(html.div({},[
@@ -108,12 +111,12 @@ async function descargarDispositivo2(tokenInstalacion: string, encuestador: stri
     mainLayout.appendChild(html.p(message).create());
 }
 
-myOwn.wScreens.sincronizar_dm2=function(){
+myOwn.wScreens.sincronizar_dm2=async function(){
     var mainLayout = document.getElementById('main_layout')!;
     var tokenInstalacion = localStorage.getItem('ipc2.0-token_instalacion') || null;
     var ipad = localStorage.getItem('ipc2.0-ipad') || null;
     var encuestador = localStorage.getItem('ipc2.0-encuestador') || null;
-    if(tokenInstalacion && ipad && encuestador){
+    if(tokenInstalacion != null && ipad && encuestador){
         if(hayHojaDeRuta() && (localStorage.getItem('ipc2.0-descargado') == null || localStorage.getItem('ipc2.0-descargado') == 'false')){
             mainLayout.appendChild(html.p('El dispositivo tiene información cargada').create());
             var downloadButton = html.button({class:'download-ipad-button'},'descargar').create();
@@ -122,7 +125,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
                 confirmPromise('¿confirma descarga de D.M.?').then(async function(){
                     downloadButton.disabled=true;
                     try{
-                        await descargarDispositivo2(tokenInstalacion, encuestador);
+                        await descargarDispositivo2(tokenInstalacion||'no debería perderse el TOKEN si está el botón aún', encuestador!);
                     }catch(err){
                         alertPromise(err.message);
                     }finally{
@@ -141,7 +144,7 @@ myOwn.wScreens.sincronizar_dm2=function(){
             loadButton.onclick = async function(){
                 try{
                     loadButton.disabled=true;
-                    await cargarDispositivo2(tokenInstalacion, encuestador);
+                    await cargarDispositivo2(tokenInstalacion!, encuestador!);
                     loadButton.disabled=false;
                 }catch(err){
                     alertPromise(err.message);
@@ -154,15 +157,15 @@ myOwn.wScreens.sincronizar_dm2=function(){
     }
 };
 
-myOwn.wScreens.hoja_ruta_2=function(){
+myOwn.wScreens.hoja_ruta_2=async function(){
     var mainLayout = document.getElementById('main_layout')!;
     try{
         if(hayHojaDeRuta()){
             var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
-            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
+            history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
         }else if(!location.pathname.endsWith('/dm')){
-            history.replaceState(null, null, `./dm`);
+            history.replaceState(null, '', `./dm`);
             location.reload();
         }else{
             mainLayout.appendChild(html.div([html.p('Dispositivo sin carga'), html.p('Sitio seguro para sacar el ícono'), html.img({src:'img/logo-dm.png'})]).create());        
@@ -172,7 +175,7 @@ myOwn.wScreens.hoja_ruta_2=function(){
     }
 };
 
-myOwn.wScreens.vaciar_dm2=function(){
+myOwn.wScreens.vaciar_dm2=async function(){
     var mainLayout = document.getElementById('main_layout')!;
     var tokenInstalacion = localStorage.getItem('ipc2.0-token_instalacion') || null;
     var ipad = localStorage.getItem('ipc2.0-ipad') || null;
@@ -210,12 +213,14 @@ myOwn.wScreens.vaciar_dm2=function(){
     }
 };
 
+var { datetime } = require('best-globals');
+
 myOwn.wScreens.preparar_instalacion2={
     parameters:[
         {name:'numero_encuestador'       , typeName:'text'   },
         {name:'numero_ipad'              , typeName:'text'   }
     ],
-    mainAction:function(params,divResult){
+    mainAction:function(params:{numero_encuestador:string, numero_ipad:string},divResult:HTMLDivElement){
         return my.ajax.instalacion_preparar({
             numero_encuestador: params.numero_encuestador,
             numero_ipad: params.numero_ipad,
@@ -295,7 +300,7 @@ myOwn.wScreens.preparar_instalacion2={
     }
 };
 
-function install2(numeroEncuestador, numeroIpad, divResult){
+function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDivElement){
     var waitGif=html.img({src:'img/loading16.gif'}).create()
     divResult.appendChild(waitGif);
     divResult.appendChild(html.p('instalando dispositivo...').create());
@@ -321,4 +326,4 @@ function install2(numeroEncuestador, numeroIpad, divResult){
     })
 }
 
-myOwn.wScreens.demo_dm = dmHojaDeRuta;
+// myOwn.wScreens.demo_dm = dmHojaDeRuta;

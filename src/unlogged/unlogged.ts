@@ -2,6 +2,7 @@
 import {LOCAL_STORAGE_STATE_NAME} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 import * as JSON4all from "json4all";
+import * as AjaxBestPromise from "ajax-best-promise";
 
 window.addEventListener('load', async function(){
     var layout = document.getElementById('total-layout')!;
@@ -10,14 +11,13 @@ window.addEventListener('load', async function(){
         await myOwn.ready;
         layout = document.getElementById('total-layout')!;
     }
-    // @ts-ignore ready existe!
     await myOwn.ready;
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
     var url = new URL(window.location.href);
     if(location.pathname.endsWith('/dm')){
         if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
-            var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
-            history.replaceState(null, null, `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
+            const {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+            history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
         }else{
             layout.appendChild(html.div([
@@ -28,16 +28,17 @@ window.addEventListener('load', async function(){
             ]).create());        
         }
     }else{
-        var periodo = url.searchParams.get("periodo");
-        var panel = url.searchParams.get("panel");
-        var tarea = url.searchParams.get("tarea");
+        const periodo = url.searchParams.get("periodo");
+        const panel = url.searchParams.get("panel");
+        const tarea = url.searchParams.get("tarea");
+        //@ts-ignore existe 
         dmHojaDeRuta({periodo, panel, tarea});
     }
 })
 
 var wasDownloading=false;
 var appCache = window.applicationCache;
-appCache.addEventListener('downloading', async function(e) {
+appCache.addEventListener('downloading', async function() {
     wasDownloading=true;
     var layout = await awaitForCacheLayout;
     layout.insertBefore(
@@ -48,9 +49,11 @@ appCache.addEventListener('downloading', async function(e) {
         layout.firstChild
     );
 }, false);
-appCache.addEventListener('error', async function(e) {
+appCache.addEventListener('error', async function(e:Event) {
+    // @ts-ignore es ErrorEvent porque el evento es 'error'
+    var errorEvent:ErrorEvent = e;
     if(wasDownloading){
-        console.log('error al descargar cache', e.message)
+        console.log('error al descargar cache', errorEvent.message)
         var layout = await awaitForCacheLayout;
         var cacheStatusElement = document.getElementById('cache-status');
         if(!cacheStatusElement){
@@ -59,22 +62,22 @@ appCache.addEventListener('error', async function(e) {
         }
         cacheStatusElement.classList.remove('warning')
         cacheStatusElement.classList.add('danger')
-        cacheStatusElement.textContent='error al descargar la aplicación. ' + e.message;
+        cacheStatusElement.textContent='error al descargar la aplicación. ' + errorEvent.message;
     }
 }, false);
 
 async function cacheReady(){
     wasDownloading=false;
     var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)||'{}');
-    var result = await AjaxBestPromise.get({
+    var result:string = await AjaxBestPromise.get({
         url:`carga-dm/${periodo?`${periodo}p${panel}t${tarea}_manifest.manifest`:'dm-manifest.manifest'}`,
         data:{}
     });
     localStorage.setItem('ipc2.0-app-cache-version',result.split('\n')[1]);
     setTimeout(function(){
-        var cacheStatusElement = document.getElementById('cache-status');
+        var cacheStatusElement = document.getElementById('cache-status')!;
         if(!cacheStatusElement){
-            var mainLayout = document.getElementById('main_layout');
+            var mainLayout = document.getElementById('main_layout')!;
             cacheStatusElement = html.p({id:'cache-status'}).create();
             mainLayout.insertBefore(cacheStatusElement, mainLayout.firstChild);
         }
@@ -90,7 +93,7 @@ async function cacheReady(){
         }, 5000);
     },500)
 }
-appCache.addEventListener('updateready', function (e) {
+appCache.addEventListener('updateready', function () {
     console.log("actualiza cache");
     if (appCache.status == appCache.UPDATEREADY) {
         console.log("swap cache");
@@ -117,9 +120,11 @@ var awaitForCacheLayout = async function prepareLayoutForCache(){
     }
     return layout;
 }();
-async function displayWhenReady(message, type, message2, enOtroRenglon){
-    var layout = await awaitForCacheLayout;
-    var logLayout = document.getElementById('cache-log');
+
+//@ts-ignore no se usa quizás haya que quitarlo. Aparentemente se copió de hoja-de-ruta.js
+async function displayWhenReady(message:string, type:string, message2:string, _enOtroRenglon:string){
+    // var layout = await awaitForCacheLayout;
+    var logLayout = document.getElementById('cache-log')!;
     var texto = logLayout.firstElementChild;
     texto=document.createElement('div');
     logLayout.appendChild(texto);

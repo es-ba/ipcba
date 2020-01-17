@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, QueVer, AddrParamsHdr} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, AddrParamsHdr} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
@@ -10,15 +10,16 @@ import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
-import * as clsx from 'clsx';
+import * as clsxx from 'clsx';
+//@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
+var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 import {
     AppBar, Badge, Button, ButtonGroup, Chip, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab,  FormControl, FormControlLabel, FormGroup, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
-import { changing } from "best-globals";
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -53,8 +54,6 @@ const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
     <SvgIcon><path d={svgText}/></SvgIcon>
 ).plain();
 
-const ChevronLeftIcon = ICON.ChevronLeft;
-const ChevronRightIcon = ICON.ChevronRight;
 const MenuIcon = ICON.Menu;
 const DescriptionIcon = ICON.Description;
 const SearchIcon = ICON.Search;
@@ -310,7 +309,13 @@ const EditableTd = function<T extends any>(props:{
                 condition={badgeCondition}
                 wrapper={children => 
                     <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
-                    style={{width:"100%"}} classes={{ badge: classesBadge.badge }} className={classesBadge.margin}>{children}
+                    style={{width:"100%"}} classes={{ 
+                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                        badge: classesBadge.badge 
+                    }} className={
+                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                        classesBadge.margin
+                    }>{children}
                     </Badge>
                 }
             >
@@ -356,6 +361,7 @@ const EditableTd = function<T extends any>(props:{
                 {(props.opciones||[]).map(label=>(
                     <MenuItem key={label} value={label}
                         onClick={()=>{
+                            // @ts-ignore TODO: mejorar los componentes tipados #49
                             props.onUpdate(label);
                         }}
                     >
@@ -376,14 +382,16 @@ const EditableTd = function<T extends any>(props:{
             :null
         }
         {editandoOtro?
+            // @ts-ignore TODO: mejorar los componentes tipados #49
             <DialogoSimple 
                 titulo={props.titulo} 
-                valor={props.value} 
+                valor={props.value as unknown as string /* TODO ver #49 */} 
                 dataType={props.dataType} 
                 inputId={props.inputId+'_otro_attr'}
                 onCancel={()=>setEditandoOtro(false)}
                 onUpdate={(value)=>{
                     setEditandoOtro(false);
+                    // @ts-ignore TODO: mejorar los componentes tipados #49
                     props.onUpdate(value);
                 }}
             />
@@ -467,7 +475,7 @@ const AtributosRow = function(props:{
                 anchorEl={menuCambioAtributos}
                 onClose={()=>setMenuCambioAtributos(null)}
             >
-                <MenuItem key={} onClick={()=>{
+                <MenuItem onClick={()=>{
                     dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
@@ -479,7 +487,7 @@ const AtributosRow = function(props:{
                         Copiar el resto de los atributos vacíos
                     </ListItemText>
                 </MenuItem>
-                <MenuItem key={} onClick={()=>{
+                <MenuItem onClick={()=>{
                     dispatch(dispatchers.COPIAR_ATRIBUTOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
@@ -504,6 +512,24 @@ const useStylesList = makeStyles((_theme: Theme) =>
     }),
 );
 
+function strNumber(num:number|null):string{
+    var str = num==null ? "" : num.toString();
+    if(/[.,]0$/.test(str)){
+        str+="0";
+    }
+    return str;
+}
+
+function numberElement(num:number|null):JSX.Element{
+    var str=strNumber(num);
+    var element=null;
+    str.replace(/^([^.,]*)([.,]\d+)?$/, function(_, left:string, right:string){
+        element = <span>${left}<span style={{fontSize:'80%'}}>${right}</span></span>;
+        return '';
+    });
+    return element||<span>-</span>;
+}
+
 var PreciosRow = React.memo(function PreciosRow(props:{
     relPre:RelPre, iRelPre:number
 }){
@@ -525,7 +551,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS});
     const {color, tieneAdv} = controlarPrecio(relPre, estructura);
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
-    const precioAnteriorAMostrar = relPre.precioanterior || relPre.ultimoprecioinformado;
+    const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
         if(searchString || allForms){
@@ -542,17 +568,30 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     condition={(productoDef.destacado)}
                     wrapper={children => 
                         <Badge style={{width:"100%"}} badgeContent=" " 
-                            classes={{ badge: classesBadgeProdDestacado.badge }} className={classesBadgeProdDestacado.margin}>{children}
+                            classes={{ 
+                                // @ts-ignore TODO: mejorar tipos STYLE #48
+                                badge: classesBadgeProdDestacado.badge 
+                            }} className={
+                                // @ts-ignore TODO: mejorar tipos STYLE #48
+                                classesBadgeProdDestacado.margin
+                            }>{children}
                         </Badge>
                     }
                 >
                     <div className="especificacion">{productoDef.especificacioncompleta}</div>
                 </ConditionalWrapper>
                 <ConditionalWrapper
-                    condition={(relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1)}
+                    condition={!!(relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1)}
                     wrapper={children => 
-                        <Badge style={{width:"100%"}} badgeContent=" " classes={{ badge: classesBadgeComentariosAnalista.badge }} 
-                            className={classesBadgeComentariosAnalista.margin}>
+                        <Badge style={{width:"100%"}} badgeContent=" " 
+                            classes={{ 
+                                // @ts-ignore TODO: mejorar tipos STYLE #48
+                                badge: classesBadgeComentariosAnalista.badge 
+                            }} 
+                            className={
+                                // @ts-ignore TODO: mejorar tipos STYLE #48
+                                classesBadgeComentariosAnalista.margin
+                            }>
                             {children}    
                         </Badge>
                     }
@@ -619,17 +658,26 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
                         <td className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
                             <ConditionalWrapper
-                                condition={(badgeCondition)}
+                                condition={!!badgeCondition}
                                 wrapper={children => 
                                     <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
-                                        classes={{ badge: classesBadgeCantidadMeses.badge }} className={classesBadgeCantidadMeses.margin}>{children}
+                                        classes={{ 
+                                            // @ts-ignore TODO: mejorar tipos STYLE #48
+                                            badge: classesBadgeCantidadMeses.badge 
+                                        }} 
+                                        className={
+                                            // @ts-ignore TODO: mejorar tipos STYLE #48
+                                            classesBadgeCantidadMeses.margin
+                                        }
+                                    >
+                                        {children}
                                     </Badge>
                                 }
                             >
                                 {chipColor?
                                     <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
                                 :
-                                    precioAnteriorAMostrar
+                                    <span>precioAnteriorAMostrar</span>
                                 }
                             </ConditionalWrapper>
                         </td>
@@ -1024,10 +1072,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         setOpen(true);
     };
 
-    const handleDrawerClose = () => {
-        setOpen(false);
-    };
-
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
@@ -1143,7 +1187,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
                             dispatch(dispatchers.RESET_SEARCH({}));
                         }}>
-                          <ListItemIcon>{relVis.formulario}</ListItemIcon>
+                          <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
                           <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
                         </ListItem>
                     ))}
@@ -1175,6 +1219,7 @@ const useStylesBadge = makeStyles((theme: Theme) =>
     padding: {
       padding: theme.spacing(0, 2),
     },
+    // @ts-ignore TODO: mejorar tipos STYLE #48
     badge: {
       backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
       color: (props:{color:string}) => props.color?props.color:'white',
@@ -1182,7 +1227,7 @@ const useStylesBadge = makeStyles((theme: Theme) =>
   }),
 );
 
-const ConditionalWrapper = ({ condition, wrapper, children }) => 
+const ConditionalWrapper = ({condition, wrapper, children}:{ condition:boolean, wrapper:(elements:JSX.Element)=>JSX.Element, children:JSX.Element }) => 
   condition ? wrapper(children) : children;
 
 function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
@@ -1197,7 +1242,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
     var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
     var todoListo = cantAdvertencias == 0 && cantPendientes == 0 && !opciones.mostrarColumnasFaltantesYAdvertencias
-    var numbersStyles = {
+    var numbersStyles : {textAlign:'right', paddingRight:string} = {
         textAlign: 'right',
         paddingRight: '15px'
     }
@@ -1209,8 +1254,14 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                     wrapper={children => 
                         <Badge style={{width:"calc(100% - 5px)"}} 
                             badgeContent={cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)} 
-                            classes={{ badge: cantAdvertencias ? classesAdvertencia.badge : classesPendientes.badge}} 
-                            className={cantAdvertencias ? classesAdvertencia.margin : classesPendientes.margin}>{children}
+                            classes={{ 
+                                // @ts-ignore TODO: mejorar tipos STYLE #48
+                                badge: cantAdvertencias ? classesAdvertencia.badge : classesPendientes.badge
+                            }} 
+                            className={
+                                // @ts-ignore TODO: mejorar tipos STYLE #48
+                                cantAdvertencias ? classesAdvertencia.margin : classesPendientes.margin
+                            }>{children}
                         </Badge>
                     }
                 >
@@ -1225,9 +1276,9 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                     </Button>
                 </ConditionalWrapper>
             </TableCell>
-            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{misObservaciones.length}</TableCell>:null}
-            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={changing(numbersStyles, {backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'})}>{cantPendientes?cantPendientes:CHECK}</TableCell>:null}
-            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={changing(numbersStyles, {backgroundColor:cantAdvertencias?COLOR_ADVERTENCIAS:'none'})}>{cantAdvertencias?cantAdvertencias:'-'}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{numberElement(misObservaciones.length)}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={{...numbersStyles, backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?numberElement(cantPendientes):CHECK}</TableCell>:null}
+            {mostrarColumnasFaltantesYAdvertencias?<TableCell style={{...numbersStyles, backgroundColor:cantAdvertencias?COLOR_ADVERTENCIAS:'none'}}>{cantAdvertencias?numberElement(cantAdvertencias):'-'}</TableCell>:null}
         </>
     )
 }
@@ -1328,7 +1379,7 @@ function PantallaHojaDeRuta(_props:{}){
                             <Button
                                 color="inherit"
                                 onClick={()=>{
-                                    history.replaceState(null, null, `${location.origin+location.pathname}/../menu`);
+                                    history.replaceState(null, '', `${location.origin+location.pathname}/../menu`);
                                     location.reload();   
                                 }}
                             >
@@ -1480,7 +1531,7 @@ class DmIPCCaptureError extends React.Component<
                     this.setState({ hasError: false, error:{} })
                 }/>
                 <Typography>Error detectado:</Typography>
-                <Typography>{this.state.error.message}</Typography>
+                <Typography>{this.state.error instanceof Error ? this.state.error.message : 'unknown error'}</Typography>
                 <Typography>{JSON.stringify(this.state.info)}</Typography>
             </>;
         }

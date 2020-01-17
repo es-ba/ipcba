@@ -13,7 +13,8 @@ export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
 
 type NextID = string | false;
 
-var estructura:Estructura|null = null;
+//@ts-ignore no va a ser null porque está en la estructura del manifiesto
+var estructura:Estructura = null;
 
 var defaultAction = function defaultAction(
     hdrState:HojaDeRuta, 
@@ -281,6 +282,7 @@ var reducers={
 export type ActionHdr = ActionsFrom<typeof reducers>;
 /* FIN ACCIONES */
 
+/* NO SE USAN MÁS
 function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[K]):((object:T)=>T){
     return (object:T)=>Object.freeze({
         ...object,
@@ -288,11 +290,12 @@ function surf<T extends {}, K extends keyof T>(key:K, callback:(object:T[K])=>T[
     });
 }
 
-export const dispatchers = createDispatchers(reducers);
-
 function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
     return callback(object);
 }
+*/
+
+export const dispatchers = createDispatchers(reducers);
 
 export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
     var result:any = {hdr:null,estructura:null};
@@ -301,7 +304,9 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(content){
             result.hdr = JSON4all.parse(content);
+            //@ts-ignore structFromManifest existe gracias al manifiesto
             estructura=structFromManifest;
+            initialState = result.hdr;
         }else{
             throw Error('no se cargó correctamente la hoja de ruta')
         }

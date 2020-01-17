@@ -326,7 +326,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 { type: 'js', src:estructuraPath },
                 // { type: 'js', src:hdrPath } no va, es un JSON
             ];
-            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath, extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, true || !"COMMIT", {skipMenu:true, manifestPath, extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
@@ -337,7 +337,7 @@ class AppIpcba extends backendPlus.AppBackend{
             var extraFiles = [
                 // { type: 'js', src:'dm-main.js' },
             ];
-            var htmlMain=be.mainPage({useragent, user}, true, {skipMenu:true, manifestPath, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, true || !"COMMIT", {skipMenu:true, manifestPath, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.get(baseUrl+'/archivos/crear',async function(req,res,_next){

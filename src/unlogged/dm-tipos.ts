@@ -142,7 +142,7 @@ export type RelVisPk = {
 export type RelVis={
     informante: number
     formulario: number
-    razon: number
+    razon: number | null
     comentarios: string | null
 };
 
@@ -199,4 +199,4 @@ export type AddrParamsHdr={
     periodo: string
     panel: number
     tarea: number
-} | null
+}
