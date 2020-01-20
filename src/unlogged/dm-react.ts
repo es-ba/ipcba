@@ -70,6 +70,15 @@ const surfRelPre = (
         throw new Error("internal error action.type in surfRelPre");
     }
     */
+    var reducerPlus=(relPre:RelPre)=>{
+        var nuevoRelPre = relPreReducer(relPre);
+        var control = controlarPrecio(nuevoRelPre, estructura!)
+        return {
+            ...nuevoRelPre,
+            adv: control.tieneAdv,
+            err: control.tieneErr
+        };
+    }
     return surfRelInf(hdrState, payload, relInf=>{
         var i = payload.iRelPre;
         if(i != undefined && 
@@ -79,11 +88,11 @@ const surfRelPre = (
         }
         var nuevasObservaciones = i != undefined?[
             ...relInf.observaciones.slice(0, i),
-            relPreReducer(relInf.observaciones[i]),
+            reducerPlus(relInf.observaciones[i]),
             ...relInf.observaciones.slice(i+1)
         ]:relInf.observaciones.map(
             relPre=>relPre.producto==payload.forPk.producto && relPre.observacion==payload.forPk.observacion?
-                relPreReducer(relPre)
+                reducerPlus(relPre)
             :relPre
         )
         return {
@@ -105,15 +114,10 @@ var setTP = function setTP(
             cambio: null,
             atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
         }:{};
-        var nuevoRelPre:RelPre={
+        return {
             ...relPre,
             ...paraLimipar,
             tipoprecio: tipoPrecioNuevo
-        };
-        return {
-            ...nuevoRelPre,
-            adv: controlarPrecio(nuevoRelPre, estructura!).tieneAdv,
-            err: controlarPrecio(nuevoRelPre, estructura!).tieneErr
         };
     });
 }
