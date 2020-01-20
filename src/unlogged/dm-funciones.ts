@@ -2,6 +2,8 @@
 import {RelPre, RelVis, RelAtr, Estructura, ProdAtr} from "./dm-tipos";
 import * as likeAr from "like-ar";
 
+export const COLOR_ERRORES = "#FF3535";
+
 export function puedeCopiarTipoPrecio(estructura:Estructura, relPre:RelPre){
     return relPre.tipoprecio==null && relPre.tipoprecioanterior!=null && estructura.tipoPrecio[relPre.tipoprecioanterior].puedecopiar
 }
@@ -139,24 +141,31 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura, esElActual
     relPre.atributos.forEach(function(relAtr){
         atributoTieneAdvertencia = atributoTieneAdvertencia || controlarAtributo(relAtr, relPre, estructura).tieneAdv;
     });
-    var tieneAdvertencias;
-    if(relPre.precio && relPre.precionormalizado && (
+    var tieneAdvertencias:boolean = false;
+    var tieneErrores:boolean = false;
+    if(!esElActual && !relPre.precio && (relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo || relPre.cambio)){
+        color=COLOR_ERRORES; //rojo   // color='#BA7AFF'; //violeta autorizado por Juli
+        tieneAdvertencias = true;
+        tieneErrores = true;
+    }else if(!esElActual && relPre.cambio && !(relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo)){
+        color=COLOR_ERRORES; //rojo
+        tieneAdvertencias = true;
+        tieneErrores = true;
+    }else if(relPre.precio && relPre.precionormalizado && (
         (relPre.comentariosrelpre == null && relPre.precionormalizado_1 && (relPre.precionormalizado < relPre.precionormalizado_1/2 || relPre.precionormalizado > relPre.precionormalizado_1*2)) ||
         (relPre.comentariosrelpre == null && relPre.promobs_1 && (relPre.precionormalizado < relPre.promobs_1/2 || relPre.precionormalizado > relPre.promobs_1*2)) 
        ) || atributoTieneAdvertencia
     ){
         color='#FF9333'; //naranja
         tieneAdvertencias = true;
-    }else if(!esElActual && !relPre.precio && (relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo || relPre.cambio)){
-        color='#BA7AFF'; //violeta
-        tieneAdvertencias = true;
-    }else if(!esElActual && relPre.cambio && !(relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo)){
-        color='#FF3535'; //rojo
-        tieneAdvertencias = true;
     }else{
         tieneAdvertencias = false;
     }
-    return {tieneAdv: tieneAdvertencias, color: color};
+    return {tieneAdv: tieneAdvertencias, color: color, tieneErr: tieneErrores};
+}
+
+export function precioTieneError(relPre:RelPre, relVis: RelVis, estructura:Estructura){
+    return relPre.err && estructura.razones[relVis.razon!].espositivoformulario;
 }
 
 export function precioTieneAdvertencia(relPre:RelPre, relVis: RelVis, estructura:Estructura){

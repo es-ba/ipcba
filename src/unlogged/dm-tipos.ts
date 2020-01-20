@@ -132,6 +132,7 @@ export type RelPre={
     ultimoprecioinformado: number | null
     repregunta: boolean
     adv: boolean
+    err: boolean
 }
 
 export type RelVisPk = {

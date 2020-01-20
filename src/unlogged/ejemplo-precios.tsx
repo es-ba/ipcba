@@ -4,7 +4,9 @@ import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructu
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
-    controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente
+    controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente,
+    precioTieneError, 
+    COLOR_ERRORES
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
@@ -130,7 +132,7 @@ function focusToId(id:string, cb?:(e:HTMLElement)=>void){
     }
 }
 
-function TypedInput<T>(props:{
+function TypedInput<T extends string|number|null>(props:{
     value:T,
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
@@ -143,14 +145,42 @@ function TypedInput<T>(props:{
     onFocus?:()=>void
 }){
     var inputId=props.inputId;
-    var [value, setValue] = useState(props.value);
+    var [value, setValue] = useState<T|null>(props.value);
     useEffect(() => {
         focusToId(inputId);
         props.onFocus?props.onFocus():null;
     }, []);
-    // @ts-ignore acá hay un problema con el cambio de tipos
-    var valueString:string = value==null?'':value;
+    var valueString:string = value==null?'':value+'';
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
+    const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
+        //@ts-ignore en este caso sabemos que etarget es un Element que tiene value.
+        var valor = event.target.value;
+        var valorT:T|null = null;
+        if(valor != null && valor.trim()!=''){
+            if(props.dataType == 'number'){
+                //@ts-ignore si dataType=='number' estoy seguro que T es number
+                valorT=Number(valor)
+            }else{
+                valorT=valor.trim();
+            }
+        }
+        setValue(valorT);
+    }
+    const onBlurFun = function <TE>(event:TE){
+        if(value!==props.value){
+            // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
+            props.onUpdate(event.target.value);
+        }
+        props.onFocusOut();
+    };
+    const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
+        var tecla = event.charCode || event.which;
+        if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
+            focusToId(inputId, e=>e.blur())
+            props.onFocus?props.onFocus():null;
+            event.preventDefault();
+        }
+    }
     style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     if(props.dataType=='text'){
         var input = <TextField
@@ -162,25 +192,9 @@ function TypedInput<T>(props:{
             value={valueString}
             type={props.dataType} 
             style={style}
-            onChange={(event)=>{
-                // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-                setValue(event.target.value);
-            }}
-            onBlur={(event)=>{
-                if(value!==props.value){
-                    // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-                    props.onUpdate(event.target.value);
-                }
-                props.onFocusOut();
-            }}
-            onKeyDown={event=>{
-                var tecla = event.charCode || event.which;
-                if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-                    focusToId(inputId, e=>e.blur())
-                    props.onFocus?props.onFocus():null;
-                    event.preventDefault();
-                }
-            }}
+            onChange={onChangeFun}
+            onBlur={onBlurFun}
+            onKeyDown={onKeyDownFun}
         />
         return input;
     }else{
@@ -189,25 +203,9 @@ function TypedInput<T>(props:{
             value={valueString}
             type={props.dataType} 
             style={style}
-            onChange={(event)=>{
-                // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-                setValue(event.target.value);
-            }}
-            onBlur={(event)=>{
-                if(value!==props.value){
-                    // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-                    props.onUpdate(event.target.value);
-                }
-                props.onFocusOut();
-            }}
-            onKeyDown={event=>{
-                var tecla = event.charCode || event.which;
-                if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-                    focusToId(inputId, e=>e.blur())
-                    props.onFocus?props.onFocus():null;
-                    event.preventDefault();
-                }
-            }}
+            onChange={onChangeFun}
+            onBlur={onBlurFun}
+            onKeyDown={onKeyDownFun}
         />
     }
 }
@@ -246,7 +244,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
     </Dialog>
 }
 
-const EditableTd = function<T extends any>(props:{
+function EditableTd<T extends string|number|null>(props:{
     backgroundColor?:string,
     badgeCondition?:boolean,
     badgeBackgroundColor?:any,
@@ -257,7 +255,7 @@ const EditableTd = function<T extends any>(props:{
     dataType: InputTypes,
     value:T, 
     className?:string, colSpan?:number, 
-    onUpdate:OnUpdate<T>,
+    onUpdate:OnUpdate<T|null>,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null,
     titulo?:string,
@@ -272,19 +270,11 @@ const EditableTd = function<T extends any>(props:{
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const badgeCondition = props.badgeCondition || false;
-    const sanitizarValor = function(valor:T){
-        if(valor==undefined || valor == null || valor.trim()==''){
-            return null
-        }else{
-            return props.dataType == 'number'?Number(valor):valor.trim()
-        }
-
-    }
     if(editando!=deboEditar){
         setEditando(deboEditar);
     }
     const classesBadge = useStylesBadge({backgroundColor: props.badgeBackgroundColor});
-    var stringValue = props.value == null ? props.value : props.value.toString();
+    var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
         <td style={{
             backgroundColor:props.backgroundColor?props.backgroundColor:'none', 
@@ -323,7 +313,7 @@ const EditableTd = function<T extends any>(props:{
                 <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
-                        props.onUpdate(sanitizarValor(value));
+                        props.onUpdate(value);
                     }} onFocusOut={()=>{
                         if(deboEditar && editando){
                             dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
@@ -334,7 +324,9 @@ const EditableTd = function<T extends any>(props:{
                     backgroundColor={props.backgroundColor}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
                 />
-            :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>{props.value != null?props.value:props.placeholder||''}</div>
+            :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>
+                {props.value != null?(typeof props.value == "number"?numberElement(props.value):props.value):props.placeholder}
+            </div>
             }
             </ConditionalWrapper>
         </td>
@@ -514,7 +506,7 @@ const useStylesList = makeStyles((_theme: Theme) =>
 
 function strNumber(num:number|null):string{
     var str = num==null ? "" : num.toString();
-    if(/[.,]0$/.test(str)){
+    if(/[.,]\d$/.test(str)){
         str+="0";
     }
     return str;
@@ -524,7 +516,7 @@ function numberElement(num:number|null):JSX.Element{
     var str=strNumber(num);
     var element=null;
     str.replace(/^([^.,]*)([.,]\d+)?$/, function(_, left:string, right:string){
-        element = <span>${left}<span style={{fontSize:'80%'}}>${right}</span></span>;
+        element = <span>{left}<span style={{fontSize:'80%'}}>{right}</span></span>;
         return '';
     });
     return element||<span>-</span>;
@@ -533,7 +525,7 @@ function numberElement(num:number|null):JSX.Element{
 var PreciosRow = React.memo(function PreciosRow(props:{
     relPre:RelPre, iRelPre:number
 }){
-    const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {searchString, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
@@ -549,7 +541,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000"});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS});
-    const {color, tieneAdv} = controlarPrecio(relPre, estructura);
+    const {color, tieneAdv} = controlarPrecio(relPre, estructura, !!idActual && idActual.startsWith(inputIdPrecio));
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
@@ -677,7 +669,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 {chipColor?
                                     <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
                                 :
-                                    <span>precioAnteriorAMostrar</span>
+                                    <span>{precioAnteriorAMostrar}</span>
                                 }
                             </ConditionalWrapper>
                         </td>
@@ -762,7 +754,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     }))
                                     setMenuConfirmarBorradoPrecio(false)
                                 }} color="secondary" variant="outlined">
-                                    Borrar precios y/o atributos
+                                    Borrar precios y atributos
                                 </Button>
                             </DialogActions>
                         </Dialog>
@@ -771,17 +763,21 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             badgeCondition={tieneAdv}
                             badgeBackgroundColor={color}
                             inputId={inputIdPrecio} 
-                            disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} className="precio" value={relPre.precio} onUpdate={value=>{
-                            dispatch(dispatchers.SET_PRECIO({
-                                forPk:relPre, 
-                                iRelPre: props.iRelPre,
-                                precio:value,
-                                nextId:value && inputIdAtributos.length?inputIdAtributos[0]:false
-                            }));
+                            disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
+                            className="precio" 
+                            value={relPre.precio} 
+                            onUpdate={value=>{
+                                dispatch(dispatchers.SET_PRECIO({
+                                    forPk:relPre, 
+                                    iRelPre: props.iRelPre,
+                                    precio:value,
+                                    nextId:value && inputIdAtributos.length?inputIdAtributos[0]:false
+                                }));
                             // focusToId(inputIdPrecio,e=>e.blur());
-                        }} dataType="number" onFocus={()=>{
-                            handleSelection(relPre, searchString, allForms);
-                        }}/>
+                            }} dataType="number" onFocus={()=>{
+                                handleSelection(relPre, searchString, allForms);
+                            }}
+                        />
                         
                     </tr>
                     {relPre.atributos.map((relAtr, index)=>
@@ -1232,6 +1228,7 @@ const ConditionalWrapper = ({condition, wrapper, children}:{ condition:boolean, 
 
 function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
+    const classesErrores = useStylesBadge({backgroundColor: COLOR_ERRORES});
     const classesAdvertencia = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
     const classesPendientes = useStylesBadge({backgroundColor: COLOR_PENDIENTES});
     const dispatch = useDispatch();
@@ -1241,11 +1238,14 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     var misObservaciones = informante.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario);
     var cantPendientes = misObservaciones.filter((relPre:RelPre)=>precioEstaPendiente(relPre, relVis, estructura)).length;
     var cantAdvertencias = misObservaciones.filter((relPre:RelPre)=>precioTieneAdvertencia(relPre, relVis, estructura)).length;
+    var cantErrores = misObservaciones.filter((relPre:RelPre)=>precioTieneError(relPre, relVis, estructura)).length;
     var todoListo = cantAdvertencias == 0 && cantPendientes == 0 && !opciones.mostrarColumnasFaltantesYAdvertencias
     var numbersStyles : {textAlign:'right', paddingRight:string} = {
         textAlign: 'right',
         paddingRight: '15px'
     }
+    var theClass=cantErrores ? classesErrores : (cantAdvertencias ? classesAdvertencia : classesPendientes);
+    var conBadge=cantErrores || cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)
     return(
         <>
             <TableCell>
@@ -1253,14 +1253,14 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                     condition={!mostrarColumnasFaltantesYAdvertencias}
                     wrapper={children => 
                         <Badge style={{width:"calc(100% - 5px)"}} 
-                            badgeContent={cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)} 
-                            classes={{ 
+                            badgeContent={conBadge} 
+                            classes={{
                                 // @ts-ignore TODO: mejorar tipos STYLE #48
-                                badge: cantAdvertencias ? classesAdvertencia.badge : classesPendientes.badge
+                                badge: theClass.badge
                             }} 
                             className={
                                 // @ts-ignore TODO: mejorar tipos STYLE #48
-                                cantAdvertencias ? classesAdvertencia.margin : classesPendientes.margin
+                                theClass.margin
                             }>{children}
                         </Badge>
                     }

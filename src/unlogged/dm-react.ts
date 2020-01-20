@@ -97,7 +97,7 @@ var setTP = function setTP(
     payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     tipoPrecioRedux:(relPre:RelPre)=>string|null
 ){
-    return surfRelPre(hdrState, payload, relPre=>{
+    return surfRelPre(hdrState, payload, (relPre:RelPre)=>{
         var tipoPrecioNuevo = tipoPrecioRedux(relPre);
         var esNegativo = !tipoPrecioNuevo || !estructura!.tipoPrecio[tipoPrecioNuevo].espositivo;
         var paraLimipar=esNegativo?{
@@ -105,10 +105,15 @@ var setTP = function setTP(
             cambio: null,
             atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
         }:{};
-        return {
+        var nuevoRelPre:RelPre={
             ...relPre,
             ...paraLimipar,
             tipoprecio: tipoPrecioNuevo
+        };
+        return {
+            ...nuevoRelPre,
+            adv: controlarPrecio(nuevoRelPre, estructura!).tieneAdv,
+            err: controlarPrecio(nuevoRelPre, estructura!).tieneErr
         };
     });
 }
@@ -150,7 +155,6 @@ var reducers={
                     tipoprecio:puedeCambiarPrecio && !miRelPre.tipoprecio?estructura!.tipoPrecioPredeterminado.tipoprecio:miRelPre.tipoprecio
                 };
                 nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
-                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -161,7 +165,6 @@ var reducers={
                     ...miRelPre,
                     comentariosrelpre: payload.comentario
                 };
-                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -178,7 +181,6 @@ var reducers={
                 };
                 nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
                 nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
-                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -191,7 +193,6 @@ var reducers={
                 };
                 nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
                 nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
-                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -210,7 +211,6 @@ var reducers={
                 };
                 nuevoRelPre.cambio=calcularCambioAtributosEnPrecio(nuevoRelPre)
                 nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
-                nuevoRelPre.adv=controlarPrecio(nuevoRelPre, estructura!).tieneAdv;
                 return nuevoRelPre;
             });
         },
@@ -329,27 +329,25 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
     const hdrReducer = createReducer(reducers, initialState);
     /* FIN DEFINICION CONTROLADOR */
     /* CARGA Y GUARDADO DE STATE */
+    function completarOpcionesCambiosyAdvertencias(content:HojaDeRuta){
+        content.opciones = content.opciones || getDefaultOptions();
+        content.informantes.forEach(
+            (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
+                observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;
+                observacion.err = controlarPrecio(observacion, estructura).tieneErr;
+                observacion.cambio = calcularCambioAtributosEnPrecio(observacion);
+            })
+        )
+    }
+
     function loadState():HojaDeRuta{
         var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(contentJson){
             var content:HojaDeRuta = JSON4all.parse(contentJson);
-            content.opciones = content.opciones || getDefaultOptions();
-            content.informantes.forEach(
-                (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
-                    observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;
-                    observacion.cambio = calcularCambioAtributosEnPrecio(observacion);
-                })
-            )
+            completarOpcionesCambiosyAdvertencias(content);
             return content;
         }else{
-            initialState.opciones = initialState.opciones||getDefaultOptions();
-            initialState.informantes.forEach(
-                (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
-                    observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;
-                    observacion.cambio = calcularCambioAtributosEnPrecio(observacion);
-
-                })
-            )
+            completarOpcionesCambiosyAdvertencias(initialState);
             return initialState;
         }
     }

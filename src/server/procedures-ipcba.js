@@ -1303,7 +1303,7 @@ ProceduresIpcba = [
                 `;
                 var sqlAtributos=`
                     SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
-                            case when rp.tipoprecio is null then null else ra.valor end as valor, 
+                            case when tp.espositivo='S' then ra.valor else null end as valor, 
                             ra_1.valor as valoranterior, 
                             pa.orden
                         FROM relatr ra 
@@ -1334,6 +1334,7 @@ ProceduresIpcba = [
                             split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
                             r_his.sinpreciohace4meses = 'S' sinpreciohace4meses
                         FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
+                            left join tipopre tp using(tipoprecio) 
                             inner join forprod fp using(formulario, producto)
                             inner join formularios f using (formulario)
                             left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
@@ -1533,7 +1534,7 @@ ProceduresIpcba = [
                 var result = await context.client.query(
                     `update reltar
                         set descargado = current_timestamp, vencimiento_sincronizacion2 = null
-                        where id_instalacion = $1 and vencimiento_sincronizacion2 > current_timestamp
+                        where id_instalacion = $1 
                         returning *`
                 ,[idInstalacion.value]).fetchAll();
                 var tiposDePrecio = await context.client.query(
@@ -1548,8 +1549,10 @@ ProceduresIpcba = [
                                 await context.client.query(`
                                     update relvis
                                         set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
-                                        where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada`
-                                ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, formulario.comentarios, context.user.usu_usu]).execute()
+                                        where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada
+                                        returning true`
+                                    ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, formulario.comentarios, context.user.usu_usu]
+                                ).fetchUniqueRow()
                             }catch(err){
                                 throw new Error('Error al actualizar razón para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
                             }
@@ -1560,18 +1563,20 @@ ProceduresIpcba = [
                                 await context.client.query(`
                                     update relpre
                                         set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
-                                        where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada`
-                                ,[
-                                    observacion.tipoprecio, 
-                                    observacion.precio, 
-                                    observacion.cambio,
-                                    observacion.periodo, 
-                                    observacion.informante, 
-                                    observacion.visita, 
-                                    observacion.producto, 
-                                    observacion.observacion,
-                                    observacion.comentariosrelpre
-                                ]).execute()
+                                        where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
+                                        returning true`
+                                    ,[
+                                        observacion.tipoprecio, 
+                                        observacion.precio, 
+                                        observacion.cambio,
+                                        observacion.periodo, 
+                                        observacion.informante, 
+                                        observacion.visita, 
+                                        observacion.producto, 
+                                        observacion.observacion,
+                                        observacion.comentariosrelpre
+                                    ]
+                                ).fetchUniqueRow()
                             }catch(err){
                                 throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
                             }
@@ -1582,7 +1587,9 @@ ProceduresIpcba = [
                                         await context.client.query(`
                                             update relatr
                                                 set valor = $1
-                                                where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada`
+                                                where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada
+                                                  and upper(trim(valor))<>$8
+                                                returning true`
                                         ,[
                                             atributo.valor?atributo.valor.toString().trim().toUpperCase():null, 
                                             atributo.periodo, 
@@ -1590,8 +1597,9 @@ ProceduresIpcba = [
                                             atributo.visita, 
                                             atributo.producto, 
                                             atributo.observacion,
-                                            atributo.atributo
-                                        ]).execute()
+                                            atributo.atributo,
+                                            atributo.valor?atributo.valor.toString().trim().toUpperCase():null // para solo hacer update si hubo cambio
+                                        ]).fetchOneRowIfExists()
                                     }catch(err){
                                         throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
                                     }
