@@ -755,7 +755,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     }))
                                     setMenuConfirmarBorradoPrecio(false)
                                 }} color="secondary" variant="outlined">
-                                    Borrar precios y atributos
+                                    Borrar precio y atributos
                                 </Button>
                             </DialogActions>
                         </Dialog>
