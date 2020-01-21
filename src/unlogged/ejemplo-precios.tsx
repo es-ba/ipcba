@@ -523,13 +523,14 @@ function numberElement(num:number|null):JSX.Element{
 }
 
 var PreciosRow = React.memo(function PreciosRow(props:{
-    relPre:RelPre, iRelPre:number
+    relPre:RelPre, iRelPre:number,
+    hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
+    inputIdPrecio:string
 }){
-    const {searchString, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {hasSearchString, allForms, esPrecioActual, inputIdPrecio} = props;
     const relPre = props.relPre;
     const dispatch = useDispatch();
-    const inputIdPrecio = props.relPre.producto+'-'+props.relPre.observacion;
-    const inputIdAtributos = relPre.atributos.map((relAtr)=>relAtr.producto+'-'+relAtr.observacion+'-'+relAtr.atributo);
+    const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
     const productoDef:Producto = estructura.productos[relPre.producto];
     const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
@@ -541,12 +542,12 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000"});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS});
-    const {color, tieneAdv} = controlarPrecio(relPre, estructura, !!idActual && idActual.startsWith(inputIdPrecio));
+    const {color, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
-    var handleSelection = function handleSelection(relPre:RelPre, searchString:string, allForms:boolean){
-        if(searchString || allForms){
+    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+        if(hasSearchString || allForms){
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
             dispatch(dispatchers.RESET_SEARCH({}))
         }
@@ -604,7 +605,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     <tr>
                         <td className="observaciones" button-container="yes">
                             <Button color="primary" variant="outlined" onClick={()=>{
-                                handleSelection(relPre, searchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms);
                                 setDialogoObservaciones(true)
                             }}>
                                 obs
@@ -678,7 +679,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 <RepreguntaIcon/>
                             :((puedeCopiarTipoPrecio(estructura, relPre))?
                                 <Button color="secondary" variant="outlined" onClick={ () => {
-                                    handleSelection(relPre, searchString, allForms);
+                                    handleSelection(relPre, hasSearchString, allForms);
                                     if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                                         setMenuConfirmarBorradoPrecio(true)
@@ -693,7 +694,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </td>
                         <td className="tipoPrecio" button-container="yes">
                             <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
-                                handleSelection(relPre, searchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms);
                                 setMenuTipoPrecio(event.currentTarget)
                             }}>
                                 {relPre.tipoprecio||"\u00a0"}
@@ -775,7 +776,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 }));
                             // focusToId(inputIdPrecio,e=>e.blur());
                             }} dataType="number" onFocus={()=>{
-                                handleSelection(relPre, searchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms);
                             }}
                         />
                         
@@ -791,7 +792,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             primerAtributo={index==0}
                             cantidadAtributos={relPre.atributos.length}
                             ultimoAtributo={index == relPre.atributos.length-1}
-                            onSelection={()=>handleSelection(relPre,searchString,allForms)}
+                            onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
                         />
                     )}
                 </tbody>
@@ -811,7 +812,7 @@ function RelevamientoPrecios(props:{
 }){
     const relInf = props.relInf;
     const relVis = props.relVis;
-    const {queVer, searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var observaciones = relInf.observaciones;
     var criterio = (relPre:RelPre) => 
@@ -828,6 +829,7 @@ function RelevamientoPrecios(props:{
         criterio(relPre))?{relPre, iRelPre}:null
     ).filter(filterNotNull);
     var cantidadResultados = observacionesFiltradas.length;
+    // const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     return <>
         {queVer == 'pendientes'? <Typography className="titulo-pendientes">observaciones pendientes</Typography>:(
             queVer == 'advertencias'? <Typography className="titulo-advertencias">observaciones con advertencias</Typography>:(
@@ -836,13 +838,18 @@ function RelevamientoPrecios(props:{
         )}
         <div className="informante-visita">
             {cantidadResultados?
-                observacionesFiltradas.map(({relPre, iRelPre}) =>
-                    <PreciosRow 
+                observacionesFiltradas.map(({relPre, iRelPre}) =>{
+                    var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+                    return <PreciosRow 
                         key={relPre.producto+'/'+relPre.observacion}
                         relPre={relPre}
                         iRelPre={Number(iRelPre)}
+                        hasSearchString={!!searchString}
+                        allForms={allForms}
+                        inputIdPrecio={inputIdPrecio}
+                        esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
                     />
-                )
+                })
             :(observacionesFiltradasEnOtros.length==0 && queVer != 'todos'?
                 <div>No hay</div>
             :null)
