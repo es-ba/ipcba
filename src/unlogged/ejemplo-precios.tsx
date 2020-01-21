@@ -161,7 +161,7 @@ function TypedInput<T extends string|number|null>(props:{
                 //@ts-ignore si dataType=='number' estoy seguro que T es number
                 valorT=Number(valor)
             }else{
-                valorT=valor.trim();
+                valorT=valor.toString();
             }
         }
         setValue(valorT);
@@ -604,11 +604,11 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 <tbody>
                     <tr>
                         <td className="observaciones" button-container="yes">
-                            <Button color="primary" variant="outlined" onClick={()=>{
+                            <Button color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
                                 handleSelection(relPre, hasSearchString, allForms);
                                 setDialogoObservaciones(true)
                             }}>
-                                obs
+                                {relPre.comentariosrelpre||'obs'}
                             </Button>
                             <Dialog
                                 open={dialogoObservaciones}
@@ -643,7 +643,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                         setObservacionAConfirmar(relPre.comentariosrelpre)
                                         setDialogoObservaciones(false)
                                     }} color="secondary" variant="outlined">
-                                        Descartar Observaciones
+                                        Descartar cambio
                                     </Button>
                                 </DialogActions>
                             </Dialog>
