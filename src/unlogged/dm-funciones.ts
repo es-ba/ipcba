@@ -173,11 +173,11 @@ export function precioTieneAdvertencia(relPre:RelPre, relVis: RelVis, estructura
 }
 
 export function precioEstaPendiente(relPre:RelPre, relVis: RelVis, estructura:Estructura){
-    return (relPre.tipoprecio == null || estructura.tipoPrecio[relPre.tipoprecio].espositivo && !relPre.precio) && estructura.razones[relVis.razon!].espositivoformulario;
+    return (relPre.tipoprecio == null || estructura.tipoPrecio[relPre.tipoprecio].espositivo && !relPre.precio) && relVis.razon && estructura.razones[relVis.razon!].espositivoformulario;
 }
 
 export function razonNecesitaConfirmacion(estructura:Estructura, _relVis:RelVis, razon:number){
-    return !estructura.razones[razon].espositivoformulario
+    return razon && !estructura.razones[razon].espositivoformulario
 }
 
 export function hayPreciosOAtributosCargadosEnFormulario(_estructura:Estructura, _relVis:RelVis){
