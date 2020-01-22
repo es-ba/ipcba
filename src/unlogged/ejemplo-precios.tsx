@@ -1208,7 +1208,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     relInf={relInf} 
                     relVis={relVis}
                     formulario={relVis.formulario}
-                    razonPositiva={relVis.razon != null && estructura.razones[relVis.razon].espositivoformulario}
+                    razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
                 />
             </main>
             <ScrollTop>
