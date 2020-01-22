@@ -401,6 +401,7 @@ const AtributosRow = function(props:{
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
+    razonPositiva:boolean,
     onSelection:()=>void
 }){
     const relAtr = props.relAtr;
@@ -417,25 +418,27 @@ const AtributosRow = function(props:{
             <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
             {props.primerAtributo?
                 <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
-                    {muestraFlechaCopiarAtributos(estructura, relPre)?
-                        <Button color="primary" variant="outlined" onClick={ () => {
-                            props.onSelection();
-                            dispatch(dispatchers.COPIAR_ATRIBUTOS({
-                                forPk:relAtr, 
-                                iRelPre:props.iRelPre,
-                                nextId:relPre.precio?false:props.inputIdPrecio
-                            }))
-                        }}>
-                            {FLECHAATRIBUTOS}
-                        </Button>
-                    :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
-                        <Button color="primary" variant="outlined" onClick={ (event) => {
-                            props.onSelection();
-                            setMenuCambioAtributos(event.currentTarget)                            
-                        }}>
-                            C
-                        </Button>
-                    :relPre.cambio}
+                    {!props.razonPositiva?'':(
+                        muestraFlechaCopiarAtributos(estructura, relPre)?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
+                                props.onSelection();
+                                dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                                    forPk:relAtr, 
+                                    iRelPre:props.iRelPre,
+                                    nextId:relPre.precio?false:props.inputIdPrecio
+                                }))
+                            }}>
+                                {FLECHAATRIBUTOS}
+                            </Button>
+                        :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                                props.onSelection();
+                                setMenuCambioAtributos(event.currentTarget)                            
+                            }}>
+                                C
+                            </Button>
+                        :relPre.cambio
+                    )}
                 </td>
             :null}
             <EditableTd
@@ -443,9 +446,9 @@ const AtributosRow = function(props:{
                 badgeCondition={tieneAdv}
                 badgeBackgroundColor={color}
                 colSpan={2} className="atributo-actual" inputId={props.inputId}
-                disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} 
+                disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
-                value={relAtr.valor} 
+                value={props.razonPositiva?relAtr.valor:null} 
                 onUpdate={value=>{
                     dispatch(dispatchers.SET_ATRIBUTO({
                         forPk:relAtr, 
@@ -461,7 +464,6 @@ const AtributosRow = function(props:{
                     props.onSelection();
                 }}
             />
-            
             <Menu id="simple-menu-cambio"
                 open={Boolean(menuCambioAtributos)}
                 anchorEl={menuCambioAtributos}
@@ -525,7 +527,7 @@ function numberElement(num:number|null):JSX.Element{
 var PreciosRow = React.memo(function PreciosRow(props:{
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
-    inputIdPrecio:string
+    inputIdPrecio:string, razonPositiva:boolean
 }){
     const {hasSearchString, allForms, esPrecioActual, inputIdPrecio} = props;
     const relPre = props.relPre;
@@ -604,7 +606,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 <tbody>
                     <tr>
                         <td className="observaciones" button-container="yes">
-                            <Button color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
                                 handleSelection(relPre, hasSearchString, allForms);
                                 setDialogoObservaciones(true)
                             }}>
@@ -678,7 +680,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             {relPre.repregunta?
                                 <RepreguntaIcon/>
                             :((puedeCopiarTipoPrecio(estructura, relPre))?
-                                <Button color="secondary" variant="outlined" onClick={ () => {
+                                <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
                                     handleSelection(relPre, hasSearchString, allForms);
                                     if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
@@ -693,11 +695,11 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }
                         </td>
                         <td className="tipoPrecio" button-container="yes">
-                            <Button color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
+                            <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
                                 handleSelection(relPre, hasSearchString, allForms);
                                 setMenuTipoPrecio(event.currentTarget)
                             }}>
-                                {relPre.tipoprecio||"\u00a0"}
+                                {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
                             </Button>
                         </td>
                         <Menu id="simple-menu"
@@ -764,9 +766,10 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             badgeCondition={tieneAdv}
                             badgeBackgroundColor={color}
                             inputId={inputIdPrecio} 
-                            disabled={!puedeCambiarPrecioYAtributos(estructura, relPre)} placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
+                            disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
+                            placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
                             className="precio" 
-                            value={relPre.precio} 
+                            value={props.razonPositiva?relPre.precio:null} 
                             onUpdate={value=>{
                                 dispatch(dispatchers.SET_PRECIO({
                                     forPk:relPre, 
@@ -793,6 +796,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             cantidadAtributos={relPre.atributos.length}
                             ultimoAtributo={index == relPre.atributos.length-1}
                             onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
+                            razonPositiva={props.razonPositiva}
                         />
                     )}
                 </tbody>
@@ -808,7 +812,8 @@ function filterNotNull<T extends {}>(x:T|null):x is T {
 function RelevamientoPrecios(props:{
     relInf:RelInf, 
     relVis: RelVis,
-    formulario:number
+    formulario:number,
+    razonPositiva:boolean
 }){
     const relInf = props.relInf;
     const relVis = props.relVis;
@@ -848,6 +853,7 @@ function RelevamientoPrecios(props:{
                         allForms={allForms}
                         inputIdPrecio={inputIdPrecio}
                         esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
+                        razonPositiva={props.razonPositiva}
                     />
                 })
             :(observacionesFiltradasEnOtros.length==0 && queVer != 'todos'?
@@ -1202,6 +1208,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     relInf={relInf} 
                     relVis={relVis}
                     formulario={relVis.formulario}
+                    razonPositiva={relVis.razon != null && estructura.razones[relVis.razon].espositivoformulario}
                 />
             </main>
             <ScrollTop>
