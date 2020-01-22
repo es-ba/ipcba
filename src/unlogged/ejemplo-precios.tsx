@@ -884,15 +884,22 @@ function RelevamientoPrecios(props:{
     </>;
 }
 
-function RazonFormulario(props:{relVis:RelVis}){
+function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     const relVis = props.relVis;
     const razones = estructura.razones;
     const {verRazon} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
+    var cantObsConPrecio = props.relInf.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario && !!relPre.precio).length;
+    const [confirmarCantObs, setConfirmarCantObs] = useState(null);
     const dispatch = useDispatch();
     const classes = useStylesList();
+    const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
+        //@ts-ignore en este caso sabemos que etarget es un Element que tiene value.
+        var valor = event.target.value;
+        setConfirmarCantObs(valor);
+    }
     return (
         verRazon?
         <table className="razon-formulario">
@@ -906,7 +913,7 @@ function RazonFormulario(props:{relVis:RelVis}){
                         </Button>
                     </td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd placeholder='agregar comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
+                    <EditableTd placeholder='sin comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
                             dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value, nextId:false}));
                         }}
@@ -940,11 +947,16 @@ function RazonFormulario(props:{relVis:RelVis}){
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description-rn">
                             <div>
-                                Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. Se borrarán x precios ingresados.
+                                Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. 
+                                Se {cantObsConPrecio==1?'borrará un precio':`borrarán ${cantObsConPrecio} precios`} ingresados.
                             </div>
                             <div>
-                                Confirme el numero de precios a borrar
+                                Confirme la acción ingresando la cantidad de precios que se van a borrar: 
                             </div>
+                            <TextField
+                                value={confirmarCantObs}
+                                onChange={onChangeFun}
+                            />
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
@@ -953,11 +965,11 @@ function RazonFormulario(props:{relVis:RelVis}){
                         }} color="primary" variant="outlined">
                             No borrar
                         </Button>
-                        <Button onClick={()=>{
+                        <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
                             dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon, nextId:false}));
                             setMenuConfirmarRazon(false)
                         }} color="secondary" variant="outlined">
-                            Borrar precios y/o atributos
+                            Proceder borrando
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -1204,7 +1216,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 </List>
             </Drawer>
             <main className={classes.content}>
-                <RazonFormulario relVis={relVis}/>
+                <RazonFormulario relVis={relVis} relInf={relInf}/>
                 <RelevamientoPrecios 
                     relInf={relInf} 
                     relVis={relVis}
