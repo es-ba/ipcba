@@ -1356,7 +1356,7 @@ ProceduresIpcba = [
                             AND rv.tarea=rvi.tarea
                             AND rv.informante=rvi.informante`;
                 var sqlFormularios=`
-                    SELECT periodo, visita, informante, formulario, CASE WHEN razon is null THEN 1 ELSE razon END as razon, comentarios, visita, orden
+                    SELECT periodo, visita, informante, formulario, CASE WHEN razon is null or razon=0 THEN 1 ELSE razon END as razon, comentarios, visita, orden
                         FROM relvis rv inner join formularios using (formulario)
                         WHERE periodo=rvi.periodo 
                             AND tarea=rvi.tarea
@@ -1527,16 +1527,23 @@ ProceduresIpcba = [
         coreFunction:async function(context, params){
             var token = params.token_instalacion;
             try{
-                var idInstalacion = await context.client.query(
-                    `select id_instalacion from instalaciones where token_instalacion = $1`,
-                    [token]
-                ).fetchUniqueValue();
+                try{
+                    var idInstalacion = await context.client.query(
+                        `select id_instalacion from instalaciones where token_instalacion = $1`,
+                        [token]
+                    ).fetchUniqueValue();
+                }catch(err){
+                    if(err.code=='54011!'){
+                        throw new Error('No se encuentra el token_instalacion. Quizas la persona tiene otro dipopsitivo activo');
+                    }
+                }
                 var result = await context.client.query(
                     `update reltar
-                        set descargado = current_timestamp, vencimiento_sincronizacion2 = null
+                        set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
+                            datos_descarga = $2
                         where id_instalacion = $1 
                         returning *`
-                ,[idInstalacion.value]).fetchAll();
+                ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
                 var tiposDePrecio = await context.client.query(
                     `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
                 ,[]).fetchAll();
@@ -1545,16 +1552,37 @@ ProceduresIpcba = [
                     var hoja_de_ruta = params.hoja_de_ruta;
                     for(var informante of hoja_de_ruta.informantes){
                         for(var formulario of informante.formularios){
+                            var filtroValoresPrecioAtributo;
+                            var limpiandoRazon;
+                            var actualizarRelVis=async function(){
+                                try{
+                                    await context.client.query(`
+                                        update relvis 
+                                            set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
+                                            where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada
+                                            returning true`
+                                        ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, formulario.comentarios, context.user.usu_usu]
+                                    ).fetchUniqueRow()
+                                }catch(err){
+                                    throw new Error('Error al actualizar razon para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
+                                }
+                            }
                             try{
-                                await context.client.query(`
-                                    update relvis
-                                        set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
+                                var result = await context.client.query(`
+                                    select r_a.espositivoformulario = 'S' and r_nueva.espositivoformulario is distinct from 'S' as limpiar_precios,
+                                           case when r_nueva.espositivoformulario = 'S' then true else null end as filtro_valores
+                                        from relvis rv left join razones r_a using (razon) left join razones r_nueva on r_nueva.razon = $1
                                         where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada
-                                        returning true`
-                                    ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, formulario.comentarios, context.user.usu_usu]
+                                        `
+                                    ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario]
                                 ).fetchUniqueRow()
+                                filtroValoresPrecioAtributo = result.row.filtro_valores;
+                                limpiandoRazon = result.row.limpiar_precios;
                             }catch(err){
-                                throw new Error('Error al actualizar razón para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
+                                throw new Error('Error al caracterizar la visita para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
+                            }
+                            if(!limpiandoRazon){
+                                await actualizarRelVis();
                             }
                         };
                         for(var observacion of informante.observaciones){
@@ -1566,15 +1594,15 @@ ProceduresIpcba = [
                                         where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
                                         returning true`
                                     ,[
-                                        observacion.tipoprecio, 
-                                        observacion.precio, 
-                                        observacion.cambio,
+                                        filtroValoresPrecioAtributo && observacion.tipoprecio, 
+                                        filtroValoresPrecioAtributo && observacion.precio, 
+                                        filtroValoresPrecioAtributo && observacion.cambio,
                                         observacion.periodo, 
                                         observacion.informante, 
                                         observacion.visita, 
                                         observacion.producto, 
                                         observacion.observacion,
-                                        observacion.comentariosrelpre
+                                        filtroValoresPrecioAtributo && observacion.comentariosrelpre
                                     ]
                                 ).fetchUniqueRow()
                             }catch(err){
@@ -1582,23 +1610,24 @@ ProceduresIpcba = [
                             }
                             for(var atributo of observacion.atributos){
                                 //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo/* && atributo.valor*/){
+                                if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && !filtroValoresPrecioAtributo /* && atributo.valor*/){
                                     try{
+                                        var valorAtributoMayusculado = (atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
                                         await context.client.query(`
                                             update relatr
                                                 set valor = $1
                                                 where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada
-                                                  and upper(trim(valor))<>$8
+                                                  and upper(trim(valor)) is distinct from $8
                                                 returning true`
                                         ,[
-                                            atributo.valor?atributo.valor.toString().trim().toUpperCase():null, 
+                                            valorAtributoMayusculado, 
                                             atributo.periodo, 
                                             atributo.informante, 
                                             atributo.visita, 
                                             atributo.producto, 
                                             atributo.observacion,
                                             atributo.atributo,
-                                            atributo.valor?atributo.valor.toString().trim().toUpperCase():null // para solo hacer update si hubo cambio
+                                            valorAtributoMayusculado // para solo hacer update si hubo cambio
                                         ]).fetchOneRowIfExists()
                                     }catch(err){
                                         throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
@@ -1606,10 +1635,13 @@ ProceduresIpcba = [
                                 }
                             }
                         }
+                        if(limpiandoRazon){
+                            await actualizarRelVis();
+                        }
                     };              
                     return 'descarga completa';
                 }else{
-                    return 'sincronizacion deshabilitada o vencida para el encuestador ' + params.encuestador
+                    return 'La sincronización no se puede realizar para el encuestador ' + params.encuestador + ' en este dispositivo. Quizás se le haya cargado otro dispositivo'
                 }
             }catch(err){
                 console.log('ERROR',err);

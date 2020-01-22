@@ -55,7 +55,6 @@ BEGIN
     
     INSERT INTO cvp.relpresemaforo (periodo,informante,visita,producto,observacion)
       VALUES(NEW.periodo,NEW.informante,NEW.visita,NEW.producto, NEW.observacion);
-    /* 12/01/2017, Requerimiento IPCBA 274, dejar el valor que se ingresó en el periodo actual, no copiar los valores del periodo anterior
     FOR vatributos IN 
       SELECT r_1.atributo,r_1.valor_1, r_1.valor
       FROM cvp.relatr_1 r_1
@@ -77,7 +76,6 @@ BEGIN
                 atributo=vatributos.atributo ; --TOMAR VALOR DE ATRIBUTO
       END IF;   
     END LOOP;  
-    */
   END IF;
  RETURN NEW; 
 END;
@@ -88,4 +86,3 @@ CREATE TRIGGER relpre_restaura_atributos_trg
    BEFORE UPDATE 
    ON relpre 
    FOR EACH ROW EXECUTE PROCEDURE restaurar_atributos_trg();
-  
