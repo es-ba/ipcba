@@ -24,25 +24,28 @@ const periodo_inicial = 'a2012m07';
 const agrupacion = 'E';
 
 const ESPECIFICACION_COMPLETA=`
-        COALESCE(trim(e.nombreespecificacion)|| '. ', '')  
-            ||COALESCE(
-                NULLIF(TRIM(
-                    COALESCE(trim(e.envase)||' ','')||
-                    CASE WHEN e.mostrar_cant_um='N' THEN ''
-                    ELSE COALESCE(e.cantidad::text||' ','')||COALESCE(e.UnidadDeMedida,'') END),'')|| '. '
-            , '') 
-            ||(SELECT 
-              string_agg(
-               CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN 
-                  CASE WHEN t.visiblenombreatributo = 'S' THEN a.nombreatributo||' ' ELSE '' END||
-                  'de '||t.rangodesde||' a '||t.rangohasta||' '||COALESCE(a.unidaddemedida, a.nombreatributo, '')
-                  ||CASE WHEN t.alterable = 'S' AND t.normalizable = 'S' AND NOT(t.rangodesde <= t.valornormal AND t.valornormal <= t.rangohasta) THEN ' ó '||t.valornormal||' '||a.unidaddemedida ELSE '' END||'. '
-                ELSE ''
-               END,'' ORDER BY t.orden)
-               FROM prodatr t INNER JOIN atributos a USING (atributo)
-               WHERE t.producto=p.producto
-              )
-            ||COALESCE('Excluir ' || trim(e.excluir) || '. ', '') AS EspecificacionCompleta`
+    CONCAT_WS(' ',
+        trim(e.nombreespecificacion)|| '.',
+        NULLIF(TRIM(
+            COALESCE(trim(e.envase)||' ','')||
+            CASE WHEN e.mostrar_cant_um='N' THEN ''
+            ELSE COALESCE(e.cantidad::text||' ','')||COALESCE(e.UnidadDeMedida,'') END),'')|| '.',
+        (SELECT string_agg(
+                    CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN 
+                        CASE WHEN t.visiblenombreatributo = 'S' THEN a.nombreatributo||' ' ELSE '' END||
+                            'de '||t.rangodesde||' a '||t.rangohasta||' '||COALESCE(a.unidaddemedida, a.nombreatributo, '')
+                        ||CASE WHEN t.alterable = 'S' AND t.normalizable = 'S' AND NOT(t.rangodesde <= t.valornormal AND t.valornormal <= t.rangohasta) THEN ' ó '||t.valornormal||' '||a.unidaddemedida ELSE '' END||'. '
+                    ELSE ''
+                    END,
+                    '' 
+                    ORDER BY t.orden
+                )
+            FROM prodatr t INNER JOIN atributos a USING (atributo)
+            WHERE t.producto=p.producto
+        ),
+        'Excluir ' || trim(e.excluir) || '.'
+    ) AS EspecificacionCompleta
+`
 
 var ProceduresIpcba = {};
 var cuadro = [];
