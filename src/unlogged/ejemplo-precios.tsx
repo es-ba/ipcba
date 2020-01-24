@@ -23,6 +23,8 @@ import {
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
+const LIMITE_UNION_FORMULARIOS = 30;
+
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
     Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
@@ -863,22 +865,30 @@ function RelevamientoPrecios(props:{
             }
             {
                 observacionesFiltradasEnOtros.length>0?
+                (observacionesFiltradasEnOtros.length+observacionesFiltradas.length<=LIMITE_UNION_FORMULARIOS?
+                    <div className="zona-degrade">
+                        <Button className="boton-hay-mas" variant="outlined"
+                            onClick={()=>{
+                                dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:true}))
+                                dispatch(dispatchers.SET_OPCION({variable:'verRazon',valor:false}))
+                            }}
+                        >ver más {queVer == 'todos'?'':queVer} en otros formularios</Button>
+                        {observacionesFiltradasEnOtros.map(({relPre}, i) => (
+                            i<10?
+                            <Typography 
+                                key={relPre.producto+'/'+relPre.observacion}
+                            >
+                                {estructura.productos[relPre.producto].nombreproducto} {relPre.observacion>1?relPre.observacion.toString():''}
+                            </Typography>:null
+                        ))}
+                    </div>
+                :
                 <div className="zona-degrade">
-                    <Button className="boton-hay-mas" variant="outlined"
-                        onClick={()=>{
-                            dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:true}))
-                            dispatch(dispatchers.SET_OPCION({variable:'verRazon',valor:false}))
-                        }}
-                    >ver más {queVer == 'todos'?'':queVer} en otros formularios</Button>
-                    {observacionesFiltradasEnOtros.map(({relPre}, i) => (
-                        i<10?
-                        <Typography 
-                            key={relPre.producto+'/'+relPre.observacion}
-                        >
-                            {estructura.productos[relPre.producto].nombreproducto} {relPre.observacion>1?relPre.observacion.toString():''}
-                        </Typography>:null
-                    ))}
-                </div>:null
+                    <Typography>Hay más observaciones en otros formularios</Typography>
+                    <Typography></Typography>
+                    <Typography>No se muestra el botón porque en total son {observacionesFiltradasEnOtros.length+observacionesFiltradas.length}</Typography>
+                    </div>
+                ):null
             }
         </div>
     </>;
@@ -1143,6 +1153,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             aria-label="large contained default button group"
                         >
                             <Button onClick={()=>{
+                                dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:false}))
                                 dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'todos'}));
                             }}disabled={queVer=='todos'}>
                                 <ICON.CheckBoxOutlined />
