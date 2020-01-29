@@ -569,7 +569,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_diccionario_atributos'  , label:'inconsistencias de diccionario de atributos', onlyVisibleFor:[programador,coordinador,recepcionista,analista]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
                     {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista]},
                     {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
@@ -658,7 +658,7 @@ NETWORK:
                 ]},
                 {menuType:'table', name:'relmon', label:'cotización moneda extranjera', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},                        
-            ], onlyVisibleFor:[programador,coordinador,analista,migracion]},                
+            ], onlyVisibleFor:[programador,coordinador,analista,migracion,recepGabinete]},                
             {menuType:'menu', name:'resultados', menuContent:[
                 {menuType:'table', name:'calculos_calgru_vw', label:'vista de calgru'},
                 {menuType:'table', name:'calculos_caldiv_vw', label:'vista de caldiv'},
