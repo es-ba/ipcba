@@ -101,6 +101,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-cal_mensajes.sql
                 - fun-cal_perbase_prop.sql
                 - fun-calbase_periodos.sql
+                - fun-calcularprerep.sql
                 - fun-calcularunperiodo.sql
                 - fun-calcularvarios.sql
                 - fun-calculo_borrar.sql
@@ -136,6 +137,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calprod_valorizar.sql
                 - fun-crear_vista_calobs_periodos.sql
                 - fun-controlar_estado_carga.sql
+                - fun-diferenciaentreperiodosparar.sql
                 - fun-moverperiodos.sql
                 - fun-periodo_igual_mes_anno_anterior.sql
                 - fun-obtenerunidadnormalizada.sql
@@ -147,6 +149,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-periodo_maximas_variaciones.sql
                 - fun-periodo_minimos_precios.sql
                 - fun-periodo_maximos_precios.sql
+                - fun-testpanelesgenerados.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
