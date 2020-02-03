@@ -1,6 +1,7 @@
 import {html}  from 'js-to-html';
 import * as JSON4all from "json4all";
 import {LOCAL_STORAGE_STATE_NAME} from "../unlogged/dm-react";
+import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 
 var my=myOwn;
 
@@ -326,4 +327,6 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
     })
 }
 
-// myOwn.wScreens.demo_dm = dmHojaDeRuta;
+myOwn.wScreens.demo_dm = async function(){
+    dmHojaDeRuta({periodo:null, panel:null,tarea:null});
+};

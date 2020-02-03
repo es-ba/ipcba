@@ -197,7 +197,7 @@ export type HojaDeRuta={
 }
 
 export type AddrParamsHdr={
-    periodo: string
-    panel: number
-    tarea: number
+    periodo: string | null
+    panel: number | null
+    tarea: number | null
 }

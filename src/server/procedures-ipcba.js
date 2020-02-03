@@ -1552,13 +1552,15 @@ ProceduresIpcba = [
                 fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
             }
             try{
-                await context.client.query(
-                    `update relvis
-                        set preciosgenerados = true
-                        where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
-                    ,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).execute();
+                if(!parameters.demo){
+                    await context.client.query(
+                        `update relvis
+                            set preciosgenerados = true
+                            where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
+                        ,
+                        [parameters.periodo, parameters.panel, parameters.tarea]
+                    ).execute();
+                }
                 var hojaDeRutaConPrecios = await context.client.query(
                     `SELECT count(*) > 0 as tieneprecioscargados
                         FROM relvis
