@@ -192,6 +192,10 @@ function TypedInput<T extends string|number|null>(props:{
             rowsMax="4"
             // className={classes.textField}
             // margin="normal"
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
             id={inputId}
             value={valueString}
             type={props.dataType} 
