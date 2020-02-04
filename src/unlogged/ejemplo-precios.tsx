@@ -169,10 +169,11 @@ function TypedInput<T extends string|number|null>(props:{
         }
         setValue(valorT);
     }
-    const onBlurFun = function <TE>(event:TE){
+    const onBlurFun = function <TE>(_event:TE){
         if(value!==props.value){
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-            props.onUpdate(event.target.value);
+            // manda value porque ya está sanitizado en el onChange
+            props.onUpdate(value);
         }
         props.onFocusOut();
     };
@@ -252,6 +253,7 @@ function EditableTd<T extends string|number|null>(props:{
     badgeCondition?:boolean,
     badgeBackgroundColor?:any,
     borderBottomColor?:string,
+    height?:string,
     inputId:string,
     disabled?:boolean,
     placeholder?: string,
@@ -282,7 +284,8 @@ function EditableTd<T extends string|number|null>(props:{
         <td style={{
             backgroundColor:props.backgroundColor?props.backgroundColor:'none', 
             borderBottomColor:props.borderBottomColor?props.borderBottomColor:"#3f51b5",
-            overflowX: badgeCondition?'unset':'hidden'
+            overflowX: badgeCondition?'unset':'hidden',
+            height:props.height?props.height:'unset',
         }} 
             colSpan={props.colSpan} 
             className={props.className} 
@@ -627,9 +630,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText id="alert-dialog-description-obs">
-                                    <EditableTd inputId={inputIdPrecio+"_comentarios"} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
-                                        setObservacionAConfirmar(value);
-                                    }} dataType="text"/>
+                                        <EditableTd inputId={inputIdPrecio+"_comentarios"} height='35px' disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
+                                            setObservacionAConfirmar(value);
+                                        }} dataType="text"/>
                                     </DialogContentText>
                                 </DialogContent>
                                 <DialogActions>
