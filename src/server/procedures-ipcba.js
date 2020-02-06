@@ -868,6 +868,7 @@ ProceduresIpcba = [
             {name:'panel'               , typeName:'integer'                    },
             {name:'tarea'               , typeName:'integer'                    },
             {name:'token_instalacion'   , typeName:'text'                       },
+            {name:'encuestador'         , typeName:'text'                       },
         ],
         policy:'web',
         progress:true,
@@ -883,10 +884,10 @@ ProceduresIpcba = [
             ).fetchAll();
             await context.client.query(
                 `update relvis
-                    set razon = 0
+                    set razon = 0, encuestador = $4
                     where periodo = $1 and panel = $2 and tarea = $3 and razon is null /*and razon <> 0*/`
                 ,
-                [params.periodo, params.panel, params.tarea]
+                [params.periodo, params.panel, params.tarea, params.encuestador]
             ).execute();
             var idInstalacion = await context.client.query(
                 `select id_instalacion from instalaciones where token_instalacion = $1`,
@@ -1555,10 +1556,10 @@ ProceduresIpcba = [
                 if(!parameters.demo){
                     await context.client.query(
                         `update relvis
-                            set preciosgenerados = true
+                            set preciosgenerados = true, encuestador = $4
                             where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
                         ,
-                        [parameters.periodo, parameters.panel, parameters.tarea]
+                        [parameters.periodo, parameters.panel, parameters.tarea, parameters.encuestador]
                     ).execute();
                 }
                 var hojaDeRutaConPrecios = await context.client.query(

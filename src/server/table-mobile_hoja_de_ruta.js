@@ -60,7 +60,8 @@ module.exports = function(context){
                         join formularios f on v.formulario=f.formulario
                         join informantes i on v.informante = i.informante 
                         join razones r on v.razon = r.razon
-                        left join personal p on v.encuestador = p.persona 
+                        join reltar rt using (periodo, panel, tarea)
+                        left join personal p on rt.encuestador = p.persona 
                         left join (select periodo, informante, visita, formulario, (sum(case when tipoprecio is null then 1 else 0 end))::text as faltan, (sum(case when true = true then 1 else 0 end))::text as adv, count(*)::text as prod
                             from relpre
                             group by periodo, informante, visita, formulario) rp on v.periodo = rp.periodo and v.informante = rp.informante and v.visita = rp.visita and v.formulario = rp.formulario

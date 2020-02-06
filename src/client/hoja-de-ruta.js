@@ -1574,7 +1574,8 @@ function cargarDispositivo(tokenInstalacion, encuestador){
                     periodo: periodo,
                     panel: panel,
                     tarea: tarea,
-                    token_instalacion: tokenInstalacion
+                    token_instalacion: tokenInstalacion,
+                    encuestador: reltarHabilitada.encuestador
                 },{informProgress: function(result){
                     var tableName = result.tableName;
                     var data = result.data;
