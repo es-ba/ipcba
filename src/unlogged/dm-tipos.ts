@@ -168,6 +168,7 @@ export type OpcionesHojaDeRuta={
     allForms: boolean
     searchString: string
     verRazon: boolean
+    compactar: false
 }
 
 export function getDefaultOptions():OpcionesHojaDeRuta{
@@ -180,7 +181,8 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         mostrarColumnasFaltantesYAdvertencias: false,
         allForms: false,
         searchString: '',
-        verRazon: true
+        verRazon: true,
+        compactar: false
     }
 }
 

@@ -563,6 +563,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
+    const {compactar} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
         if(hasSearchString || allForms){
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
@@ -574,40 +575,44 @@ var PreciosRow = React.memo(function PreciosRow(props:{
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
-                <ConditionalWrapper
-                    condition={(productoDef.destacado)}
-                    wrapper={children => 
-                        <Badge style={{width:"100%"}} badgeContent=" " 
-                            classes={{ 
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                badge: classesBadgeProdDestacado.badge 
-                            }} className={
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                classesBadgeProdDestacado.margin
-                            }>{children}
-                        </Badge>
-                    }
-                >
-                    <div className="especificacion">{productoDef.especificacioncompleta}</div>
-                </ConditionalWrapper>
-                <ConditionalWrapper
-                    condition={!!(relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1)}
-                    wrapper={children => 
-                        <Badge style={{width:"100%"}} badgeContent=" " 
-                            classes={{ 
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                badge: classesBadgeComentariosAnalista.badge 
-                            }} 
-                            className={
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                classesBadgeComentariosAnalista.margin
-                            }>
-                            {children}    
-                        </Badge>
-                    }
-                >
-                    <div className="comentario-analista">{relPre.comentariosrelpre_1}</div>
-                </ConditionalWrapper>
+                {!compactar?
+                    <>
+                        <ConditionalWrapper
+                            condition={(productoDef.destacado)}
+                            wrapper={children => 
+                                <Badge style={{width:"100%"}} badgeContent=" " 
+                                    classes={{ 
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        badge: classesBadgeProdDestacado.badge 
+                                    }} className={
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        classesBadgeProdDestacado.margin
+                                    }>{children}
+                                </Badge>
+                            }
+                        >
+                            <div className="especificacion">{productoDef.especificacioncompleta}</div>
+                        </ConditionalWrapper>
+                        <ConditionalWrapper
+                            condition={!!(relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1)}
+                            wrapper={children => 
+                                <Badge style={{width:"100%"}} badgeContent=" " 
+                                    classes={{ 
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        badge: classesBadgeComentariosAnalista.badge 
+                                    }} 
+                                    className={
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        classesBadgeComentariosAnalista.margin
+                                    }>
+                                    {children}    
+                                </Badge>
+                            }
+                        >
+                            <div className="comentario-analista">{relPre.comentariosrelpre_1}</div>
+                        </ConditionalWrapper>
+                    </>
+                    :null}
             </div>
             <table className="caja-precios">
                 <colgroup>
@@ -799,7 +804,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         />
                         
                     </tr>
-                    {relPre.atributos.map((relAtr, index)=>
+                    {!compactar?relPre.atributos.map((relAtr, index)=>
                         <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
                             relPre={relPre}
                             iRelPre={props.iRelPre}
@@ -813,7 +818,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
                             razonPositiva={props.razonPositiva}
                         />
-                    )}
+                    ):null}
                 </tbody>
             </table>
         </>
@@ -1098,7 +1103,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
         var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -1153,8 +1158,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             style={{margin:'0 5px'}}
                         >
                             <Button onClick={()=>{
-                                // setBotonQueVer('compactar')
-                                // TODO: ESTE TIENE QUE SER UN TOGGLE BUTTON que no modifique el botón quever
+                                dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
                             }}>
                                 <ICON.FormatLineSpacing />
                             </Button>
