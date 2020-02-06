@@ -200,6 +200,11 @@ function TypedInput<T extends string|number|null>(props:{
             value={valueString}
             type={props.dataType} 
             style={style}
+            onFocus={(event)=>{
+                var selection = valueString?valueString.length:0;
+                event.target.selectionStart = selection;
+                event.target.selectionEnd = selection;
+            }}
             onChange={onChangeFun}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
