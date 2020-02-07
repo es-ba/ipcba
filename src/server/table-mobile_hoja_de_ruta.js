@@ -50,7 +50,7 @@ module.exports = function(context){
         sql:{
             from:`
                 (select v.periodo, v.informante, v.visita, 
-                      max(v.encuestador) as encuestador,
+                      max(rt.encuestador) as encuestador,
                       max(coalesce(p.nombre||' '||p.apellido, p.apellido, p.nombre, '')) as nombreencuestador,
                       v.panel, v.tarea,
                       jsonb_agg(jsonb_build_object('formulario',v.formulario,'nombreformulario',f.nombreformulario,'faltan',rp.faltan, 'adv',rp.adv, 'prod',prod,'nombrerazon',r.nombrerazon,'espositivoformulario',r.espositivoformulario) ORDER BY f.orden) as formularios, 
