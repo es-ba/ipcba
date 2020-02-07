@@ -799,6 +799,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 }));
                             // focusToId(inputIdPrecio,e=>e.blur());
                             }} dataType="number" onFocus={()=>{
+                                dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
                                 handleSelection(relPre, hasSearchString, allForms);
                             }}
                         />
