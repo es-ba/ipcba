@@ -542,7 +542,7 @@ function numberElement(num:number|null):JSX.Element{
 var PreciosRow = React.memo(function PreciosRow(props:{
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
-    inputIdPrecio:string, razonPositiva:boolean
+    inputIdPrecio:string, razonPositiva:boolean, compactar:boolean
 }){
     const {hasSearchString, allForms, esPrecioActual, inputIdPrecio} = props;
     const relPre = props.relPre;
@@ -563,7 +563,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
-    const {compactar} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    var compactar = props.compactar;
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
         if(hasSearchString || allForms){
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
@@ -834,7 +834,8 @@ function RelevamientoPrecios(props:{
     relInf:RelInf, 
     relVis: RelVis,
     formulario:number,
-    razonPositiva:boolean
+    razonPositiva:boolean,
+    compactar: boolean,
 }){
     const relInf = props.relInf;
     const relVis = props.relVis;
@@ -875,6 +876,7 @@ function RelevamientoPrecios(props:{
                         inputIdPrecio={inputIdPrecio}
                         esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
                         razonPositiva={props.razonPositiva}
+                        compactar={props.compactar}
                     />
                 })
             :(observacionesFiltradasEnOtros.length==0 && queVer != 'todos'?
@@ -1250,6 +1252,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     relVis={relVis}
                     formulario={relVis.formulario}
                     razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
+                    compactar={compactar}
                 />
             </main>
             <ScrollTop>
