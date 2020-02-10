@@ -520,8 +520,8 @@ NETWORK:
         if(this.config.server.policy=='web'){
             var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista]
             return {menu:[
+                {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta DM 1', showInOfflineMode: true, selectedByDefault: true},
                 {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
-                    {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta', showInOfflineMode: true, selectedByDefault: true},
                     {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                     {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},    
                     {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
