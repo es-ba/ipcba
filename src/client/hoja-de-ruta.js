@@ -1770,9 +1770,10 @@ myOwn.wScreens.vaciar=function(){
         mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
     }
 };
-
+var wasDownloading=false;
 var appCache = window.applicationCache;
 appCache.addEventListener('downloading', function(e) {
+    wasDownloading=true;
     awaitForCacheLayout.then(function(layout){
         document.getElementById('app-status');
         layout.insertBefore(
@@ -1786,17 +1787,20 @@ appCache.addEventListener('downloading', function(e) {
     
 }, false);
 appCache.addEventListener('error', function(e) {
-    console.log('error al descargar cache')
-    awaitForCacheLayout.then(function(layout){
-        document.getElementById('app-status');
-        layout.insertBefore(
-            html.p({id:'cache-status', class:'danger'},'error al descargar la aplicación').create(), 
-            layout.firstChild
-        );
-    })
+    if(wasDownloading){
+        console.log('error al descargar cache')
+        awaitForCacheLayout.then(function(layout){
+            document.getElementById('app-status');
+            layout.insertBefore(
+                html.p({id:'cache-status', class:'danger'},'error al descargar la aplicación').create(), 
+                layout.firstChild
+            );
+        })
+    }
 }, false);
 
 function cacheReady(){
+    wasDownloading=false;
     AjaxBestPromise.get({
         url:'ext/app.manifest',
         data:{}
