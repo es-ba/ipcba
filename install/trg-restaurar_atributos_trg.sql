@@ -48,7 +48,7 @@ BEGIN
               visita=NEW.visita;
     END IF;
   END IF;
-  IF (NEW.cambio IS NULL AND OLD.cambio ='C') OR (vesposnew='N' AND vesposold='S') THEN
+  IF ((NEW.cambio IS NULL AND OLD.cambio ='C') OR (vesposnew='N' AND vesposold='S')) AND NOT vblanqueonew THEN
     /*IF NEW.cambio='C' THEN --este caso solo para la segunda condicion si hubiera C
        NEW.cambio:=NULL;     --lo saco porque se solapa con la validacion de tipoprecio valido
     END IF; */
