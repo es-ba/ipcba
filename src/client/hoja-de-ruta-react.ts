@@ -148,7 +148,6 @@ myOwn.wScreens.sincronizar_dm2=async function(){
                     await cargarDispositivo2(tokenInstalacion!, encuestador!);
                     loadButton.disabled=false;
                 }catch(err){
-                    alertPromise(err.message);
                     loadButton.disabled=false;
                 }
             }  

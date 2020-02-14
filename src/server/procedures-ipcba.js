@@ -1681,8 +1681,8 @@ ProceduresIpcba = [
                                                 where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
                                                 returning true`
                                             ,[
-                                                filtroValoresPrecioAtributo && observacion.tipoprecio, 
-                                                filtroValoresPrecioAtributo && observacion.precio, 
+                                                filtroValoresPrecioAtributo && observacion.precio && observacion.tipoprecio, 
+                                                filtroValoresPrecioAtributo && observacion.tipoprecio && observacion.precio, 
                                                 filtroValoresPrecioAtributo && observacion.cambio,
                                                 observacion.periodo, 
                                                 observacion.informante, 
@@ -1697,7 +1697,7 @@ ProceduresIpcba = [
                                     }
                                     for(var atributo of observacion.atributos){
                                         //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && !filtroValoresPrecioAtributo /* && atributo.valor*/){
+                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && !filtroValoresPrecioAtributo /* && atributo.valor*/){
                                             try{
                                                 var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
                                                 await context.client.query(`
