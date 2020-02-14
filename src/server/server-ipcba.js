@@ -425,7 +425,7 @@ class AppIpcba extends backendPlus.AppBackend{
 ../${hdrPath}
 ../dm
 `:'';
-        const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toHms()}`:uptime;
+        const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toYmdHms()}`:uptime;
         return (
 `CACHE MANIFEST
 #${version}
