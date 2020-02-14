@@ -1108,161 +1108,153 @@ const useStyles = makeStyles((theme: Theme) =>
 function FormularioVisita(props:{relVisPk: RelVisPk}){
     const {queVer, searchString, compactar} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
-    const {relInf, relVis} = useSelector((hdr:HojaDeRuta)=>{
-        var relInf=hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
-        var relVis=relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
-        return {relInf, relVis}
-    });
-    const formularios = useSelector((hdr:HojaDeRuta)=>
-        hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!
-            .formularios
-    );
+    const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
+    const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
+    const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
+    const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
     const [open, setOpen] = React.useState<boolean>(false);
     const classes = useStyles({open:open});
-
     const handleDrawerOpen = () => {
         setOpen(true);
     };
-
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
     const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
-
-  return (
-    <div id="formulario-visita" className="menu-informante-visita">
-        <div className={classes.root}>
-            <AppBar
-                position="fixed"
-                className={clsx(classes.appBar, {
-                    [classes.appBarShift]: open,
-                })}
-            >
-                <Toolbar style={toolbarStyle}>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        className={clsx(classes.menuButton, {
-                            [classes.hide]: open,
-                        })}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="subtitle1" noWrap>
-                        {`inf ${props.relVisPk.informante}`}
-                    </Typography>
-                    <Grid item>
-                        <ButtonGroup
-                            variant="contained"
-                            color="default"
-                            aria-label="large contained default button group"
-                            style={{margin:'0 5px'}}
+    return (
+        <div id="formulario-visita" className="menu-informante-visita">
+            <div className={classes.root}>
+                <AppBar
+                    position="fixed"
+                    className={clsx(classes.appBar, {
+                        [classes.appBarShift]: open,
+                    })}
+                >
+                    <Toolbar style={toolbarStyle}>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            onClick={handleDrawerOpen}
+                            edge="start"
+                            className={clsx(classes.menuButton, {
+                                [classes.hide]: open,
+                            })}
                         >
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
-                            }}>
-                                <ICON.FormatLineSpacing />
-                            </Button>
-                        </ButtonGroup>
-                        <ButtonGroup
-                            variant="contained"
-                            color="default"
-                            aria-label="large contained default button group"
-                        >
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:false}))
-                                dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'todos'}));
-                            }}disabled={queVer=='todos'}>
-                                <ICON.CheckBoxOutlined />
-                            </Button>
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'pendientes'}));
-                            }}disabled={queVer=='pendientes'}>
-                                <ICON.CheckBoxOutlineBlankOutlined />
-                            </Button>
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'advertencias'}));
-                            }}disabled={queVer=='advertencias'}>
-                                <ICON.Warning />
-                            </Button>
-                        </ButtonGroup>
-                    </Grid>
-                    <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography variant="subtitle1" noWrap>
+                            {`inf ${props.relVisPk.informante}`}
+                        </Typography>
+                        <Grid item>
+                            <ButtonGroup
+                                variant="contained"
+                                color="default"
+                                aria-label="large contained default button group"
+                                style={{margin:'0 5px'}}
+                            >
+                                <Button onClick={()=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
+                                }}>
+                                    <ICON.FormatLineSpacing />
+                                </Button>
+                            </ButtonGroup>
+                            <ButtonGroup
+                                variant="contained"
+                                color="default"
+                                aria-label="large contained default button group"
+                            >
+                                <Button onClick={()=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:false}))
+                                    dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'todos'}));
+                                }}disabled={queVer=='todos'}>
+                                    <ICON.CheckBoxOutlined />
+                                </Button>
+                                <Button onClick={()=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'pendientes'}));
+                                }}disabled={queVer=='pendientes'}>
+                                    <ICON.CheckBoxOutlineBlankOutlined />
+                                </Button>
+                                <Button onClick={()=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'advertencias'}));
+                                }}disabled={queVer=='advertencias'}>
+                                    <ICON.Warning />
+                                </Button>
+                            </ButtonGroup>
+                        </Grid>
+                        <div className={classes.search}>
+                            <div className={classes.searchIcon}>
+                                <SearchIcon />
+                            </div>
+                            <InputBase id="search" placeholder="Buscar..." value={searchString} classes={{
+                                    root: classes.inputRoot,
+                                    input: classes.inputInput,
+                                }} inputProps={{ 'aria-label': 'search' }}
+                                onChange={(event)=>{
+                                    dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:event.target.value}))
+                                    //EVALUAR SI SE SACA
+                                    //window.scroll({behavior:'auto', top:0, left:0})
+                                }}
+                            />
+                            {searchString?
+                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:''}))}><ClearIcon /></IconButton>
+                            :null}
                         </div>
-                        <InputBase id="search" placeholder="Buscar..." value={searchString} classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }} inputProps={{ 'aria-label': 'search' }}
-                            onChange={(event)=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:event.target.value}))
-                                //EVALUAR SI SE SACA
-                                //window.scroll({behavior:'auto', top:0, left:0})
-                            }}
-                        />
-                        {searchString?
-                            <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:''}))}><ClearIcon /></IconButton>
-                        :null}
-                    </div>
-                </Toolbar>
-            </AppBar>
-            <Drawer
-                variant="permanent"
-                className={clsx(classes.drawer, {
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                })}
-                classes={{
-                    paper: clsx({
+                    </Toolbar>
+                </AppBar>
+                <Drawer
+                    variant="permanent"
+                    className={clsx(classes.drawer, {
                         [classes.drawerOpen]: open,
                         [classes.drawerClose]: !open,
-                    }),
-                }}
-                open={open}
-            >
-                <div className={classes.toolbar}>
-                    <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
-                </div>
-                <List>
-                    <ListItem button className="flecha-volver-hdr" onClick={()=>
-                        dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
-                    }>
-                        <ListItemIcon><DescriptionIcon/></ListItemIcon>
-                        <ListItemText primary="Volver a hoja de ruta" />
-                    </ListItem>
-                    {formularios.map((relVis:RelVis) => (
-                        <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
-                            setOpen(false);
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
-                            dispatch(dispatchers.RESET_SEARCH({}));
-                        }}>
-                          <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
-                          <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                    })}
+                    classes={{
+                        paper: clsx({
+                            [classes.drawerOpen]: open,
+                            [classes.drawerClose]: !open,
+                        }),
+                    }}
+                    open={open}
+                >
+                    <div className={classes.toolbar}>
+                        <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
+                    </div>
+                    <List>
+                        <ListItem button className="flecha-volver-hdr" onClick={()=>
+                            dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
+                        }>
+                            <ListItemIcon><DescriptionIcon/></ListItemIcon>
+                            <ListItemText primary="Volver a hoja de ruta" />
                         </ListItem>
-                    ))}
-                </List>
-            </Drawer>
-            <main className={classes.content}>
-                <RazonFormulario relVis={relVis} relInf={relInf}/>
-                <RelevamientoPrecios 
-                    relInf={relInf} 
-                    relVis={relVis}
-                    formulario={relVis.formulario}
-                    razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
-                    compactar={compactar}
-                />
-            </main>
-            <ScrollTop>
-                <Fab color="secondary" size="small" aria-label="scroll back to top">
-                    <KeyboardArrowUpIcon />
-                </Fab>
-            </ScrollTop>
+                        {formularios.map((relVis:RelVis) => (
+                            <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
+                                setOpen(false);
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
+                                dispatch(dispatchers.RESET_SEARCH({}));
+                            }}>
+                            <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
+                            <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Drawer>
+                <main className={classes.content}>
+                    <RazonFormulario relVis={relVis} relInf={relInf}/>
+                    <RelevamientoPrecios 
+                        relInf={relInf} 
+                        relVis={relVis}
+                        formulario={relVis.formulario}
+                        razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
+                        compactar={compactar}
+                    />
+                </main>
+                <ScrollTop>
+                    <Fab color="secondary" size="small" aria-label="scroll back to top">
+                        <KeyboardArrowUpIcon />
+                    </Fab>
+                </ScrollTop>
+            </div>
         </div>
-    </div>
-  );
+    );
 }
 
 const useStylesBadge = makeStyles((theme: Theme) =>
@@ -1398,15 +1390,7 @@ const useStylesButton = makeStyles({
 });
 
 function PantallaHojaDeRuta(_props:{}){
-    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>({
-        informantes:hdr.informantes,
-        opciones:hdr.opciones,
-        panel: hdr.panel,
-        tarea: hdr.tarea,
-        encuestador: hdr.encuestador,
-        nombreencuestador: hdr.nombreencuestador,
-        apellidoencuestador: hdr.apellidoencuestador
-    }));
+    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>(hdr));
     const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const classesButton = useStylesButton();
