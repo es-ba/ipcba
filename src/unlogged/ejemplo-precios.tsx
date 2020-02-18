@@ -1353,7 +1353,9 @@ function InformanteRow(props:{informante:RelInf}){
                                     rowSpan={opciones.letraGrandeFormulario?1:informante.formularios.length}
                                     colSpan={opciones.letraGrandeFormulario?4:1}
                                 >
-                                    <div>{informante.informante} {informante.nombreinformante} ({informante.cantidad_periodos_sin_informacion})</div>
+                                    <div>{informante.informante} {informante.nombreinformante} 
+                                        <span className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`(${informante.cantidad_periodos_sin_informacion})`:''}</span>
+                                    </div>
                                     <div className='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
                                 </TableCell>
                             :null}
