@@ -1681,7 +1681,7 @@ ProceduresIpcba = [
                                                 where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
                                                 returning true`
                                             ,[
-                                                filtroValoresPrecioAtributo && observacion.tipoprecio, 
+                                                filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio), 
                                                 filtroValoresPrecioAtributo && observacion.tipoprecio && observacion.precio, 
                                                 filtroValoresPrecioAtributo && observacion.cambio,
                                                 observacion.periodo, 
