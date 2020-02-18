@@ -1390,8 +1390,16 @@ const useStylesButton = makeStyles({
 });
 
 function PantallaHojaDeRuta(_props:{}){
+    useEffect(() => {
+        window.scrollTo(0, posHdr)
+        return function(){
+            if(posHdr != window.scrollY){
+                dispatch(dispatchers.SET_OPCION({variable:'posHdr',valor:window.scrollY}))
+            }
+        }
+    });
     const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>(hdr));
-    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, posHdr} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const classesButton = useStylesButton();
     const dispatch = useDispatch();
