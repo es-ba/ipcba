@@ -15,8 +15,18 @@ BEGIN
       WHERE periodo=NEW.periodo AND informante=NEW.informante AND visita=NEW.visita AND producto=NEW.producto AND
             observacion=NEW.observacion;
     IF vcambio IS DISTINCT FROM 'C' THEN
-      RAISE EXCEPTION 'No es posible modificar el valor del atributo cuando el campo cambio es distinto de C';
-      RETURN NULL;
+        SELECT r_1.valor_1 INTO vvalor_1
+          FROM cvp.relatr_1 r_1
+          WHERE r_1.periodo=NEW.periodo AND 
+                r_1.producto=NEW.producto AND
+                r_1.observacion=NEW.observacion AND 
+                r_1.informante=NEW.informante AND
+                r_1.visita=NEW.visita AND 
+                r_1.atributo=NEW.atributo;
+      IF vvalor_1 IS DISTINCT FROM NEW.valor THEN 
+          RAISE EXCEPTION 'No es posible modificar el valor del atributo cuando el campo cambio es distinto de C % %', vvalor_1, NEW.valor;
+          RETURN NULL;
+      END IF;
     ELSE
       SELECT alterable INTO valterable
         FROM cvp.prodatr

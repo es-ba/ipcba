@@ -1628,7 +1628,7 @@ ProceduresIpcba = [
                     `update reltar
                         set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
                             datos_descarga = $2
-                        where id_instalacion = $1  and vencimiento_sincronizacion2 > current_timestamp
+                        where id_instalacion = $1
                         returning *`
                 ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
                 var tiposDePrecio = await context.client.query(
@@ -1681,7 +1681,7 @@ ProceduresIpcba = [
                                                 where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
                                                 returning true`
                                             ,[
-                                                filtroValoresPrecioAtributo && observacion.precio && observacion.tipoprecio, 
+                                                filtroValoresPrecioAtributo && observacion.tipoprecio, 
                                                 filtroValoresPrecioAtributo && observacion.tipoprecio && observacion.precio, 
                                                 filtroValoresPrecioAtributo && observacion.cambio,
                                                 observacion.periodo, 
@@ -1697,7 +1697,7 @@ ProceduresIpcba = [
                                     }
                                     for(var atributo of observacion.atributos){
                                         //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && !filtroValoresPrecioAtributo /* && atributo.valor*/){
+                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && !filtroValoresPrecioAtributo && !limpiandoRazon /* && atributo.valor*/){
                                             try{
                                                 var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
                                                 await context.client.query(`
