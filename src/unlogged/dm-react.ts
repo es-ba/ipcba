@@ -236,13 +236,14 @@ var reducers={
                 }
             })
         },    
-    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
+    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number, unmountComponent:boolean}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
                 opciones:{
                     ...state.opciones,
-                    relVisPk:{informante:payload.informante, formulario:payload.formulario}
+                    relVisPk:{informante:payload.informante, formulario:payload.formulario},
+                    refreshKey: payload.unmountComponent?state.opciones.refreshKey+1:state.opciones.refreshKey
                 }
             })
         },
@@ -252,7 +253,8 @@ var reducers={
                 ...state,
                 opciones:{
                     ...state.opciones,
-                    relVisPk:null
+                    relVisPk:null,
+                    refreshKey:0
                 }
             })
         },
@@ -261,6 +263,26 @@ var reducers={
             return deepFreeze({
                 ...state,
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
+            })
+        },
+    SET_FORM_POSITION:(payload: {formulario:number, position:number}) => 
+        function(state: HojaDeRuta){
+            var posiciones:{formulario: number, position: number}[] = [
+                ...state.opciones.posFormularios,
+            ];
+            
+            var pos = posiciones.findIndex((position)=>position.formulario==payload.formulario);
+            if(pos==-1){
+                posiciones.push({...payload});
+            }else{
+                posiciones[pos] = {...payload};
+            }
+            return deepFreeze({
+                ...state,
+                opciones:{
+                    ...state.opciones,
+                    posFormularios: posiciones
+                }
             })
         },
     RESET_SEARCH:(_payload: {}) => 

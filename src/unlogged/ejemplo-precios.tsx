@@ -566,7 +566,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     var compactar = props.compactar;
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
         if(hasSearchString || allForms){
-            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario, unmountComponent: false}));
             dispatch(dispatchers.RESET_SEARCH({}))
         }
     }
@@ -1106,6 +1106,17 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
+    useEffect(() => {
+        const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
+        const prevScrollY = pos?pos.position:0;
+        window.scrollTo(0, prevScrollY);
+        return function(){
+            if(prevScrollY != window.scrollY){
+                dispatch(dispatchers.SET_FORM_POSITION({formulario:props.relVisPk.formulario,position:window.scrollY}))
+            }
+        }
+    },[]);
+    const {posFormularios} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const {queVer, searchString, compactar} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
@@ -1228,7 +1239,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         {formularios.map((relVis:RelVis) => (
                             <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
                                 setOpen(false);
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}))
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, unmountComponent: true}));
                                 dispatch(dispatchers.RESET_SEARCH({}));
                             }}>
                             <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
@@ -1318,7 +1329,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                     <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
                         className={"boton-ir-formulario"}
                         onClick={()=>{
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, unmountComponent: true}));
                             dispatch(dispatchers.RESET_SEARCH({}));
                         }
                     }>
@@ -1542,7 +1553,7 @@ function PantallaOpciones(){
 }
 
 function AppDmIPCOk(){
-    const {relVisPk, letraGrandeFormulario, pantallaOpciones} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {relVisPk, letraGrandeFormulario, pantallaOpciones, refreshKey} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     document.documentElement.setAttribute('pos-productos', letraGrandeFormulario?'arriba':'izquierda');
     if(relVisPk == undefined){
         if(pantallaOpciones){
@@ -1551,7 +1562,7 @@ function AppDmIPCOk(){
             return <PantallaHojaDeRuta/>
         }
     }else{
-        return <FormularioVisita relVisPk={relVisPk} />
+        return <FormularioVisita relVisPk={relVisPk} key={refreshKey} />
     }
 }
 
