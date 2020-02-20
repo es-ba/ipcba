@@ -169,6 +169,9 @@ export type OpcionesHojaDeRuta={
     searchString: string
     verRazon: boolean
     compactar: false
+    posHdr: number
+    posFormularios: {formulario: number, position: number}[]
+    doScroll: boolean
 }
 
 export function getDefaultOptions():OpcionesHojaDeRuta{
@@ -182,7 +185,10 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         allForms: false,
         searchString: '',
         verRazon: true,
-        compactar: false
+        compactar: false,
+        posHdr: 0,
+        posFormularios: [],
+        doScroll: true
     }
 }
 

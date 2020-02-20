@@ -1628,7 +1628,7 @@ ProceduresIpcba = [
                     `update reltar
                         set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
                             datos_descarga = $2
-                        where id_instalacion = $1 
+                        where id_instalacion = $1
                         returning *`
                 ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
                 var tiposDePrecio = await context.client.query(
@@ -1671,63 +1671,67 @@ ProceduresIpcba = [
                             }catch(err){
                                 throw new Error('Error al caracterizar la visita para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
                             }
-                            if(!limpiandoRazon){
-                                await actualizarRelVis();
-                            }
-                        };
-                        for(var observacion of informante.observaciones){
-                            try{
-                                observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
-                                await context.client.query(`
-                                    update relpre
-                                        set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
-                                        where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
-                                        returning true`
-                                    ,[
-                                        filtroValoresPrecioAtributo && observacion.tipoprecio, 
-                                        filtroValoresPrecioAtributo && observacion.precio, 
-                                        filtroValoresPrecioAtributo && observacion.cambio,
-                                        observacion.periodo, 
-                                        observacion.informante, 
-                                        observacion.visita, 
-                                        observacion.producto, 
-                                        observacion.observacion,
-                                        simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre)
-                                    ]
-                                ).fetchUniqueRow()
-                            }catch(err){
-                                throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
-                            }
-                            for(var atributo of observacion.atributos){
-                                //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && !filtroValoresPrecioAtributo /* && atributo.valor*/){
+                            var actualizarObservaciones=async function(observaciones){
+                                for(var observacion of observaciones){
                                     try{
-                                        var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
+                                        observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
                                         await context.client.query(`
-                                            update relatr
-                                                set valor = $1
-                                                where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada
-                                                  and upper(trim(valor)) is distinct from $8
+                                            update relpre
+                                                set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
+                                                where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
                                                 returning true`
-                                        ,[
-                                            valorAtributoMayusculado, 
-                                            atributo.periodo, 
-                                            atributo.informante, 
-                                            atributo.visita, 
-                                            atributo.producto, 
-                                            atributo.observacion,
-                                            atributo.atributo,
-                                            valorAtributoMayusculado // para solo hacer update si hubo cambio
-                                        ]).fetchOneRowIfExists()
+                                            ,[
+                                                filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio), 
+                                                filtroValoresPrecioAtributo && observacion.tipoprecio && observacion.precio, 
+                                                filtroValoresPrecioAtributo && observacion.cambio,
+                                                observacion.periodo, 
+                                                observacion.informante, 
+                                                observacion.visita, 
+                                                observacion.producto, 
+                                                observacion.observacion,
+                                                simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre)
+                                            ]
+                                        ).fetchUniqueRow()
                                     }catch(err){
-                                        throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                    }
+                                    for(var atributo of observacion.atributos){
+                                        //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
+                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && !filtroValoresPrecioAtributo && !limpiandoRazon /* && atributo.valor*/){
+                                            try{
+                                                var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
+                                                await context.client.query(`
+                                                    update relatr
+                                                        set valor = $1
+                                                        where periodo = $2 and informante = $3 and visita = $4 and  producto = $5 and observacion = $6 and atributo = $7 --pk verificada
+                                                          and upper(trim(valor)) is distinct from $8
+                                                        returning true`
+                                                ,[
+                                                    valorAtributoMayusculado, 
+                                                    atributo.periodo, 
+                                                    atributo.informante, 
+                                                    atributo.visita, 
+                                                    atributo.producto, 
+                                                    atributo.observacion,
+                                                    atributo.atributo,
+                                                    valorAtributoMayusculado // para solo hacer update si hubo cambio
+                                                ]).fetchOneRowIfExists()
+                                            }catch(err){
+                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if(limpiandoRazon){
-                            await actualizarRelVis();
-                        }
+                            var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
+                            if(limpiandoRazon){
+                                await actualizarObservaciones(observaciones);
+                                await actualizarRelVis();
+                            }else{
+                                await actualizarRelVis();
+                                await actualizarObservaciones(observaciones);
+                            }
+                        };
                     };              
                     return 'descarga completa';
                 }else{

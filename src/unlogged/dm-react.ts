@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, OpcionesHojaDeRuta, QueVer } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
@@ -236,13 +236,14 @@ var reducers={
                 }
             })
         },    
-    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
+    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number, doScroll:boolean}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
                 opciones:{
                     ...state.opciones,
-                    relVisPk:{informante:payload.informante, formulario:payload.formulario}
+                    relVisPk:{informante:payload.informante, formulario:payload.formulario},
+                    doScroll:payload.doScroll
                 }
             })
         },
@@ -252,7 +253,8 @@ var reducers={
                 ...state,
                 opciones:{
                     ...state.opciones,
-                    relVisPk:null
+                    relVisPk:null,
+                    doScroll:true
                 }
             })
         },
@@ -261,6 +263,38 @@ var reducers={
             return deepFreeze({
                 ...state,
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
+            })
+        },
+    SET_QUE_VER:(payload: {queVer:QueVer}) => 
+        function(state: HojaDeRuta){
+            var allForms = payload.queVer != 'todos';
+            return deepFreeze({
+                ...state,
+                opciones:{
+                    ...state.opciones, 
+                    queVer:payload.queVer,
+                    allForms
+                }
+            })
+        },
+    SET_FORM_POSITION:(payload: {formulario:number, position:number}) => 
+        function(state: HojaDeRuta){
+            var posiciones:{formulario: number, position: number}[] = [
+                ...state.opciones.posFormularios,
+            ];
+            var pos = posiciones.findIndex((position)=>position.formulario==payload.formulario);
+            if(pos==-1){
+                posiciones.push({...payload});
+            }else{
+                posiciones[pos] = {...payload};
+            }
+            return deepFreeze({
+                ...state,
+                opciones:{
+                    ...state.opciones,
+                    posFormularios: posiciones,
+                    doScroll: true,
+                }
             })
         },
     RESET_SEARCH:(_payload: {}) => 
