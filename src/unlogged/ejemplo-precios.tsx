@@ -565,9 +565,10 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
-        if(hasSearchString || allForms){
-            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario, unmountComponent: false}));
+        if(hasSearchString || allForms || compactar){
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario, doScroll: false}));
             dispatch(dispatchers.RESET_SEARCH({}))
+            dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
         }
     }
     return (
@@ -799,7 +800,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 }));
                             // focusToId(inputIdPrecio,e=>e.blur());
                             }} dataType="number" onFocus={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
                                 handleSelection(relPre, hasSearchString, allForms);
                             }}
                         />
@@ -1106,18 +1106,28 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
+    const {queVer, searchString, compactar, posFormularios, allForms, doScroll} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
-        window.scrollTo(0, prevScrollY);
-        return function(){
+        function registrarPosicionIntraformulario(){
             if(prevScrollY != window.scrollY){
                 dispatch(dispatchers.SET_FORM_POSITION({formulario:props.relVisPk.formulario,position:window.scrollY}))
             }
         }
-    },[]);
-    const {posFormularios} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
-    const {queVer, searchString, compactar} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+        if(queVer=='todos' && !compactar && !searchString && !allForms){
+            if(doScroll){
+                window.scrollTo(0, prevScrollY);
+            }
+            var interval = setInterval(registrarPosicionIntraformulario, 1000);            
+            return function(){
+                clearInterval(interval);
+            }
+        }else{
+            window.scrollTo(0, 0);
+            return function(){}
+        }
+    },[props.relVisPk, posFormularios, compactar, queVer, searchString, doScroll]);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -1175,18 +1185,17 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 aria-label="large contained default button group"
                             >
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:false}))
-                                    dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'todos'}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos'}));
                                 }}disabled={queVer=='todos'}>
                                     <ICON.CheckBoxOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'pendientes'}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes'}));
                                 }}disabled={queVer=='pendientes'}>
                                     <ICON.CheckBoxOutlineBlankOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_OPCION({variable:'queVer',valor:'advertencias'}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias'}));
                                 }}disabled={queVer=='advertencias'}>
                                     <ICON.Warning />
                                 </Button>
@@ -1239,7 +1248,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         {formularios.map((relVis:RelVis) => (
                             <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
                                 setOpen(false);
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, unmountComponent: true}));
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, doScroll: true}));
                                 dispatch(dispatchers.RESET_SEARCH({}));
                             }}>
                             <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
@@ -1329,7 +1338,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                     <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
                         className={"boton-ir-formulario"}
                         onClick={()=>{
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, unmountComponent: true}));
+                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, doScroll: true}));
                             dispatch(dispatchers.RESET_SEARCH({}));
                         }
                     }>
@@ -1553,7 +1562,7 @@ function PantallaOpciones(){
 }
 
 function AppDmIPCOk(){
-    const {relVisPk, letraGrandeFormulario, pantallaOpciones, refreshKey} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {relVisPk, letraGrandeFormulario, pantallaOpciones/*, refreshKey*/} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     document.documentElement.setAttribute('pos-productos', letraGrandeFormulario?'arriba':'izquierda');
     if(relVisPk == undefined){
         if(pantallaOpciones){
@@ -1562,7 +1571,7 @@ function AppDmIPCOk(){
             return <PantallaHojaDeRuta/>
         }
     }else{
-        return <FormularioVisita relVisPk={relVisPk} key={refreshKey} />
+        return <FormularioVisita relVisPk={relVisPk}/>
     }
 }
 

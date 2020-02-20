@@ -171,7 +171,7 @@ export type OpcionesHojaDeRuta={
     compactar: false
     posHdr: number
     posFormularios: {formulario: number, position: number}[]
-    refreshKey: number
+    doScroll: boolean
 }
 
 export function getDefaultOptions():OpcionesHojaDeRuta{
@@ -188,7 +188,7 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         compactar: false,
         posHdr: 0,
         posFormularios: [],
-        refreshKey: 0
+        doScroll: true
     }
 }
 
