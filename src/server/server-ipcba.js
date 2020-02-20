@@ -702,6 +702,7 @@ NETWORK:
             {menuType:'menu', name:'migracion', label:'migracion', menuContent:[
                 {menuType:'table', name:'agrupaciones'                                       },
                 {menuType:'table', name:'atributos'                                          },
+                {menuType:'table', name:'barrios'                                            },
                 {menuType:'table', name:'calculos_def'                                       },
                 {menuType:'table', name:'conjuntomuestral'                                   },
                 {menuType:'table', name:'divisiones'                                         },
@@ -831,6 +832,7 @@ NETWORK:
     getTables(){
         return super.getTables().concat([
             {name: 'pantar', path: __dirname},
+            {name: 'barrios', path: __dirname},
             {name: 'bienvenida', path: __dirname},
             {name: 'agrupaciones', path: __dirname},
             {name: 'conjuntomuestral', path: __dirname},
