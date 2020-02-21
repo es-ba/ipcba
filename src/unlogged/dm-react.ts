@@ -5,6 +5,8 @@ import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
 
+export const LIMITE_UNION_FORMULARIOS = 30;
+
 var my=myOwn;
 
 export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
@@ -280,7 +282,16 @@ var reducers={
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+            var calcularListas=function(){
+                var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+                if(observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length>LIMITE_UNION_FORMULARIOS || queVer=='todos'){
+                    allForms=false;
+                    return getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+                }else{
+                    return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx};
+                }
+            }
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas();
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -369,7 +380,8 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
             //periodo: 'a2019m08', panel: 3, tarea: 6, sincronizar: false
-            periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, demo: true
+            //periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, demo: true
+            periodo: 'a2020m01', panel: 1, tarea: 1, encuestador: null, demo: true
         })
         estructura = result.estructura;
         if(result.hdr){

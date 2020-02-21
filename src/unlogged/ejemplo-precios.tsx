@@ -8,7 +8,7 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -23,7 +23,7 @@ import {
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
-const LIMITE_UNION_FORMULARIOS = 30;
+
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -874,7 +874,6 @@ function RelevamientoPrecios(props:{
                         >ver más {queVer == 'todos'?'':queVer} en otros formularios</Button>
                         {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
                             var relPre = props.observaciones[iRelPre];
-                            console.log(i)
                             return i<10?
                             <Typography 
                                 key={relPre.producto+'/'+relPre.observacion}
@@ -1167,17 +1166,17 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             >
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
-                                }}disabled={queVer=='todos'}>
+                                }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
                                     <ICON.CheckBoxOutlined />
                                 </Button>
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
-                                }}disabled={queVer=='pendientes'}>
+                                }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
                                     <ICON.CheckBoxOutlineBlankOutlined />
                                 </Button>
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
-                                }}disabled={queVer=='advertencias'}>
+                                }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
                                     <ICON.Warning />
                                 </Button>
                             </ButtonGroup>
