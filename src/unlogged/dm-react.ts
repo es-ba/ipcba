@@ -1,6 +1,6 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, OpcionesHojaDeRuta, QueVer } from "./dm-tipos";
-import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio} from "./dm-funciones";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, QueVer } from "./dm-tipos";
+import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio, getObservacionesFiltradas} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
@@ -238,11 +238,18 @@ var reducers={
         },    
     SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number, doScroll:boolean}) => 
         function(state: HojaDeRuta){
+            var {searchString, queVer, allForms} = state.opciones;
+            var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
+            var observaciones=informante.observaciones;
+            var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
                     ...state.opciones,
                     relVisPk:{informante:payload.informante, formulario:payload.formulario},
+                    observacionesFiltradasIdx,
+                    observacionesFiltradasEnOtrosIdx,
                     doScroll:payload.doScroll
                 }
             })
@@ -254,6 +261,8 @@ var reducers={
                 opciones:{
                     ...state.opciones,
                     relVisPk:null,
+                    observacionesFiltradasIdx: [],
+                    observacionesFiltradasEnOtrosIdx: [],
                     doScroll:true
                 }
             })
@@ -265,15 +274,22 @@ var reducers={
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
             })
         },
-    SET_QUE_VER:(payload: {queVer:QueVer}) => 
+    SET_QUE_VER:(payload: {queVer:QueVer, informante: number, formulario: number, searchString:string, allForms:boolean}) => 
         function(state: HojaDeRuta){
-            var allForms = payload.queVer != 'todos';
+            var {queVer, searchString, allForms} = payload;
+            var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
+            var observaciones=informante.observaciones;
+            var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
                     ...state.opciones, 
-                    queVer:payload.queVer,
-                    allForms
+                    observacionesFiltradasIdx,
+                    observacionesFiltradasEnOtrosIdx,
+                    queVer,
+                    searchString,
+                    allForms,
                 }
             })
         },

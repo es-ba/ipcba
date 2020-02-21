@@ -1,5 +1,5 @@
 "use strict";
-import {RelPre, RelVis, RelAtr, Estructura, ProdAtr} from "./dm-tipos";
+import {RelPre, RelVis, RelAtr, Estructura, ProdAtr, QueVer} from "./dm-tipos";
 import * as likeAr from "like-ar";
 
 export const COLOR_ERRORES = "#FF3535";
@@ -180,11 +180,24 @@ export function razonNecesitaConfirmacion(estructura:Estructura, _relVis:RelVis,
     return razon && !estructura.razones[razon].espositivoformulario
 }
 
-export function hayPreciosOAtributosCargadosEnFormulario(_estructura:Estructura, _relVis:RelVis){
-    //Revisar
-    //return likeAr(relVis.productos).map(function(producto:{observaciones:{[o:number]:RelPre}}){
-    //    return likeAr(producto.observaciones).filter(function(relPre:RelPre){
-    //        relPre.cambio != null || relPre.tipoprecio != null
-    //    }).array();
-    //}).array().length > 0
+export var criterio = (relPre:RelPre, relVis: RelVis, estructura:Estructura, searchString:string, queVer:QueVer) => 
+(searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(searchString.toLocaleLowerCase())>-1:true)
+&& (queVer !='advertencias' || precioTieneAdvertencia(relPre, relVis, estructura))
+&& (queVer !='pendientes' || precioEstaPendiente(relPre, relVis, estructura));
+
+export function getObservacionesFiltradas(observaciones:RelPre[], relVis: RelVis, estructura:Estructura, allForms:boolean, searchString:string, queVer:QueVer){
+    var observacionesFiltradasIdx:{iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
+        ((allForms?true:relPre.formulario==relVis.formulario) &&
+        criterio(relPre, relVis, estructura, searchString, queVer))?{iRelPre}:null
+    ).filter(filterNotNull);
+    var observacionesFiltradasEnOtrosIdx:{iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
+        (!(allForms?true:relPre.formulario==relVis.formulario) && 
+        (relPre.observacion==1 || queVer!='todos') && // si son todos no hace falta ver las observaciones=2
+        criterio(relPre, relVis, estructura, searchString, queVer))?{iRelPre}:null
+    ).filter(filterNotNull);
+    return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}
+}
+
+export function filterNotNull<T extends {}>(x:T|null):x is T {
+    return x != null
 }

@@ -826,37 +826,15 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     );
 })
 
-function filterNotNull<T extends {}>(x:T|null):x is T {
-    return x != null
-}
-
 function RelevamientoPrecios(props:{
-    relInf:RelInf, 
-    relVis: RelVis,
-    formulario:number,
+    relVis:RelVis,
+    observaciones: RelPre[]
     razonPositiva:boolean,
     compactar: boolean,
 }){
-    const relInf = props.relInf;
-    const relVis = props.relVis;
-    const {queVer, searchString, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
-    var observaciones = relInf.observaciones;
-    var criterio = (relPre:RelPre) => 
-        (searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(searchString.toLocaleLowerCase())>-1:true)
-        && (queVer !='advertencias' || precioTieneAdvertencia(relPre, relVis, estructura))
-        && (queVer !='pendientes' || precioEstaPendiente(relPre, relVis, estructura));
-    var observacionesFiltradas:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
-        ((allForms?true:relPre.formulario==props.formulario) &&
-        criterio(relPre))?{relPre, iRelPre}:null
-    ).filter(filterNotNull);
-    var observacionesFiltradasEnOtros:{relPre:RelPre, iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
-        (!(allForms?true:relPre.formulario==props.formulario) && 
-        (relPre.observacion==1 || queVer!='todos') && // si son todos no hace falta ver las observaciones=2
-        criterio(relPre))?{relPre, iRelPre}:null
-    ).filter(filterNotNull);
-    var cantidadResultados = observacionesFiltradas.length;
-    // const {searchString, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    var cantidadResultados = observacionesFiltradasIdx.length;
     return <>
         {queVer == 'pendientes'? <Typography className="titulo-pendientes">observaciones pendientes</Typography>:(
             queVer == 'advertencias'? <Typography className="titulo-advertencias">observaciones con advertencias</Typography>:(
@@ -865,7 +843,8 @@ function RelevamientoPrecios(props:{
         )}
         <div className="informante-visita">
             {cantidadResultados?
-                observacionesFiltradas.map(({relPre, iRelPre}) =>{
+                observacionesFiltradasIdx.map(({iRelPre}) =>{
+                    var relPre = props.observaciones[iRelPre];
                     var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
                     return <PreciosRow 
                         key={relPre.producto+'/'+relPre.observacion}
@@ -879,34 +858,36 @@ function RelevamientoPrecios(props:{
                         compactar={props.compactar}
                     />
                 })
-            :(observacionesFiltradasEnOtros.length==0 && queVer != 'todos'?
+            :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
                 <div>No hay</div>
             :null)
             }
             {
-                observacionesFiltradasEnOtros.length>0?
-                (observacionesFiltradasEnOtros.length+observacionesFiltradas.length<=LIMITE_UNION_FORMULARIOS?
+                observacionesFiltradasEnOtrosIdx.length>0?
+                (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS?
                     <div className="zona-degrade">
                         <Button className="boton-hay-mas" variant="outlined"
                             onClick={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'allForms',valor:true}))
+                                dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString}));
                                 dispatch(dispatchers.SET_OPCION({variable:'verRazon',valor:false}))
                             }}
                         >ver más {queVer == 'todos'?'':queVer} en otros formularios</Button>
-                        {observacionesFiltradasEnOtros.map(({relPre}, i) => (
-                            i<10?
+                        {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
+                            var relPre = props.observaciones[iRelPre];
+                            console.log(i)
+                            return i<10?
                             <Typography 
                                 key={relPre.producto+'/'+relPre.observacion}
                             >
                                 {estructura.productos[relPre.producto].nombreproducto} {relPre.observacion>1?relPre.observacion.toString():''}
                             </Typography>:null
-                        ))}
+                        })}
                     </div>
                 :
                 <div className="zona-degrade">
                     <Typography>Hay más observaciones en otros formularios</Typography>
                     <Typography></Typography>
-                    <Typography>No se muestra el botón porque en total son {observacionesFiltradasEnOtros.length+observacionesFiltradas.length}</Typography>
+                    <Typography>No se muestra el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
                     </div>
                 ):null
             }
@@ -1185,17 +1166,17 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 aria-label="large contained default button group"
                             >
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos'}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
                                 }}disabled={queVer=='todos'}>
                                     <ICON.CheckBoxOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes'}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
                                 }}disabled={queVer=='pendientes'}>
                                     <ICON.CheckBoxOutlineBlankOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias'}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
                                 }}disabled={queVer=='advertencias'}>
                                     <ICON.Warning />
                                 </Button>
@@ -1210,13 +1191,13 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                     input: classes.inputInput,
                                 }} inputProps={{ 'aria-label': 'search' }}
                                 onChange={(event)=>{
-                                    dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:event.target.value}))
+                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario}))
                                     //EVALUAR SI SE SACA
                                     //window.scroll({behavior:'auto', top:0, left:0})
                                 }}
                             />
                             {searchString?
-                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_OPCION({variable:'searchString',valor:''}))}><ClearIcon /></IconButton>
+                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario}))}><ClearIcon /></IconButton>
                             :null}
                         </div>
                     </Toolbar>
@@ -1260,9 +1241,8 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 <main className={classes.content}>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
                     <RelevamientoPrecios 
-                        relInf={relInf} 
                         relVis={relVis}
-                        formulario={relVis.formulario}
+                        observaciones={relInf.observaciones}
                         razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
                         compactar={compactar}
                     />
