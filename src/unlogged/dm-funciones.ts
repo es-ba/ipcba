@@ -195,7 +195,7 @@ export function getObservacionesFiltradas(observaciones:RelPre[], relVis: RelVis
         (relPre.observacion==1 || queVer!='todos') && // si son todos no hace falta ver las observaciones=2
         criterio(relPre, relVis, estructura, searchString, queVer))?{iRelPre}:null
     ).filter(filterNotNull);
-    return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}
+    return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms}
 }
 
 export function filterNotNull<T extends {}>(x:T|null):x is T {

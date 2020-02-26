@@ -124,6 +124,16 @@ var setTP = function setTP(
     });
 }
 
+var calcularListas=function(observaciones: RelPre[], relVis: RelVis, allForms:boolean, searchString: string, queVer: QueVer){
+    var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+    if(observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length>LIMITE_UNION_FORMULARIOS || queVer=='todos'){
+        allForms=false;
+        return getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+    }else{
+        return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms};
+    }
+}
+
 var reducers={
     SET_RAZON            : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, razon:number|null}) => 
         function(state: HojaDeRuta){
@@ -238,13 +248,15 @@ var reducers={
                 }
             })
         },    
-    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number, doScroll:boolean}) => 
+    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
         function(state: HojaDeRuta){
-            var {searchString, queVer, allForms} = state.opciones;
+            var {queVer} = state.opciones;
+            var searchString = '';
+            var allForms= false;
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -252,7 +264,9 @@ var reducers={
                     relVisPk:{informante:payload.informante, formulario:payload.formulario},
                     observacionesFiltradasIdx,
                     observacionesFiltradasEnOtrosIdx,
-                    doScroll:payload.doScroll
+                    searchString,
+                    verRazon: true,
+                    allForms
                 }
             })
         },
@@ -265,7 +279,6 @@ var reducers={
                     relVisPk:null,
                     observacionesFiltradasIdx: [],
                     observacionesFiltradasEnOtrosIdx: [],
-                    doScroll:true
                 }
             })
         },
@@ -282,16 +295,7 @@ var reducers={
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var calcularListas=function(){
-                var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
-                if(observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length>LIMITE_UNION_FORMULARIOS || queVer=='todos'){
-                    allForms=false;
-                    return getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
-                }else{
-                    return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx};
-                }
-            }
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas();
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -301,6 +305,7 @@ var reducers={
                     queVer,
                     searchString,
                     allForms,
+                    verRazon: !allForms
                 }
             })
         },
@@ -320,22 +325,10 @@ var reducers={
                 opciones:{
                     ...state.opciones,
                     posFormularios: posiciones,
-                    doScroll: true,
                 }
             })
         },
-    RESET_SEARCH:(_payload: {}) => 
-        function(state: HojaDeRuta){
-            return deepFreeze({
-                ...state,
-                opciones:{...state.opciones,
-                    searchString: '',
-                    verRazon: true,
-                    allForms: false
-                }
-            })
-        },
-    RESET_OPCIONES:(_payload: {}) => 
+  RESET_OPCIONES:(_payload: {}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,

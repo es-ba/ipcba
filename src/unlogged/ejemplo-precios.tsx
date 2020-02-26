@@ -566,8 +566,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     var compactar = props.compactar;
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
         if(hasSearchString || allForms || compactar){
-            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario, doScroll: false}));
-            dispatch(dispatchers.RESET_SEARCH({}))
             dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
         }
     }
@@ -864,14 +862,13 @@ function RelevamientoPrecios(props:{
             }
             {
                 observacionesFiltradasEnOtrosIdx.length>0?
-                (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS?
+                (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS && queVer!='todos'?
                     <div className="zona-degrade">
                         <Button className="boton-hay-mas" variant="outlined"
                             onClick={()=>{
                                 dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString}));
-                                dispatch(dispatchers.SET_OPCION({variable:'verRazon',valor:false}))
                             }}
-                        >ver más {queVer == 'todos'?'':queVer} en otros formularios</Button>
+                        >ver más {queVer} en otros formularios</Button>
                         {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
                             var relPre = props.observaciones[iRelPre];
                             return i<10?
@@ -886,7 +883,11 @@ function RelevamientoPrecios(props:{
                 <div className="zona-degrade">
                     <Typography>Hay más observaciones en otros formularios</Typography>
                     <Typography></Typography>
-                    <Typography>No se muestra el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
+                    {queVer=='todos'?
+                        <Typography>No se muestran ya que seleccionó la opción "todos" <ICON.CheckBoxOutlined /> </Typography>
+                    :
+                        <Typography>No se muestran el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
+                    }
                     </div>
                 ):null
             }
@@ -953,7 +954,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
                 >
-                    <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa`}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa para formulario ${relVis.formulario}`}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description-rn">
                             <div>
@@ -1086,7 +1087,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, posFormularios, allForms, doScroll} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar, posFormularios, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1096,9 +1097,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             }
         }
         if(queVer=='todos' && !compactar && !searchString && !allForms){
-            if(doScroll){
-                window.scrollTo(0, prevScrollY);
-            }
+            window.scrollTo(0, prevScrollY);
             var interval = setInterval(registrarPosicionIntraformulario, 1000);            
             return function(){
                 clearInterval(interval);
@@ -1107,7 +1106,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             window.scrollTo(0, 0);
             return function(){}
         }
-    },[props.relVisPk, posFormularios, compactar, queVer, searchString, doScroll]);
+    },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -1226,10 +1225,9 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             <ListItemText primary="Volver a hoja de ruta" />
                         </ListItem>
                         {formularios.map((relVis:RelVis) => (
-                            <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario} onClick={()=>{
+                            <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
                                 setOpen(false);
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, doScroll: true}));
-                                dispatch(dispatchers.RESET_SEARCH({}));
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                             }}>
                             <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
                             <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
@@ -1317,8 +1315,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                     <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
                         className={"boton-ir-formulario"}
                         onClick={()=>{
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario, doScroll: true}));
-                            dispatch(dispatchers.RESET_SEARCH({}));
+                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                         }
                     }>
                         <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>

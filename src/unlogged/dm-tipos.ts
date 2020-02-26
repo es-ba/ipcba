@@ -171,7 +171,6 @@ export type OpcionesHojaDeRuta={
     compactar: false
     posHdr: number
     posFormularios: {formulario: number, position: number}[]
-    doScroll: boolean
     observacionesFiltradasIdx: {iRelPre:number}[]
     observacionesFiltradasEnOtrosIdx: {iRelPre:number}[]
 }
@@ -190,7 +189,6 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         compactar: false,
         posHdr: 0,
         posFormularios: [],
-        doScroll: true,
         observacionesFiltradasIdx: [],
         observacionesFiltradasEnOtrosIdx: []
     }
