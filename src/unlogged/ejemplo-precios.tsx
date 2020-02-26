@@ -824,6 +824,17 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     );
 })
 
+function DetalleFiltroObservaciones(_props:{}){
+    const {queVer} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    return <>
+        {queVer == 'pendientes'? <Typography variant="h5" className="titulo-pendientes">mostrando observaciones pendientes <ICON.CheckBoxOutlineBlankOutlined /> </Typography>:(
+            queVer == 'advertencias'? <Typography variant="h5" className="titulo-advertencias">mostrando observaciones con advertencias <ICON.Warning /> </Typography>:(
+                null
+            )
+        )}
+    </>
+}
+
 function RelevamientoPrecios(props:{
     relVis:RelVis,
     observaciones: RelPre[]
@@ -833,66 +844,59 @@ function RelevamientoPrecios(props:{
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
-    return <>
-        {queVer == 'pendientes'? <Typography className="titulo-pendientes">observaciones pendientes</Typography>:(
-            queVer == 'advertencias'? <Typography className="titulo-advertencias">observaciones con advertencias</Typography>:(
-                null
-            )
-        )}
-        <div className="informante-visita">
-            {cantidadResultados?
-                observacionesFiltradasIdx.map(({iRelPre}) =>{
-                    var relPre = props.observaciones[iRelPre];
-                    var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
-                    return <PreciosRow 
-                        key={relPre.producto+'/'+relPre.observacion}
-                        relPre={relPre}
-                        iRelPre={Number(iRelPre)}
-                        hasSearchString={!!searchString}
-                        allForms={allForms}
-                        inputIdPrecio={inputIdPrecio}
-                        esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
-                        razonPositiva={props.razonPositiva}
-                        compactar={props.compactar}
-                    />
-                })
-            :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
-                <div>No hay</div>
-            :null)
-            }
-            {
-                observacionesFiltradasEnOtrosIdx.length>0?
-                (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS && queVer!='todos'?
-                    <div className="zona-degrade">
-                        <Button className="boton-hay-mas" variant="outlined"
-                            onClick={()=>{
-                                dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString}));
-                            }}
-                        >ver más {queVer} en otros formularios</Button>
-                        {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
-                            var relPre = props.observaciones[iRelPre];
-                            return i<10?
-                            <Typography 
-                                key={relPre.producto+'/'+relPre.observacion}
-                            >
-                                {estructura.productos[relPre.producto].nombreproducto} {relPre.observacion>1?relPre.observacion.toString():''}
-                            </Typography>:null
-                        })}
-                    </div>
-                :
+    return <div className="informante-visita">
+        {cantidadResultados?
+            observacionesFiltradasIdx.map(({iRelPre}) =>{
+                var relPre = props.observaciones[iRelPre];
+                var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+                return <PreciosRow 
+                    key={relPre.producto+'/'+relPre.observacion}
+                    relPre={relPre}
+                    iRelPre={Number(iRelPre)}
+                    hasSearchString={!!searchString}
+                    allForms={allForms}
+                    inputIdPrecio={inputIdPrecio}
+                    esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
+                    razonPositiva={props.razonPositiva}
+                    compactar={props.compactar}
+                />
+            })
+        :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
+            <div>No hay</div>
+        :null)
+        }
+        {
+            observacionesFiltradasEnOtrosIdx.length>0?
+            (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS && queVer!='todos'?
                 <div className="zona-degrade">
-                    <Typography>Hay más observaciones en otros formularios</Typography>
-                    <Typography></Typography>
-                    {queVer=='todos'?
-                        <Typography>No se muestran ya que seleccionó la opción "todos" <ICON.CheckBoxOutlined /> </Typography>
-                    :
-                        <Typography>No se muestran el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
-                    }
-                    </div>
-                ):null
-            }
-        </div>
-    </>;
+                    <Button className="boton-hay-mas" variant="outlined"
+                        onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString}));
+                        }}
+                    >ver más {queVer} en otros formularios</Button>
+                    {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
+                        var relPre = props.observaciones[iRelPre];
+                        return i<10?
+                        <Typography 
+                            key={relPre.producto+'/'+relPre.observacion}
+                        >
+                            {estructura.productos[relPre.producto].nombreproducto} {relPre.observacion>1?relPre.observacion.toString():''}
+                        </Typography>:null
+                    })}
+                </div>
+            :
+            <div className="zona-degrade">
+                <Typography>Hay más observaciones en otros formularios</Typography>
+                <Typography></Typography>
+                {queVer=='todos'?
+                    <Typography>No se muestran ya que seleccionó la opción "todos" <ICON.CheckBoxOutlined /> </Typography>
+                :
+                    <Typography>No se muestran el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
+                }
+                </div>
+            ):null
+        }
+    </div>;
 }
 
 function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
@@ -1236,6 +1240,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     </List>
                 </Drawer>
                 <main className={classes.content}>
+                    <DetalleFiltroObservaciones></DetalleFiltroObservaciones>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
                     <RelevamientoPrecios 
                         relVis={relVis}
