@@ -23,7 +23,7 @@ module.exports = function(context){
             {name:'conjuntomuestral'             , typeName:'integer'},
             {name:'ordenhdr'                     , typeName:'integer'},
             {name:'distrito'                     , typeName:'integer'},
-            {name:'fraccion'                     , typeName:'integer'},
+            {name:'fraccion_ant'                 , typeName:'integer'},
             {name:'rubro'                        , typeName:'integer'},
             {name:'nombrerubro'                  , typeName:'text'   },
             {name:'maxperiodoinformado'          , typeName:'text'   },

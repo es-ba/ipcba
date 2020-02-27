@@ -15,7 +15,7 @@ CREATE OR REPLACE VIEW reemplazosexportar AS
    ii.direccion,
    ii.ordenhdr,
    ii.distrito,
-   ii.fraccion,
+   ii.fraccion_ant,
    ii.rubro,
    r.nombrerubro
    FROM cvp.relvis v
@@ -29,7 +29,7 @@ CREATE OR REPLACE VIEW reemplazosexportar AS
      GROUP BY v.periodo, v.panel, v.tarea, v.fechasalida, ii.conjuntomuestral, v.encuestador, 
        COALESCE(p.nombre::text || ' '::text, ''::text) || COALESCE(p.apellido, ''::character varying)::text, v.visita, 
        CASE WHEN ii.informante = v.informante THEN 'Titular' ELSE 'Reemplazo' END, v.informante, ii.informante,    
-       ii.nombreinformante, ii.direccion,  ii.ordenhdr, ii.distrito, ii.fraccion, ii.rubro, r.nombrerubro 
+       ii.nombreinformante, ii.direccion,  ii.ordenhdr, ii.distrito, ii.fraccion_ant, ii.rubro, r.nombrerubro 
      ORDER BY v.panel, v.tarea, ii.conjuntomuestral, CASE WHEN ii.informante = v.informante THEN 'Titular' ELSE 'Reemplazo' END desc, ii.informante;
 
 GRANT SELECT ON TABLE reemplazosexportar TO cvp_usuarios;
