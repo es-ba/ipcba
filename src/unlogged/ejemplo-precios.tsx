@@ -16,7 +16,7 @@ import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 import {
-    AppBar, Badge, Button, ButtonGroup, Chip, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, Button, ButtonGroup, Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
@@ -564,7 +564,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+    var handleSelection = function handleSelection(_relPre:RelPre, hasSearchString:boolean, allForms:boolean){
         if(hasSearchString || allForms || compactar){
             dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
         }
@@ -841,14 +841,20 @@ function RelevamientoPrecios(props:{
     razonPositiva:boolean,
     compactar: boolean,
 }){
-    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, cargando} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
     return <div className="informante-visita">
         {cantidadResultados?
-            observacionesFiltradasIdx.map(({iRelPre}) =>{
+            observacionesFiltradasIdx.map(({iRelPre}, index) =>{
                 var relPre = props.observaciones[iRelPre];
                 var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+                if(!cargando && index>=3){
+                    if(index==3){
+                        return <Cargando/>;
+                    }
+                    return null;
+                }
                 return <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
@@ -1091,7 +1097,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, posFormularios, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar, posFormularios, allForms, cargando} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1242,12 +1248,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 <main className={classes.content}>
                     <DetalleFiltroObservaciones></DetalleFiltroObservaciones>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
-                    <RelevamientoPrecios 
-                        relVis={relVis}
-                        observaciones={relInf.observaciones}
-                        razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
-                        compactar={compactar}
-                    />
+                    {!cargando && false ?<Cargando/>:
+                        <RelevamientoPrecios 
+                            relVis={relVis}
+                            observaciones={relInf.observaciones}
+                            razonPositiva={!!relVis.razon && estructura.razones[relVis.razon].espositivoformulario}
+                            compactar={compactar}
+                        />
+                    }
                 </main>
                 <ScrollTop>
                     <Fab color="secondary" size="small" aria-label="scroll back to top">
@@ -1545,6 +1553,14 @@ function PantallaOpciones(){
     )
 }
 
+function Cargando(){
+    const dispatch = useDispatch();
+    setTimeout(function(){
+        dispatch(dispatchers.SET_CARGANDO({}));
+    },1000)
+    return <CircularProgress />;
+}
+
 function AppDmIPCOk(){
     const {relVisPk, letraGrandeFormulario, pantallaOpciones/*, refreshKey*/} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     document.documentElement.setAttribute('pos-productos', letraGrandeFormulario?'arriba':'izquierda');
@@ -1555,7 +1571,7 @@ function AppDmIPCOk(){
             return <PantallaHojaDeRuta/>
         }
     }else{
-        return <FormularioVisita relVisPk={relVisPk}/>
+        return <FormularioVisita relVisPk={relVisPk}/>;
     }
 }
 
