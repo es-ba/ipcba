@@ -557,8 +557,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     const classes = useStylesList();
     const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
-    const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000"});
-    const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS});
+    const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
+    const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
     const {color, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
@@ -576,26 +576,27 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
                 {!compactar?
                     <>
-                        <ConditionalWrapper
-                            condition={(productoDef.destacado)}
-                            wrapper={children => 
-                                <Badge style={{width:"100%"}} badgeContent=" " 
-                                    classes={{ 
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        badge: classesBadgeProdDestacado.badge 
-                                    }} className={
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        classesBadgeProdDestacado.margin
-                                    }>{children}
-                                </Badge>
-                            }
-                        >
-                            <div className="especificacion">{productoDef.especificacioncompleta}</div>
-                        </ConditionalWrapper>
-                        <ConditionalWrapper
-                            condition={!!(relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1)}
-                            wrapper={children => 
-                                <Badge style={{width:"100%"}} badgeContent=" " 
+                        <div className="especificacion">
+                            <ConditionalWrapper
+                                condition={(productoDef.destacado)}
+                                wrapper={children => 
+                                    <Badge style={{width:"100%"}} badgeContent=" "
+                                        classes={{ 
+                                            // @ts-ignore TODO: mejorar tipos STYLE #48
+                                            badge: classesBadgeProdDestacado.badge 
+                                        }} className={
+                                            // @ts-ignore TODO: mejorar tipos STYLE #48
+                                            classesBadgeProdDestacado.margin
+                                        }>{children}
+                                    </Badge>
+                                }
+                            >
+                                <span>{productoDef.especificacioncompleta}</span>
+                            </ConditionalWrapper>
+                        </div>
+                        {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
+                            <div className="comentario-analista">
+                                <Badge badgeContent=" " variant="dot"
                                     classes={{ 
                                         // @ts-ignore TODO: mejorar tipos STYLE #48
                                         badge: classesBadgeComentariosAnalista.badge 
@@ -604,12 +605,11 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                         // @ts-ignore TODO: mejorar tipos STYLE #48
                                         classesBadgeComentariosAnalista.margin
                                     }>
-                                    {children}    
+                                    <span>{relPre.comentariosrelpre_1}</span>
                                 </Badge>
-                            }
-                        >
-                            <div className="comentario-analista">{relPre.comentariosrelpre_1}</div>
-                        </ConditionalWrapper>
+                            </div>
+                            :null
+                        }
                     </>
                     :null}
             </div>
@@ -1271,6 +1271,9 @@ const useStylesBadge = makeStyles((theme: Theme) =>
     badge: {
       backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
       color: (props:{color:string}) => props.color?props.color:'white',
+      top: (props:{top:number}) => props.top?props.top:0,
+      right: (props:{right:number}) => props.right?props.right:0,
+      zIndex: (props:{zIndex:number}) => props.zIndex?props.zIndex:0,
     }
   }),
 );
