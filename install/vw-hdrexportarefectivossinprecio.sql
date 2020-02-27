@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW hdrexportarefectivossinprecio AS
 SELECT c.periodo, c.panel, c.tarea, c.fechasalida, c.informante, c.encuestador, c.nombreencuestador, c.recepcionista, c.nombrerecepcionista,
   c.razon, c.visita, c.nombreinformante, c.direccion, 
   c.formulario, c.nombreformulario, (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto, 
-  c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion, i.rubro, r.nombrerubro, a.maxperiodoinformado, p.tipoprecios
+  c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.rubro, r.nombrerubro, a.maxperiodoinformado, p.tipoprecios
 FROM (SELECT * FROM cvp.control_hojas_ruta WHERE razon = 1) c
    INNER JOIN (SELECT periodo, informante, visita, formulario, 
                  CASE WHEN min(precio) is null and max(precio) is null /*AND min(tipoprecio) is null and max(tipoprecio) is null*/ THEN 'NO HAY PRECIO'

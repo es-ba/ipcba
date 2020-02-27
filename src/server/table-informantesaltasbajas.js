@@ -25,7 +25,7 @@ module.exports = function(context){
             {name:'nombrerazon'                  , typeName:'text'   },
             {name:'tipo'                         , typeName:'text'   },
             {name:'distrito'                     , typeName:'integer'},
-            {name:'fraccion'                     , typeName:'integer'},
+            {name:'fraccion_ant'                 , typeName:'integer'},
             {name:'cantformactivos'              , typeName:'integer'},
         ],
         primaryKey:['periodo','informante','visita','formulario'],

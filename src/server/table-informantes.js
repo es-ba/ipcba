@@ -34,9 +34,9 @@ module.exports = function(context){
             {name:'totalpers'                 , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'cp'                        , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'distrito'                  , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'fraccion'                  , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'radio'                     , typeName:'integer'               , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
-            {name:'manzana'                   , typeName:'integer'               , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'fraccion_ant'              , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'radio_ant'                 , typeName:'integer'               , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'manzana_ant'               , typeName:'integer'               , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'lado'                      , typeName:'integer'               , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'obs_listador'              , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'nr_listador'               , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
@@ -51,7 +51,13 @@ module.exports = function(context){
             {name:'contacto'                  , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'telcontacto'               , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'modi_fec'                  , typeName:'timestamp'               , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'barrio'                    , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'barrio'                    , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'comuna'                    , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'fraccion'                  , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'radio'                     , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'manzana'                   , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'depto'                     , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'pc_anio'                   , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
         ],
         primaryKey:['informante'],
         foreignKeys:[
@@ -59,6 +65,7 @@ module.exports = function(context){
             {references:'rubros'          , fields:['rubro']           },
             {references:'muestras'        , fields:['muestra']         },
             {references:'tipoinf'         , fields:['tipoinformante']  },
+            {references:'barrios'         , fields:['barrio']          }
         ]
     },context);
 }

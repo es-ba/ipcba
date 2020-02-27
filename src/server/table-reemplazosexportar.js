@@ -22,7 +22,7 @@ module.exports = function(context){
             {name:'direccion'                    , typeName:'text'    },
             {name:'ordenhdr'                     , typeName:'integer' },
             {name:'distrito'                     , typeName:'integer' },
-            {name:'fraccion'                     , typeName:'integer' },
+            {name:'fraccion_ant'                 , typeName:'integer' },
             {name:'rubro'                        , typeName:'integer' },
             {name:'nombrerubro'                  , typeName:'text'    },
         ],
