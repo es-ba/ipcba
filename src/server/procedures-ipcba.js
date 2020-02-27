@@ -1628,7 +1628,7 @@ ProceduresIpcba = [
                     `update reltar
                         set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
                             datos_descarga = $2
-                        where id_instalacion = $1
+                        where id_instalacion = $1 and descargado is null
                         returning *`
                 ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
                 var tiposDePrecio = await context.client.query(
@@ -1735,7 +1735,7 @@ ProceduresIpcba = [
                     };              
                     return 'descarga completa';
                 }else{
-                    return 'La sincronización no se puede realizar para el encuestador ' + params.encuestador + ' en este dispositivo. Quizás se le haya cargado otro dispositivo'
+                    return 'La sincronización no se puede realizar para el encuestador ' + params.encuestador + ' en este dispositivo. Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo'
                 }
             }catch(err){
                 console.log('ERROR',err);
