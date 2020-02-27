@@ -1,6 +1,6 @@
 ﻿create or replace view informantesaltasbajas as
 SELECT x.periodoanterior, x.informante, x.visita, x.rubro, x.nombrerubro, x.formulario, x.nombreformulario, x.panelanterior, x.tareaanterior, x.razonanterior,
-x.nombrerazonanterior,x.periodo,x.panel,x.tarea,x.razon, x.nombrerazon, x.tipo, x.distrito, x.fraccion_ant, ca.cantformactivos 
+x.nombrerazonanterior,x.periodo,x.panel,x.tarea,x.razon, x.nombrerazon, x.tipo, x.distrito, x.fraccion_ant, x.comuna, x.fraccion, x.radio, x.manzana, x.depto, x.barrio, ca.cantformactivos 
 FROM (
 SELECT r_1.periodo periodoanterior, r_1.informante informanteanterior, i.rubro, ru.nombrerubro, r_1.formulario formularioanterior, f.nombreformulario, r_1.visita visitaanterior, 
        r_1.panel panelanterior, r_1.tarea tareaanterior, r_1.razon razonanterior, zr_1.nombrerazon nombrerazonanterior,
@@ -11,7 +11,7 @@ SELECT r_1.periodo periodoanterior, r_1.informante informanteanterior, i.rubro, 
             WHEN zr_1.escierredefinitivoinf = 'S' or zr_1.escierredefinitivofor = 'S' THEN 'Baja en '||r_1.periodo
             WHEN r_1.razon is null THEN 'No ingresado '||r_1.periodo
             WHEN r.razon is null THEN 'No ingresado '||r.periodo
-            ELSE 'Continuo' END as tipo, i.distrito, i.fraccion_ant
+            ELSE 'Continuo' END as tipo, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio
   FROM cvp.relvis r 
   LEFT JOIN cvp.periodos p ON p.periodo = r.periodo 
   LEFT JOIN cvp.relvis r_1 ON r_1.periodo = p.periodoanterior AND r.informante = r_1.informante AND r.formulario = r_1.formulario AND r.visita = r_1.visita
@@ -29,7 +29,7 @@ SELECT r_1.periodo periodoanterior, r_1.informante informanteanterior, i.rubro, 
             WHEN zr_1.escierredefinitivoinf = 'S' or zr_1.escierredefinitivofor = 'S' THEN 'Baja en '||r_1.periodo 
             WHEN r_1.razon is null THEN 'No ingresado '||r_1.periodo
             WHEN r.razon is null THEN 'No ingresado '||r.periodo
-            ELSE 'Continuo' END as tipo, i.distrito, i.fraccion_ant
+            ELSE 'Continuo' END as tipo, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio
   FROM cvp.relvis r_1 
   LEFT JOIN cvp.periodos p ON p.periodoanterior = r_1.periodo 
   LEFT JOIN cvp.relvis r ON r.periodo = p.periodo AND r.informante = r_1.informante AND r.formulario = r_1.formulario AND r.visita = r_1.visita

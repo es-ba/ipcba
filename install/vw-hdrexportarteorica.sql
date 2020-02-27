@@ -12,7 +12,7 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
    lpad(' '::text, count(*)::integer, chr(10)) AS espacio,   
    c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|') AS formularios, 
    (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto, 
-    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida
+    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida
    FROM cvp.control_hojas_ruta c 
    LEFT JOIN cvp.tareas t on c.tarea = t.tarea
    LEFT JOIN cvp.personal p on p.persona = t.encuestador 
@@ -24,6 +24,6 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
                 GROUP BY informante, visita) a ON c.informante = a.informante AND c.visita = a.visita
   GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
     (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text, c.conjuntomuestral, 
-    c.ordenhdr, i.distrito, i.fraccion_ant, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida;
+    c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida;
 
 GRANT SELECT ON TABLE hdrexportarteorica TO cvp_usuarios;
