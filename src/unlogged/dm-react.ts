@@ -266,7 +266,6 @@ var reducers={
                     observacionesFiltradasEnOtrosIdx,
                     searchString,
                     verRazon: true,
-                    cargando: false,
                     allForms
                 }
             })
@@ -329,24 +328,13 @@ var reducers={
                 }
             })
         },
-    RESET_OPCIONES:(_payload: {}) => 
+  RESET_OPCIONES:(_payload: {}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
                 opciones: getDefaultOptions()
             })
         },
-    SET_CARGANDO:(_payload:{}) => 
-    function(state: HojaDeRuta){
-        return deepFreeze({
-            ...state,
-            opciones: {
-                ...state.opciones,
-                cargando:true
-            }
-        })
-    },
-    
 }
 
 export type ActionHdr = ActionsFrom<typeof reducers>;
