@@ -1557,8 +1557,10 @@ function Cargando(){
     const dispatch = useDispatch();
     setTimeout(function(){
         dispatch(dispatchers.SET_CARGANDO({}));
-    },1000)
-    return <CircularProgress />;
+    },10)
+    return <div className="div-cargando">
+        <CircularProgress />
+    </div>;
 }
 
 function AppDmIPCOk(){
