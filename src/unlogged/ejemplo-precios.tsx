@@ -11,6 +11,7 @@ import {
 import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
+import {VariableSizeList} from "react-window";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
@@ -540,6 +541,7 @@ function numberElement(num:number|null):JSX.Element{
 }
 
 var PreciosRow = React.memo(function PreciosRow(props:{
+    style:Styles, 
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
     inputIdPrecio:string, razonPositiva:boolean, compactar:boolean
@@ -570,7 +572,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
         }
     }
     return (
-        <>
+        <div style={props.style}>
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
@@ -820,7 +822,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     ):null}
                 </tbody>
             </table>
-        </>
+        </div>
     );
 })
 
@@ -843,10 +845,44 @@ function RelevamientoPrecios(props:{
 }){
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
+    const rowHeights = new Array(1000)
+        .fill(true)
+        .map(() => 25 + Math.round(Math.random() * 50));
+    
+    const getItemSize = index => {
+        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
+        var relPre = props.observaciones[iRelPre];
+        return 250+Math.max(relPre.atributos.length*25, Math.ceil(estructura.productos[relPre.producto].especificacioncompleta?.length/30)*15);
+    } 
+    const Row = ({ index, style }) => {
+        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
+        var relPre = props.observaciones[iRelPre];
+        var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+        return <PreciosRow 
+            style={style}
+            key={relPre.producto+'/'+relPre.observacion}
+            relPre={relPre}
+            iRelPre={Number(iRelPre)}
+            hasSearchString={!!searchString}
+            allForms={allForms}
+            inputIdPrecio={inputIdPrecio}
+            esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
+            razonPositiva={props.razonPositiva}
+            compactar={props.compactar}
+        />
+    };
     var cantidadResultados = observacionesFiltradasIdx.length;
     return <div className="informante-visita">
         {cantidadResultados?
-            observacionesFiltradasIdx.map(({iRelPre}) =>{
+            <VariableSizeList
+                height={500}
+                itemCount={observacionesFiltradasIdx.length}
+                itemSize={getItemSize}
+                width={600}
+            >
+                {Row}
+            </VariableSizeList>
+            /*observacionesFiltradasIdx.map(({iRelPre}) =>{
                 var relPre = props.observaciones[iRelPre];
                 var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
                 return <PreciosRow 
@@ -860,7 +896,7 @@ function RelevamientoPrecios(props:{
                     razonPositiva={props.razonPositiva}
                     compactar={props.compactar}
                 />
-            })
+            })*/
         :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
             <div>No hay</div>
         :null)
@@ -1092,7 +1128,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
     const {queVer, searchString, compactar, posFormularios, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
-    useEffect(() => {
+    /*useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
         function registrarPosicionIntraformulario(){
@@ -1110,7 +1146,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             window.scrollTo(0, 0);
             return function(){}
         }
-    },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
+    },[props.relVisPk, posFormularios, compactar, queVer, searchString]);*/
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
