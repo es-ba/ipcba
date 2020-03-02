@@ -872,7 +872,7 @@ function RelevamientoPrecios(props:{
         :null)
         }
         {
-            observacionesFiltradasEnOtrosIdx.length>0?
+            observacionesFiltradasEnOtrosIdx.length>0 && cargando+DELTA_CARGANDO >= cantidadResultados?
             (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS && queVer!='todos'?
                 <div className="zona-degrade">
                     <Button className="boton-hay-mas" variant="outlined"
