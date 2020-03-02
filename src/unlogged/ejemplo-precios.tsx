@@ -8,7 +8,7 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS, DELTA_CARGANDO } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import * as likeAr from "like-ar";
@@ -849,9 +849,9 @@ function RelevamientoPrecios(props:{
             observacionesFiltradasIdx.map(({iRelPre}, index) =>{
                 var relPre = props.observaciones[iRelPre];
                 var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
-                if(!cargando && index>=3){
-                    if(index==3){
-                        return <Cargando/>;
+                if(index>=cargando+DELTA_CARGANDO){
+                    if(index==cargando+DELTA_CARGANDO){
+                        return <Cargando cargado={cargando+DELTA_CARGANDO} limite={observacionesFiltradasIdx.length}/>;
                     }
                     return null;
                 }
@@ -1248,7 +1248,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                 <main className={classes.content}>
                     <DetalleFiltroObservaciones></DetalleFiltroObservaciones>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
-                    {!cargando && false ?<Cargando/>:
+                    {!cargando && false ?<Cargando cargado={1} limite={2}/>:
                         <RelevamientoPrecios 
                             relVis={relVis}
                             observaciones={relInf.observaciones}
@@ -1553,13 +1553,13 @@ function PantallaOpciones(){
     )
 }
 
-function Cargando(){
+function Cargando(props:{cargado:number, limite:number}){
     const dispatch = useDispatch();
     setTimeout(function(){
-        dispatch(dispatchers.SET_CARGANDO({}));
-    },10)
+        dispatch(dispatchers.SET_CARGANDO({cargado: props.cargado}));
+    },200)
     return <div className="div-cargando">
-        <CircularProgress />
+        <CircularProgress value={(props.cargado+10)*100/((props.limite||0)+20)} />
     </div>;
 }
 

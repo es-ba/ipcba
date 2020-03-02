@@ -6,6 +6,7 @@ import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reduc
 import * as JSON4all from "json4all";
 
 export const LIMITE_UNION_FORMULARIOS = 30;
+export const DELTA_CARGANDO = 6;
 
 var my=myOwn;
 
@@ -266,7 +267,7 @@ var reducers={
                     observacionesFiltradasEnOtrosIdx,
                     searchString,
                     verRazon: true,
-                    cargando: false,
+                    cargando: 0,
                     allForms
                 }
             })
@@ -336,13 +337,13 @@ var reducers={
                 opciones: getDefaultOptions()
             })
         },
-    SET_CARGANDO:(_payload:{}) => 
+    SET_CARGANDO:(payload:{cargado:number}) => 
     function(state: HojaDeRuta){
         return deepFreeze({
             ...state,
             opciones: {
                 ...state.opciones,
-                cargando:true
+                cargando:payload.cargado
             }
         })
     },

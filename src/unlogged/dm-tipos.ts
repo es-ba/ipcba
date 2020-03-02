@@ -170,7 +170,7 @@ export type OpcionesHojaDeRuta={
     verRazon: boolean
     compactar: false
     posHdr: number
-    cargando: boolean
+    cargando: number
     posFormularios: {formulario: number, position: number}[]
     observacionesFiltradasIdx: {iRelPre:number}[]
     observacionesFiltradasEnOtrosIdx: {iRelPre:number}[]
@@ -189,7 +189,7 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         verRazon: true,
         compactar: false,
         posHdr: 0,
-        cargando: false,
+        cargando: 0,
         posFormularios: [],
         observacionesFiltradasIdx: [],
         observacionesFiltradasEnOtrosIdx: []
