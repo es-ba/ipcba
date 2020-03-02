@@ -1098,6 +1098,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
     const {queVer, searchString, compactar, posFormularios, allForms, cargando} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    /*
     useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1117,6 +1118,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             return function(){}
         }
     },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
+    */
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
