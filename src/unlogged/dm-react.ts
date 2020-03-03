@@ -199,7 +199,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS_VACIOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS_VACIOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {

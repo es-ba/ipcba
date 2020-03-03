@@ -559,7 +559,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+    var handleSelection = function handleSelection(_relPre:RelPre, hasSearchString:boolean, allForms:boolean){
         if(hasSearchString || allForms || compactar){
             dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
         }
@@ -732,8 +732,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                         dispatch(dispatchers.SET_TP({
                                             forPk:relPre, 
                                             iRelPre:props.iRelPre,
-                                            tipoprecio:tpDef.tipoprecio, 
+                                            tipoprecio:tpDef.tipoprecio
                                         }))
+                                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
                                     }
                                 }}>
                                     <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
