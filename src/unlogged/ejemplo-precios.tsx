@@ -163,6 +163,9 @@ function TypedInput<T extends string|number|null>(props:{
             if(props.dataType == 'number'){
                 //@ts-ignore si dataType=='number' estoy seguro que T es number
                 valorT=Number(valor)
+                if(isNaN(valorT)){
+                    valorT=valor && Number(valor.replace(/[^0-9.,]/g,''));
+                }
             }else{
                 valorT=valor.toString();
             }
@@ -211,6 +214,17 @@ function TypedInput<T extends string|number|null>(props:{
         />
         return input;
     }else{
+        var input = <TextField
+            spellCheck={false}
+            id={inputId}
+            value={valueString}
+            type={props.dataType} 
+            style={style}
+            onChange={onChangeFun}
+            onBlur={onBlurFun}
+            onKeyDown={onKeyDownFun}
+        />
+        return input;
         return <input
             id={inputId}
             value={valueString}
