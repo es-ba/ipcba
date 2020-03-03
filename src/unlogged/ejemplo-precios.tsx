@@ -540,7 +540,7 @@ function numberElement(num:number|null):JSX.Element{
 }
 
 var PreciosRow = React.memo(function PreciosRow(props:{
-    style:Style, 
+    style:Styles, 
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
     inputIdPrecio:string, razonPositiva:boolean, compactar:boolean
@@ -571,7 +571,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
         }
     }
     return (
-        <div style={props.style}>
+        <div style={props.style} className="caja-relpre">
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
@@ -823,7 +823,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
             </table>
         </div>
     );
-})
+});
 
 function DetalleFiltroObservaciones(_props:{}){
     const {queVer} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
@@ -851,7 +851,7 @@ function RelevamientoPrecios(props:{
     const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
-        return 250+Math.max(relPre.atributos.length*25, Math.ceil(estructura.productos[relPre.producto].especificacioncompleta?.length/30)*20);
+        return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
     } 
     const Row = ({ index, style } : {index:number, style:Styles}) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
