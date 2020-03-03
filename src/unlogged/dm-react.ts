@@ -32,14 +32,13 @@ var defaultAction = function defaultAction(
 };
 const surfRelInf = (
     hdrState:HojaDeRuta, 
-    payload:{forPk:{informante:number}, nextId:NextID}, 
+    payload:{forPk:{informante:number}}, 
     relInfReducer:(relInfState:RelInf)=>RelInf
 )=>(
     {
         ...hdrState,
         opciones:{
             ...hdrState.opciones,
-            idActual:payload.nextId?payload.nextId:hdrState.opciones.idActual,
         },
         informantes:hdrState.informantes.map(
             relInf=>relInf.informante==payload.forPk.informante?
@@ -50,7 +49,7 @@ const surfRelInf = (
 );
 const surfRelVis = (
     hdrState:HojaDeRuta, 
-    payload:{nextId:NextID, forPk:{informante:number, formulario:number}}, 
+    payload:{forPk:{informante:number, formulario:number}}, 
     relVisReducer:(productoState:RelVis)=>RelVis
 )=>(
     surfRelInf(hdrState, payload, relInf=>({
@@ -64,7 +63,7 @@ const surfRelVis = (
 );
 const surfRelPre = (
     hdrState:HojaDeRuta, 
-    payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
+    payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     relPreReducer:(productoState:RelPre)=>RelPre
 )=>{
     /*
@@ -105,7 +104,7 @@ const surfRelPre = (
 };
 var setTP = function setTP(
     hdrState:HojaDeRuta, 
-    payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
+    payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     tipoPrecioRedux:(relPre:RelPre)=>string|null
 ){
     return surfRelPre(hdrState, payload, (relPre:RelPre)=>{
@@ -135,7 +134,7 @@ var calcularListas=function(observaciones: RelPre[], relVis: RelVis, allForms:bo
 }
 
 var reducers={
-    SET_RAZON            : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, razon:number|null}) => 
+    SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) => 
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 return {
@@ -144,7 +143,7 @@ var reducers={
                 }
             });
         },
-    SET_COMENTARIO_RAZON : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
+    SET_COMENTARIO_RAZON : (payload: {forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 return {
@@ -153,15 +152,15 @@ var reducers={
                 }
             });
         },
-    SET_TP               : (payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
+    SET_TP               : (payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
         function(state: HojaDeRuta){
             return setTP(state, payload, _ => payload.tipoprecio);
         },
-    COPIAR_TP            :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_TP            :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return setTP(state, payload, relPre => puedeCopiarTipoPrecio(estructura!, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
         },
-    SET_PRECIO           :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
+    SET_PRECIO           :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura!, miRelPre);
@@ -174,7 +173,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_COMENTARIO_PRECIO:(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
+    SET_COMENTARIO_PRECIO:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {
@@ -184,7 +183,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var puedeCopiarAttrs = puedeCopiarAtributos(estructura!, relPre);
@@ -200,7 +199,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS_VACIOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS_VACIOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {
@@ -212,7 +211,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_ATRIBUTO         :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
+    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){

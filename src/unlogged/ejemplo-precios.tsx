@@ -412,7 +412,6 @@ const AtributosRow = function(props:{
     iRelPre: number,
     inputId: string, 
     inputIdPrecio: string, 
-    nextId: string|false, 
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -440,7 +439,6 @@ const AtributosRow = function(props:{
                                 dispatch(dispatchers.COPIAR_ATRIBUTOS({
                                     forPk:relAtr, 
                                     iRelPre:props.iRelPre,
-                                    nextId:relPre.precio?false:props.inputIdPrecio
                                 }))
                             }}>
                                 {FLECHAATRIBUTOS}
@@ -469,7 +467,6 @@ const AtributosRow = function(props:{
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
                         valor:value,
-                        nextId:props.nextId
                     }))
                 }} 
                 tipoOpciones={prodatr.opciones}
@@ -488,7 +485,6 @@ const AtributosRow = function(props:{
                     dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
-                        nextId:relPre.precio?false:props.inputIdPrecio
                     }))
                     setMenuCambioAtributos(null)
                 }}>
@@ -500,7 +496,6 @@ const AtributosRow = function(props:{
                     dispatch(dispatchers.COPIAR_ATRIBUTOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
-                        nextId:relPre.precio?false:props.inputIdPrecio
                     }))
                     setMenuCambioAtributos(null)
                 }}>
@@ -654,7 +649,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                             forPk:relPre, 
                                             iRelPre: props.iRelPre,
                                             comentario:observacionAConfirmar,
-                                            nextId: false
                                         }));
                                         setDialogoObservaciones(false)
                                     }} color="primary" variant="outlined">
@@ -705,7 +699,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                                         setMenuConfirmarBorradoPrecio(true)
                                     }else{
-                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
+                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre}));
                                     }
                                 }}>
                                     {FLECHATIPOPRECIO}
@@ -739,7 +733,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                             forPk:relPre, 
                                             iRelPre:props.iRelPre,
                                             tipoprecio:tpDef.tipoprecio, 
-                                            nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false
                                         }))
                                     }
                                 }}>
@@ -771,7 +764,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     dispatch(dispatchers.SET_TP({
                                         forPk:relPre, 
                                         iRelPre: props.iRelPre,
-                                        nextId: false, 
                                         tipoprecio:tipoDePrecioNegativoAConfirmar
                                     }))
                                     setMenuConfirmarBorradoPrecio(false)
@@ -794,7 +786,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     forPk:relPre, 
                                     iRelPre: props.iRelPre,
                                     precio:value,
-                                    nextId:value && inputIdAtributos.length?inputIdAtributos[0]:false
                                 }));
                             // focusToId(inputIdPrecio,e=>e.blur());
                             }} dataType="number" onFocus={()=>{
@@ -810,7 +801,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             relAtr={relAtr}
                             inputId={inputIdAtributos[index]}
                             inputIdPrecio={inputIdPrecio}
-                            nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
+                            // nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
                             primerAtributo={index==0}
                             cantidadAtributos={relPre.atributos.length}
                             ultimoAtributo={index == relPre.atributos.length-1}
@@ -930,7 +921,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
                     <EditableTd placeholder='sin comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
-                            dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value, nextId:false}));
+                            dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
                         }}
                     />
                     <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
@@ -942,7 +933,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                                 setRazonAConfirmar({razon:index});
                                 setMenuConfirmarRazon(true)
                             }else{
-                                dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index, nextId:false}));
+                                dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index}));
                             }
                             setMenuRazon(null)
                         }}>
@@ -981,7 +972,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                             No borrar
                         </Button>
                         <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
-                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon, nextId:false}));
+                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
                             setMenuConfirmarRazon(false)
                         }} color="secondary" variant="outlined">
                             Proceder borrando
