@@ -25,7 +25,6 @@ import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
 
-
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
     Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
@@ -541,7 +540,7 @@ function numberElement(num:number|null):JSX.Element{
 }
 
 var PreciosRow = React.memo(function PreciosRow(props:{
-    style:Styles, 
+    style:Style, 
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
     inputIdPrecio:string, razonPositiva:boolean, compactar:boolean
@@ -849,12 +848,12 @@ function RelevamientoPrecios(props:{
         .fill(true)
         .map(() => 25 + Math.round(Math.random() * 50));
     
-    const getItemSize = index => {
+    const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
-        return 250+Math.max(relPre.atributos.length*25, Math.ceil(estructura.productos[relPre.producto].especificacioncompleta?.length/30)*15);
+        return 250+Math.max(relPre.atributos.length*25, Math.ceil(estructura.productos[relPre.producto].especificacioncompleta?.length/30)*20);
     } 
-    const Row = ({ index, style }) => {
+    const Row = ({ index, style } : {index:number, style:Styles}) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
         var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
@@ -875,10 +874,10 @@ function RelevamientoPrecios(props:{
     return <div className="informante-visita">
         {cantidadResultados?
             <VariableSizeList
-                height={500}
+                height={900}
                 itemCount={observacionesFiltradasIdx.length}
                 itemSize={getItemSize}
-                width={600}
+                width={655}
             >
                 {Row}
             </VariableSizeList>
