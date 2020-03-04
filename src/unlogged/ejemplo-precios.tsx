@@ -146,37 +146,33 @@ function TypedInput<T extends string|number|null>(props:{
     opciones?:string[]|null
     backgroundColor?:string,
     onFocus?:()=>void
+    disabled?:boolean,
+    placeholder?:string,
 }){
-    var inputId=props.inputId;
-    var [value, setValue] = useState<T|null>(props.value);
     useEffect(() => {
         focusToId(inputId);
         props.onFocus?props.onFocus():null;
     }, []);
-    var valueString:string = value==null?'':value+'';
-    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
-    const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
-        //@ts-ignore en este caso sabemos que etarget es un Element que tiene value.
-        var valor = event.target.value;
-        var valorT:T|null = null;
-        if(valor != null && valor.trim()!=''){
-            if(props.dataType == 'number'){
-                //@ts-ignore si dataType=='number' estoy seguro que T es number
-                valorT=Number(valor)
-                if(isNaN(valorT)){
-                    valorT=valor && Number(valor.replace(/[^0-9.,]/g,''));
-                }
-            }else{
-                valorT=valor.toString();
-            }
-        }
-        setValue(valorT);
-    }
-    const onBlurFun = function <TE>(_event:TE){
-        if(value!==props.value){
+    var inputId=props.inputId;
+    //var [value, setValue] = useState<T|null>(props.value);
+    //var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
+    const onBlurFun = function <TE>(event:TE){
+        if(event.target.value!==props.value){
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-            // manda value porque ya está sanitizado en el onChange
-            props.onUpdate(value);
+            var valor = event.target.value;
+            var valorT:T|null = null;
+            if(valor != null && valor.trim()!=''){
+                if(props.dataType == 'number'){
+                    //@ts-ignore si dataType=='number' estoy seguro que T es number
+                    valorT=Number(valor)
+                    if(isNaN(valorT)){
+                        valorT=valor && Number(valor.replace(/[^0-9.,]/g,''));
+                    }
+                }else{
+                    valorT=valor.toString();
+                }
+            }
+            props.onUpdate(valorT);
         }
         props.onFocusOut();
     };
@@ -188,52 +184,44 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
+    //style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     if(props.dataType=='text'){
         var input = <TextField
             multiline
             rowsMax="4"
             // className={classes.textField}
             // margin="normal"
+            placeholder={props.placeholder}
             spellCheck={false}
             autoCapitalize="off"
             autoComplete="off"
             autoCorrect="off"
             id={inputId}
-            value={valueString}
+            defaultValue={props.value}
             type={props.dataType} 
-            style={style}
+            //style={style}
             onFocus={(event)=>{
-                var selection = valueString?valueString.length:0;
+                var selection = props.value?props.value.length:0;
                 event.target.selectionStart = selection;
                 event.target.selectionEnd = selection;
             }}
-            onChange={onChangeFun}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
+            disabled={props.disabled?props.disabled:false}
         />
         return input;
     }else{
         var input = <TextField
             spellCheck={false}
             id={inputId}
-            value={valueString}
+            defaultValue={props.value}
             type={props.dataType} 
-            style={style}
-            onChange={onChangeFun}
+            //style={style}
             onBlur={onBlurFun}
-            onKeyDown={onKeyDownFun}
+            //onKeyDown={onKeyDownFun}
+            disabled={props.disabled?props.disabled:false}
         />
         return input;
-        return <input
-            id={inputId}
-            value={valueString}
-            type={props.dataType} 
-            style={style}
-            onChange={onChangeFun}
-            onBlur={onBlurFun}
-            onKeyDown={onKeyDownFun}
-        />
     }
 }
 
@@ -313,13 +301,13 @@ function EditableTd<T extends string|number|null>(props:{
             className={props.className} 
             ref={mostrarMenu} 
             onClick={(event)=>{
-                if(!props.disabled){
-                    // @ts-ignore offsetHeight debería existir porque event.target es un TD
-                    var altoActual:number = event.target.offsetHeight!;
-                    setAnchoSinEditar(altoActual);
-                    dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
-                    props.onFocus?props.onFocus():null;
-                }
+                //if(!props.disabled){
+                //    // @ts-ignore offsetHeight debería existir porque event.target es un TD
+                //    var altoActual:number = event.target.offsetHeight!;
+                //    setAnchoSinEditar(altoActual);
+                //    dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
+                //    props.onFocus?props.onFocus():null;
+                //}
             }} 
             puede-editar={!props.disabled && !editando?"yes":"no"}
         >
@@ -337,25 +325,25 @@ function EditableTd<T extends string|number|null>(props:{
                     </Badge>
                 }
             >
-            {editando && !editaEnLista?
-                <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
-                    altoActual={anchoSinEditar}
-                    onUpdate={value =>{
-                        props.onUpdate(value);
-                    }} onFocusOut={()=>{
-                        if(deboEditar && editando){
-                            dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
-                        }
-                    }}
-                    tipoOpciones={props.tipoOpciones}
-                    opciones={props.opciones}
-                    backgroundColor={props.backgroundColor}
-                    onFocus={()=>{props.onFocus?props.onFocus():null}}
-                />
-            :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>
-                {props.value != null?(typeof props.value == "number"?numberElement(props.value):props.value):props.placeholder}
-            </div>
-            }
+            <TypedInput 
+                inputId={props.inputId}
+                value={props.value}
+                disabled={props.disabled}
+                dataType={props.dataType}
+                altoActual={anchoSinEditar}
+                onUpdate={value =>{
+                    props.onUpdate(value);
+                }} onFocusOut={()=>{
+                    //if(deboEditar && editando){
+                    //    dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
+                    //}
+                }}
+                tipoOpciones={props.tipoOpciones}
+                opciones={props.opciones}
+                placeholder={props.placeholder}
+                backgroundColor={props.backgroundColor}
+                onFocus={()=>{props.onFocus?props.onFocus():null}}
+            />
             </ConditionalWrapper>
         </div>
         {editaEnLista && editando?
@@ -471,7 +459,7 @@ const AtributosRow = function(props:{
                 borderBottomColor={color}
                 badgeCondition={tieneAdv}
                 badgeBackgroundColor={color}
-                colSpan={2} className="atributo-actual" inputId={props.inputId}
+                className="atributo-actual" inputId={props.inputId}
                 disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={props.razonPositiva?relAtr.valor:null} 
@@ -926,7 +914,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                         </Button>
                     </td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd placeholder='sin comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
+                    <EditableTd placeholder='sin comentarios' disabled={false} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
                             dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
                         }}
