@@ -51,21 +51,79 @@ body
     .comentario-analista
       font-size 0.9rem
   .caja-precios
+    display grid
+    grid-template-columns 100%
     align-self start
     margin-top 8px
     margin-bottom 8px
     border-top 0.5px solid #ddd
     padding-top 8px
-    .observaciones
-      button
-        width 60px
-        &[tiene-observaciones=si]
-          text-align left
-          font-size 50%
-          overflow hidden
-          max-height 40px
-          line-height normal
-          justify-content flex-start
+    font-size letra_grande
+    vertical-align middle
+    padding 2px
+    overflow-x hidden
+    overflow-wrap break-word
+    div
+      max-width 100%
+      overflow-x hidden
+      overflow-wrap break-word
+    input
+      padding-left 2px 
+      width 100%
+      font-size 100%
+      border 0px solid white
+    .encabezado
+      display grid
+      grid-template-columns 26% 8% 25% 8% 8% 25%
+      .observaciones
+        grid-template-columns 1fr 24px
+        button
+          width 60px
+          &[tiene-observaciones=si]
+            text-align left
+            font-size 50%
+            overflow hidden
+            max-height 40px
+            line-height normal
+            justify-content flex-start
+      .tipoPrecioAnterior
+      .precioAnterior
+        text-align right
+      .flechaTP
+        .MuiButton-root
+          width 90%
+        width 20px
+      .tipoPrecio
+      .precio
+        width 100%
+        padding 0px
+        text-align right
+    .atributos
+      display grid
+      grid-template-columns 100%
+      .MuiButton-root
+        width 90%
+      .atributo-row
+        display grid
+        grid-template-columns 26% 33% 8% 33%
+        .nombre-atributo
+          font-size letra_mediana
+        .atributo-anterior
+          vertical-align bottom
+        .flechaAtributos
+        .atributo-actual
+          padding 0px
+          width 100%
+          vertical-align bottom
+        div
+          display table-cell
+        textarea
+          width 100%
+          height 100%
+          font-size letra_grande
+          font-family Roboto, Arial, Helvetica, sans-serif
+        div
+          margin 2px
     .MuiButton-root
       min-width 16px
       font-size letra_grande 
@@ -81,51 +139,6 @@ body
     grid-column span 1
     grid-row span 1
     width 100%
-    .nombre-atributo
-      font-size letra_mediana
-    td, th
-      font-size letra_grande
-      vertical-align middle
-      padding 2px
-      overflow-x hidden
-      overflow-wrap break-word
-      div
-        max-width 100%
-        overflow-x hidden
-        overflow-wrap break-word
-      input
-        padding-left 2px 
-        width 100%
-        font-size 100%
-        border 0px solid white
-    .flechaAtributos
-      .MuiButton-root
-        width 90%
-    .atributo-anterior
-      vertical-align bottom
-    .atributo-actual
-      padding 0px
-      width 100%
-      vertical-align bottom
-      div
-        display table-cell
-      textarea
-        width 100%
-        height 100%
-        font-size letra_grande
-        font-family Roboto, Arial, Helvetica, sans-serif
-    .flechaTP
-      .MuiButton-root
-          width 90%
-      width 20px
-    .precioAnterior
-      text-align right
-    .precio
-      width 100%
-      padding 0px
-      text-align right
-      div
-        margin 2px
 .hoja-ruta
   td
     font-size letra_grande
@@ -148,9 +161,8 @@ body
 main
   padding 60px 0
 
-td, th
-  &[puede-editar=yes]
-    border-bottom 0.5px solid
+[puede-editar=yes]
+  border-bottom 0.5px solid
 
 .placeholder
   color #3f51b5

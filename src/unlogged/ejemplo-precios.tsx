@@ -282,7 +282,7 @@ function EditableTd<T extends string|number|null>(props:{
     placeholder?: string,
     dataType: InputTypes,
     value:T, 
-    className?:string, colSpan?:number, 
+    className?:string
     onUpdate:OnUpdate<T|null>,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null,
@@ -304,13 +304,12 @@ function EditableTd<T extends string|number|null>(props:{
     const classesBadge = useStylesBadge({backgroundColor: props.badgeBackgroundColor});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
-        <td style={{
+        <div style={{
             backgroundColor:props.backgroundColor?props.backgroundColor:'none', 
             borderBottomColor:props.borderBottomColor?props.borderBottomColor:"#3f51b5",
             overflowX: badgeCondition?'unset':'hidden',
             height:props.height?props.height:'unset',
         }} 
-            colSpan={props.colSpan} 
             className={props.className} 
             ref={mostrarMenu} 
             onClick={(event)=>{
@@ -358,7 +357,7 @@ function EditableTd<T extends string|number|null>(props:{
             </div>
             }
             </ConditionalWrapper>
-        </td>
+        </div>
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
@@ -441,11 +440,11 @@ const AtributosRow = function(props:{
     const classes = useStylesList();
     const {color, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
-        <tr>
-            <td className="nombre-atributo">{atributo.nombreatributo}</td>
-            <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
+        <div className="atributo-row">
+            <div className="nombre-atributo">{atributo.nombreatributo}</div>
+            <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
-                <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
+                <div className="flechaAtributos" button-container="yes">
                     {!props.razonPositiva?'':(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
@@ -466,8 +465,8 @@ const AtributosRow = function(props:{
                             </Button>
                         :relPre.cambio
                     )}
-                </td>
-            :null}
+                </div>
+            :<div></div>}
             <EditableTd
                 borderBottomColor={color}
                 badgeCondition={tieneAdv}
@@ -518,7 +517,7 @@ const AtributosRow = function(props:{
                     </ListItemText>
                 </MenuItem>
             </Menu>
-        </tr>
+        </div>
     )
 };
 
@@ -622,210 +621,203 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     </>
                     :null}
             </div>
-            <table className="caja-precios">
-                <colgroup>
-                    <col style={{width:"26%"}}/>
-                    <col style={{width:"8%" }}/>
-                    <col style={{width:"25%"}}/>
-                    <col style={{width:"8%" }}/>
-                    <col style={{width:"8%" }}/>
-                    <col style={{width:"25%"}}/>
-                </colgroup>      
-                <tbody>
-                    <tr>
-                        <td className="observaciones" button-container="yes">
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
-                                handleSelection(relPre, hasSearchString, allForms);
-                                setDialogoObservaciones(true)
-                            }}>
-                                {relPre.comentariosrelpre||'obs'}
-                            </Button>
-                            <Dialog
-                                open={dialogoObservaciones}
-                                onClose={()=>{
-                                    setDialogoObservaciones(false)
-                                    setObservacionAConfirmar(relPre.comentariosrelpre);
-                                }}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                            >
-                                <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText id="alert-dialog-description-obs">
-                                        <EditableTd inputId={inputIdPrecio+"_comentarios"} height='35px' disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
-                                            setObservacionAConfirmar(value);
-                                        }} dataType="text"/>
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={()=>{
-                                        dispatch(dispatchers.SET_COMENTARIO_PRECIO({
-                                            forPk:relPre, 
-                                            iRelPre: props.iRelPre,
-                                            comentario:observacionAConfirmar,
-                                        }));
-                                        setDialogoObservaciones(false)
-                                    }} color="primary" variant="outlined">
-                                        Guardar
-                                    </Button>
-                                    <Button onClick={()=>{
-                                        setObservacionAConfirmar(relPre.comentariosrelpre)
-                                        setDialogoObservaciones(false)
-                                    }} color="secondary" variant="outlined">
-                                        Descartar cambio
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
-                        </td>
-                        <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
-                        <td className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
-                            <ConditionalWrapper
-                                condition={!!badgeCondition}
-                                wrapper={children => 
-                                    <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
-                                        classes={{ 
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            badge: classesBadgeCantidadMeses.badge 
-                                        }} 
-                                        className={
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            classesBadgeCantidadMeses.margin
-                                        }
-                                    >
-                                        {children}
-                                    </Badge>
-                                }
-                            >
-                                {chipColor?
-                                    <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
-                                :
-                                    <span>{precioAnteriorAMostrar}</span>
-                                }
-                            </ConditionalWrapper>
-                        </td>
-                        <td className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
-                            {relPre.repregunta?
-                                <RepreguntaIcon/>
-                            :((puedeCopiarTipoPrecio(estructura, relPre))?
-                                <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
-                                    handleSelection(relPre, hasSearchString, allForms);
-                                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                                        setMenuConfirmarBorradoPrecio(true)
-                                    }else{
-                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre}));
-                                    }
-                                }}>
-                                    {FLECHATIPOPRECIO}
-                                </Button>
-                                :'')
-                            }
-                        </td>
-                        <td className="tipoPrecio" button-container="yes">
-                            <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
-                                handleSelection(relPre, hasSearchString, allForms);
-                                setMenuTipoPrecio(event.currentTarget)
-                            }}>
-                                {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
-                            </Button>
-                        </td>
-                        <Menu id="simple-menu"
-                            open={Boolean(menuTipoPrecio)}
-                            anchorEl={menuTipoPrecio}
-                            onClose={()=>setMenuTipoPrecio(null)}
-                        >
-                            {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
-                                var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
-                                return (
-                                <MenuItem key={tpDef.tipoprecio} onClick={()=>{
-                                    setMenuTipoPrecio(null);
-                                    if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
-                                        setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
-                                        setMenuConfirmarBorradoPrecio(true)
-                                    }else{
-                                        dispatch(dispatchers.SET_TP({
-                                            forPk:relPre, 
-                                            iRelPre:props.iRelPre,
-                                            tipoprecio:tpDef.tipoprecio
-                                        }))
-                                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
-                                    }
-                                }}>
-                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
-                                </MenuItem>
-                                )
-                            })}
-                        </Menu>
+            <div className="caja-precios">
+                <div className="encabezado">
+                    <div className="observaciones" button-container="yes">
+                        <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
+                            handleSelection(relPre, hasSearchString, allForms);
+                            setDialogoObservaciones(true)
+                        }}>
+                            {relPre.comentariosrelpre||'obs'}
+                        </Button>
                         <Dialog
-                            open={menuConfirmarBorradoPrecio}
-                            onClose={()=>setMenuConfirmarBorradoPrecio(false)}
+                            open={dialogoObservaciones}
+                            onClose={()=>{
+                                setDialogoObservaciones(false)
+                                setObservacionAConfirmar(relPre.comentariosrelpre);
+                            }}
                             aria-labelledby="alert-dialog-title"
                             aria-describedby="alert-dialog-description"
                         >
-                            <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
+                            <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                             <DialogContent>
-                                <DialogContentText id="alert-dialog-description-tpn">
-                                    Se borrará el precio y los atributos
+                                <DialogContentText id="alert-dialog-description-obs">
+                                    <EditableTd inputId={inputIdPrecio+"_comentarios"} height='35px' disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
+                                        setObservacionAConfirmar(value);
+                                    }} dataType="text"/>
                                 </DialogContentText>
                             </DialogContent>
                             <DialogActions>
                                 <Button onClick={()=>{
-                                    setMenuConfirmarBorradoPrecio(false)
-                                }} color="primary" variant="outlined">
-                                    No borrar
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_TP({
+                                    dispatch(dispatchers.SET_COMENTARIO_PRECIO({
                                         forPk:relPre, 
                                         iRelPre: props.iRelPre,
-                                        tipoprecio:tipoDePrecioNegativoAConfirmar
-                                    }))
-                                    setMenuConfirmarBorradoPrecio(false)
+                                        comentario:observacionAConfirmar,
+                                    }));
+                                    setDialogoObservaciones(false)
+                                }} color="primary" variant="outlined">
+                                    Guardar
+                                </Button>
+                                <Button onClick={()=>{
+                                    setObservacionAConfirmar(relPre.comentariosrelpre)
+                                    setDialogoObservaciones(false)
                                 }} color="secondary" variant="outlined">
-                                    Borrar precio y atributos
+                                    Descartar cambio
                                 </Button>
                             </DialogActions>
                         </Dialog>
-                        <EditableTd 
-                            borderBottomColor={color}
-                            badgeCondition={tieneAdv}
-                            badgeBackgroundColor={color}
-                            inputId={inputIdPrecio} 
-                            disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
-                            placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
-                            className="precio" 
-                            value={props.razonPositiva?relPre.precio:null} 
-                            onUpdate={value=>{
-                                dispatch(dispatchers.SET_PRECIO({
+                    </div>
+                    <div className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</div>
+                    <div className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
+                        <ConditionalWrapper
+                            condition={!!badgeCondition}
+                            wrapper={children => 
+                                <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
+                                    classes={{ 
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        badge: classesBadgeCantidadMeses.badge 
+                                    }} 
+                                    className={
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        classesBadgeCantidadMeses.margin
+                                    }
+                                >
+                                    {children}
+                                </Badge>
+                            }
+                        >
+                            {chipColor?
+                                <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                            :
+                                <span>{precioAnteriorAMostrar}</span>
+                            }
+                        </ConditionalWrapper>
+                    </div>
+                    <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
+                        {relPre.repregunta?
+                            <RepreguntaIcon/>
+                        :((puedeCopiarTipoPrecio(estructura, relPre))?
+                            <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
+                                handleSelection(relPre, hasSearchString, allForms);
+                                if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                                    setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                                    setMenuConfirmarBorradoPrecio(true)
+                                }else{
+                                    dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre}));
+                                }
+                            }}>
+                                {FLECHATIPOPRECIO}
+                            </Button>
+                            :'')
+                        }
+                    </div>
+                    <div className="tipoPrecio" button-container="yes">
+                        <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
+                            handleSelection(relPre, hasSearchString, allForms);
+                            setMenuTipoPrecio(event.currentTarget)
+                        }}>
+                            {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
+                        </Button>
+                    </div>
+                    <Menu id="simple-menu"
+                        open={Boolean(menuTipoPrecio)}
+                        anchorEl={menuTipoPrecio}
+                        onClose={()=>setMenuTipoPrecio(null)}
+                    >
+                        {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
+                            var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
+                            return (
+                            <MenuItem key={tpDef.tipoprecio} onClick={()=>{
+                                setMenuTipoPrecio(null);
+                                if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
+                                    setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
+                                    setMenuConfirmarBorradoPrecio(true)
+                                }else{
+                                    dispatch(dispatchers.SET_TP({
+                                        forPk:relPre, 
+                                        iRelPre:props.iRelPre,
+                                        tipoprecio:tpDef.tipoprecio
+                                    }))
+                                    dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
+                                }
+                            }}>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                                <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                            </MenuItem>
+                            )
+                        })}
+                    </Menu>
+                    <Dialog
+                        open={menuConfirmarBorradoPrecio}
+                        onClose={()=>setMenuConfirmarBorradoPrecio(false)}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="alert-dialog-description-tpn">
+                                Se borrará el precio y los atributos
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={()=>{
+                                setMenuConfirmarBorradoPrecio(false)
+                            }} color="primary" variant="outlined">
+                                No borrar
+                            </Button>
+                            <Button onClick={()=>{
+                                dispatch(dispatchers.SET_TP({
                                     forPk:relPre, 
                                     iRelPre: props.iRelPre,
-                                    precio:value,
-                                }));
-                            // focusToId(inputIdPrecio,e=>e.blur());
-                            }} dataType="number" onFocus={()=>{
-                                handleSelection(relPre, hasSearchString, allForms);
-                            }}
-                        />
-                        
-                    </tr>
-                    {!compactar?relPre.atributos.map((relAtr, index)=>
-                        <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
-                            relPre={relPre}
-                            iRelPre={props.iRelPre}
-                            relAtr={relAtr}
-                            inputId={inputIdAtributos[index]}
-                            inputIdPrecio={inputIdPrecio}
-                            // nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
-                            primerAtributo={index==0}
-                            cantidadAtributos={relPre.atributos.length}
-                            ultimoAtributo={index == relPre.atributos.length-1}
-                            onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
-                            razonPositiva={props.razonPositiva}
-                        />
-                    ):null}
-                </tbody>
-            </table>
+                                    tipoprecio:tipoDePrecioNegativoAConfirmar
+                                }))
+                                setMenuConfirmarBorradoPrecio(false)
+                            }} color="secondary" variant="outlined">
+                                Borrar precio y atributos
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                    <EditableTd 
+                        borderBottomColor={color}
+                        badgeCondition={tieneAdv}
+                        badgeBackgroundColor={color}
+                        inputId={inputIdPrecio} 
+                        disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
+                        placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
+                        className="precio" 
+                        value={props.razonPositiva?relPre.precio:null} 
+                        onUpdate={value=>{
+                            dispatch(dispatchers.SET_PRECIO({
+                                forPk:relPre, 
+                                iRelPre: props.iRelPre,
+                                precio:value,
+                            }));
+                        // focusToId(inputIdPrecio,e=>e.blur());
+                        }} dataType="number" onFocus={()=>{
+                            handleSelection(relPre, hasSearchString, allForms);
+                        }}
+                    />                    
+                </div>
+                <div className="atributos">
+                    {!compactar?
+                        relPre.atributos.map((relAtr, index)=>
+                            <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
+                                relPre={relPre}
+                                iRelPre={props.iRelPre}
+                                relAtr={relAtr}
+                                inputId={inputIdAtributos[index]}
+                                inputIdPrecio={inputIdPrecio}
+                                // nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
+                                primerAtributo={index==0}
+                                cantidadAtributos={relPre.atributos.length}
+                                ultimoAtributo={index == relPre.atributos.length-1}
+                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
+                                razonPositiva={props.razonPositiva}
+                            />
+                        )
+                    :null}
+                </div>
+            </div>
         </>
     );
 })
