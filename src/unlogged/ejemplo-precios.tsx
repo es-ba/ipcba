@@ -140,6 +140,7 @@ function TypedInput<T extends string|number|null>(props:{
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
     altoActual:number,
+    idActual:string|null,
     onFocusOut:()=>void, 
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
@@ -150,9 +151,10 @@ function TypedInput<T extends string|number|null>(props:{
     placeholder?:string,
 }){
     useEffect(() => {
-        focusToId(inputId);
-        props.onFocus?props.onFocus():null;
-    }, [props.disabled]);
+        if(props.idActual && !props.disabled){
+            focusToId(props.idActual);
+        }
+    }, [props.disabled, props.idAcual]);
     var inputId=props.inputId;
     //var [value, setValue] = useState<T|null>(props.value);
     //var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
@@ -201,6 +203,7 @@ function TypedInput<T extends string|number|null>(props:{
             type={props.dataType} 
             //style={style}
             onFocus={(event)=>{
+                props.onFocus?props.onFocus():null;
                 var selection = props.value?props.value.length:0;
                 event.target.selectionStart = selection;
                 event.target.selectionEnd = selection;
@@ -219,6 +222,9 @@ function TypedInput<T extends string|number|null>(props:{
             //style={style}
             onBlur={onBlurFun}
             //onKeyDown={onKeyDownFun}
+            onFocus={(event)=>{
+                props.onFocus?props.onFocus():null;
+            }}
             disabled={props.disabled?props.disabled:false}
         />
         return input;
@@ -331,6 +337,7 @@ function EditableTd<T extends string|number|null>(props:{
                 value={props.value}
                 disabled={props.disabled}
                 dataType={props.dataType}
+                idActual={idActual}
                 altoActual={anchoSinEditar}
                 onUpdate={value =>{
                     props.onUpdate(value);
