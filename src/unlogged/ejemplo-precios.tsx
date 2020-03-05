@@ -134,6 +134,15 @@ function focusToId(id:string, cb?:(e:HTMLElement)=>void){
         }
     }
 }
+const useStylesTextField = makeStyles((_theme: Theme) =>
+    createStyles({
+        input: {
+            '&::placeholder': {
+                color: '#3f51b5',
+            }
+        }
+    }),
+);
 
 function TypedInput<T extends string|number|null>(props:{
     value:T,
@@ -150,6 +159,7 @@ function TypedInput<T extends string|number|null>(props:{
     disabled?:boolean,
     placeholder?:string,
 }){
+    const classes = useStylesTextField();
     useEffect(() => {
         if(props.idActual && !props.disabled){
             focusToId(props.idActual);
@@ -225,6 +235,7 @@ function TypedInput<T extends string|number|null>(props:{
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             disabled={props.disabled?props.disabled:false}
+            InputProps={{ classes: {input: classes['input']} }}
         />
         return input;
     }else{
@@ -241,6 +252,7 @@ function TypedInput<T extends string|number|null>(props:{
                 props.onFocus?props.onFocus():null;
             }}
             disabled={props.disabled?props.disabled:false}
+            InputProps={{ classes: {input: classes['input']} }}
         />
         return input;
     }
@@ -451,11 +463,11 @@ const AtributosRow = function(props:{
     const classes = useStylesList();
     const {color, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
-        <div className="atributo-row">
+        <>
             <div className="nombre-atributo">{atributo.nombreatributo}</div>
             <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
-                <div className="flechaAtributos" button-container="yes">
+                <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
                     {!props.razonPositiva?'':(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
@@ -477,7 +489,7 @@ const AtributosRow = function(props:{
                         :relPre.cambio
                     )}
                 </div>
-            :<div></div>}
+            :null}
             <EditableTd
                 borderBottomColor={color}
                 badgeCondition={tieneAdv}
@@ -528,7 +540,7 @@ const AtributosRow = function(props:{
                     </ListItemText>
                 </MenuItem>
             </Menu>
-        </div>
+        </>
     )
 };
 

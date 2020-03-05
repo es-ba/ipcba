@@ -70,7 +70,7 @@ body
     input
       padding-left 2px 
       width 100%
-      font-size 100%
+      font-size 1.4rem
       border 0px solid white
     .encabezado
       display grid
@@ -87,7 +87,9 @@ body
             line-height normal
             justify-content flex-start
       .tipoPrecioAnterior
+        padding-top 3px
       .precioAnterior
+        padding-top 3px
         text-align right
       .flechaTP
         .MuiButton-root
@@ -103,27 +105,27 @@ body
       grid-template-columns 100%
       .MuiButton-root
         width 90%
-      .atributo-row
-        display grid
-        grid-template-columns 26% 33% 8% 33%
-        .nombre-atributo
-          font-size letra_mediana
-        .atributo-anterior
-          vertical-align bottom
-        .flechaAtributos
-        .atributo-actual
-          padding 0px
-          width 100%
-          vertical-align bottom
-        div
-          display table-cell
-        textarea
-          width 100%
-          height 100%
-          font-size letra_grande
-          font-family Roboto, Arial, Helvetica, sans-serif
-        div
-          margin 2px
+      display grid
+      grid-template-columns 26% 33% 8% 33%
+      .nombre-atributo
+        font-size letra_mediana
+      .atributo-anterior
+        vertical-align bottom
+      .flechaAtributos
+        align-self center
+      .atributo-actual
+        padding 0px
+        width 100%
+        vertical-align bottom
+      div
+        display table-cell
+      textarea
+        width 100%
+        height 100%
+        font-size letra_grande
+        font-family Roboto, Arial, Helvetica, sans-serif
+      div
+        margin 2px
     .MuiButton-root
       min-width 16px
       font-size letra_grande 
@@ -161,17 +163,12 @@ body
 main
   padding 60px 0
 
-[puede-editar=yes]
-  border-bottom 0.5px solid
-
 .placeholder
   color #3f51b5
 
 .menu-informante-visita
   .razon-formulario
     font-size letra_mediana
-    .placeholder
-      font-size letra_chica
   td, th
     &[puede-editar=yes]
       height 40px
