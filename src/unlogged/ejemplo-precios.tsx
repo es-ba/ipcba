@@ -154,10 +154,18 @@ function TypedInput<T extends string|number|null>(props:{
         if(props.idActual && !props.disabled){
             focusToId(props.idActual);
         }
-    }, [props.disabled, props.idAcual]);
+    }, [props.disabled, props.idActual]);
+    useEffect(() => {
+        var typedInputElement = document.getElementById(inputId)
+        if(value != props.value && typedInputElement && typedInputElement === document.activeElement){
+            typedInputElement.style.backgroundColor='red';
+        }
+        setValue(props.value)
+    }, [props.value]);
     var inputId=props.inputId;
-    //var [value, setValue] = useState<T|null>(props.value);
-    //var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
+    var [value, setValue] = useState<T|null>(props.value);
+    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
+    style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     const onBlurFun = function <TE>(event:TE){
         if(event.target.value!==props.value){
             // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
@@ -178,6 +186,10 @@ function TypedInput<T extends string|number|null>(props:{
         }
         props.onFocusOut();
     };
+    const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
+        var valueT=event.target.value || null;
+        setValue(valueT);
+    }
     const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
         var tecla = event.charCode || event.which;
         if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
@@ -186,27 +198,29 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    //style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     if(props.dataType=='text'){
         var input = <TextField
             multiline
             rowsMax="4"
-            // className={classes.textField}
-            // margin="normal"
+            margin="normal"
             placeholder={props.placeholder}
             spellCheck={false}
             autoCapitalize="off"
             autoComplete="off"
             autoCorrect="off"
             id={inputId}
-            defaultValue={props.value}
+            value={value}
             type={props.dataType} 
-            //style={style}
-            onFocus={(event)=>{
-                props.onFocus?props.onFocus():null;
+            style={style}
+            onClick={(event)=>{
+                // @ts-ignore value es siempre string
                 var selection = props.value?props.value.length:0;
                 event.target.selectionStart = selection;
                 event.target.selectionEnd = selection;
+            }}
+            onChange={onChangeFun}
+            onFocus={(_event)=>{
+                props.onFocus?props.onFocus():null;
             }}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
@@ -217,12 +231,13 @@ function TypedInput<T extends string|number|null>(props:{
         var input = <TextField
             spellCheck={false}
             id={inputId}
-            defaultValue={props.value}
+            value={value}
             type={props.dataType} 
-            //style={style}
+            style={style}
             onBlur={onBlurFun}
-            //onKeyDown={onKeyDownFun}
-            onFocus={(event)=>{
+            onKeyDown={onKeyDownFun}
+            onChange={onChangeFun}
+            onFocus={(_event)=>{
                 props.onFocus?props.onFocus():null;
             }}
             disabled={props.disabled?props.disabled:false}
