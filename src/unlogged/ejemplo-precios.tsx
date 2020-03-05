@@ -152,7 +152,7 @@ function TypedInput<T extends string|number|null>(props:{
     useEffect(() => {
         focusToId(inputId);
         props.onFocus?props.onFocus():null;
-    }, []);
+    }, [props.disabled]);
     var inputId=props.inputId;
     //var [value, setValue] = useState<T|null>(props.value);
     //var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
@@ -278,7 +278,8 @@ function EditableTd<T extends string|number|null>(props:{
     onFocus?:()=>void
 }){
     const dispatch = useDispatch();
-    const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.opciones.idActual == props.inputId);
+    const idActual = useSelector((hdr:HojaDeRuta)=>hdr.opciones.idActual);
+    const deboEditar = idActual == props.inputId;
     const [editando, setEditando]=useState(deboEditar);
     const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
@@ -335,7 +336,7 @@ function EditableTd<T extends string|number|null>(props:{
                     props.onUpdate(value);
                 }} onFocusOut={()=>{
                     //if(deboEditar && editando){
-                    //    dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
+                        dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
                     //}
                 }}
                 tipoOpciones={props.tipoOpciones}
