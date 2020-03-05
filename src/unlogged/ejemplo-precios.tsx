@@ -139,7 +139,8 @@ const useStylesTextField = makeStyles((_theme: Theme) =>
         input: {
             '&::placeholder': {
                 color: '#3f51b5',
-            }
+            },
+            fontSize: "1.3rem"
         }
     }),
 );
@@ -665,7 +666,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                             <DialogContent>
                                 <DialogContentText id="alert-dialog-description-obs">
-                                    <EditableTd inputId={inputIdPrecio+"_comentarios"} height='35px' disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
+                                    <EditableTd inputId={inputIdPrecio+"_comentarios"} disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
                                         setObservacionAConfirmar(value);
                                     }} dataType="text"/>
                                 </DialogContentText>
