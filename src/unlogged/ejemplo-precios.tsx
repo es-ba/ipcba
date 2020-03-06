@@ -327,18 +327,12 @@ function EditableTd<T extends string|number|null>(props:{
     onFocus?:()=>void
 }){
     const dispatch = useDispatch();
-    const idActual = useSelector((hdr:HojaDeRuta)=>hdr.opciones.idActual);
-    const deboEditar = idActual == props.inputId;
-    const [editando, setEditando]=useState(deboEditar);
+    const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
-    // const [mostrarMenu, setMostrarMenu] = useState<HTMLElement|null>(null);
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const badgeCondition = props.badgeCondition || false;
-    if(editando!=deboEditar){
-        setEditando(deboEditar);
-    }
     const classesBadge = useStylesBadge({backgroundColor: props.badgeBackgroundColor});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
@@ -351,14 +345,15 @@ function EditableTd<T extends string|number|null>(props:{
             className={props.className} 
             ref={mostrarMenu} 
             onClick={(event)=>{
-                //if(!props.disabled){
-                //    // @ts-ignore offsetHeight debería existir porque event.target es un TD
-                //    var altoActual:number = event.target.offsetHeight!;
-                //    setAnchoSinEditar(altoActual);
-                //    dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
-                //    props.onFocus?props.onFocus():null;
-                //}
-            }} 
+                if(!props.disabled){
+                    setEditando(true);
+                    // @ts-ignore offsetHeight debería existir porque event.target es un TD
+                    var altoActual:number = event.target.offsetHeight!;
+                    setAnchoSinEditar(altoActual);
+                    props.onFocus?props.onFocus():null;
+                }
+            }}
+            onFocusOut={()=>setEditando(false)}
             puede-editar={!props.disabled && !editando?"yes":"no"}
         >
             <ConditionalWrapper
@@ -403,7 +398,10 @@ function EditableTd<T extends string|number|null>(props:{
                 open={editando && mostrarMenu.current !== undefined}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
-                onClose={()=> dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))}
+                onClose={()=> {
+                    dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}));
+                    setEditando(false);
+                }
             >
                 <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
                     <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
@@ -411,6 +409,7 @@ function EditableTd<T extends string|number|null>(props:{
                 {props.value && (props.opciones||[]).indexOf(stringValue)==-1?
                     <MenuItem key='*****current value******' value={stringValue}
                         onClick={()=>{
+                            setEditando(false);
                             props.onUpdate(props.value);
                         }}
                     >
@@ -421,6 +420,7 @@ function EditableTd<T extends string|number|null>(props:{
                 {(props.opciones||[]).map(label=>(
                     <MenuItem key={label} value={label}
                         onClick={()=>{
+                            setEditando(false);
                             // @ts-ignore TODO: mejorar los componentes tipados #49
                             props.onUpdate(label);
                         }}
