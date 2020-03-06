@@ -160,6 +160,30 @@ function TypedInput<T extends string|number|null>(props:{
     disabled?:boolean,
     placeholder?:string,
 }){
+    function valueT(value:string):T{
+        if(value=='' || value==null){
+            // @ts-ignore sé que T es null
+            return null;
+        }else if(props.dataType=="number"){
+            var valorT:number=Number(value);
+            if(isNaN(valorT)){
+                valorT=Number(value.replace(/[^0-9.,]/g,''));
+                // @ts-ignore sé que T es number
+                return valorT;
+            }
+        }
+        // @ts-ignore sé que T es string
+        return value;
+    }
+    function valueS(valueT:T):string{
+        if(valueT==null){
+            return '';
+        }else if(props.dataType=="number"){
+            return valueT.toString();
+        }
+        // @ts-ignore sé que T es string
+        return valueT;
+    }
     const classes = useStylesTextField();
     useEffect(() => {
         if(props.idActual && !props.disabled){
@@ -168,38 +192,30 @@ function TypedInput<T extends string|number|null>(props:{
     }, [props.disabled, props.idActual]);
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
-        if(value != props.value && typedInputElement && typedInputElement === document.activeElement){
+        if(valueT(value /*ref.current.value*/) != props.value && typedInputElement && typedInputElement === document.activeElement){
             typedInputElement.style.backgroundColor='red';
         }
-        setValue(props.value)
+        setValue(valueS(props.value));
     }, [props.value]);
     var inputId=props.inputId;
-    var [value, setValue] = useState<T|null>(props.value);
+    var [value, setValue] = useState<string>(valueS(props.value));
+    // var ref = useRef();
+    // var setValue = function(value:T){
+    //     if(ref!=null && ref.current !=null){
+    //         ref.current.value=valueS(value);
+    //     }
+    // }
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
     style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
-    const onBlurFun = function <TE>(event:TE){
-        if(event.target.value!==props.value){
-            // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-            var valor = event.target.value;
-            var valorT:T|null = null;
-            if(valor != null && valor.trim()!=''){
-                if(props.dataType == 'number'){
-                    //@ts-ignore si dataType=='number' estoy seguro que T es number
-                    valorT=Number(valor)
-                    if(isNaN(valorT)){
-                        valorT=valor && Number(valor.replace(/[^0-9.,]/g,''));
-                    }
-                }else{
-                    valorT=valor.toString();
-                }
-            }
-            props.onUpdate(valorT);
+    const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
+        var value = valueT(event.target.value);
+        if(value!==props.value){
+            props.onUpdate(value);
         }
         props.onFocusOut();
     };
-    const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
-        var valueT=event.target.value || null;
-        setValue(valueT);
+    const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
+        setValue(event.target.value);
     }
     const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
         var tecla = event.charCode || event.which;
@@ -209,8 +225,16 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
+    const onClickFun = function<TE extends React.MouseEvent<HTMLTextAreaElement>>(event:TE){
+        // @ts-ignore element es un input o textarea
+        var element:HTMLTextAreaElement = event.target;
+        var selection = element.value.length||0;
+        element.selectionStart = selection;
+        element.selectionEnd = selection;
+    }
     if(props.dataType=='text'){
         var input = <TextField
+            // ref={ref}
             multiline
             rowsMax="4"
             margin="normal"
@@ -223,12 +247,10 @@ function TypedInput<T extends string|number|null>(props:{
             value={value}
             type={props.dataType} 
             style={style}
-            onClick={(event)=>{
-                // @ts-ignore value es siempre string
-                var selection = props.value?props.value.length:0;
-                event.target.selectionStart = selection;
-                event.target.selectionEnd = selection;
-            }}
+            onClick={(event)=>onClickFun(
+                // @ts-ignore pretende que el elemento es un DIV pero sabemos que es un Input o TextArea
+                event
+            )}
             onChange={onChangeFun}
             onFocus={(_event)=>{
                 props.onFocus?props.onFocus():null;
@@ -241,6 +263,7 @@ function TypedInput<T extends string|number|null>(props:{
         return input;
     }else{
         var input = <TextField
+            // ref={ref}
             spellCheck={false}
             id={inputId}
             value={value}
@@ -356,30 +379,31 @@ function EditableTd<T extends string|number|null>(props:{
                     }} className={
                         // @ts-ignore TODO: mejorar tipos STYLE #48
                         classesBadge.margin
-                    }>{children}
+                    }>
+                        {children}
                     </Badge>
                 }
             >
-            <TypedInput 
-                inputId={props.inputId}
-                value={props.value}
-                disabled={props.disabled}
-                dataType={props.dataType}
-                idActual={idActual}
-                altoActual={anchoSinEditar}
-                onUpdate={value =>{
-                    props.onUpdate(value);
-                }} onFocusOut={()=>{
-                    //if(deboEditar && editando){
-                        dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
-                    //}
-                }}
-                tipoOpciones={props.tipoOpciones}
-                opciones={props.opciones}
-                placeholder={props.placeholder}
-                backgroundColor={props.backgroundColor}
-                onFocus={()=>{props.onFocus?props.onFocus():null}}
-            />
+                <TypedInput 
+                    inputId={props.inputId}
+                    value={props.value}
+                    disabled={props.disabled}
+                    dataType={props.dataType}
+                    idActual={idActual}
+                    altoActual={anchoSinEditar}
+                    onUpdate={value =>{
+                        props.onUpdate(value);
+                    }} onFocusOut={()=>{
+                        //if(deboEditar && editando){
+                            dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
+                        //}
+                    }}
+                    tipoOpciones={props.tipoOpciones}
+                    opciones={props.opciones}
+                    placeholder={props.placeholder}
+                    backgroundColor={props.backgroundColor}
+                    onFocus={()=>{props.onFocus?props.onFocus():null}}
+                />
             </ConditionalWrapper>
         </div>
         {editaEnLista && editando?
