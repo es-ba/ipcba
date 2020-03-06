@@ -150,7 +150,6 @@ function TypedInput<T extends string|number|null>(props:{
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
     altoActual:number,
-    idActual:string|null,
     idProximo:string|null,
     onFocusOut:()=>void, 
     inputId:string,
@@ -315,7 +314,7 @@ function EditableTd<T extends string|number|null>(props:{
     borderBottomColor?:string,
     height?:string,
     inputId:string,
-    idProximo:string|null,
+    idProximo?:string|null,
     disabled?:boolean,
     placeholder?: string,
     dataType: InputTypes,
@@ -382,7 +381,7 @@ function EditableTd<T extends string|number|null>(props:{
                     value={props.value}
                     disabled={props.disabled}
                     dataType={props.dataType}
-                    idProximo={props.idProximo}
+                    idProximo={props.idProximo||null}
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
