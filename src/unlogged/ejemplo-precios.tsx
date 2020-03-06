@@ -160,7 +160,7 @@ function TypedInput<T extends string|number|null>(props:{
     disabled?:boolean,
     placeholder?:string,
 }){
-    function valueT(value:string|null|undefined):T{
+    function valueT(value:string):T{
         if(value=='' || value==null){
             // @ts-ignore sé que T es null
             return null;
@@ -192,21 +192,19 @@ function TypedInput<T extends string|number|null>(props:{
     }, [props.disabled, props.idActual]);
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
-        if(valueT(/*value*/ ref.current?.value) != props.value && typedInputElement && typedInputElement === document.activeElement){
+        if(valueT(value /*ref.current.value*/) != props.value && typedInputElement && typedInputElement === document.activeElement){
             typedInputElement.style.backgroundColor='red';
         }
         setValue(valueS(props.value));
     }, [props.value]);
     var inputId=props.inputId;
-    // var [value, setValue] = useState<string>(valueS(props.value));
-    var ref = React.createRef<HTMLInputElement>();
-    var setValue = function(value:string){
-        if(ref!=null){
-            if(ref.current != undefined){
-                ref.current.value=value;
-            }
-        }
-    }
+    var [value, setValue] = useState<string>(valueS(props.value));
+    // var ref = useRef();
+    // var setValue = function(value:T){
+    //     if(ref!=null && ref.current !=null){
+    //         ref.current.value=valueS(value);
+    //     }
+    // }
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
     style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
@@ -229,14 +227,14 @@ function TypedInput<T extends string|number|null>(props:{
     }
     const onClickFun = function<TE extends React.MouseEvent<HTMLTextAreaElement>>(event:TE){
         // @ts-ignore element es un input o textarea
-        // var element:HTMLTextAreaElement = event.target;
-        // var selection = element.value.length||0;
-        // element.selectionStart = selection;
-        // element.selectionEnd = selection;
+        var element:HTMLTextAreaElement = event.target;
+        var selection = element.value.length||0;
+        element.selectionStart = selection;
+        element.selectionEnd = selection;
     }
     if(props.dataType=='text'){
         var input = <TextField
-            inputRef={ref}
+            // ref={ref}
             multiline
             rowsMax="4"
             margin="normal"
@@ -246,14 +244,14 @@ function TypedInput<T extends string|number|null>(props:{
             autoComplete="off"
             autoCorrect="off"
             id={inputId}
-            // value={value}
+            value={value}
             type={props.dataType} 
             style={style}
             onClick={(event)=>onClickFun(
                 // @ts-ignore pretende que el elemento es un DIV pero sabemos que es un Input o TextArea
                 event
             )}
-            // onChange={onChangeFun}
+            onChange={onChangeFun}
             onFocus={(_event)=>{
                 props.onFocus?props.onFocus():null;
             }}
@@ -265,15 +263,15 @@ function TypedInput<T extends string|number|null>(props:{
         return input;
     }else{
         var input = <TextField
-            inputRef={ref}
+            // ref={ref}
             spellCheck={false}
             id={inputId}
-            // value={value}
+            value={value}
             type={props.dataType} 
             style={style}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
-            // onChange={onChangeFun}
+            onChange={onChangeFun}
             onFocus={(_event)=>{
                 props.onFocus?props.onFocus():null;
             }}
