@@ -151,6 +151,7 @@ function TypedInput<T extends string|number|null>(props:{
     onUpdate:OnUpdate<T>, 
     altoActual:number,
     idActual:string|null,
+    idProximo:string|null,
     onFocusOut:()=>void, 
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
@@ -192,19 +193,13 @@ function TypedInput<T extends string|number|null>(props:{
     }, [props.disabled, props.idActual]);
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
-        if(valueT(value /*ref.current.value*/) != props.value && typedInputElement && typedInputElement === document.activeElement){
+        if(valueT(value) != props.value && typedInputElement && typedInputElement === document.activeElement){
             typedInputElement.style.backgroundColor='red';
         }
         setValue(valueS(props.value));
     }, [props.value]);
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
-    // var ref = useRef();
-    // var setValue = function(value:T){
-    //     if(ref!=null && ref.current !=null){
-    //         ref.current.value=valueS(value);
-    //     }
-    // }
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
     style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
@@ -219,8 +214,12 @@ function TypedInput<T extends string|number|null>(props:{
     }
     const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
         var tecla = event.charCode || event.which;
-        if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-            focusToId(inputId, e=>e.blur())
+        if((tecla==13) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
+            if(props.idProximo!=null){
+                focusToId(props.idProximo)
+            }else{
+                event.target.blur();
+            }
             props.onFocus?props.onFocus():null;
             event.preventDefault();
         }
@@ -234,7 +233,6 @@ function TypedInput<T extends string|number|null>(props:{
     }
     if(props.dataType=='text'){
         var input = <TextField
-            // ref={ref}
             multiline
             rowsMax="4"
             margin="normal"
@@ -263,7 +261,6 @@ function TypedInput<T extends string|number|null>(props:{
         return input;
     }else{
         var input = <TextField
-            // ref={ref}
             spellCheck={false}
             id={inputId}
             value={value}
@@ -323,6 +320,7 @@ function EditableTd<T extends string|number|null>(props:{
     borderBottomColor?:string,
     height?:string,
     inputId:string,
+    idProximo:string|null,
     disabled?:boolean,
     placeholder?: string,
     dataType: InputTypes,
@@ -390,6 +388,7 @@ function EditableTd<T extends string|number|null>(props:{
                     disabled={props.disabled}
                     dataType={props.dataType}
                     idActual={idActual}
+                    idProximo={props.idProximo}
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
@@ -598,7 +597,7 @@ function numberElement(num:number|null):JSX.Element{
 var PreciosRow = React.memo(function PreciosRow(props:{
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
-    inputIdPrecio:string, razonPositiva:boolean, compactar:boolean
+    inputIdPrecio:string, inputIdProximo:string|null, razonPositiva:boolean, compactar:boolean
 }){
     const {hasSearchString, allForms, esPrecioActual, inputIdPrecio} = props;
     const relPre = props.relPre;
@@ -830,6 +829,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         badgeCondition={tieneAdv}
                         badgeBackgroundColor={color}
                         inputId={inputIdPrecio} 
+                        idProximo={props.inputIdProximo}
                         disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                         placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
                         className="precio" 
@@ -892,9 +892,11 @@ function RelevamientoPrecios(props:{
     var cantidadResultados = observacionesFiltradasIdx.length;
     return <div className="informante-visita">
         {cantidadResultados?
-            observacionesFiltradasIdx.map(({iRelPre}) =>{
+            observacionesFiltradasIdx.map(({iRelPre}, index) =>{
                 var relPre = props.observaciones[iRelPre];
                 var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+                var relPreProx = index<observacionesFiltradasIdx.length-1 ? props.observaciones[observacionesFiltradasIdx[index+1].iRelPre] : null;  
+                var inputIdProximo = relPreProx != null ? relPreProx.producto+'-'+relPreProx.observacion : null;
                 return <PreciosRow 
                     key={relPre.producto+'/'+relPre.observacion}
                     relPre={relPre}
@@ -902,6 +904,7 @@ function RelevamientoPrecios(props:{
                     hasSearchString={!!searchString}
                     allForms={allForms}
                     inputIdPrecio={inputIdPrecio}
+                    inputIdProximo={inputIdProximo}
                     esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
                     razonPositiva={props.razonPositiva}
                     compactar={props.compactar}
