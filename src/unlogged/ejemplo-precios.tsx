@@ -212,7 +212,7 @@ function TypedInput<T extends string|number|null>(props:{
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
     }
-    const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
+    const onKeyDownFun = function <TE extends React.KeyboardEvent<HTMLInputElement>>(event:TE){
         var tecla = event.charCode || event.which;
         if((tecla==13) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
             if(props.idProximo!=null){
@@ -472,6 +472,8 @@ const AtributosRow = function(props:{
     iRelPre: number,
     inputId: string, 
     inputIdPrecio: string, 
+    idProximoAtributo: string|null,
+    idProximoPrecio: string|null,
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -518,7 +520,9 @@ const AtributosRow = function(props:{
                 borderBottomColor={color}
                 badgeCondition={tieneAdv}
                 badgeBackgroundColor={color}
-                className="atributo-actual" inputId={props.inputId}
+                className="atributo-actual" 
+                inputId={props.inputId}
+                idProximo={props.idProximoAtributo || props.idProximoPrecio}
                 disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={props.razonPositiva?relAtr.valor:null} 
@@ -855,7 +859,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 relAtr={relAtr}
                                 inputId={inputIdAtributos[index]}
                                 inputIdPrecio={inputIdPrecio}
-                                // nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
+                                idProximoAtributo={index<relPre.atributos.length-1?inputIdAtributos[index+1]:null}
+                                idProximoPrecio={props.inputIdProximo}
                                 primerAtributo={index==0}
                                 cantidadAtributos={relPre.atributos.length}
                                 ultimoAtributo={index == relPre.atributos.length-1}
