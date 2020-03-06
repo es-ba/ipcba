@@ -190,23 +190,23 @@ function TypedInput<T extends string|number|null>(props:{
             focusToId(props.idActual);
         }
     }, [props.disabled, props.idActual]);
-    useEffect(() => {
-        var typedInputElement = document.getElementById(inputId)
-        if(valueT(/*value*/ ref.current?.value) != props.value && typedInputElement && typedInputElement === document.activeElement){
-            typedInputElement.style.backgroundColor='red';
-        }
-        setValue(valueS(props.value));
-    }, [props.value]);
+    //useEffect(() => {
+    //    var typedInputElement = document.getElementById(inputId)
+    //    if(valueT(/*value*/ ref.current?.value) != props.value && typedInputElement && typedInputElement === document.activeElement){
+    //        typedInputElement.style.backgroundColor='red';
+    //    }
+    //    setValue(valueS(props.value));
+    //}, [props.value]);
     var inputId=props.inputId;
     // var [value, setValue] = useState<string>(valueS(props.value));
-    var ref = React.createRef<HTMLInputElement>();
-    var setValue = function(value:string){
-        if(ref!=null){
-            if(ref.current != undefined){
-                ref.current.value=value;
-            }
-        }
-    }
+    //var ref = React.createRef<HTMLInputElement>();
+    //var setValue = function(value:string){
+    //    if(ref!=null){
+    //        if(ref.current != undefined){
+    //            ref.current.value=value;
+    //        }
+    //    }
+    //}
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
     style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
@@ -216,9 +216,9 @@ function TypedInput<T extends string|number|null>(props:{
         }
         props.onFocusOut();
     };
-    const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
-        setValue(event.target.value);
-    }
+    //const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
+    //    setValue(event.target.value);
+    //}
     const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
         var tecla = event.charCode || event.which;
         if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
@@ -236,7 +236,7 @@ function TypedInput<T extends string|number|null>(props:{
     }
     if(props.dataType=='text'){
         var input = <TextField
-            inputRef={ref}
+            //inputRef={ref}
             multiline
             rowsMax="4"
             margin="normal"
@@ -265,7 +265,7 @@ function TypedInput<T extends string|number|null>(props:{
         return input;
     }else{
         var input = <TextField
-            inputRef={ref}
+            //inputRef={ref}
             spellCheck={false}
             id={inputId}
             // value={value}
