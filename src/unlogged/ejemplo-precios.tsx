@@ -187,11 +187,6 @@ function TypedInput<T extends string|number|null>(props:{
     }
     const classes = useStylesTextField();
     useEffect(() => {
-        if(props.idActual && !props.disabled){
-            focusToId(props.idActual);
-        }
-    }, [props.disabled, props.idActual]);
-    useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
         if(valueT(value) != props.value && typedInputElement && typedInputElement === document.activeElement){
             typedInputElement.style.backgroundColor='red';
@@ -387,7 +382,6 @@ function EditableTd<T extends string|number|null>(props:{
                     value={props.value}
                     disabled={props.disabled}
                     dataType={props.dataType}
-                    idActual={idActual}
                     idProximo={props.idProximo}
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
@@ -1145,7 +1139,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, posFormularios, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar, posFormularios, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1165,6 +1159,11 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             return function(){}
         }
     },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
+    useEffect(() => {
+        if(idActual){
+            focusToId(idActual);
+        }
+    }, [idActual]);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
