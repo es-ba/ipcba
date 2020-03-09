@@ -223,8 +223,8 @@ function TypedInput<T extends string|number|null>(props:{
         element.selectionStart = selection;
         element.selectionEnd = selection;
     }
+    var readOnly = false;
     if(props.dataType=='text'){
-        var readOnly = false;
         var input = <TextField
             multiline
             rowsMax="4"
@@ -393,7 +393,6 @@ function EditableTd<T extends string|number|null>(props:{
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
                 onClose={()=> {
-                    dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}));
                     setEditando(false);
                 }}
             >
@@ -617,7 +616,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
         }
     }
     return (
-        <div style={props.style}>
+        <div style={props.style} className="caja-relpre">
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
