@@ -226,6 +226,7 @@ function TypedInput<T extends string|number|null>(props:{
         element.selectionEnd = selection;
     }
     if(props.dataType=='text'){
+        var readOnly = props.opciones && props.opciones.length?true:false;
         var input = <TextField
             multiline
             rowsMax="4"
@@ -250,7 +251,7 @@ function TypedInput<T extends string|number|null>(props:{
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             disabled={props.disabled?props.disabled:false}
-            InputProps={{ classes: {input: classes['input']}, readOnly: props.opciones?true:false}}
+            InputProps={{ classes: {input: classes['input']}, readOnly: readOnly}}
         />
         return input;
     }else{
@@ -267,7 +268,7 @@ function TypedInput<T extends string|number|null>(props:{
                 props.onFocus?props.onFocus():null;
             }}
             disabled={props.disabled?props.disabled:false}
-            InputProps={{ classes: {input: classes['input']}, readOnly: props.opciones?true:false}}
+            InputProps={{ classes: {input: classes['input']}, readOnly: readOnly}}
         />
         return input;
     }
@@ -379,7 +380,8 @@ function EditableTd<T extends string|number|null>(props:{
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
-                    }} onFocusOut={()=>{
+                    }}
+                    onFocusOut={()=>{
                         //if(deboEditar && editando){
                             dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
                         //}
