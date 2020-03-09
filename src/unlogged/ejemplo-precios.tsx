@@ -381,11 +381,6 @@ function EditableTd<T extends string|number|null>(props:{
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }}
-                    onFocusOut={()=>{
-                        //if(deboEditar && editando){
-                            dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
-                        //}
-                    }}
                     tipoOpciones={props.tipoOpciones}
                     opciones={props.opciones}
                     placeholder={props.placeholder}
