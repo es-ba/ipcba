@@ -250,7 +250,7 @@ function TypedInput<T extends string|number|null>(props:{
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             disabled={props.disabled?props.disabled:false}
-            InputProps={{ classes: {input: classes['input']} }}
+            InputProps={{ classes: {input: classes['input']}, readOnly: props.opciones?true:false}}
         />
         return input;
     }else{
@@ -267,7 +267,7 @@ function TypedInput<T extends string|number|null>(props:{
                 props.onFocus?props.onFocus():null;
             }}
             disabled={props.disabled?props.disabled:false}
-            InputProps={{ classes: {input: classes['input']} }}
+            InputProps={{ classes: {input: classes['input']}, readOnly: props.opciones?true:false}}
         />
         return input;
     }
