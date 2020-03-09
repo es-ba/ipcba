@@ -11,6 +11,7 @@ import {
 import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
+import {VariableSizeList} from "react-window";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
@@ -22,7 +23,6 @@ import {
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
-
 
 
 // https://material-ui.com/components/material-icons/
@@ -593,6 +593,7 @@ function numberElement(num:number|null):JSX.Element{
 }
 
 var PreciosRow = React.memo(function PreciosRow(props:{
+    style:Styles,
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
     inputIdPrecio:string, inputIdProximo:string|null, razonPositiva:boolean, compactar:boolean
@@ -623,7 +624,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
         }
     }
     return (
-        <>
+        <div style={props.style}>
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
@@ -865,7 +866,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     :null}
                 </div>
             </div>
-        </>
+        </div>
     );
 })
 
@@ -889,26 +890,46 @@ function RelevamientoPrecios(props:{
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
+    const rowHeights = new Array(1000)
+        .fill(true)
+        .map(() => 25 + Math.round(Math.random() * 50));
+    
+    const getItemSize = (index:number) => {
+        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
+        var relPre = props.observaciones[iRelPre];
+        return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
+    } 
+    const Row = ({ index, style }: {index:number, style:Styles}) => {
+        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
+        var relPre = props.observaciones[iRelPre];
+        var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+        var relPreProx = index<observacionesFiltradasIdx.length-1 ? props.observaciones[observacionesFiltradasIdx[index+1].iRelPre] : null;  
+        var inputIdProximo = relPreProx != null ? relPreProx.producto+'-'+relPreProx.observacion : null;
+        return <PreciosRow 
+            style={style}
+            key={relPre.producto+'/'+relPre.observacion}
+            relPre={relPre}
+            iRelPre={Number(iRelPre)}
+            hasSearchString={!!searchString}
+            allForms={allForms}
+            inputIdPrecio={inputIdPrecio}
+            inputIdProximo={inputIdProximo}
+            esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
+            razonPositiva={props.razonPositiva}
+            compactar={props.compactar}
+        />
+    };
+
     return <div className="informante-visita">
         {cantidadResultados?
-            observacionesFiltradasIdx.map(({iRelPre}, index) =>{
-                var relPre = props.observaciones[iRelPre];
-                var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
-                var relPreProx = index<observacionesFiltradasIdx.length-1 ? props.observaciones[observacionesFiltradasIdx[index+1].iRelPre] : null;  
-                var inputIdProximo = relPreProx != null ? relPreProx.producto+'-'+relPreProx.observacion : null;
-                return <PreciosRow 
-                    key={relPre.producto+'/'+relPre.observacion}
-                    relPre={relPre}
-                    iRelPre={Number(iRelPre)}
-                    hasSearchString={!!searchString}
-                    allForms={allForms}
-                    inputIdPrecio={inputIdPrecio}
-                    inputIdProximo={inputIdProximo}
-                    esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
-                    razonPositiva={props.razonPositiva}
-                    compactar={props.compactar}
-                />
-            })
+            <VariableSizeList
+                height={900}
+                itemCount={observacionesFiltradasIdx.length}
+                itemSize={getItemSize}
+                width={650}
+            >
+                {Row}
+            </VariableSizeList>
         :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
             <div>No hay</div>
         :null)
@@ -1140,7 +1161,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
     const {queVer, searchString, compactar, posFormularios, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
-    useEffect(() => {
+    /*useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
         function registrarPosicionIntraformulario(){
@@ -1159,6 +1180,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             return function(){}
         }
     },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
+    */
     useEffect(() => {
         if(idActual){
             focusToId(idActual);
