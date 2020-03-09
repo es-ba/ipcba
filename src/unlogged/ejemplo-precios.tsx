@@ -151,7 +151,6 @@ function TypedInput<T extends string|number|null>(props:{
     onUpdate:OnUpdate<T>, 
     altoActual:number,
     idProximo:string|null,
-    onFocusOut:()=>void, 
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null
@@ -201,7 +200,6 @@ function TypedInput<T extends string|number|null>(props:{
         if(value!==props.value){
             props.onUpdate(value);
         }
-        props.onFocusOut();
     };
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
