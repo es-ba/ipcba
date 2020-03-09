@@ -353,7 +353,6 @@ function EditableTd<T extends string|number|null>(props:{
                     props.onFocus?props.onFocus():null;
                 }
             }}
-            onFocusOut={()=>setEditando(false)}
             puede-editar={!props.disabled && !editando?"yes":"no"}
         >
             <ConditionalWrapper
@@ -401,7 +400,7 @@ function EditableTd<T extends string|number|null>(props:{
                 onClose={()=> {
                     dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}));
                     setEditando(false);
-                }
+                }}
             >
                 <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
                     <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
