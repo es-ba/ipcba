@@ -226,7 +226,7 @@ function TypedInput<T extends string|number|null>(props:{
         element.selectionEnd = selection;
     }
     if(props.dataType=='text'){
-        var readOnly = props.opciones && props.opciones.length?true:false;
+        var readOnly = false;
         var input = <TextField
             multiline
             rowsMax="4"
