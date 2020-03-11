@@ -853,7 +853,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
             </div>
         </div>
     );
-})
+}, areEqual)
 
 function DetalleFiltroObservaciones(_props:{}){
     const {queVer} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
