@@ -888,10 +888,6 @@ function RelevamientoPrecios(props:{
     }, [observacionesFiltradasIdx]);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
-    const rowHeights = new Array(1000)
-        .fill(true)
-        .map(() => 25 + Math.round(Math.random() * 50));
-    
     const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
