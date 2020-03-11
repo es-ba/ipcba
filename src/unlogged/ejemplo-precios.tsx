@@ -354,21 +354,14 @@ function EditableTd<T extends string|number|null>(props:{
             }}
             puede-editar={!props.disabled && !editando?"yes":"no"}
         >
-            <ConditionalWrapper
-                condition={badgeCondition}
-                wrapper={children => 
-                    <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
-                    style={{width:"100%"}} classes={{ 
-                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                        badge: classesBadge.badge 
-                    }} className={
-                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                        classesBadge.margin
-                    }>
-                        {children}
-                    </Badge>
-                }
-            >
+            <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
+            style={{width:"100%"}} classes={{ 
+                // @ts-ignore TODO: mejorar tipos STYLE #48
+                badge: classesBadge.badge 
+            }} className={
+                // @ts-ignore TODO: mejorar tipos STYLE #48
+                classesBadge.margin
+            }>
                 <TypedInput 
                     inputId={props.inputId}
                     value={props.value}
@@ -385,7 +378,7 @@ function EditableTd<T extends string|number|null>(props:{
                     backgroundColor={props.backgroundColor}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
                 />
-            </ConditionalWrapper>
+            </Badge>
         </div>
         {editaEnLista && editando?
             <Menu id="simple-menu"
