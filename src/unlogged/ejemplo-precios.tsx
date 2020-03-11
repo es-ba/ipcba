@@ -11,7 +11,7 @@ import {
 import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
-import {VariableSizeList} from "react-window";
+import {VariableSizeList, areEqual} from "react-window";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
@@ -611,7 +611,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
     var handleSelection = function handleSelection(_relPre:RelPre, hasSearchString:boolean, allForms:boolean){
-        if(hasSearchString || allForms || compactar){
+        if(compactar){
             dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
         }
     }
@@ -891,7 +891,8 @@ function RelevamientoPrecios(props:{
         var relPre = props.observaciones[iRelPre];
         return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
     } 
-    const Row = ({ index, style }: {index:number, style:Styles}) => {
+    
+    const Row = React.memo(({ index, style }: {index:number, style:Styles}) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
         var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
@@ -910,8 +911,7 @@ function RelevamientoPrecios(props:{
             razonPositiva={props.razonPositiva}
             compactar={props.compactar}
         />
-    };
-
+    }, areEqual);
     return <div className="informante-visita">
         {cantidadResultados?
             <VariableSizeList
