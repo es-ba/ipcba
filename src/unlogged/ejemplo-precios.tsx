@@ -878,13 +878,16 @@ function RelevamientoPrecios(props:{
         if (myRef && myRef.current != null) {
             myRef.current.resetAfterIndex(0);
         }
-    }, [observacionesFiltradasIdx]);
+    }, [observacionesFiltradasIdx, props.compactar]);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
     const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
-        return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
+        return props.compactar?
+            50 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
+        :
+            50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
     } 
     const Row = ({ index, style }: {index:number, style:Styles}) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
