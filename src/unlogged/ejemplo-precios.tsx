@@ -879,7 +879,13 @@ function RelevamientoPrecios(props:{
     razonPositiva:boolean,
     compactar: boolean,
 }){
+    const myRef = useRef(null);
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    useEffect(() => {
+        if (myRef && myRef.current != null) {
+            myRef.current.resetAfterIndex(0);
+        }
+    }, [observacionesFiltradasIdx]);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
     const rowHeights = new Array(1000)
@@ -891,7 +897,6 @@ function RelevamientoPrecios(props:{
         var relPre = props.observaciones[iRelPre];
         return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
     } 
-    
     const Row = ({ index, style }: {index:number, style:Styles}) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
@@ -915,6 +920,7 @@ function RelevamientoPrecios(props:{
     return <div className="informante-visita">
         {cantidadResultados?
             <VariableSizeList
+                ref={myRef}
                 height={900}
                 itemCount={observacionesFiltradasIdx.length}
                 itemSize={getItemSize}
