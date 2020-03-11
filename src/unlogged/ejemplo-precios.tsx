@@ -892,7 +892,7 @@ function RelevamientoPrecios(props:{
         return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
     } 
     
-    const Row = React.memo(({ index, style }: {index:number, style:Styles}) => {
+    const Row = ({ index, style }: {index:number, style:Styles}) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
         var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
@@ -911,7 +911,7 @@ function RelevamientoPrecios(props:{
             razonPositiva={props.razonPositiva}
             compactar={props.compactar}
         />
-    }, areEqual);
+    };
     return <div className="informante-visita">
         {cantidadResultados?
             <VariableSizeList
