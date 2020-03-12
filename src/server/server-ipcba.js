@@ -770,6 +770,7 @@ NETWORK:
             { type: 'js', module: 'redux', modPath:'../dist', fileDevelopment:'redux.js', file:'redux.min.js' },
             { type: 'js', module: 'react-redux', modPath:'../dist', fileDevelopment:'react-redux.js', file:'react-redux.min.js' },
             { type: 'js', module: 'react-window', fileDevelopment:'index-dev.umd.js', file:'index-prod.umd.js' },
+            { type: 'js', module: 'memoize-one',  file:'memoize-one.js' },
             ...super.clientIncludes(req, opts),
             { type: 'js', module: 'redux-typed-reducer', modPath:'../dist', file:'redux-typed-reducer.js' },
             { type: 'js', src: 'adapt.js' },
