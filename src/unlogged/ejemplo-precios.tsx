@@ -12,6 +12,7 @@ import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {VariableSizeList, areEqual} from "react-window";
+import * as memoize from "memoize-one";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
@@ -207,10 +208,9 @@ function TypedInput<T extends string|number|null>(props:{
     const onKeyDownFun = function <TE extends React.KeyboardEvent<HTMLInputElement>>(event:TE){
         var tecla = event.charCode || event.which;
         if((tecla==13) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
+            event.target.blur();
             if(props.idProximo!=null){
                 focusToId(props.idProximo)
-            }else{
-                event.target.blur();
             }
             props.onFocus?props.onFocus():null;
             event.preventDefault();
@@ -865,6 +865,28 @@ function DetalleFiltroObservaciones(_props:{}){
         )}
     </>
 }
+const Row = React.memo(({ data, index, style }: {data: any, index:number, style:Styles}) => {
+    var {items, observaciones, idActual, razonPositiva, allForms, searchString, compactar} = data;
+    var item = items[index];
+    var iRelPre = item.iRelPre;
+    var relPre = observaciones[iRelPre];
+    var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+    var relPreProx = index<items.length-1 ? observaciones[items[index+1].iRelPre] : null;  
+    var inputIdProximo = relPreProx != null ? relPreProx.producto+'-'+relPreProx.observacion : null;
+    return <PreciosRow 
+        style={style}
+        key={relPre.producto+'/'+relPre.observacion}
+        relPre={relPre}
+        iRelPre={Number(iRelPre)}
+        hasSearchString={!!searchString}
+        allForms={allForms}
+        inputIdPrecio={inputIdPrecio}
+        inputIdProximo={inputIdProximo}
+        esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
+        razonPositiva={razonPositiva}
+        compactar={compactar}
+    />
+},areEqual);
 
 function RelevamientoPrecios(props:{
     relVis:RelVis,
@@ -889,32 +911,36 @@ function RelevamientoPrecios(props:{
         :
             50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
     } 
-    const Row = ({ index, style }: {index:number, style:Styles}) => {
-        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
-        var relPre = props.observaciones[iRelPre];
-        var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
-        var relPreProx = index<observacionesFiltradasIdx.length-1 ? props.observaciones[observacionesFiltradasIdx[index+1].iRelPre] : null;  
-        var inputIdProximo = relPreProx != null ? relPreProx.producto+'-'+relPreProx.observacion : null;
-        return <PreciosRow 
-            style={style}
-            key={relPre.producto+'/'+relPre.observacion}
-            relPre={relPre}
-            iRelPre={Number(iRelPre)}
-            hasSearchString={!!searchString}
-            allForms={allForms}
-            inputIdPrecio={inputIdPrecio}
-            inputIdProximo={inputIdProximo}
-            esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
-            razonPositiva={props.razonPositiva}
-            compactar={props.compactar}
-        />
-    };
+       
+    const createItemData = memoize(
+        (
+            items: {iRelPre: number}[], 
+            observaciones:RelPre[], 
+            idActual: string|null, 
+            razonPositiva:boolean, 
+            allForms: boolean, 
+            searchString: boolean, 
+            compactar: boolean
+        ) =>     
+        ({
+            items,
+            observaciones,
+            idActual,
+            razonPositiva,
+            allForms,
+            searchString,
+            compactar
+        })
+    );
+    const itemData = createItemData(observacionesFiltradasIdx, props.observaciones, idActual, props.razonPositiva, allForms, searchString, props.compactar);
+    
     return <div className="informante-visita">
         {cantidadResultados?
             <VariableSizeList
                 ref={myRef}
                 height={900}
                 itemCount={observacionesFiltradasIdx.length}
+                itemData={itemData}
                 itemSize={getItemSize}
                 width={650}
             >
