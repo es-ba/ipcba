@@ -192,6 +192,15 @@ function TypedInput<T extends string|number|null>(props:{
         }
         setValue(valueS(props.value));
     }, [props.value]);
+    useEffect(function(){
+        return function(){
+            var typedInputElement = document.getElementById(inputId) as HTMLInputElement
+            var value = valueT(typedInputElement.value);
+            if(value!==props.value){
+                props.onUpdate(value);
+            }
+        }
+    },[])
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
@@ -325,7 +334,6 @@ function EditableTd<T extends string|number|null>(props:{
     titulo?:string,
     onFocus?:()=>void
 }){
-    const dispatch = useDispatch();
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
