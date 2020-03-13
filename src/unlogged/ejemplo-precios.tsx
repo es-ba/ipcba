@@ -11,7 +11,7 @@ import {
 import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
-import {VariableSizeList, areEqual} from "react-window";
+import {areEqual} from "react-window";
 import * as memoize from "memoize-one";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
@@ -194,10 +194,12 @@ function TypedInput<T extends string|number|null>(props:{
     }, [props.value]);
     useEffect(function(){
         return function(){
-            var typedInputElement = document.getElementById(inputId) as HTMLInputElement
-            var value = valueT(typedInputElement.value);
-            if(value!==props.value){
-                props.onUpdate(value);
+            var typedInputElement = document.getElementById(inputId) as HTMLInputElement;
+            if(typedInputElement){
+                var value = valueT(typedInputElement.value);
+                if(value!==props.value){
+                    props.onUpdate(value);
+                }
             }
         }
     },[])
@@ -901,7 +903,7 @@ function DetalleFiltroObservaciones(_props:{}){
         )}
     </>
 }
-const IndexedPreciosRow = React.memo(({ data, index, isScrolling, style }: {data: any, index:number, isScrolling:boolean, style:Styles}) => {
+const IndexedPreciosRow = /*React.memo*/(({ data, index, isScrolling, style }: {data: any, index:number, isScrolling:boolean, style:Styles}) => {
     var {items, observaciones, idActual, razonPositiva, allForms, searchString, compactar} = data;
     var item = items[index];
     var iRelPre = item.iRelPre;
@@ -923,7 +925,55 @@ const IndexedPreciosRow = React.memo(({ data, index, isScrolling, style }: {data
         razonPositiva={razonPositiva}
         compactar={compactar}
     />
-},areEqual);
+}/*,areEqual*/);
+
+function VariableSizeList(props:{
+    ref:React.MutableRefObject<any>,
+    width:number, 
+    itemCount:number, 
+    itemSize:(i:number)=>number,
+    useIsScrolling:boolean,
+    itemData:any,
+    children:({data: any, index:number, isScrolling:boolean, style:React.StyleHTMLAttributes<HTMLDivElement>})=>Element
+}){
+    var rowFun=props.children;
+    var heightSum=0;
+    var [lista, setLista]=useState<{style:{}, isScrolling:boolean}[]>(new Array(props.itemCount).fill(true).map((_, i:number)=>{
+        var height = props.itemSize(i);
+        var top = heightSum;
+        heightSum+=height;
+        return {
+            style:{
+                top,
+                left:0,
+                height,
+                width:'100%',
+                position:'absolute',
+            },
+            isScrolling:heightSum-window.scrollY>1500 || top+height<window.scrollY
+        }
+    }));
+    var [ultimoTop, setUltimoTop]=useState(-99999);
+    var calculateList=function(){
+        if(ultimoTop!=window.scrollY){
+            setUltimoTop(window.scrollY);
+            setLista(lista.map(nodo=>({...nodo, isScrolling: nodo.isScrolling && (nodo.style.top-window.scrollY>1500 || nodo.style.top+nodo.style.height<window.scrollY)})));
+        }
+    };
+    useEffect(function(){
+        var interval=setInterval(calculateList,1000);
+        return function(){
+            clearInterval(interval);
+        }
+    })
+    return <div ref={props.ref} style={{height:heightSum, width:props.width, position:'relative', top:0, left:0}} >
+        {lista.length?lista.map(function(node, i){
+            var x=rowFun({data:props.itemData, index:i, isScrolling:node.isScrolling, style:node.style});
+            return x;
+            // return rowFun({data:props.itemData, index:i, isScrolling:node.isScrolling, style:node.style});
+        }):<div>cargando</div>}
+    </div>
+}
 
 function RelevamientoPrecios(props:{
     relVis:RelVis,
@@ -1362,8 +1412,8 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 setOpen(false);
                                 dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                             }}>
-                            <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
-                            <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                                <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
+                                <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
                             </ListItem>
                         ))}
                     </List>
