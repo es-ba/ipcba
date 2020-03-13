@@ -590,7 +590,13 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     inputIdPrecio:string, inputIdProximo:string|null, razonPositiva:boolean, compactar:boolean,
     isScrolling:boolean
 }){
-    const {hasSearchString, allForms, esPrecioActual, inputIdPrecio, isScrolling} = props;
+    const {hasSearchString, allForms, esPrecioActual, inputIdPrecio} = props;
+    const [render4scroll, setRender4scroll] = useState(props.isScrolling);
+    useEffect(function(){
+        if(!props.isScrolling){
+            setRender4scroll(false);
+        }
+    }, [props.isScrolling]);
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
@@ -662,7 +668,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
             <div className="caja-precios">
                 <div className="encabezado">
                     <div className="observaciones" button-container="yes">
-                        {isScrolling?
+                        {render4scroll?
                         <FakeButton>
                             {relPre.comentariosrelpre||'obs'}
                         </FakeButton>
@@ -713,7 +719,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     </div>
                     <div className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</div>
                     <div className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
-                        {isScrolling?                                
+                        {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
                         :
                         <ConditionalWrapper
@@ -741,7 +747,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </ConditionalWrapper>
                         }
                     </div>
-                    {!isScrolling?<>
+                    {!render4scroll?<>
                         <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
                             {relPre.repregunta?
                                 <RepreguntaIcon/>
@@ -850,7 +856,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     </>
                     :null}                   
                 </div>
-                {!isScrolling?
+                {!render4scroll?
                 <div className="atributos">
                     {!compactar?
                         relPre.atributos.map((relAtr, index)=>
