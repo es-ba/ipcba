@@ -12,11 +12,15 @@ import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
-import * as memoize from "memoize-one";
+import * as memoizeBadTyped from "memoize-one";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
+
+//@ts-ignore el módulo memoize-one no tiene bien puesto los tipos en su .d.ts
+var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
+
 import {
     AppBar, Badge, Button, ButtonGroup, Chip, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
@@ -78,6 +82,8 @@ const SECONDARY_COLOR ="#f50057";
 const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
 const COLOR_PENDIENTES = "rgb(63, 81, 181)";
 var CHECK = '✓';
+
+type Styles = React.CSSProperties;
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -216,10 +222,14 @@ function TypedInput<T extends string|number|null>(props:{
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
     }
-    const onKeyDownFun = function <TE extends React.KeyboardEvent<HTMLInputElement>>(event:TE){
+    const onKeyDownFun:React.KeyboardEventHandler = function(event:React.KeyboardEvent<HTMLInputElement>){
         var tecla = event.charCode || event.which;
         if((tecla==13) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-            event.target.blur();
+            // @ts-ignore puede existir blur si target es un HTMLInputElement
+            if(event.target.blur instanceof Function){
+                // @ts-ignore puede existir blur si target es un HTMLInputElement
+                event.target.blur();
+            }
             if(props.idProximo!=null){
                 focusToId(props.idProximo)
             }
@@ -626,7 +636,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(_relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+    var handleSelection = function handleSelection(_relPre:RelPre, _hasSearchString:boolean, _allForms:boolean){
         if(compactar){
             dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
         }
@@ -927,18 +937,21 @@ const IndexedPreciosRow = /*React.memo*/(({ data, index, isScrolling, style }: {
     />
 }/*,areEqual*/);
 
+type Style4Render = {top:number, left:number, height:number, width:string, position:'fixed'|'relative'|'absolute'};
+
 function VariableSizeList(props:{
     ref:React.MutableRefObject<any>,
     width:number, 
+    height:number,
     itemCount:number, 
     itemSize:(i:number)=>number,
     useIsScrolling:boolean,
     itemData:any,
-    children:({data: any, index:number, isScrolling:boolean, style:React.StyleHTMLAttributes<HTMLDivElement>})=>Element
+    children:(props:{data: any, index:number, isScrolling:boolean, style:Style4Render}) => JSX.Element
 }){
     var rowFun=props.children;
     var heightSum=0;
-    var [lista, setLista]=useState<{style:{}, isScrolling:boolean}[]>(new Array(props.itemCount).fill(true).map((_, i:number)=>{
+    var [lista, setLista]=useState<{style:Style4Render, isScrolling:boolean}[]>(new Array(props.itemCount).fill(true).map((_, i:number)=>{
         var height = props.itemSize(i);
         var top = heightSum;
         heightSum+=height;
@@ -975,17 +988,24 @@ function VariableSizeList(props:{
     </div>
 }
 
+// function isNotNull<T>(value:T): T is not null{
+//     return value != null;
+// }
+
 function RelevamientoPrecios(props:{
     relVis:RelVis,
     observaciones: RelPre[]
     razonPositiva:boolean,
     compactar: boolean,
 }){
-    const myRef = useRef(null);
+    const myRef = useRef<ReturnType<typeof VariableSizeList>>();
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     useEffect(() => {
-        if (myRef && myRef.current != null) {
-            myRef.current.resetAfterIndex(0);
+        if(myRef){
+            if(myRef.current != null) {
+            //if(myRef.current !== null && myRef.current !== undefined) {
+                myRef.current.resetAfterIndex(0);
+            }
         }
     }, [observacionesFiltradasIdx, props.compactar]);
     const dispatch = useDispatch();
@@ -1006,7 +1026,7 @@ function RelevamientoPrecios(props:{
             idActual: string|null, 
             razonPositiva:boolean, 
             allForms: boolean, 
-            searchString: boolean, 
+            searchString: string, 
             compactar: boolean
         ) =>     
         ({
@@ -1264,7 +1284,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, posFormularios, allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar, /*posFormularios, */ allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     /*useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
