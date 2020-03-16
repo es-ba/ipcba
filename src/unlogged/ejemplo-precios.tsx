@@ -74,6 +74,7 @@ export var estructura:Estructura;
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
 const PRIMARY_COLOR   ="#3f51b5";
+const DEFAULT_ERROR_COLOR   ="#f44336";
 const SECONDARY_COLOR ="#f50057";
 const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
 const COLOR_PENDIENTES = "rgb(63, 81, 181)";
@@ -139,14 +140,27 @@ const useStylesTextField = makeStyles((_theme: Theme) =>
     createStyles({
         input: {
             '&::placeholder': {
-                color: '#3f51b5',
+                color: PRIMARY_COLOR,
             },
-            fontSize: "1.3rem"
+            fontSize: "1.3rem",
+        },
+        underline: {
+            "&:after": {
+                borderBottomColor: (props:{borderBottomColor:string}) => props.borderBottomColor,
+            }
+        },
+        error: {
+            "&$error:after": {
+                borderBottomColor: (props:{borderBottomColorError:string}) => props.borderBottomColorError,
+            },
         }
     }),
 );
 
 function TypedInput<T extends string|number|null>(props:{
+    borderBottomColor:string,
+    borderBottomColorError:string
+    hasError:boolean,
     value:T,
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
@@ -155,7 +169,6 @@ function TypedInput<T extends string|number|null>(props:{
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null
-    backgroundColor?:string,
     onFocus?:()=>void
     disabled?:boolean,
     placeholder?:string,
@@ -184,7 +197,10 @@ function TypedInput<T extends string|number|null>(props:{
         // @ts-ignore sé que T es string
         return valueT;
     }
-    const classes = useStylesTextField();
+    const classes = useStylesTextField({
+        borderBottomColor: props.borderBottomColor,
+        borderBottomColorError: props.borderBottomColorError
+    });
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
         if(valueT(value) != props.value && typedInputElement && typedInputElement === document.activeElement){
@@ -206,7 +222,6 @@ function TypedInput<T extends string|number|null>(props:{
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
     var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
-    style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
         var value = valueT(event.target.value);
         if(value!==props.value){
@@ -260,7 +275,8 @@ function TypedInput<T extends string|number|null>(props:{
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             disabled={props.disabled?props.disabled:false}
-            InputProps={{ classes: {input: classes['input']}, readOnly: readOnly}}
+            error={props.hasError}
+            InputProps={{ classes: classes, readOnly: readOnly}}
         />
         return input;
     }else{
@@ -277,7 +293,8 @@ function TypedInput<T extends string|number|null>(props:{
                 props.onFocus?props.onFocus():null;
             }}
             disabled={props.disabled?props.disabled:false}
-            InputProps={{ classes: {input: classes['input']}, readOnly: readOnly}}
+            error={props.hasError}
+            InputProps={{ classes: classes, readOnly: readOnly}}
         />
         return input;
     }
@@ -318,10 +335,9 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
 }
 
 function EditableTd<T extends string|number|null>(props:{
-    backgroundColor?:string,
-    badgeCondition?:boolean,
-    badgeBackgroundColor?:any,
     borderBottomColor?:string,
+    borderBottomColorError?:string
+    hasError:boolean,
     height?:string,
     inputId:string,
     idProximo?:string|null,
@@ -341,30 +357,12 @@ function EditableTd<T extends string|number|null>(props:{
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
-    const badgeCondition = props.badgeCondition || false;
-    const classesBadge = useStylesBadge({backgroundColor: props.badgeBackgroundColor});
+    const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
+    const borderBottomColorError = props.borderBottomColorError || DEFAULT_ERROR_COLOR;
+    const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
-        <div style={{
-            backgroundColor:props.backgroundColor?props.backgroundColor:'none', 
-            borderBottomColor:props.borderBottomColor?props.borderBottomColor:"#3f51b5",
-            overflowX: badgeCondition?'unset':'hidden',
-            height:props.height?props.height:'unset',
-        }} 
-            className={props.className} 
-            ref={mostrarMenu} 
-            onClick={(event)=>{
-                if(!props.disabled){
-                    setEditando(true);
-                    // @ts-ignore offsetHeight debería existir porque event.target es un TD
-                    var altoActual:number = event.target.offsetHeight!;
-                    setAnchoSinEditar(altoActual);
-                    props.onFocus?props.onFocus():null;
-                }
-            }}
-            puede-editar={!props.disabled && !editando?"yes":"no"}
-        >
-            <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
+        <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
                 style={{width:"100%"}} classes={{ 
                     // @ts-ignore TODO: mejorar tipos STYLE #48
                     badge: classesBadge.badge 
@@ -372,8 +370,26 @@ function EditableTd<T extends string|number|null>(props:{
                     // @ts-ignore TODO: mejorar tipos STYLE #48
                     classesBadge.margin
                 }
+        >
+            <div  
+                className={props.className} 
+                ref={mostrarMenu} 
+                onClick={(event)=>{
+                    if(!props.disabled){
+                        setEditando(true);
+                        // @ts-ignore offsetHeight debería existir porque event.target es un TD
+                        var altoActual:number = event.target.offsetHeight!;
+                        setAnchoSinEditar(altoActual);
+                        props.onFocus?props.onFocus():null;
+                    }
+                }}
+                puede-editar={!props.disabled && !editando?"yes":"no"}
             >
-                <TypedInput 
+            
+                <TypedInput
+                    hasError={props.hasError}
+                    borderBottomColor={borderBottomColor}
+                    borderBottomColorError={borderBottomColorError}
                     inputId={props.inputId}
                     value={props.value}
                     disabled={props.disabled}
@@ -386,11 +402,10 @@ function EditableTd<T extends string|number|null>(props:{
                     tipoOpciones={props.tipoOpciones}
                     opciones={props.opciones}
                     placeholder={props.placeholder}
-                    backgroundColor={props.backgroundColor}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
                 />
-            </Badge>
-        </div>
+            </div>
+        </Badge>
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
@@ -477,7 +492,7 @@ const AtributosRow = function(props:{
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
     const classes = useStylesList();
-    const {color, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
+    const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
             <div className="nombre-atributo">{atributo.nombreatributo}</div>
@@ -506,10 +521,10 @@ const AtributosRow = function(props:{
                     )}
                 </div>
             :null}
-            <EditableTd
-                borderBottomColor={color}
-                badgeCondition={tieneAdv}
-                badgeBackgroundColor={color}
+            <EditableTd 
+                borderBottomColor={PRIMARY_COLOR}
+                borderBottomColorError={colorAdv}
+                hasError={tieneAdv}
                 className="atributo-actual" 
                 inputId={props.inputId}
                 idProximo={props.idProximoAtributo || props.idProximoPrecio}
@@ -621,7 +636,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
-    const {color, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
+    const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
@@ -701,9 +716,18 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText id="alert-dialog-description-obs">
-                                        <EditableTd inputId={inputIdPrecio+"_comentarios"} disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
-                                            setObservacionAConfirmar(value);
-                                        }} dataType="text"/>
+                                        <EditableTd
+                                            hasError={false}
+                                            inputId={inputIdPrecio+"_comentarios"}
+                                            disabled={false}
+                                            placeholder={"agregar observaciones"}
+                                            className="observaciones"
+                                            value={observacionAConfirmar}
+                                            onUpdate={value=>{
+                                                setObservacionAConfirmar(value);
+                                            }} 
+                                            dataType="text"
+                                        />
                                     </DialogContentText>
                                 </DialogContent>
                                 <DialogActions>
@@ -843,9 +867,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </DialogActions>
                         </Dialog>
                         <EditableTd 
-                            borderBottomColor={color}
-                            badgeCondition={tieneAdv}
-                            badgeBackgroundColor={color}
+                            borderBottomColor={PRIMARY_COLOR}
+                            borderBottomColorError={colorAdv}
+                            hasError={tieneAdv}
                             inputId={inputIdPrecio} 
                             idProximo={props.inputIdProximo}
                             disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
@@ -858,8 +882,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     iRelPre: props.iRelPre,
                                     precio:value,
                                 }));
-                            // focusToId(inputIdPrecio,e=>e.blur());
-                            }} dataType="number" onFocus={()=>{
+                            }} 
+                            dataType="number"
+                            onFocus={()=>{
                                 handleSelection(relPre, hasSearchString, allForms);
                             }}
                         />
@@ -929,7 +954,7 @@ const IndexedPreciosRow = /*React.memo*/(({ data, index, isScrolling, style }: {
 
 function VariableSizeList(props:{
     ref:React.MutableRefObject<any>,
-    width:number, 
+    width:number|string, 
     itemCount:number, 
     itemSize:(i:number)=>number,
     useIsScrolling:boolean,
@@ -1030,7 +1055,7 @@ function RelevamientoPrecios(props:{
                 itemCount={observacionesFiltradasIdx.length}
                 itemData={itemData}
                 itemSize={getItemSize}
-                width={650}
+                width={"100%"}
             >
                 {IndexedPreciosRow}
             </VariableSizeList>
@@ -1101,7 +1126,14 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                         </Button>
                     </td>
                     <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd placeholder='sin comentarios' disabled={false} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
+                    <EditableTd
+                        hasError={false}
+                        placeholder="sin comentarios"
+                        disabled={false}
+                        className="comentarios-razon"
+                        dataType={"text"}
+                        value={relVis.comentarios}
+                        inputId={relVis.informante+'f'+relVis.formulario}
                         onUpdate={value=>{
                             dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
                         }}
