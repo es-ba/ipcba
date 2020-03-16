@@ -149,6 +149,7 @@ const useStylesTextField = makeStyles((_theme: Theme) =>
                 color: PRIMARY_COLOR,
             },
             fontSize: "1.3rem",
+            lineHeight: 1.43
         },
         underline: {
             "&:after": {
@@ -348,7 +349,6 @@ function EditableTd<T extends string|number|null>(props:{
     borderBottomColor?:string,
     borderBottomColorError?:string
     hasError:boolean,
-    height?:string,
     inputId:string,
     idProximo?:string|null,
     disabled?:boolean,
@@ -372,14 +372,18 @@ function EditableTd<T extends string|number|null>(props:{
     const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
-        <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
-                style={{width:"100%"}} classes={{ 
-                    // @ts-ignore TODO: mejorar tipos STYLE #48
-                    badge: classesBadge.badge 
-                }} className={
-                    // @ts-ignore TODO: mejorar tipos STYLE #48
-                    classesBadge.margin
-                }
+        <Badge 
+            badgeContent="!" 
+            anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
+            style={{width:"100%"}} 
+            classes={{ 
+                // @ts-ignore TODO: mejorar tipos STYLE #48
+                badge: classesBadge.badge 
+            }}
+            className={
+                // @ts-ignore TODO: mejorar tipos STYLE #48
+                classesBadge.margin
+            }
         >
             <div  
                 className={props.className} 
