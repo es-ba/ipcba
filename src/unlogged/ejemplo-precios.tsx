@@ -980,7 +980,7 @@ function VariableSizeList(props:{
 }){
     var rowFun=props.children;
     var heightSum=0;
-    var [lista, setLista]=useState<{style:Style4Render, isScrolling:boolean}[]>(new Array(props.itemCount).fill(true).map((_, i:number)=>{
+    var lista = new Array(props.itemCount).fill(true).map((_, i:number)=>{
         var height = props.itemSize(i);
         var top = heightSum;
         heightSum+=height;
@@ -994,12 +994,12 @@ function VariableSizeList(props:{
             },
             isScrolling:heightSum-window.scrollY>1500 || top+height<window.scrollY
         }
-    }));
+    });
     var [ultimoTop, setUltimoTop]=useState(-99999);
     var calculateList=function(){
         if(ultimoTop!=window.scrollY){
             setUltimoTop(window.scrollY);
-            setLista(lista.map(nodo=>({...nodo, isScrolling: nodo.isScrolling && (nodo.style.top-window.scrollY>1500 || nodo.style.top+nodo.style.height<window.scrollY)})));
+            lista = lista.map(nodo=>({...nodo, isScrolling: nodo.isScrolling && (nodo.style.top-window.scrollY>1500 || nodo.style.top+nodo.style.height<window.scrollY)}));
         }
     };
     useEffect(function(){
