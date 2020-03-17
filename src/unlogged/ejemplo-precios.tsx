@@ -1045,7 +1045,12 @@ function RelevamientoPrecios(props:{
         return props.compactar?
             50 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
         :
-            50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
+            50+Math.max(
+                relPre.atributos.reduce(
+                    (acum,relAtr)=>Math.ceil((Math.max((relAtr.valoranterior||'').length,(relAtr.valor||'').length+1)/8))*45+acum,0
+                ), 
+                estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
+            );
     } 
        
     const createItemData = memoize(
