@@ -122,13 +122,19 @@ body
         display grid
         grid-template-columns 26% 33% 8% 33%
         .nombre-atributo
+          padding-top 6px
           font-size letra_mediana
-          align-self center
+          align-self start
         .atributo-anterior
-          align-self center
+          padding-top 6px
+          align-self start
         .flechaAtributos
           align-self center
         .atributo-actual
+          .MuiInputBase-multiline
+            padding-bottom 0px
+          .MuiInputBase-input
+            padding-bottom 0px
           padding 0px
           width 100%
         div
@@ -137,8 +143,6 @@ body
           width 100%
           font-size letra_grande
           font-family Roboto, Arial, Helvetica, sans-serif
-        div
-          margin 2px
       .MuiButton-root
         min-width 16px
         font-size letra_grande 

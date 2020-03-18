@@ -982,7 +982,7 @@ function VariableSizeList(props:{
 }){
     var rowFun=props.children;
     var heightSum=0;
-    var lista = new Array(props.itemCount).fill(true).map((_, i:number)=>{
+    var lista:{style:Style4Render, isScrolling:boolean}[] = new Array(props.itemCount).fill(true).map((_, i:number)=>{
         var height = props.itemSize(i);
         var top = heightSum;
         heightSum+=height;
@@ -1041,7 +1041,11 @@ function RelevamientoPrecios(props:{
         :
             50+Math.max(
                 relPre.atributos.reduce(
-                    (acum,relAtr)=>Math.ceil((Math.max((relAtr.valoranterior||'').length,(relAtr.valor||'').length+1)/8))*45+acum,0
+                    (acum,relAtr)=>Math.ceil((Math.max(
+                        (relAtr.valoranterior||'').length,
+                        (relAtr.valor||'').length,
+                        (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
+                    )+1)/8)*40+acum,0
                 ), 
                 estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
             );
