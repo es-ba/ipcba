@@ -1029,14 +1029,6 @@ function RelevamientoPrecios(props:{
 }){
     const myRef = useRef<ReturnType<typeof VariableSizeList>>();
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
-    useEffect(() => {
-        if(myRef){
-            if(myRef.current != null) {
-            //if(myRef.current !== null && myRef.current !== undefined) {
-                myRef.current.resetAfterIndex(0);
-            }
-        }
-    }, [observacionesFiltradasIdx, props.compactar]);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
     const getItemSize = (index:number) => {
