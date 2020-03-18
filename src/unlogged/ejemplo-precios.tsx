@@ -180,6 +180,7 @@ function TypedInput<T extends string|number|null>(props:{
     disabled?:boolean,
     placeholder?:string,
 }){
+    const dispatch = useDispatch();
     function valueT(value:string):T{
         if(value=='' || value==null){
             // @ts-ignore sé que T es null
@@ -234,6 +235,7 @@ function TypedInput<T extends string|number|null>(props:{
         if(value!==props.value){
             props.onUpdate(value);
         }
+        dispatch(dispatchers.UNSET_FOCUS({unfocusing:props.inputId}));
     };
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
@@ -659,6 +661,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
         if(hasSearchString || allForms || compactar){
             dispatch(dispatchers.SET_QUE_VER({queVer: 'todos', informante: relPre.informante, formulario: relPre.formulario, allForms: false, searchString:'', compactar:false}));
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+            dispatch(dispatchers.SET_FOCUS({nextId:inputIdPrecio}))
         }
     }
 
@@ -1334,6 +1337,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             window.scrollTo(0, 0);
             return function(){}
         }
+
     },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
     */
     useEffect(() => {
@@ -1418,10 +1422,15 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             <div className={classes.searchIcon}>
                                 <SearchIcon />
                             </div>
-                            <InputBase id="search" placeholder="Buscar..." value={searchString} classes={{
+                            <InputBase 
+                                id="search" 
+                                placeholder="Buscar..." 
+                                value={searchString} 
+                                classes={{
                                     root: classes.inputRoot,
                                     input: classes.inputInput,
-                                }} inputProps={{ 'aria-label': 'search' }}
+                                }}
+                                inputProps={{ 'aria-label': 'search' }}
                                 onChange={(event)=>{
                                     dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
                                     //EVALUAR SI SE SACA
@@ -1429,7 +1438,15 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 }}
                             />
                             {searchString?
-                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))}><ClearIcon /></IconButton>
+                                <IconButton 
+                                    size="small" 
+                                    style={{color:'#ffffff'}} 
+                                    onClick={()=>{
+                                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                                    }}
+                                >
+                                    <ClearIcon />
+                                </IconButton>
                             :null}
                         </div>
                     </Toolbar>
