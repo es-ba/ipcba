@@ -8,7 +8,7 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
@@ -655,11 +655,13 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(_relPre:RelPre, _hasSearchString:boolean, _allForms:boolean){
-        if(compactar){
-            dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
+    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+        if(hasSearchString || allForms || compactar){
+            dispatch(dispatchers.SET_QUE_VER({queVer: 'todos', informante: relPre.informante, formulario: relPre.formulario, allForms: false, searchString:'', compactar:false}));
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
         }
     }
+
     return (
         <div style={props.style} className="caja-relpre">
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
@@ -1080,17 +1082,16 @@ function RelevamientoPrecios(props:{
             >
                 {IndexedPreciosRow}
             </VariableSizeList>
-        :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
+        :(observacionesFiltradasEnOtrosIdx.length==0?
             <div>No hay</div>
         :null)
         }
         {
             observacionesFiltradasEnOtrosIdx.length>0?
-            (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS && queVer!='todos'?
                 <div className="zona-degrade">
                     <Button className="boton-hay-mas" variant="outlined"
                         onClick={()=>{
-                            dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString}));
+                            dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString, compactar: props.compactar}));
                         }}
                     >ver más {queVer} en otros formularios</Button>
                     {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
@@ -1106,14 +1107,7 @@ function RelevamientoPrecios(props:{
             :
             <div className="zona-degrade">
                 <Typography>Hay más observaciones en otros formularios</Typography>
-                <Typography></Typography>
-                {queVer=='todos'?
-                    <Typography>No se muestran ya que seleccionó la opción "todos" <ICON.CheckBoxOutlined /> </Typography>
-                :
-                    <Typography>No se muestran el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
-                }
-                </div>
-            ):null
+            </div>
         }
     </div>;
 }
@@ -1400,17 +1394,17 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 aria-label="large contained default button group"
                             >
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
                                     <ICON.CheckBoxOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
                                     <ICON.CheckBoxOutlineBlankOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
                                     <ICON.Warning />
                                 </Button>
@@ -1425,13 +1419,13 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                     input: classes.inputInput,
                                 }} inputProps={{ 'aria-label': 'search' }}
                                 onChange={(event)=>{
-                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario}))
+                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
                                     //EVALUAR SI SE SACA
                                     //window.scroll({behavior:'auto', top:0, left:0})
                                 }}
                             />
                             {searchString?
-                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario}))}><ClearIcon /></IconButton>
+                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))}><ClearIcon /></IconButton>
                             :null}
                         </div>
                     </Toolbar>
