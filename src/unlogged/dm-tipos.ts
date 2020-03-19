@@ -194,6 +194,10 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
     }
 }
 
+export type FocusOpts={
+    moveToElement: boolean
+}
+
 export type HojaDeRuta={
     encuestador:string,
     nombreencuestador:string,

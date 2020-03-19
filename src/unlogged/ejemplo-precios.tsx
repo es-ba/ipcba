@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, AddrParamsHdr} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, AddrParamsHdr, FocusOpts} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
@@ -132,13 +132,17 @@ function ScrollTop(props: any) {
     );
 }
 
-function focusToId(id:string, cb?:(e:HTMLElement)=>void){
+function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
     var element=document.getElementById(id);
     if(element){
         if(cb){
             cb(element);
         }else{
             element.focus();
+            if(opts.moveToElement){
+                element.scrollIntoView();
+                window.scroll({behavior:'auto', top:window.scrollY-120, left:0})
+            }
         }
     }
 }
@@ -249,7 +253,7 @@ function TypedInput<T extends string|number|null>(props:{
                 event.target.blur();
             }
             if(props.idProximo!=null){
-                focusToId(props.idProximo)
+                focusToId(props.idProximo,{moveToElement:false})
             }
             props.onFocus?props.onFocus():null;
             event.preventDefault();
@@ -657,11 +661,11 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null){
         if(hasSearchString || allForms || compactar){
             dispatch(dispatchers.SET_QUE_VER({queVer: 'todos', informante: relPre.informante, formulario: relPre.formulario, allForms: false, searchString:'', compactar:false}));
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
-            dispatch(dispatchers.SET_FOCUS({nextId:inputIdPrecio}))
+            dispatch(dispatchers.SET_FOCUS({nextId:inputId || inputIdPrecio}))
         }
     }
 
@@ -718,7 +722,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </FakeButton>
                         :<>
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
-                                handleSelection(relPre, hasSearchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms, null);
                                 setDialogoObservaciones(true)
                             }}>
                                 {relPre.comentariosrelpre||'obs'}
@@ -806,7 +810,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 <RepreguntaIcon/>
                             :((puedeCopiarTipoPrecio(estructura, relPre))?
                                 <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
-                                    handleSelection(relPre, hasSearchString, allForms);
+                                    handleSelection(relPre, hasSearchString, allForms, null);
                                     if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                                         setMenuConfirmarBorradoPrecio(true)
@@ -821,7 +825,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         </div>
                         <div className="tipoPrecio" button-container="yes">
                             <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
-                                handleSelection(relPre, hasSearchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms, null);
                                 setMenuTipoPrecio(event.currentTarget)
                             }}>
                                 {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
@@ -904,7 +908,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }} 
                             dataType="number"
                             onFocus={()=>{
-                                handleSelection(relPre, hasSearchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms, inputIdPrecio);
                             }}
                         />
                     </>
@@ -925,7 +929,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 primerAtributo={index==0}
                                 cantidadAtributos={relPre.atributos.length}
                                 ultimoAtributo={index == relPre.atributos.length-1}
-                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
+                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms, inputIdAtributos[index])}
                                 razonPositiva={props.razonPositiva}
                             />
                         )
@@ -1342,7 +1346,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     */
     useEffect(() => {
         if(idActual){
-            focusToId(idActual);
+            focusToId(idActual, {moveToElement:true});
         }
     }, [idActual]);
     const dispatch = useDispatch();
@@ -1433,8 +1437,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 inputProps={{ 'aria-label': 'search' }}
                                 onChange={(event)=>{
                                     dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                                    //EVALUAR SI SE SACA
-                                    //window.scroll({behavior:'auto', top:0, left:0})
+                                    window.scroll({behavior:'auto', top:0, left:0})
                                 }}
                             />
                             {searchString?
@@ -1443,6 +1446,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                     style={{color:'#ffffff'}} 
                                     onClick={()=>{
                                         dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                                        window.scroll({behavior:'auto', top:0, left:0})
                                     }}
                                 >
                                     <ClearIcon />
