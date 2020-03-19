@@ -1146,80 +1146,80 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     return (
         verRazon?
         <div className="razon-formulario">
-                    <div>
-                        <Button onClick={event=>setMenuRazon(event.currentTarget)} 
-                        color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
-                            {relVis.razon}
-                        </Button>
-                    </div>
-                    <div>{relVis.razon?razones[relVis.razon].nombrerazon:null}</div>
-                    <EditableTd
-                        hasError={false}
-                        placeholder="sin comentarios"
-                        disabled={false}
-                        className="comentarios-razon"
-                        dataType={"text"}
-                        value={relVis.comentarios}
-                        inputId={relVis.informante+'f'+relVis.formulario}
-                        onUpdate={value=>{
-                            dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
-                        }}
-                    />
-                    <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
-                    {likeAr(estructura.razones).map((razon:Razon,index)=>{
-                        var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
-                        return(
-                        <MenuItem key={razon.nombrerazon} onClick={()=>{
-                            if(razonNecesitaConfirmacion(estructura, relVis,index)){
-                                setRazonAConfirmar({razon:index});
-                                setMenuConfirmarRazon(true)
-                            }else{
-                                dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index}));
-                            }
-                            setMenuRazon(null)
-                        }}>
-                            <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
-                            <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
-                        </MenuItem>
-                        )}
-                    ).array()}
-                </Menu>
-                <Dialog
-                    open={menuConfirmarRazon}
-                    onClose={()=>setMenuConfirmarRazon(false)}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa para formulario ${relVis.formulario}`}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description-rn">
-                            <div>
-                                Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. 
-                                Se {cantObsConPrecio==1?'borrará un precio':`borrarán ${cantObsConPrecio} precios`} ingresados.
-                            </div>
-                            <div>
-                                Confirme la acción ingresando la cantidad de precios que se van a borrar: 
-                            </div>
-                            <TextField
-                                value={confirmarCantObs}
-                                onChange={onChangeFun}
-                            />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={()=>{
-                            setMenuConfirmarRazon(false)
-                        }} color="primary" variant="outlined">
-                            No borrar
-                        </Button>
-                        <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
-                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
-                            setMenuConfirmarRazon(false)
-                        }} color="secondary" variant="outlined">
-                            Proceder borrando
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+            <div>
+                <Button onClick={event=>setMenuRazon(event.currentTarget)} 
+                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
+                    {relVis.razon}
+                </Button>
+            </div>
+            <div>{relVis.razon?razones[relVis.razon].nombrerazon:null}</div>
+            <EditableTd
+                hasError={false}
+                placeholder="sin comentarios"
+                disabled={false}
+                className="comentarios-razon"
+                dataType={"text"}
+                value={relVis.comentarios}
+                inputId={relVis.informante+'f'+relVis.formulario}
+                onUpdate={value=>{
+                    dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
+                }}
+            />
+            <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
+                {likeAr(estructura.razones).map((razon:Razon,index)=>{
+                    var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
+                    return(
+                    <MenuItem key={razon.nombrerazon} onClick={()=>{
+                        if(razonNecesitaConfirmacion(estructura, relVis,index)){
+                            setRazonAConfirmar({razon:index});
+                            setMenuConfirmarRazon(true)
+                        }else{
+                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index}));
+                        }
+                        setMenuRazon(null)
+                    }}>
+                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
+                    </MenuItem>
+                    )}
+                ).array()}
+            </Menu>
+            <Dialog
+                open={menuConfirmarRazon}
+                onClose={()=>setMenuConfirmarRazon(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa para formulario ${relVis.formulario}`}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description-rn">
+                        <div>
+                            Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. 
+                            Se {cantObsConPrecio==1?'borrará un precio':`borrarán ${cantObsConPrecio} precios`} ingresados.
+                        </div>
+                        <div>
+                            Confirme la acción ingresando la cantidad de precios que se van a borrar: 
+                        </div>
+                        <TextField
+                            value={confirmarCantObs}
+                            onChange={onChangeFun}
+                        />
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>{
+                        setMenuConfirmarRazon(false)
+                    }} color="primary" variant="outlined">
+                        No borrar
+                    </Button>
+                    <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
+                        dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
+                        setMenuConfirmarRazon(false)
+                    }} color="secondary" variant="outlined">
+                        Proceder borrando
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
         :null
     );
