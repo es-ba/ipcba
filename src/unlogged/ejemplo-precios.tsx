@@ -488,7 +488,7 @@ function EditableTd<T extends string|number|null>(props:{
                 onUpdate={(value)=>{
                     setEditandoOtro(false);
                     // @ts-ignore TODO: mejorar los componentes tipados #49
-                    props.onUpdate(value);
+                    props.onUpdate(value || null);
                 }}
             />
         :null}
