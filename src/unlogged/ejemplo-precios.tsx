@@ -985,7 +985,6 @@ const IndexedPreciosRow = /*React.memo*/(({ data, index, isScrolling, style }: {
 type Style4Render = {top:number, left:number, height:number, width:string, position:'fixed'|'relative'|'absolute'};
 
 function VariableSizeList(props:{
-    ref:React.MutableRefObject<any>,
     width:number|string, 
     height:number,
     itemCount:number, 
@@ -1043,7 +1042,6 @@ function RelevamientoPrecios(props:{
     razonPositiva:boolean,
     compactar: boolean,
 }){
-    const myRef = useRef<ReturnType<typeof VariableSizeList>>();
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
@@ -1091,7 +1089,6 @@ function RelevamientoPrecios(props:{
         {cantidadResultados?
             <VariableSizeList
                 useIsScrolling 
-                ref={myRef}
                 height={900}
                 itemCount={observacionesFiltradasIdx.length}
                 itemData={itemData}
