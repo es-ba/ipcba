@@ -1023,7 +1023,7 @@ function VariableSizeList(props:{
             clearInterval(interval);
         }
     })
-    return <div ref={props.ref} style={{height:heightSum, width:props.width, position:'relative', top:0, left:0}} >
+    return <div style={{height:heightSum, width:props.width, position:'relative', top:0, left:0}} >
         {lista.length?lista.map(function(node, i){
             var x=rowFun({data:props.itemData, index:i, isScrolling:node.isScrolling, style:node.style});
             return x;
