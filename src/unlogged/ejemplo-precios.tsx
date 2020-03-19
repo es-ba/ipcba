@@ -532,6 +532,7 @@ const AtributosRow = function(props:{
                                     forPk:relAtr, 
                                     iRelPre:props.iRelPre,
                                 }))
+                                dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio?props.inputIdPrecio:false}))
                             }}>
                                 {FLECHAATRIBUTOS}
                             </Button>
