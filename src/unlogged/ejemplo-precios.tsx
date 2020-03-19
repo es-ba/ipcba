@@ -1145,17 +1145,14 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     }
     return (
         verRazon?
-        <table className="razon-formulario">
-            <thead></thead>
-            <tbody>
-                <tr>
-                    <td>
+        <div className="razon-formulario">
+                    <div>
                         <Button onClick={event=>setMenuRazon(event.currentTarget)} 
                         color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
                             {relVis.razon}
                         </Button>
-                    </td>
-                    <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
+                    </div>
+                    <div>{relVis.razon?razones[relVis.razon].nombrerazon:null}</div>
                     <EditableTd
                         hasError={false}
                         placeholder="sin comentarios"
@@ -1223,9 +1220,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                         </Button>
                     </DialogActions>
                 </Dialog>
-                </tr>
-            </tbody>
-        </table>
+        </div>
         :null
     );
 }
