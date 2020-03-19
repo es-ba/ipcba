@@ -169,6 +169,7 @@ const useStylesTextField = makeStyles((_theme: Theme) =>
 );
 
 function TypedInput<T extends string|number|null>(props:{
+    autoFocus:boolean,
     borderBottomColor:string,
     borderBottomColorError:string
     hasError:boolean,
@@ -269,6 +270,7 @@ function TypedInput<T extends string|number|null>(props:{
     var readOnly = false;
     if(props.dataType=='text'){
         var input = <TextField
+            autoFocus={props.autoFocus}
             multiline
             rowsMax="4"
             margin="normal"
@@ -298,6 +300,7 @@ function TypedInput<T extends string|number|null>(props:{
         return input;
     }else{
         var input = <TextField
+            autoFocus={props.autoFocus}
             spellCheck={false}
             id={inputId}
             value={value}
@@ -352,6 +355,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
 }
 
 function EditableTd<T extends string|number|null>(props:{
+    autoFocus?:boolean,
     borderBottomColor?:string,
     borderBottomColorError?:string
     hasError:boolean,
@@ -407,6 +411,7 @@ function EditableTd<T extends string|number|null>(props:{
             >
             
                 <TypedInput
+                    autoFocus={props.autoFocus||false}
                     hasError={props.hasError}
                     borderBottomColor={borderBottomColor}
                     borderBottomColorError={borderBottomColorError}
@@ -740,6 +745,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 <DialogContent>
                                     <DialogContentText id="alert-dialog-description-obs">
                                         <EditableTd
+                                            autoFocus={true}
                                             hasError={false}
                                             inputId={inputIdPrecio+"_comentarios"}
                                             disabled={false}
