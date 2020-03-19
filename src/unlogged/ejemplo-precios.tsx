@@ -273,7 +273,6 @@ function TypedInput<T extends string|number|null>(props:{
             autoFocus={props.autoFocus}
             multiline
             rowsMax="4"
-            margin="normal"
             placeholder={props.placeholder}
             spellCheck={false}
             autoCapitalize="off"
