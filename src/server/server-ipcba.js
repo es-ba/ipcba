@@ -526,12 +526,12 @@ NETWORK:
                     {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},    
                     {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 ]},
-                {menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:programador, menuContent:[
-                    {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true },
-                    {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
-                    {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:asignadores},
-                    {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:asignadores},
-                ]},
+                //{menuType:'menu', name:'dm2', label:'DM 2.0', onlyVisibleFor:programador, menuContent:[
+                //    {menuType:'hoja_ruta_2', name:'hoja_de_ruta_2', label: 'hoja de ruta', showInOfflineMode: true },
+                //    {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
+                //    {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:asignadores},
+                //    {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:asignadores},
+                //]},
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
         }
