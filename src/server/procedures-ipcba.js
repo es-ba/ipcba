@@ -1112,6 +1112,35 @@ ProceduresIpcba = [
                       where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
                       returning *`
                 ,[idInstalacion.value]).fetchAll();
+                try{
+                    
+                    try{
+                        var persona = await context.client.query(`
+                            select persona, labor from personal where username = $1`,
+                            [context.user.usu_usu]
+                        ).fetchUniqueRow();
+                        console.log("persona 1: ", persona.row)
+                    }catch(err){
+                        throw new Error('No se encontró el nombre de usuario en personal');
+                    }
+                    if(persona.row.labor == 'E'){
+                        try{
+                            persona = await context.client.query(`
+                                select recepcionista as persona from tareas where encuestador = $1`,
+                                [persona.row.persona]
+                            ).fetchUniqueRow();
+                            console.log("persona 2: ", persona.row)
+                        }catch(err){
+                            throw new Error('No se encontró el encuestador en tareas');
+                        }
+                        if(!persona.row.persona){
+                            throw new Error('El encuestador no tiene un recepcionista asignado en tareas');
+                        }
+                    }
+                }catch(err){
+                    console.log('entra al catch: ', err.message)
+                    throw new Error('Error al buscar recepcionista. ' + err.message);
+                }
                 if(result.rowCount){
                     var data = JSON.parse(params.data);
                     var promiseChain = Promise.resolve();
@@ -1120,10 +1149,10 @@ ProceduresIpcba = [
                             try{
                                 await context.client.query(`
                                     update relvis
-                                    set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
+                                    set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = $7
                                     where periodo = $2 and informante = $3 and visita = $4 and formulario = $5
                                     --pk verificada`
-                                ,[row.razon, row.periodo, row.informante, row.visita, row.formulario, row.comentarios, context.user.usu_usu]).execute()
+                                ,[row.razon, row.periodo, row.informante, row.visita, row.formulario, row.comentarios, persona.row.persona]).execute()
                             }catch(err){
                                 throw new Error('Error al actualizar razón para el informante: ' + row.informante + ', formulario: ' + row.formulario + '. '+ err.message);
                             }
