@@ -1112,34 +1112,33 @@ ProceduresIpcba = [
                       where id_instalacion = $1 and vencimiento_sincronizacion > current_timestamp
                       returning *`
                 ,[idInstalacion.value]).fetchOneRowIfExists();
-                try{
-                    
+                if(result.rowCount){
                     try{
-                        var persona = await context.client.query(`
-                            select persona, labor from personal where username = $1`,
-                            [context.user.usu_usu]
-                        ).fetchUniqueRow();
-                    }catch(err){
-                        throw new Error('No se encontró el nombre de usuario en personal');
-                    }
-                    if(persona.row.labor == 'E'){
                         try{
-                            persona = await context.client.query(`
-                                select recepcionista as persona from tareas where encuestador = $1 and activa = 'S' and tarea = $2`,
-                                [persona.row.persona, result.row.tarea]
+                            var persona = await context.client.query(`
+                                select persona, labor from personal where username = $1`,
+                                [context.user.usu_usu]
                             ).fetchUniqueRow();
                         }catch(err){
-                            throw new Error('No se encontró el encuestador en tareas o la tarea no está activa');
+                            throw new Error('No se encontró el nombre de usuario en personal');
                         }
-                        if(!persona.row.persona){
-                            throw new Error('El encuestador no tiene un recepcionista asignado en tareas');
+                        if(persona.row.labor == 'E'){
+                            try{
+                                persona = await context.client.query(`
+                                    select recepcionista as persona from tareas where encuestador = $1 and activa = 'S' and tarea = $2`,
+                                    [persona.row.persona, result.row.tarea]
+                                ).fetchUniqueRow();
+                            }catch(err){
+                                throw new Error('No se encontró el encuestador en tareas o la tarea no está activa');
+                            }
+                            if(!persona.row.persona){
+                                throw new Error('El encuestador no tiene un recepcionista asignado en tareas');
+                            }
                         }
+                    }catch(err){
+                        console.log('entra al catch: ', err.message)
+                        throw new Error('Error al buscar recepcionista. ' + err.message);
                     }
-                }catch(err){
-                    console.log('entra al catch: ', err.message)
-                    throw new Error('Error al buscar recepcionista. ' + err.message);
-                }
-                if(result.rowCount){
                     var data = JSON.parse(params.data);
                     var promiseChain = Promise.resolve();
                     data.mobile_visita.forEach(function(row){
