@@ -1119,19 +1119,17 @@ ProceduresIpcba = [
                             select persona, labor from personal where username = $1`,
                             [context.user.usu_usu]
                         ).fetchUniqueRow();
-                        console.log("persona 1: ", persona.row)
                     }catch(err){
                         throw new Error('No se encontró el nombre de usuario en personal');
                     }
                     if(persona.row.labor == 'E'){
                         try{
                             persona = await context.client.query(`
-                                select recepcionista as persona from tareas where encuestador = $1`,
-                                [persona.row.persona]
+                                select recepcionista as persona from tareas where encuestador = $1 and activa = 'S' and tarea = $2`,
+                                [persona.row.persona, result.row.tarea]
                             ).fetchUniqueRow();
-                            console.log("persona 2: ", persona.row)
                         }catch(err){
-                            throw new Error('No se encontró el encuestador en tareas');
+                            throw new Error('No se encontró el encuestador en tareas o la tarea no está activa');
                         }
                         if(!persona.row.persona){
                             throw new Error('El encuestador no tiene un recepcionista asignado en tareas');
