@@ -343,28 +343,6 @@ class AppIpcba extends backendPlus.AppBackend{
             var htmlMain=be.mainPage({useragent, user}, !be.config.devel["no-offline"], {skipMenu:true, manifestPath, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
-        mainApp.get(baseUrl+'/archivos/crear',async function(req,res,_next){
-            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
-            var {useragent, user} = req;
-            var parameters = req.query;
-            try{
-                var context = be.getContext(req);
-                context.client = await be.getDbClient(req);
-                var {estructura, hdr } = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters);
-                MiniTools.serveJson({status: 'ok', estructura, hdr},'html')(req,res);
-            }catch(err){
-                MiniTools.serveJson({status: 'err', message:'error al crear archivos. ' + err.message})(req,res);
-            }
-        });
-        //[
-        //    {sufix:`manifest.manifest`, fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
-        //    {sufix:`estructura.js`    , fieldName:'archivo_estructura', mimeType:'application/javascript'},
-        //    {sufix:`hdr.json`         , fieldName:'archivo_hdr'       , mimeType:'application/json'},
-        //].forEach(function(def){
-        //    mainApp.get(baseUrl+`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
-        //        next();
-        //    });
-        //});
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
@@ -376,19 +354,20 @@ class AppIpcba extends backendPlus.AppBackend{
 
         ].forEach(function(def){
             be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
-                var client = await be.getDbClient(req);
-                try{
-                    const {value} = await client.query(`
-                        SELECT ${be.db.quoteIdent(def.fieldName)}
-                            FROM reltar
-                            WHERE periodo = $1 AND panel = $2 AND tarea = $3
-                        `, [req.params.periodo, req.params.panel, req.params.tarea]
-                    ).fetchUniqueValue();
-                    MiniTools.serveText(value, def.mimeType)(req,res);
-                }catch(err){
-                    console.log(err);
-                    MiniTools.serveErr(req, res, next)(err);
-                }
+                await be.inDbClient(req, async function(client){
+                    try{
+                        const {value} = await client.query(`
+                            SELECT ${be.db.quoteIdent(def.fieldName)}
+                                FROM reltar
+                                WHERE periodo = $1 AND panel = $2 AND tarea = $3
+                            `, [req.params.periodo, req.params.panel, req.params.tarea]
+                        ).fetchUniqueValue();
+                        MiniTools.serveText(value, def.mimeType)(req,res);
+                    }catch(err){
+                        console.log(err);
+                        MiniTools.serveErr(req, res, next)(err);
+                    }
+                });
             })
         });
         be.app.get(`/carga-dm/dm-manifest.manifest`, async function(req, res, next){
@@ -791,6 +770,7 @@ NETWORK:
             { type: 'js', module: 'redux', modPath:'../dist', fileDevelopment:'redux.js', file:'redux.min.js' },
             { type: 'js', module: 'react-redux', modPath:'../dist', fileDevelopment:'react-redux.js', file:'react-redux.min.js' },
             { type: 'js', module: 'react-window', fileDevelopment:'index-dev.umd.js', file:'index-prod.umd.js' },
+            { type: 'js', module: 'memoize-one',  file:'memoize-one.js' },
             ...super.clientIncludes(req, opts),
             { type: 'js', module: 'redux-typed-reducer', modPath:'../dist', file:'redux-typed-reducer.js' },
             { type: 'js', src: 'adapt.js' },

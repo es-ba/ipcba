@@ -5,8 +5,6 @@ import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
 
-export const LIMITE_UNION_FORMULARIOS = 30;
-
 var my=myOwn;
 
 export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
@@ -32,14 +30,13 @@ var defaultAction = function defaultAction(
 };
 const surfRelInf = (
     hdrState:HojaDeRuta, 
-    payload:{forPk:{informante:number}, nextId:NextID}, 
+    payload:{forPk:{informante:number}}, 
     relInfReducer:(relInfState:RelInf)=>RelInf
 )=>(
     {
         ...hdrState,
         opciones:{
             ...hdrState.opciones,
-            idActual:payload.nextId?payload.nextId:hdrState.opciones.idActual,
         },
         informantes:hdrState.informantes.map(
             relInf=>relInf.informante==payload.forPk.informante?
@@ -50,7 +47,7 @@ const surfRelInf = (
 );
 const surfRelVis = (
     hdrState:HojaDeRuta, 
-    payload:{nextId:NextID, forPk:{informante:number, formulario:number}}, 
+    payload:{forPk:{informante:number, formulario:number}}, 
     relVisReducer:(productoState:RelVis)=>RelVis
 )=>(
     surfRelInf(hdrState, payload, relInf=>({
@@ -64,7 +61,7 @@ const surfRelVis = (
 );
 const surfRelPre = (
     hdrState:HojaDeRuta, 
-    payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
+    payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     relPreReducer:(productoState:RelPre)=>RelPre
 )=>{
     /*
@@ -105,7 +102,7 @@ const surfRelPre = (
 };
 var setTP = function setTP(
     hdrState:HojaDeRuta, 
-    payload:{nextId:NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
+    payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     tipoPrecioRedux:(relPre:RelPre)=>string|null
 ){
     return surfRelPre(hdrState, payload, (relPre:RelPre)=>{
@@ -125,17 +122,11 @@ var setTP = function setTP(
 }
 
 var calcularListas=function(observaciones: RelPre[], relVis: RelVis, allForms:boolean, searchString: string, queVer: QueVer){
-    var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
-    if(observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length>LIMITE_UNION_FORMULARIOS || queVer=='todos'){
-        allForms=false;
-        return getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
-    }else{
-        return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms};
-    }
+    return getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
 }
 
 var reducers={
-    SET_RAZON            : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, razon:number|null}) => 
+    SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) => 
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 return {
@@ -144,7 +135,7 @@ var reducers={
                 }
             });
         },
-    SET_COMENTARIO_RAZON : (payload: {nextId: NextID, forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
+    SET_COMENTARIO_RAZON : (payload: {forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 return {
@@ -153,15 +144,15 @@ var reducers={
                 }
             });
         },
-    SET_TP               : (payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
+    SET_TP               : (payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
         function(state: HojaDeRuta){
             return setTP(state, payload, _ => payload.tipoprecio);
         },
-    COPIAR_TP            :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_TP            :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return setTP(state, payload, relPre => puedeCopiarTipoPrecio(estructura!, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
         },
-    SET_PRECIO           :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
+    SET_PRECIO           :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura!, miRelPre);
@@ -174,7 +165,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_COMENTARIO_PRECIO:(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
+    SET_COMENTARIO_PRECIO:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {
@@ -184,7 +175,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var puedeCopiarAttrs = puedeCopiarAtributos(estructura!, relPre);
@@ -200,7 +191,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS_VACIOS     :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS_VACIOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {
@@ -212,7 +203,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_ATRIBUTO         :(payload: {nextId: NextID, forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
+    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){
@@ -252,11 +243,11 @@ var reducers={
         function(state: HojaDeRuta){
             var {queVer} = state.opciones;
             var searchString = '';
-            var allForms= false;
+            var allForms = false;
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -289,13 +280,13 @@ var reducers={
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
             })
         },
-    SET_QUE_VER:(payload: {queVer:QueVer, informante: number, formulario: number, searchString:string, allForms:boolean}) => 
+    SET_QUE_VER:(payload: {queVer:QueVer, informante: number, formulario: number, searchString:string, allForms:boolean, compactar:boolean}) => 
         function(state: HojaDeRuta){
-            var {queVer, searchString, allForms} = payload;
+            var {queVer, searchString, allForms, compactar} = payload;
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, allForms}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -305,7 +296,8 @@ var reducers={
                     queVer,
                     searchString,
                     allForms,
-                    verRazon: !allForms
+                    verRazon: !allForms,
+                    compactar
                 }
             })
         },
@@ -373,8 +365,8 @@ export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
         result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
             //periodo: 'a2019m08', panel: 3, tarea: 6, sincronizar: false
-            //periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, demo: true
-            periodo: 'a2020m01', panel: 1, tarea: 1, encuestador: null, demo: true
+            periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, demo: true
+            //periodo: 'a2020m01', panel: 1, tarea: 1, encuestador: null, demo: true
         })
         estructura = result.estructura;
         if(result.hdr){

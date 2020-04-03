@@ -18,116 +18,145 @@ ancho_tipo_precio = 8%
   border-top 1px solid gray
 
 body
+  overscroll-behavior contain
   margin 0px
 .informante-visita
+  // display grid
   padding 0px
   margin 0px
   width 100%
   font-family Roboto, Arial, sans-serif
   border 0px
+  grid-template-columns 33% 66%
   .caja-relpre
     display grid
     grid-template-columns 33% 66%
-    border 1px dashed green
-  .caja-producto
-    margin-top 8px
-    margin-bottom 8px
-    width 100%
-    grid-column span 1
-    grid-row span 1
-    display grid
-    grid-template-columns 1fr 24px
-    align-self start
-    border-top 0.5px solid #ddd
-    padding-top 8px
-    .producto
-      font-weight bold
-      font-size letra_mediana
-    .observacion
-      font-weight bold
-      font-size letra_mediana
-    .especificacion
-      grid-column span 2
-      font-size letra_chica
-      padding-right 6px
-    .comentario-analista
-      font-size 0.9rem
-  .caja-precios
-    align-self start
-    margin-top 8px
-    margin-bottom 8px
-    border-top 0.5px solid #ddd
-    padding-top 8px
-    .observaciones
-      button
-        width 60px
-        &[tiene-observaciones=si]
-          text-align left
-          font-size 50%
-          overflow hidden
-          max-height 40px
-          line-height normal
-          justify-content flex-start
-    .MuiButton-root
-      min-width 16px
-      font-size letra_grande 
-      min-height 42px
+    .caja-producto
+      margin-top 8px
+      margin-bottom 8px
       width 100%
-    button
-      padding 0px
-      margin 0px
-      text-align center
-    [button-container]
-      padding 0px
-    table-layout fixed
-    grid-column span 1
-    grid-row span 1
-    width 100%
-    .nombre-atributo
-      font-size letra_mediana
-    td, th
+      grid-column span 1
+      grid-row span 1
+      display grid
+      grid-template-columns 1fr 24px
+      align-self start
+      border-top 0.5px solid #ddd
+      padding-top 8px
+      .producto
+        font-weight bold
+        font-size letra_mediana
+      .observacion
+        font-weight bold
+        font-size letra_mediana
+      .especificacion
+        grid-column span 2
+        font-size letra_chica
+        padding-right 6px
+      .comentario-analista
+        font-size 0.9rem
+    .caja-precios
+      display grid
+      grid-template-columns 100%
+      align-self start
+      margin-top 8px
+      margin-bottom 8px
+      border-top 0.5px solid #ddd
+      padding-top 8px
       font-size letra_grande
       vertical-align middle
       padding 2px
       overflow-x hidden
       overflow-wrap break-word
       div
-        max-width 100%
-        overflow-x hidden
+        max-width 98%
         overflow-wrap break-word
       input
         padding-left 2px 
         width 100%
-        font-size 100%
+        font-size 1.4rem
         border 0px solid white
-    .flechaAtributos
-      .MuiButton-root
-        width 90%
-    .atributo-anterior
-      vertical-align bottom
-    .atributo-actual
-      padding 0px
-      width 100%
-      vertical-align bottom
-      div
-        display table-cell
-      textarea
-        width 100%
-        height 100%
-        font-size letra_grande
-        font-family Roboto, Arial, Helvetica, sans-serif
-    .flechaTP
-      .MuiButton-root
+      .encabezado
+        display grid
+        grid-template-columns 26% 8% 25% 8% 8% 25%
+        .observaciones
+          grid-template-columns 1fr 24px
+          button
+            width 60px
+            &[tiene-observaciones=si]
+              text-align left
+              font-size 50%
+              overflow hidden
+              max-height 40px
+              line-height normal
+              justify-content flex-start
+          .fakeButton
+            width 60px
+            color blue
+            border-color 1px solid blue
+            border-radius 10px
+            &[tiene-observaciones=si]
+              text-align left
+              font-size 50%
+              overflow hidden
+              max-height 40px
+              line-height normal
+              justify-content flex-start
+        .tipoPrecioAnterior
+          padding-top 3px
+        .precioAnterior
+          padding-top 3px
+          text-align right
+        .flechaTP
+          .MuiButton-root
+            width 85%
+        .tipoPrecio
+        .precio
+          width 100%
+          padding 0px
+          text-align right
+      .atributos
+        word-break break-all
+        .MuiButton-root
           width 90%
-      width 20px
-    .precioAnterior
-      text-align right
-    .precio
+        display grid
+        grid-template-columns 26% 33% 8% 33%
+        .nombre-atributo
+          padding-top 6px
+          font-size letra_mediana
+          align-self start
+        .atributo-anterior
+          padding-top 6px
+          align-self start
+        .flechaAtributos
+          align-self center
+        .atributo-actual
+          .MuiInputBase-multiline
+            padding-bottom 0px
+          .MuiInputBase-input
+            padding-bottom 0px
+          padding 0px
+          width 100%
+        div
+          display table-cell
+        textarea
+          width 100%
+          font-size letra_grande
+          font-family Roboto, Arial, Helvetica, sans-serif
+      .MuiButton-root
+        min-width 16px
+        font-size letra_grande 
+        min-height 42px
+        width 100%
+      button
+        padding 0px
+        margin 0px
+        text-align center
+      [button-container]
+        padding 0px
+      table-layout fixed
+      grid-column span 1
+      grid-row span 1
       width 100%
-      padding 0px
-      text-align right
-      div
-        margin 2px
 .hoja-ruta
   td
     font-size letra_grande
@@ -150,21 +179,18 @@ body
 main
   padding 60px 0
 
-td, th
-  &[puede-editar=yes]
-    border-bottom 0.5px solid
-
 .placeholder
   color #3f51b5
 
 .menu-informante-visita
   .razon-formulario
+    display grid
+    grid-template-columns 12% 40% 48%
     font-size letra_mediana
-    .placeholder
-      font-size letra_chica
-  td, th
-    &[puede-editar=yes]
-      height 40px
+    min-height 70px
+    div
+      align-self center
+  div
     &[es-repregunta=yes]
       svg
         color #3db09c
@@ -220,13 +246,6 @@ td, th
 .boton-hay-mas
   min-width 300px
 
-.razon-formulario
-  tr
-    td
-      width 50%
-    td:first-child
-      width 60px
-
 .boton-seleccionado-todos span svg path
   color blue
 
@@ -237,3 +256,4 @@ td, th
   color orange
 
 
+  

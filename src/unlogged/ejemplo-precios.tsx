@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, AddrParamsHdr} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, AddrParamsHdr, FocusOpts} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
@@ -8,14 +8,19 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr, LIMITE_UNION_FORMULARIOS } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
-import {VariableSizeList} from "react-window";
+import {areEqual} from "react-window";
+import * as memoizeBadTyped from "memoize-one";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
+
+//@ts-ignore el módulo memoize-one no tiene bien puesto los tipos en su .d.ts
+var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
+
 import {
     AppBar, Badge, Button, ButtonGroup, Chip, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
@@ -73,10 +78,13 @@ export var estructura:Estructura;
 const FLECHATIPOPRECIO="→";
 const FLECHAATRIBUTOS="➡";
 const PRIMARY_COLOR   ="#3f51b5";
+const DEFAULT_ERROR_COLOR   ="#f44336";
 const SECONDARY_COLOR ="#f50057";
 const COLOR_ADVERTENCIAS = "rgb(255, 147, 51)";
 const COLOR_PENDIENTES = "rgb(63, 81, 181)";
 var CHECK = '✓';
+
+type Styles = React.CSSProperties;
 
 type OnUpdate<T> = (data:T)=>void
 
@@ -124,102 +132,190 @@ function ScrollTop(props: any) {
     );
 }
 
-function focusToId(id:string, cb?:(e:HTMLElement)=>void){
+function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
     var element=document.getElementById(id);
     if(element){
         if(cb){
             cb(element);
         }else{
             element.focus();
+            if(opts.moveToElement){
+                element.scrollIntoView();
+                window.scroll({behavior:'auto', top:window.scrollY-120, left:0})
+            }
         }
     }
 }
+const useStylesTextField = makeStyles((_theme: Theme) =>
+    createStyles({
+        input: {
+            '&::placeholder': {
+                color: PRIMARY_COLOR,
+            },
+            fontSize: "1.3rem",
+            lineHeight: 1.43
+        },
+        underline: {
+            "&:after": {
+                borderBottomColor: (props:{borderBottomColor:string}) => props.borderBottomColor,
+            }
+        },
+        error: {
+            "&$error:after": {
+                borderBottomColor: (props:{borderBottomColorError:string}) => props.borderBottomColorError,
+            },
+        }
+    }),
+);
 
 function TypedInput<T extends string|number|null>(props:{
+    autoFocus:boolean,
+    borderBottomColor:string,
+    borderBottomColorError:string
+    hasError:boolean,
     value:T,
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
     altoActual:number,
-    onFocusOut:()=>void, 
+    idProximo:string|null,
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null
-    backgroundColor?:string,
     onFocus?:()=>void
+    disabled?:boolean,
+    placeholder?:string,
 }){
-    var inputId=props.inputId;
-    var [value, setValue] = useState<T|null>(props.value);
-    useEffect(() => {
-        focusToId(inputId);
-        props.onFocus?props.onFocus():null;
-    }, []);
-    var valueString:string = value==null?'':value+'';
-    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
-    const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
-        //@ts-ignore en este caso sabemos que etarget es un Element que tiene value.
-        var valor = event.target.value;
-        var valorT:T|null = null;
-        if(valor != null && valor.trim()!=''){
-            if(props.dataType == 'number'){
-                //@ts-ignore si dataType=='number' estoy seguro que T es number
-                valorT=Number(valor)
-            }else{
-                valorT=valor.toString();
+    const dispatch = useDispatch();
+    function valueT(value:string):T{
+        if(value=='' || value==null){
+            // @ts-ignore sé que T es null
+            return null;
+        }else if(props.dataType=="number"){
+            var valorT:number=Number(value);
+            if(isNaN(valorT)){
+                valorT=Number(value.replace(/[^0-9.,]/g,''));
+                // @ts-ignore sé que T es number
+                return valorT;
             }
         }
-        setValue(valorT);
+        // @ts-ignore sé que T es string
+        return value;
     }
-    const onBlurFun = function <TE>(_event:TE){
+    function valueS(valueT:T):string{
+        if(valueT==null){
+            return '';
+        }else if(props.dataType=="number"){
+            return valueT.toString();
+        }
+        // @ts-ignore sé que T es string
+        return valueT;
+    }
+    const classes = useStylesTextField({
+        borderBottomColor: props.borderBottomColor,
+        borderBottomColorError: props.borderBottomColorError
+    });
+    useEffect(() => {
+        var typedInputElement = document.getElementById(inputId)
+        if(valueT(value) != props.value && typedInputElement && typedInputElement === document.activeElement){
+            typedInputElement.style.backgroundColor='red';
+        }
+        setValue(valueS(props.value));
+    }, [props.value]);
+    useEffect(function(){
+        return function(){
+            var typedInputElement = document.getElementById(inputId) as HTMLInputElement;
+            if(typedInputElement){
+                var value = valueT(typedInputElement.value);
+                if(value!==props.value){
+                    props.onUpdate(value);
+                }
+            }
+        }
+    },[])
+    var inputId=props.inputId;
+    var [value, setValue] = useState<string>(valueS(props.value));
+    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
+    const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
+        var value = valueT(event.target.value);
         if(value!==props.value){
-            // @ts-ignore Tengo que averiguar cómo hacer esto genérico:
-            // manda value porque ya está sanitizado en el onChange
             props.onUpdate(value);
         }
-        props.onFocusOut();
+        dispatch(dispatchers.UNSET_FOCUS({unfocusing:props.inputId}));
     };
-    const onKeyDownFun = function <TE extends React.KeyboardEvent>(event:TE){
+    const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
+        setValue(event.target.value);
+    }
+    const onKeyDownFun:React.KeyboardEventHandler = function(event:React.KeyboardEvent<HTMLInputElement>){
         var tecla = event.charCode || event.which;
-        if((tecla==13 || tecla==9) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
-            focusToId(inputId, e=>e.blur())
+        if((tecla==13) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
+            // @ts-ignore puede existir blur si target es un HTMLInputElement
+            if(event.target.blur instanceof Function){
+                // @ts-ignore puede existir blur si target es un HTMLInputElement
+                event.target.blur();
+            }
+            if(props.idProximo!=null){
+                focusToId(props.idProximo,{moveToElement:false})
+            }
             props.onFocus?props.onFocus():null;
             event.preventDefault();
         }
     }
-    style.backgroundColor=props.backgroundColor?props.backgroundColor:'none';
+    const onClickFun = function<TE extends React.MouseEvent<HTMLTextAreaElement>>(event:TE){
+        // @ts-ignore element es un input o textarea
+        var element:HTMLTextAreaElement = event.target;
+        var selection = element.value.length||0;
+        element.selectionStart = selection;
+        element.selectionEnd = selection;
+    }
+    var readOnly = false;
     if(props.dataType=='text'){
         var input = <TextField
+            autoFocus={props.autoFocus}
             multiline
             rowsMax="4"
-            // className={classes.textField}
-            // margin="normal"
+            placeholder={props.placeholder}
             spellCheck={false}
             autoCapitalize="off"
             autoComplete="off"
             autoCorrect="off"
             id={inputId}
-            value={valueString}
+            value={value}
             type={props.dataType} 
             style={style}
-            onFocus={(event)=>{
-                var selection = valueString?valueString.length:0;
-                event.target.selectionStart = selection;
-                event.target.selectionEnd = selection;
-            }}
+            onClick={(event)=>onClickFun(
+                // @ts-ignore pretende que el elemento es un DIV pero sabemos que es un Input o TextArea
+                event
+            )}
             onChange={onChangeFun}
+            onFocus={(_event)=>{
+                props.onFocus?props.onFocus():null;
+            }}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
+            disabled={props.disabled?props.disabled:false}
+            error={props.hasError}
+            InputProps={{ classes: classes, readOnly: readOnly}}
         />
         return input;
     }else{
-        return <input
+        var input = <TextField
+            autoFocus={props.autoFocus}
+            spellCheck={false}
             id={inputId}
-            value={valueString}
+            value={value}
             type={props.dataType} 
             style={style}
-            onChange={onChangeFun}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
+            onChange={onChangeFun}
+            onFocus={(_event)=>{
+                props.onFocus?props.onFocus():null;
+            }}
+            disabled={props.disabled?props.disabled:false}
+            error={props.hasError}
+            InputProps={{ classes: classes, readOnly: readOnly}}
         />
+        return input;
     }
 }
 
@@ -258,99 +354,90 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
 }
 
 function EditableTd<T extends string|number|null>(props:{
-    backgroundColor?:string,
-    badgeCondition?:boolean,
-    badgeBackgroundColor?:any,
+    autoFocus?:boolean,
     borderBottomColor?:string,
-    height?:string,
+    borderBottomColorError?:string
+    hasError:boolean,
     inputId:string,
+    idProximo?:string|null,
     disabled?:boolean,
     placeholder?: string,
     dataType: InputTypes,
     value:T, 
-    className?:string, colSpan?:number, 
+    className?:string
     onUpdate:OnUpdate<T|null>,
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null,
     titulo?:string,
     onFocus?:()=>void
 }){
-    const dispatch = useDispatch();
-    const deboEditar=useSelector((hdr:HojaDeRuta)=>hdr.opciones.idActual == props.inputId);
-    const [editando, setEditando]=useState(deboEditar);
+    const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
     const [anchoSinEditar, setAnchoSinEditar] = useState(0);
-    // const [mostrarMenu, setMostrarMenu] = useState<HTMLElement|null>(null);
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
-    const badgeCondition = props.badgeCondition || false;
-    if(editando!=deboEditar){
-        setEditando(deboEditar);
-    }
-    const classesBadge = useStylesBadge({backgroundColor: props.badgeBackgroundColor});
+    const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
+    const borderBottomColorError = props.borderBottomColorError || DEFAULT_ERROR_COLOR;
+    const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
-        <td style={{
-            backgroundColor:props.backgroundColor?props.backgroundColor:'none', 
-            borderBottomColor:props.borderBottomColor?props.borderBottomColor:"#3f51b5",
-            overflowX: badgeCondition?'unset':'hidden',
-            height:props.height?props.height:'unset',
-        }} 
-            colSpan={props.colSpan} 
-            className={props.className} 
-            ref={mostrarMenu} 
-            onClick={(event)=>{
-                if(!props.disabled){
-                    // @ts-ignore offsetHeight debería existir porque event.target es un TD
-                    var altoActual:number = event.target.offsetHeight!;
-                    setAnchoSinEditar(altoActual);
-                    dispatch(dispatchers.SET_FOCUS({nextId:props.inputId}));
-                    props.onFocus?props.onFocus():null;
-                }
-            }} 
-            puede-editar={!props.disabled && !editando?"yes":"no"}
+        <Badge 
+            badgeContent="!" 
+            anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
+            style={{width:"100%"}} 
+            classes={{ 
+                // @ts-ignore TODO: mejorar tipos STYLE #48
+                badge: classesBadge.badge 
+            }}
+            className={
+                // @ts-ignore TODO: mejorar tipos STYLE #48
+                classesBadge.margin
+            }
         >
-            <ConditionalWrapper
-                condition={badgeCondition}
-                wrapper={children => 
-                    <Badge badgeContent="!" anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
-                    style={{width:"100%"}} classes={{ 
-                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                        badge: classesBadge.badge 
-                    }} className={
-                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                        classesBadge.margin
-                    }>{children}
-                    </Badge>
-                }
+            <div  
+                className={props.className} 
+                ref={mostrarMenu} 
+                onClick={(event)=>{
+                    if(!props.disabled){
+                        setEditando(true);
+                        // @ts-ignore offsetHeight debería existir porque event.target es un TD
+                        var altoActual:number = event.target.offsetHeight!;
+                        setAnchoSinEditar(altoActual);
+                        props.onFocus?props.onFocus():null;
+                    }
+                }}
+                puede-editar={!props.disabled && !editando?"yes":"no"}
             >
-            {editando && !editaEnLista?
-                <TypedInput inputId={props.inputId} value={props.value} dataType={props.dataType} 
+            
+                <TypedInput
+                    autoFocus={props.autoFocus||false}
+                    hasError={props.hasError}
+                    borderBottomColor={borderBottomColor}
+                    borderBottomColorError={borderBottomColorError}
+                    inputId={props.inputId}
+                    value={props.value}
+                    disabled={props.disabled}
+                    dataType={props.dataType}
+                    idProximo={props.idProximo||null}
                     altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
-                    }} onFocusOut={()=>{
-                        if(deboEditar && editando){
-                            dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))
-                        }
                     }}
                     tipoOpciones={props.tipoOpciones}
                     opciones={props.opciones}
-                    backgroundColor={props.backgroundColor}
+                    placeholder={props.placeholder}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
                 />
-            :<div className={(props.placeholder && props.value==null)?"placeholder":"value"}>
-                {props.value != null?(typeof props.value == "number"?numberElement(props.value):props.value):props.placeholder}
             </div>
-            }
-            </ConditionalWrapper>
-        </td>
+        </Badge>
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
-                onClose={()=> dispatch(dispatchers.UNSET_FOCUS({unfocusing: props.inputId}))}
+                onClose={()=> {
+                    setEditando(false);
+                }}
             >
                 <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
                     <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
@@ -358,6 +445,7 @@ function EditableTd<T extends string|number|null>(props:{
                 {props.value && (props.opciones||[]).indexOf(stringValue)==-1?
                     <MenuItem key='*****current value******' value={stringValue}
                         onClick={()=>{
+                            setEditando(false);
                             props.onUpdate(props.value);
                         }}
                     >
@@ -368,6 +456,7 @@ function EditableTd<T extends string|number|null>(props:{
                 {(props.opciones||[]).map(label=>(
                     <MenuItem key={label} value={label}
                         onClick={()=>{
+                            setEditando(false);
                             // @ts-ignore TODO: mejorar los componentes tipados #49
                             props.onUpdate(label);
                         }}
@@ -399,7 +488,7 @@ function EditableTd<T extends string|number|null>(props:{
                 onUpdate={(value)=>{
                     setEditandoOtro(false);
                     // @ts-ignore TODO: mejorar los componentes tipados #49
-                    props.onUpdate(value);
+                    props.onUpdate(value || null);
                 }}
             />
         :null}
@@ -412,7 +501,8 @@ const AtributosRow = function(props:{
     iRelPre: number,
     inputId: string, 
     inputIdPrecio: string, 
-    nextId: string|false, 
+    idProximoAtributo: string|null,
+    idProximoPrecio: string|null,
     primerAtributo:boolean, 
     cantidadAtributos:number, 
     ultimoAtributo:boolean,
@@ -426,13 +516,13 @@ const AtributosRow = function(props:{
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
     const classes = useStylesList();
-    const {color, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
+    const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
-        <tr>
-            <td className="nombre-atributo">{atributo.nombreatributo}</td>
-            <td colSpan={2} className="atributo-anterior" >{relAtr.valoranterior}</td>
+        <>
+            <div className="nombre-atributo">{atributo.nombreatributo}</div>
+            <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
-                <td rowSpan={props.cantidadAtributos} className="flechaAtributos" button-container="yes">
+                <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
                     {!props.razonPositiva?'':(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
@@ -440,8 +530,8 @@ const AtributosRow = function(props:{
                                 dispatch(dispatchers.COPIAR_ATRIBUTOS({
                                     forPk:relAtr, 
                                     iRelPre:props.iRelPre,
-                                    nextId:relPre.precio?false:props.inputIdPrecio
                                 }))
+                                dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio?props.inputIdPrecio:false}))
                             }}>
                                 {FLECHAATRIBUTOS}
                             </Button>
@@ -454,13 +544,15 @@ const AtributosRow = function(props:{
                             </Button>
                         :relPre.cambio
                     )}
-                </td>
+                </div>
             :null}
-            <EditableTd
-                borderBottomColor={color}
-                badgeCondition={tieneAdv}
-                badgeBackgroundColor={color}
-                colSpan={2} className="atributo-actual" inputId={props.inputId}
+            <EditableTd 
+                borderBottomColor={PRIMARY_COLOR}
+                borderBottomColorError={colorAdv}
+                hasError={tieneAdv}
+                className="atributo-actual" 
+                inputId={props.inputId}
+                idProximo={props.idProximoAtributo || props.idProximoPrecio}
                 disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={props.razonPositiva?relAtr.valor:null} 
@@ -469,7 +561,6 @@ const AtributosRow = function(props:{
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
                         valor:value,
-                        nextId:props.nextId
                     }))
                 }} 
                 tipoOpciones={prodatr.opciones}
@@ -488,7 +579,6 @@ const AtributosRow = function(props:{
                     dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
-                        nextId:relPre.precio?false:props.inputIdPrecio
                     }))
                     setMenuCambioAtributos(null)
                 }}>
@@ -500,7 +590,6 @@ const AtributosRow = function(props:{
                     dispatch(dispatchers.COPIAR_ATRIBUTOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
-                        nextId:relPre.precio?false:props.inputIdPrecio
                     }))
                     setMenuCambioAtributos(null)
                 }}>
@@ -509,7 +598,7 @@ const AtributosRow = function(props:{
                     </ListItemText>
                 </MenuItem>
             </Menu>
-        </tr>
+        </>
     )
 };
 
@@ -539,13 +628,25 @@ function numberElement(num:number|null):JSX.Element{
     return element||<span>-</span>;
 }
 
+var FakeButton = (props:{children:React.ReactChild}) =>
+    <div className="fakeButton">
+        {props.children}
+    </div>
+
 var PreciosRow = React.memo(function PreciosRow(props:{
-    style:Styles, 
+    style:Styles,
     relPre:RelPre, iRelPre:number,
     hasSearchString:boolean, allForms:boolean, esPrecioActual:boolean,
-    inputIdPrecio:string, razonPositiva:boolean, compactar:boolean
+    inputIdPrecio:string, inputIdProximo:string|null, razonPositiva:boolean, compactar:boolean,
+    isScrolling:boolean
 }){
     const {hasSearchString, allForms, esPrecioActual, inputIdPrecio} = props;
+    const [render4scroll, setRender4scroll] = useState(props.isScrolling);
+    useEffect(function(){
+        if(!props.isScrolling){
+            setRender4scroll(false);
+        }
+    }, [props.isScrolling]);
     const relPre = props.relPre;
     const dispatch = useDispatch();
     const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
@@ -560,16 +661,19 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
-    const {color, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
+    const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean){
+    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null){
         if(hasSearchString || allForms || compactar){
-            dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:false}));
+            dispatch(dispatchers.SET_QUE_VER({queVer: 'todos', informante: relPre.informante, formulario: relPre.formulario, allForms: false, searchString:'', compactar:false}));
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
+            dispatch(dispatchers.SET_FOCUS({nextId:inputId || inputIdPrecio}))
         }
     }
+
     return (
         <div style={props.style} className="caja-relpre">
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
@@ -614,20 +718,16 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                     </>
                     :null}
             </div>
-            <table className="caja-precios">
-                <colgroup>
-                    <col style={{width:"26%"}}/>
-                    <col style={{width:"8%" }}/>
-                    <col style={{width:"25%"}}/>
-                    <col style={{width:"8%" }}/>
-                    <col style={{width:"8%" }}/>
-                    <col style={{width:"25%"}}/>
-                </colgroup>      
-                <tbody>
-                    <tr>
-                        <td className="observaciones" button-container="yes">
+            <div className="caja-precios">
+                <div className="encabezado">
+                    <div className="observaciones" button-container="yes">
+                        {render4scroll?
+                        <FakeButton>
+                            {relPre.comentariosrelpre||'obs'}
+                        </FakeButton>
+                        :<>
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
-                                handleSelection(relPre, hasSearchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms, null);
                                 setDialogoObservaciones(true)
                             }}>
                                 {relPre.comentariosrelpre||'obs'}
@@ -644,9 +744,19 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
                                 <DialogContent>
                                     <DialogContentText id="alert-dialog-description-obs">
-                                        <EditableTd inputId={inputIdPrecio+"_comentarios"} height='35px' disabled={false} placeholder={"agregar observaciones"} className="observaciones" value={observacionAConfirmar} onUpdate={value=>{
-                                            setObservacionAConfirmar(value);
-                                        }} dataType="text"/>
+                                        <EditableTd
+                                            autoFocus={true}
+                                            hasError={false}
+                                            inputId={inputIdPrecio+"_comentarios"}
+                                            disabled={false}
+                                            placeholder={"agregar observaciones"}
+                                            className="observaciones"
+                                            value={observacionAConfirmar}
+                                            onUpdate={value=>{
+                                                setObservacionAConfirmar(value);
+                                            }} 
+                                            dataType="text"
+                                        />
                                     </DialogContentText>
                                 </DialogContent>
                                 <DialogActions>
@@ -655,7 +765,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                             forPk:relPre, 
                                             iRelPre: props.iRelPre,
                                             comentario:observacionAConfirmar,
-                                            nextId: false
                                         }));
                                         setDialogoObservaciones(false)
                                     }} color="primary" variant="outlined">
@@ -669,59 +778,65 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     </Button>
                                 </DialogActions>
                             </Dialog>
-                        </td>
-                        <td className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</td>
-                        <td className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
-                            <ConditionalWrapper
-                                condition={!!badgeCondition}
-                                wrapper={children => 
-                                    <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
-                                        classes={{ 
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            badge: classesBadgeCantidadMeses.badge 
-                                        }} 
-                                        className={
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            classesBadgeCantidadMeses.margin
-                                        }
-                                    >
-                                        {children}
-                                    </Badge>
-                                }
-                            >
-                                {chipColor?
-                                    <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
-                                :
-                                    <span>{precioAnteriorAMostrar}</span>
-                                }
-                            </ConditionalWrapper>
-                        </td>
-                        <td className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
+                        </>}
+                    </div>
+                    <div className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</div>
+                    <div className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
+                        {render4scroll?                                
+                            <span>{precioAnteriorAMostrar}</span>
+                        :
+                        <ConditionalWrapper
+                            condition={!!badgeCondition}
+                            wrapper={children => 
+                                <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
+                                    classes={{ 
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        badge: classesBadgeCantidadMeses.badge 
+                                    }} 
+                                    className={
+                                        // @ts-ignore TODO: mejorar tipos STYLE #48
+                                        classesBadgeCantidadMeses.margin
+                                    }
+                                >
+                                    {children}
+                                </Badge>
+                            }
+                        >
+                            {chipColor?
+                                <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                            :
+                                <span>{precioAnteriorAMostrar}</span>
+                            }
+                        </ConditionalWrapper>
+                        }
+                    </div>
+                    {!render4scroll?<>
+                        <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
                             {relPre.repregunta?
                                 <RepreguntaIcon/>
                             :((puedeCopiarTipoPrecio(estructura, relPre))?
                                 <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
-                                    handleSelection(relPre, hasSearchString, allForms);
+                                    handleSelection(relPre, hasSearchString, allForms, null);
                                     if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
                                         setMenuConfirmarBorradoPrecio(true)
                                     }else{
-                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre, nextId:false}));
+                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre}));
                                     }
                                 }}>
                                     {FLECHATIPOPRECIO}
                                 </Button>
                                 :'')
                             }
-                        </td>
-                        <td className="tipoPrecio" button-container="yes">
+                        </div>
+                        <div className="tipoPrecio" button-container="yes">
                             <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
-                                handleSelection(relPre, hasSearchString, allForms);
+                                handleSelection(relPre, hasSearchString, allForms, null);
                                 setMenuTipoPrecio(event.currentTarget)
                             }}>
                                 {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
                             </Button>
-                        </td>
+                        </div>
                         <Menu id="simple-menu"
                             open={Boolean(menuTipoPrecio)}
                             anchorEl={menuTipoPrecio}
@@ -739,9 +854,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                         dispatch(dispatchers.SET_TP({
                                             forPk:relPre, 
                                             iRelPre:props.iRelPre,
-                                            tipoprecio:tpDef.tipoprecio, 
-                                            nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false
+                                            tipoprecio:tpDef.tipoprecio
                                         }))
+                                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
                                     }
                                 }}>
                                     <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
@@ -772,7 +887,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     dispatch(dispatchers.SET_TP({
                                         forPk:relPre, 
                                         iRelPre: props.iRelPre,
-                                        nextId: false, 
                                         tipoprecio:tipoDePrecioNegativoAConfirmar
                                     }))
                                     setMenuConfirmarBorradoPrecio(false)
@@ -782,10 +896,11 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </DialogActions>
                         </Dialog>
                         <EditableTd 
-                            borderBottomColor={color}
-                            badgeCondition={tieneAdv}
-                            badgeBackgroundColor={color}
+                            borderBottomColor={PRIMARY_COLOR}
+                            borderBottomColorError={colorAdv}
+                            hasError={tieneAdv}
                             inputId={inputIdPrecio} 
+                            idProximo={props.inputIdProximo}
                             disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                             placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
                             className="precio" 
@@ -795,35 +910,42 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     forPk:relPre, 
                                     iRelPre: props.iRelPre,
                                     precio:value,
-                                    nextId:value && inputIdAtributos.length?inputIdAtributos[0]:false
                                 }));
-                            // focusToId(inputIdPrecio,e=>e.blur());
-                            }} dataType="number" onFocus={()=>{
-                                handleSelection(relPre, hasSearchString, allForms);
+                            }} 
+                            dataType="number"
+                            onFocus={()=>{
+                                handleSelection(relPre, hasSearchString, allForms, inputIdPrecio);
                             }}
                         />
-                        
-                    </tr>
-                    {!compactar?relPre.atributos.map((relAtr, index)=>
-                        <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
-                            relPre={relPre}
-                            iRelPre={props.iRelPre}
-                            relAtr={relAtr}
-                            inputId={inputIdAtributos[index]}
-                            inputIdPrecio={inputIdPrecio}
-                            nextId={index<relPre.atributos.length-1?inputIdAtributos[index+1]:inputIdPrecio}
-                            primerAtributo={index==0}
-                            cantidadAtributos={relPre.atributos.length}
-                            ultimoAtributo={index == relPre.atributos.length-1}
-                            onSelection={()=>handleSelection(relPre,hasSearchString,allForms)}
-                            razonPositiva={props.razonPositiva}
-                        />
-                    ):null}
-                </tbody>
-            </table>
+                    </>
+                    :null}                   
+                </div>
+                {!render4scroll?
+                <div className="atributos">
+                    {!compactar?
+                        relPre.atributos.map((relAtr, index)=>
+                            <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
+                                relPre={relPre}
+                                iRelPre={props.iRelPre}
+                                relAtr={relAtr}
+                                inputId={inputIdAtributos[index]}
+                                inputIdPrecio={inputIdPrecio}
+                                idProximoAtributo={index<relPre.atributos.length-1?inputIdAtributos[index+1]:null}
+                                idProximoPrecio={props.inputIdProximo}
+                                primerAtributo={index==0}
+                                cantidadAtributos={relPre.atributos.length}
+                                ultimoAtributo={index == relPre.atributos.length-1}
+                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms, inputIdAtributos[index])}
+                                razonPositiva={props.razonPositiva}
+                            />
+                        )
+                    :null}
+                </div>
+                :null}
+            </div>
         </div>
     );
-});
+}, areEqual)
 
 function DetalleFiltroObservaciones(_props:{}){
     const {queVer} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
@@ -835,6 +957,83 @@ function DetalleFiltroObservaciones(_props:{}){
         )}
     </>
 }
+const IndexedPreciosRow = /*React.memo*/(({ data, index, isScrolling, style }: {data: any, index:number, isScrolling:boolean, style:Styles}) => {
+    var {items, observaciones, idActual, razonPositiva, allForms, searchString, compactar} = data;
+    var item = items[index];
+    var iRelPre = item.iRelPre;
+    var relPre = observaciones[iRelPre];
+    var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
+    var relPreProx = index<items.length-1 ? observaciones[items[index+1].iRelPre] : null;  
+    var inputIdProximo = relPreProx != null ? relPreProx.producto+'-'+relPreProx.observacion : null;
+    return <PreciosRow 
+        style={style}
+        key={relPre.producto+'/'+relPre.observacion}
+        relPre={relPre}
+        iRelPre={Number(iRelPre)}
+        hasSearchString={!!searchString}
+        isScrolling={isScrolling}
+        allForms={allForms}
+        inputIdPrecio={inputIdPrecio}
+        inputIdProximo={inputIdProximo}
+        esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
+        razonPositiva={razonPositiva}
+        compactar={compactar}
+    />
+}/*,areEqual*/);
+
+type Style4Render = {top:number, left:number, height:number, width:string, position:'fixed'|'relative'|'absolute'};
+
+function VariableSizeList(props:{
+    width:number|string, 
+    height:number,
+    itemCount:number, 
+    itemSize:(i:number)=>number,
+    useIsScrolling:boolean,
+    itemData:any,
+    children:(props:{data: any, index:number, isScrolling:boolean, style:Style4Render}) => JSX.Element
+}){
+    var rowFun=props.children;
+    var heightSum=0;
+    var lista:{style:Style4Render, isScrolling:boolean}[] = new Array(props.itemCount).fill(true).map((_, i:number)=>{
+        var height = props.itemSize(i);
+        var top = heightSum;
+        heightSum+=height;
+        return {
+            style:{
+                top,
+                left:0,
+                height,
+                width:'100%',
+                position:'absolute',
+            },
+            isScrolling:heightSum-window.scrollY>1500 || top+height<window.scrollY
+        }
+    });
+    var [ultimoTop, setUltimoTop]=useState(-99999);
+    var calculateList=function(){
+        if(ultimoTop!=window.scrollY){
+            setUltimoTop(window.scrollY);
+            lista = lista.map(nodo=>({...nodo, isScrolling: nodo.isScrolling && (nodo.style.top-window.scrollY>1500 || nodo.style.top+nodo.style.height<window.scrollY)}));
+        }
+    };
+    useEffect(function(){
+        var interval=setInterval(calculateList,1000);
+        return function(){
+            clearInterval(interval);
+        }
+    })
+    return <div style={{height:heightSum, width:props.width, position:'relative', top:0, left:0}} >
+        {lista.length?lista.map(function(node, i){
+            var x=rowFun({data:props.itemData, index:i, isScrolling:node.isScrolling, style:node.style});
+            return x;
+            // return rowFun({data:props.itemData, index:i, isScrolling:node.isScrolling, style:node.style});
+        }):<div>cargando</div>}
+    </div>
+}
+
+// function isNotNull<T>(value:T): T is not null{
+//     return value != null;
+// }
 
 function RelevamientoPrecios(props:{
     relVis:RelVis,
@@ -871,42 +1070,68 @@ function RelevamientoPrecios(props:{
         />
     };
     var cantidadResultados = observacionesFiltradasIdx.length;
+    const getItemSize = (index:number) => {
+        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
+        var relPre = props.observaciones[iRelPre];
+        return props.compactar?
+            50 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
+        :
+            50+Math.max(
+                relPre.atributos.reduce(
+                    (acum,relAtr)=>Math.ceil((Math.max(
+                        (relAtr.valoranterior||'').length,
+                        (relAtr.valor||'').length,
+                        (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
+                    )+1)/8)*40+acum,0
+                ), 
+                estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
+            );
+    } 
+       
+    const createItemData = memoize(
+        (
+            items: {iRelPre: number}[], 
+            observaciones:RelPre[], 
+            idActual: string|null, 
+            razonPositiva:boolean, 
+            allForms: boolean, 
+            searchString: string, 
+            compactar: boolean
+        ) =>     
+        ({
+            items,
+            observaciones,
+            idActual,
+            razonPositiva,
+            allForms,
+            searchString,
+            compactar
+        })
+    );
+    const itemData = createItemData(observacionesFiltradasIdx, props.observaciones, idActual, props.razonPositiva, allForms, searchString, props.compactar);
+    
     return <div className="informante-visita">
         {cantidadResultados?
             <VariableSizeList
+                useIsScrolling 
                 height={900}
                 itemCount={observacionesFiltradasIdx.length}
+                itemData={itemData}
                 itemSize={getItemSize}
-                width={655}
+                width={"100%"}
             >
-                {Row}
+                {IndexedPreciosRow}
             </VariableSizeList>
-            /*observacionesFiltradasIdx.map(({iRelPre}) =>{
-                var relPre = props.observaciones[iRelPre];
-                var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
-                return <PreciosRow 
-                    key={relPre.producto+'/'+relPre.observacion}
-                    relPre={relPre}
-                    iRelPre={Number(iRelPre)}
-                    hasSearchString={!!searchString}
-                    allForms={allForms}
-                    inputIdPrecio={inputIdPrecio}
-                    esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
-                    razonPositiva={props.razonPositiva}
-                    compactar={props.compactar}
-                />
-            })*/
-        :(observacionesFiltradasEnOtrosIdx.length==0 && queVer != 'todos'?
+        :(observacionesFiltradasEnOtrosIdx.length==0?
             <div>No hay</div>
         :null)
         }
         {
             observacionesFiltradasEnOtrosIdx.length>0?
-            (observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length<=LIMITE_UNION_FORMULARIOS && queVer!='todos'?
                 <div className="zona-degrade">
                     <Button className="boton-hay-mas" variant="outlined"
                         onClick={()=>{
-                            dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString}));
+                            dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString, compactar: props.compactar}));
                         }}
                     >ver más {queVer} en otros formularios</Button>
                     {observacionesFiltradasEnOtrosIdx.map(({iRelPre}, i) => {
@@ -922,14 +1147,7 @@ function RelevamientoPrecios(props:{
             :
             <div className="zona-degrade">
                 <Typography>Hay más observaciones en otros formularios</Typography>
-                <Typography></Typography>
-                {queVer=='todos'?
-                    <Typography>No se muestran ya que seleccionó la opción "todos" <ICON.CheckBoxOutlined /> </Typography>
-                :
-                    <Typography>No se muestran el botón porque en total son {observacionesFiltradasEnOtrosIdx.length+observacionesFiltradasIdx.length}</Typography>
-                }
-                </div>
-            ):null
+            </div>
         }
     </div>;
 }
@@ -952,80 +1170,82 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     }
     return (
         verRazon?
-        <table className="razon-formulario">
-            <thead></thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <Button onClick={event=>setMenuRazon(event.currentTarget)} 
-                        color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
-                            {relVis.razon}
-                        </Button>
-                    </td>
-                    <td>{relVis.razon?razones[relVis.razon].nombrerazon:null}</td>
-                    <EditableTd placeholder='sin comentarios' disabled={false} colSpan={1} className="comentarios-razon" dataType={"text"} value={relVis.comentarios} inputId={relVis.informante+'f'+relVis.formulario}
-                        onUpdate={value=>{
-                            dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value, nextId:false}));
-                        }}
-                    />
-                    <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
-                    {likeAr(estructura.razones).map((razon:Razon,index)=>{
-                        var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
-                        return(
-                        <MenuItem key={razon.nombrerazon} onClick={()=>{
-                            if(razonNecesitaConfirmacion(estructura, relVis,index)){
-                                setRazonAConfirmar({razon:index});
-                                setMenuConfirmarRazon(true)
-                            }else{
-                                dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index, nextId:false}));
-                            }
-                            setMenuRazon(null)
-                        }}>
-                            <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
-                            <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
-                        </MenuItem>
-                        )}
-                    ).array()}
-                </Menu>
-                <Dialog
-                    open={menuConfirmarRazon}
-                    onClose={()=>setMenuConfirmarRazon(false)}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa para formulario ${relVis.formulario}`}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description-rn">
-                            <div>
-                                Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. 
-                                Se {cantObsConPrecio==1?'borrará un precio':`borrarán ${cantObsConPrecio} precios`} ingresados.
-                            </div>
-                            <div>
-                                Confirme la acción ingresando la cantidad de precios que se van a borrar: 
-                            </div>
-                            <TextField
-                                value={confirmarCantObs}
-                                onChange={onChangeFun}
-                            />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={()=>{
-                            setMenuConfirmarRazon(false)
-                        }} color="primary" variant="outlined">
-                            No borrar
-                        </Button>
-                        <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
-                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon, nextId:false}));
-                            setMenuConfirmarRazon(false)
-                        }} color="secondary" variant="outlined">
-                            Proceder borrando
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-                </tr>
-            </tbody>
-        </table>
+        <div className="razon-formulario">
+            <div>
+                <Button onClick={event=>setMenuRazon(event.currentTarget)} 
+                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
+                    {relVis.razon}
+                </Button>
+            </div>
+            <div>{relVis.razon?razones[relVis.razon].nombrerazon:null}</div>
+            <EditableTd
+                hasError={false}
+                placeholder="sin comentarios"
+                disabled={false}
+                className="comentarios-razon"
+                dataType={"text"}
+                value={relVis.comentarios}
+                inputId={relVis.informante+'f'+relVis.formulario}
+                onUpdate={value=>{
+                    dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
+                }}
+            />
+            <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
+                {likeAr(estructura.razones).map((razon:Razon,index)=>{
+                    var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
+                    return(
+                    <MenuItem key={razon.nombrerazon} onClick={()=>{
+                        if(razonNecesitaConfirmacion(estructura, relVis,index)){
+                            setRazonAConfirmar({razon:index});
+                            setMenuConfirmarRazon(true)
+                        }else{
+                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index}));
+                        }
+                        setMenuRazon(null)
+                    }}>
+                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
+                    </MenuItem>
+                    )}
+                ).array()}
+            </Menu>
+            <Dialog
+                open={menuConfirmarRazon}
+                onClose={()=>setMenuConfirmarRazon(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title-rn">{`Confirmación de razón negativa para formulario ${relVis.formulario}`}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description-rn">
+                        <div>
+                            Eligió la razón de no contacto {razonAConfirmar.razon?`${razonAConfirmar.razon} ${estructura.razones[razonAConfirmar.razon].nombrerazon}`:''}. 
+                            Se {cantObsConPrecio==1?'borrará un precio':`borrarán ${cantObsConPrecio} precios`} ingresados.
+                        </div>
+                        <div>
+                            Confirme la acción ingresando la cantidad de precios que se van a borrar: 
+                        </div>
+                        <TextField
+                            value={confirmarCantObs}
+                            onChange={onChangeFun}
+                        />
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={()=>{
+                        setMenuConfirmarRazon(false)
+                    }} color="primary" variant="outlined">
+                        No borrar
+                    </Button>
+                    <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
+                        dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
+                        setMenuConfirmarRazon(false)
+                    }} color="secondary" variant="outlined">
+                        Proceder borrando
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
         :null
     );
 }
@@ -1126,7 +1346,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, posFormularios, allForms} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar, /*posFormularios, */ allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     /*useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1145,7 +1365,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             window.scrollTo(0, 0);
             return function(){}
         }
-    },[props.relVisPk, posFormularios, compactar, queVer, searchString]);*/
+
+    },[props.relVisPk, posFormularios, compactar, queVer, searchString]);
+    */
+    useEffect(() => {
+        if(idActual){
+            focusToId(idActual, {moveToElement:true});
+        }
+    }, [idActual]);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -1203,17 +1430,17 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 aria-label="large contained default button group"
                             >
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
                                     <ICON.CheckBoxOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
                                     <ICON.CheckBoxOutlineBlankOutlined />
                                 </Button>
                                 <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString}));
+                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
                                     <ICON.Warning />
                                 </Button>
@@ -1223,18 +1450,31 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             <div className={classes.searchIcon}>
                                 <SearchIcon />
                             </div>
-                            <InputBase id="search" placeholder="Buscar..." value={searchString} classes={{
+                            <InputBase 
+                                id="search" 
+                                placeholder="Buscar..." 
+                                value={searchString} 
+                                classes={{
                                     root: classes.inputRoot,
                                     input: classes.inputInput,
-                                }} inputProps={{ 'aria-label': 'search' }}
+                                }}
+                                inputProps={{ 'aria-label': 'search' }}
                                 onChange={(event)=>{
-                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario}))
-                                    //EVALUAR SI SE SACA
-                                    //window.scroll({behavior:'auto', top:0, left:0})
+                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                                    window.scroll({behavior:'auto', top:0, left:0})
                                 }}
                             />
                             {searchString?
-                                <IconButton size="small" style={{color:'#ffffff'}} onClick={()=>dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario}))}><ClearIcon /></IconButton>
+                                <IconButton 
+                                    size="small" 
+                                    style={{color:'#ffffff'}} 
+                                    onClick={()=>{
+                                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                                        window.scroll({behavior:'auto', top:0, left:0})
+                                    }}
+                                >
+                                    <ClearIcon />
+                                </IconButton>
                             :null}
                         </div>
                     </Toolbar>
@@ -1268,8 +1508,8 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 setOpen(false);
                                 dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                             }}>
-                            <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
-                            <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                                <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
+                                <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
                             </ListItem>
                         ))}
                     </List>
