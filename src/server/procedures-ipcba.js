@@ -1125,14 +1125,14 @@ ProceduresIpcba = [
                         if(persona.row.labor == 'E'){
                             try{
                                 persona = await context.client.query(`
-                                    select recepcionista as persona from tareas where encuestador = $1 and activa = 'S' and tarea = $2`,
-                                    [persona.row.persona, result.row.tarea]
+                                    select recepcionista as persona from tareas where tarea = $1 and activa = 'S'`,
+                                    [result.row.tarea]
                                 ).fetchUniqueRow();
                             }catch(err){
-                                throw new Error('No se encontró el encuestador en tareas o la tarea no está activa');
+                                throw new Error('No se encontró la tarea o la misma no está activa');
                             }
                             if(!persona.row.persona){
-                                throw new Error('El encuestador no tiene un recepcionista asignado en tareas');
+                                throw new Error('La tarea no tiene recepcionista asignado');
                             }
                         }
                     }catch(err){
