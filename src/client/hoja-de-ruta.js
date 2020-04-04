@@ -604,6 +604,8 @@ myOwn.wScreens.precios={
             gridMobileDiv.appendChild(floatingGridDiv);
             var visitaGrid = my.tableGrid('mobile_visita',gridVisitaDiv,{tableDef:{
                 hiddenColumns:['razones__espositivoformulario'],
+                firstDisplayCount: 1000,
+                firstDisplayOverLimit: 1100,
             }, fixedFields:fixedFields});
             my.disableUpdatePrices = false;
             my.wait4visitaGrid = Promise.resolve().then(function(){
