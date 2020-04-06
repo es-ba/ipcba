@@ -326,6 +326,13 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
     })
 }
 
+//relevamiento
+myOwn.clientSides.abrir={
+    update: undefined,
+    prepare: function(depot, fieldName){
+   }
+}
+
 myOwn.wScreens.demo_dm = async function(){
     dmHojaDeRuta({periodo:null, panel:null,tarea:null});
 };

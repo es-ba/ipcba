@@ -516,6 +516,7 @@ NETWORK:
         }
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
+            {menuType:'table', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -955,6 +956,7 @@ NETWORK:
             {name: 'relpre_control_rangos_recepcion', path: __dirname},
             {name: 'relpre_control_rangos_atrnorm', path: __dirname},
             {name: 'valvalatr', path: __dirname},
+            {name: 'relevamiento', path: __dirname},
             {name: 'relatr', path: __dirname},
             {name: 'relsup', path: __dirname},
             {name: 'rubfor', path: __dirname},
