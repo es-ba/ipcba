@@ -210,6 +210,14 @@ export type HojaDeRuta={
     opciones: OpcionesHojaDeRuta
 }
 
+export type OptsHdr={
+    addrParamsHdr?: AddrParamsHdr
+    customData?:{
+        estructura: Estructura,
+        hdr: HojaDeRuta    
+    }
+}
+
 export type AddrParamsHdr={
     periodo: string | null
     panel: number | null

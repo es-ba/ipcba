@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, QueVer } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, OptsHdr, QueVer } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio, getObservacionesFiltradas} from "./dm-funciones";
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
@@ -347,35 +347,45 @@ function surfStart<T extends {}>(object:T, callback:((object:T)=>T)):T{
 
 export const dispatchers = createDispatchers(reducers);
 
-export async function dmTraerDatosHdr(addrParams:AddrParamsHdr){
-    var result:any = {hdr:null,estructura:null};
-    var initialState:HojaDeRuta;
+async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
+    var estructura:Estructura;
+    var hdr:HojaDeRuta;
     if(addrParams.periodo && addrParams.panel && addrParams.tarea){
         var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
         if(content){
-            result.hdr = JSON4all.parse(content);
+            hdr = JSON4all.parse(content);
             //@ts-ignore structFromManifest existe gracias al manifiesto
             estructura=structFromManifest;
-            initialState = result.hdr;
         }else{
             throw Error('no se cargó correctamente la hoja de ruta')
         }
     }else{
         //DEMO
-        result = await my.ajax.dm2_preparar({
+        var result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
             //periodo: 'a2019m08', panel: 3, tarea: 6, sincronizar: false
-            periodo: 'a2019m12', panel: 3, tarea: 6, encuestador: null, demo: true
+            periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, encuestador: null, demo: true
             //periodo: 'a2020m01', panel: 1, tarea: 1, encuestador: null, demo: true
         })
         estructura = result.estructura;
         if(result.hdr){
-            initialState = result.hdr;
+            hdr = result.hdr;
         }else{
             throw Error ('no hay datos para el periodo seleccionado')
         }
     }
-
+    return {estructura, hdr}
+}
+export async function dmTraerDatosHdr(optsHdr:OptsHdr){
+    var initialState:HojaDeRuta;
+    var result;
+    if(optsHdr.customData){
+        result = optsHdr.customData;
+    }else{
+        result = await obtenerEstructuraFromAddrParams(optsHdr.addrParamsHdr || {periodo:null, panel: null, tarea:null});
+    }
+    initialState = result.hdr;
+    estructura = result.estructura;
     /* DEFINICION CONTROLADOR */
     const hdrReducer = createReducer(reducers, initialState);
     /* FIN DEFINICION CONTROLADOR */

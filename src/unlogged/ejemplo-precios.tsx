@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, AddrParamsHdr, FocusOpts} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, OptsHdr, FocusOpts} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
@@ -1891,8 +1891,8 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
 }
 
 
-export async function dmHojaDeRuta(addrParams:AddrParamsHdr){
-    const {store, estructura} = await dmTraerDatosHdr(addrParams);
+export async function dmHojaDeRuta(optsHdr:OptsHdr){
+    const {store, estructura} = await dmTraerDatosHdr(optsHdr);
     mostrarHdr(store, estructura);
 }
 

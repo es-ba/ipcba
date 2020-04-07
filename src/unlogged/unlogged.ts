@@ -32,7 +32,7 @@ window.addEventListener('load', async function(){
         const panel = url.searchParams.get("panel");
         const tarea = url.searchParams.get("tarea");
         //@ts-ignore existe 
-        dmHojaDeRuta({periodo, panel, tarea});
+        dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
     }
 })
 

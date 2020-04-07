@@ -1351,6 +1351,7 @@ myOwn.clientSides.prepararDM={
                 periodo: depot.row.periodo,
                 panel: depot.row.panel,
                 tarea: depot.row.tarea,
+                informante: null,
                 encuestador: depot.row.encuestador,
                 demo: false
             }).then(function(result){

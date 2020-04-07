@@ -330,9 +330,29 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
 myOwn.clientSides.abrir={
     update: undefined,
     prepare: function(depot, fieldName){
+        var {periodo, panel, tarea, informante, encuestador} = depot.row;
+        var openButton = html.button({},'abrir').create();
+        depot.rowControls[fieldName].appendChild(openButton);
+        openButton.onclick=async function(){
+            depot.rowControls[fieldName].appendChild(html.img({src:'img/loading16.gif'}).create());
+            var result = await my.ajax.dm2_preparar({
+                periodo: periodo,
+                panel: panel,
+                tarea: tarea,
+                informante: informante,
+                encuestador: encuestador,
+                demo: false,
+            });
+            localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(result.hdr));
+            localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
+            localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
+            // @ts-ignore sabemos que hoja_ruta_2 es función
+            dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
+            //myOwn.wScreens.hoja_ruta_2({});
+        }
    }
 }
 
 myOwn.wScreens.demo_dm = async function(){
-    dmHojaDeRuta({periodo:null, panel:null,tarea:null});
+    dmHojaDeRuta({addrParamsHdr:{periodo:null, panel:null,tarea:null}});
 };
