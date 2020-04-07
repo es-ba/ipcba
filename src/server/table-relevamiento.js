@@ -5,25 +5,29 @@ module.exports = function(context){
         name:'relevamiento',
         editable:false,
         fields:[
-            {name:'periodo'        , typeName:'text'    },
-            {name:'informante'     , typeName:'integer' },
-            {name:'visita'         , typeName:'integer' }, 
-            {name:'panel'          , typeName:'integer' },
-            {name:'tarea'          , typeName:'integer' },
-            {name:'encuestador'    , typeName:'text', visible:false },
-            {name:'abrir'         , typeName: 'text', clientSide:'abrir'},
+            {name:'periodo'         , typeName:'text'    },
+            {name:'panel'           , typeName:'integer' },
+            {name:'tarea'           , typeName:'integer' },
+            {name:'informante'      , typeName:'integer' },
+            {name:'visita'          , typeName:'integer' }, 
+            {name:'nombreinformante', typeName:'text'    },
+            {name:'direccion'       , typeName:'text'    },
+            {name:'encuestador'     , typeName:'text', visible:false },
+            {name:'abrir'           , typeName: 'text', clientSide:'abrir'},
         ],
         primaryKey:['periodo', 'informante', 'visita'],
+        sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'},{column:'informante'},{column:'visita'}],
         sql:{
             isTable: false,
-            from: `(select periodo, informante, rv.visita, panel, tarea, rv.encuestador
+            from: `(select periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion,  rv.encuestador
                 from relvis rv 
                     inner join periodos p using (periodo)
-                    inner join personal per on rv.encuestador = per.persona 
+                    inner join personal per on rv.encuestador = per.persona
+                    inner join informantes i on rv.informante = i.informante 
                 where p.ingresando = 'S' and 
                       rv.fechasalida >= current_timestamp and
                       per.username = '${context.user.usu_usu}'
-                group by periodo, informante, rv.visita, panel, tarea, encuestador)`
+                group by periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion, encuestador)`
         },
     },context);
 }
