@@ -1693,6 +1693,7 @@ function PantallaHojaDeRuta(_props:{}){
         setOnline(window.navigator.onLine);
     }
     const [online, setOnline] = useState(window.navigator.onLine);
+    const [mensajeDescarga, setMensajeDescarga] = useState<string|null>(null);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
@@ -1714,20 +1715,42 @@ function PantallaHojaDeRuta(_props:{}){
                         </Button>
                         {online?
                             customDataMode?
-                                <Button
-                                    color="inherit"
-                                    onClick={async ()=>{
-                                        var message = await devolverHojaDeRuta(hdr);
-                                        if(message=='descarga completa'){
-                                            borrarDatosRelevamientoLocalStorage();
-                                            location.reload();       
-                                        }else{
-                                            alert(message)
-                                        }
-                                    }}
-                                >
-                                    <SaveIcon/>
-                                </Button>
+                                <>
+                                    <Button
+                                        color="inherit"
+                                        onClick={async ()=>{
+                                            var message = await devolverHojaDeRuta(hdr);
+                                            if(message=='descarga completa'){
+                                                borrarDatosRelevamientoLocalStorage();
+                                                message+=', redirigiendo a grilla de relevamiento...';
+                                                setTimeout(function(){
+                                                    location.reload();       
+                                                }, 5000)
+                                            }
+                                            setMensajeDescarga(message)
+                                        }}
+                                    >
+                                        <SaveIcon/>
+                                    </Button>
+                                    <Dialog
+                                        open={!!mensajeDescarga}
+                                        onClose={()=>setMensajeDescarga(null)}
+                                        aria-labelledby="alert-dialog-title"
+                                        aria-describedby="alert-dialog-description"
+                                    >
+                                        <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
+                                        <DialogContent>
+                                            <DialogContentText id="alert-dialog-description">
+                                                {mensajeDescarga}
+                                            </DialogContentText>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={()=>setMensajeDescarga(null)} color="primary" variant="contained">
+                                                Cerrar
+                                            </Button>
+                                        </DialogActions>
+                                    </Dialog>
+                                </>
                             :
                                 <Button
                                     color="inherit"
