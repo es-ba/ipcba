@@ -19,15 +19,16 @@ module.exports = function(context){
         sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'},{column:'informante'},{column:'visita'}],
         sql:{
             isTable: false,
-            from: `(select periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion,  rv.encuestador
+            from: `(select periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion,  rt.encuestador
                 from relvis rv 
                     inner join periodos p using (periodo)
-                    inner join personal per on rv.encuestador = per.persona
+                    inner join reltar rt using (periodo, panel, tarea)
+                    inner join personal per on rt.encuestador = per.persona
                     inner join informantes i on rv.informante = i.informante 
                 where p.ingresando = 'S' and 
                       rv.fechasalida >= current_timestamp and
                       per.username = '${context.user.usu_usu}'
-                group by periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion, encuestador)`
+                group by periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion, rt.encuestador)`
         },
     },context);
 }
