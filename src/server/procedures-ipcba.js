@@ -1689,14 +1689,14 @@ ProceduresIpcba = [
                             where id_instalacion = $1 and descargado is null
                             returning *`
                     ,[idInstalacion.value, params.hoja_de_ruta]).fetchOneRowIfExists();
-                    var tiposDePrecio = await context.client.query(
-                        `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
-                    ,[]).fetchAll();
-                    tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
                     habilitado = result.rowCount;
                     tarea=result.rowCount?result.row.tarea:null;
                 }
                 if(habilitado){
+                    var tiposDePrecio = await context.client.query(
+                        `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
+                    ,[]).fetchAll();
+                    tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
                     try{
                         try{
                             var persona = await context.client.query(`
