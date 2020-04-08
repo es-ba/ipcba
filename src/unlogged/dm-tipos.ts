@@ -173,9 +173,10 @@ export type OpcionesHojaDeRuta={
     posFormularios: {formulario: number, position: number}[]
     observacionesFiltradasIdx: {iRelPre:number}[]
     observacionesFiltradasEnOtrosIdx: {iRelPre:number}[]
+    customDataMode:boolean
 }
 
-export function getDefaultOptions():OpcionesHojaDeRuta{
+export function getDefaultOptions(customDataMode:boolean):OpcionesHojaDeRuta{
     return {
         pantallaOpciones: false,
         queVer: 'todos',
@@ -190,7 +191,8 @@ export function getDefaultOptions():OpcionesHojaDeRuta{
         posHdr: 0,
         posFormularios: [],
         observacionesFiltradasIdx: [],
-        observacionesFiltradasEnOtrosIdx: []
+        observacionesFiltradasEnOtrosIdx: [],
+        customDataMode: customDataMode
     }
 }
 

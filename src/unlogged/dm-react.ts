@@ -324,7 +324,7 @@ var reducers={
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
-                opciones: getDefaultOptions()
+                opciones: getDefaultOptions(state.opciones.customDataMode)
             })
         },
 }
@@ -391,7 +391,7 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     /* FIN DEFINICION CONTROLADOR */
     /* CARGA Y GUARDADO DE STATE */
     function completarOpcionesCambiosyAdvertencias(content:HojaDeRuta){
-        content.opciones = content.opciones || getDefaultOptions();
+        content.opciones = content.opciones || getDefaultOptions(!!optsHdr.customData);
         content.informantes.forEach(
             (informante:RelInf)=> informante.observaciones.forEach((observacion:RelPre)=> {
                 observacion.adv = controlarPrecio(observacion, estructura).tieneAdv;

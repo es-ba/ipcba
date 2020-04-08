@@ -8,13 +8,14 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr, LOCAL_STORAGE_STATE_NAME } from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
 import * as memoizeBadTyped from "memoize-one";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
+import * as JSON4all from "json4all";
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 
@@ -52,6 +53,7 @@ export const materialIoIconsSvgPath={
     LocalAtm: "M11 17h2v-1h1c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1h-3v-1h4V8h-2V7h-2v1h-1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h3v1H9v2h2v1zm9-13H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z",
     Menu: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
     RemoveShoppingCart: "M22.73 22.73L2.77 2.77 2 2l-.73-.73L0 2.54l4.39 4.39 2.21 4.66-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h7.46l1.38 1.38c-.5.36-.83.95-.83 1.62 0 1.1.89 2 1.99 2 .67 0 1.26-.33 1.62-.84L21.46 24l1.27-1.27zM7.42 15c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h2.36l2 2H7.42zm8.13-2c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H6.54l9.01 9zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2z",
+    Save:"M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z",
     Search: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
     Settings: "M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z",
     Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
@@ -69,6 +71,7 @@ const DescriptionIcon = ICON.Description;
 const SearchIcon = ICON.Search;
 const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
 const ClearIcon = ICON.Clear;
+const SaveIcon = ICON.Save;
 const SettingsIcon = ICON.Settings;
 const RepreguntaIcon = ICON.Repregunta;
 const ExitToAppIcon = ICON.ExitToApp;
@@ -1680,7 +1683,7 @@ function PantallaHojaDeRuta(_props:{}){
         }
     });
     const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>(hdr));
-    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, posHdr} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, posHdr, customDataMode} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const classesButton = useStylesButton();
     const dispatch = useDispatch();
@@ -1710,15 +1713,26 @@ function PantallaHojaDeRuta(_props:{}){
                             <SettingsIcon/>
                         </Button>
                         {online?
-                            <Button
-                                color="inherit"
-                                onClick={()=>{
-                                    history.replaceState(null, '', `${location.origin+location.pathname}/../menu`);
-                                    location.reload();   
-                                }}
-                            >
-                                <ExitToAppIcon/>
-                            </Button>
+                            customDataMode?
+                                <Button
+                                    color="inherit"
+                                    onClick={()=>{
+                                        borrarDatosRelevamientoLocalStorage();
+                                        location.reload();   
+                                    }}
+                                >
+                                    <SaveIcon/>
+                                </Button>
+                            :
+                                <Button
+                                    color="inherit"
+                                    onClick={()=>{
+                                        history.replaceState(null, '', `${location.origin+location.pathname}/../menu`);
+                                        location.reload();   
+                                    }}
+                                >
+                                    <ExitToAppIcon/>
+                                </Button>
                         :null}
                     </div>
                 </Toolbar>
@@ -1900,3 +1914,40 @@ if(typeof window !== 'undefined'){
     // @ts-ignore para hacerlo
     window.dmHojaDeRuta = dmHojaDeRuta;
 }
+
+/*RELEVAMIENTO DIRECTO*/
+
+const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
+const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
+const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
+const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
+const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
+export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
+
+export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any){
+    localStorage.setItem(HDR_OPENED_LOCALSTORAGE_NAME, JSON.stringify(true));
+    localStorage.setItem(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
+    localStorage.setItem(HDR_PANEL_LOCALSTORAGE_NAME, JSON.stringify(panel));
+    localStorage.setItem(HDR_TAREA_LOCALSTORAGE_NAME, JSON.stringify(tarea));
+    localStorage.setItem(HDR_INFORMANTE_LOCALSTORAGE_NAME, JSON.stringify(informante));
+    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
+    localStorage.setItem(ESTRUCTURA_LOCALSTORAGE_NAME, JSON4all.stringify(estructura));
+}
+
+export function borrarDatosRelevamientoLocalStorage(){
+    localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
+    localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+}
+
+export function hayHdrRelevando(){
+    return !!localStorage.getItem(HDR_OPENED_LOCALSTORAGE_NAME) && 
+           !!localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && 
+           !!localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+}
+
+/* FIN RELEVAMIENTO DIRECTO*/
