@@ -1670,6 +1670,7 @@ ProceduresIpcba = [
             var token = params.token_instalacion;
             try{
                 var habilitado = params.custom_data;
+                var tarea=params.hoja_de_ruta.tarea;
                 if(!params.custom_data){
                     try{
                         var idInstalacion = await context.client.query(
@@ -1687,14 +1688,41 @@ ProceduresIpcba = [
                                 datos_descarga = $2
                             where id_instalacion = $1 and descargado is null
                             returning *`
-                    ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
+                    ,[idInstalacion.value, params.hoja_de_ruta]).fetchOneRowIfExists();
                     var tiposDePrecio = await context.client.query(
                         `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
                     ,[]).fetchAll();
                     tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
                     habilitado = result.rowCount;
+                    tarea=result.rowCount?result.row.tarea:null;
                 }
                 if(habilitado){
+                    try{
+                        try{
+                            var persona = await context.client.query(`
+                                select persona, labor from personal where username = $1`,
+                                [context.user.usu_usu]
+                            ).fetchUniqueRow();
+                        }catch(err){
+                            throw new Error('No se encontró el nombre de usuario en personal');
+                        }
+                        if(persona.row.labor == 'E'){
+                            try{
+                                persona = await context.client.query(`
+                                    select recepcionista as persona from tareas where tarea = $1 and activa = 'S'`,
+                                    [tarea]
+                                ).fetchUniqueRow();
+                            }catch(err){
+                                throw new Error('No se encontró la tarea o la misma no está activa');
+                            }
+                            if(!persona.row.persona){
+                                throw new Error('La tarea no tiene recepcionista asignado');
+                            }
+                        }
+                    }catch(err){
+                        console.log('entra al catch: ', err.message)
+                        throw new Error('Error al buscar recepcionista. ' + err.message);
+                    }
                     var hoja_de_ruta = params.hoja_de_ruta;
                     for(var informante of hoja_de_ruta.informantes){
                         for(var formulario of informante.formularios){
@@ -1704,12 +1732,12 @@ ProceduresIpcba = [
                                 try{
                                     await context.client.query(`
                                         update relvis 
-                                            set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = (select persona from personal where username = $7)
+                                            set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = $7
                                             where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada
                                             returning true`
                                         ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, 
                                             simplificateText(formulario.comentarios), 
-                                            context.user.usu_usu
+                                            persona.row.persona
                                         ]
                                     ).fetchUniqueRow()
                                 }catch(err){
