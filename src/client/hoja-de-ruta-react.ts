@@ -2,6 +2,7 @@ import {html}  from 'js-to-html';
 import * as JSON4all from "json4all";
 import {LOCAL_STORAGE_STATE_NAME} from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
+import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
 
 var my=myOwn;
 
@@ -326,7 +327,52 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
     })
 }
 
+const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
+const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
+const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
+const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
+const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
+const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
+
 //relevamiento
+
+myOwn.wScreens.relevamiento=function(_addrParams){
+    if(hayHdrRelevando()){
+        var estructura:Estructura = JSON4all.parse(localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME)!);
+        var hdr:HojaDeRuta = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+        dmHojaDeRuta({customData: {estructura, hdr}});
+    }else{
+        var mainLayout = document.getElementById('main_layout')!;
+        return my.tableGrid('relevamiento',mainLayout,{});
+    }
+};
+
+function hayHdrRelevando(){
+    return !!localStorage.getItem(HDR_OPENED_LOCALSTORAGE_NAME) && 
+           !!localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && 
+           !!localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+}
+
+function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any){
+    localStorage.setItem(HDR_OPENED_LOCALSTORAGE_NAME, JSON.stringify(true));
+    localStorage.setItem(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
+    localStorage.setItem(HDR_PANEL_LOCALSTORAGE_NAME, JSON.stringify(panel));
+    localStorage.setItem(HDR_TAREA_LOCALSTORAGE_NAME, JSON.stringify(tarea));
+    localStorage.setItem(HDR_INFORMANTE_LOCALSTORAGE_NAME, JSON.stringify(informante));
+    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
+    localStorage.setItem(ESTRUCTURA_LOCALSTORAGE_NAME, JSON4all.stringify(estructura));
+}
+
+function borrarDatosRelevamientoLocalStorage(){
+    localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
+    localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+}
+
 myOwn.clientSides.abrir={
     update: undefined,
     prepare: function(depot, fieldName){
@@ -345,16 +391,13 @@ myOwn.clientSides.abrir={
                     demo: false,
                 });
                 if(result.hdr && result.estructura){
-                    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(result.hdr));
-                    localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
-                    localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
-                    // @ts-ignore sabemos que hoja_ruta_2 es función
+                    registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura)
                     dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
-                    //myOwn.wScreens.hoja_ruta_2({});
                 }else{
-                    throw new Error('no se pudo armar la hoja de ruta');
+                    throw new Error('no se pudo cargar la hoja de ruta');
                 }
             }catch(err){
+                borrarDatosRelevamientoLocalStorage()
                 alertPromise(err.message);
                 depot.rowControls[fieldName].innerHTML = '';
                 depot.rowControls[fieldName].appendChild(openButton);
@@ -364,6 +407,7 @@ myOwn.clientSides.abrir={
         }
    }
 }
+//fin relevamiento
 
 myOwn.wScreens.demo_dm = async function(){
     dmHojaDeRuta({addrParamsHdr:{periodo:null, panel:null,tarea:null}});
