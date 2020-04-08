@@ -334,21 +334,33 @@ myOwn.clientSides.abrir={
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
         openButton.onclick=async function(){
-            depot.rowControls[fieldName].appendChild(html.img({src:'img/loading16.gif'}).create());
-            var result = await my.ajax.dm2_preparar({
-                periodo: periodo,
-                panel: panel,
-                tarea: tarea,
-                informante: informante,
-                encuestador: encuestador,
-                demo: false,
-            });
-            localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(result.hdr));
-            localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
-            localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
-            // @ts-ignore sabemos que hoja_ruta_2 es función
-            dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
-            //myOwn.wScreens.hoja_ruta_2({});
+            try{
+                depot.rowControls[fieldName].appendChild(html.img({src:'img/loading16.gif'}).create());
+                var result = await my.ajax.dm2_preparar({
+                    periodo: periodo,
+                    panel: panel,
+                    tarea: tarea,
+                    informante: informante,
+                    encuestador: encuestador,
+                    demo: false,
+                });
+                if(result.hdr && result.estructura){
+                    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(result.hdr));
+                    localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
+                    localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
+                    // @ts-ignore sabemos que hoja_ruta_2 es función
+                    dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
+                    //myOwn.wScreens.hoja_ruta_2({});
+                }else{
+                    throw new Error('no se pudo armar la hoja de ruta');
+                }
+            }catch(err){
+                alertPromise(err.message);
+                depot.rowControls[fieldName].innerHTML = '';
+                depot.rowControls[fieldName].appendChild(openButton);
+                throw err;
+            }
+            
         }
    }
 }
