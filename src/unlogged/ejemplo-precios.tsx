@@ -8,14 +8,13 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr, LOCAL_STORAGE_STATE_NAME } from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta} from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
 import * as memoizeBadTyped from "memoize-one";
 import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
-import * as JSON4all from "json4all";
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 
@@ -1682,6 +1681,7 @@ function PantallaHojaDeRuta(_props:{}){
             }
         }
     });
+    const hdr = useSelector((hdr:HojaDeRuta)=>(hdr));
     const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>(hdr));
     const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, posHdr, customDataMode} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
@@ -1716,9 +1716,14 @@ function PantallaHojaDeRuta(_props:{}){
                             customDataMode?
                                 <Button
                                     color="inherit"
-                                    onClick={()=>{
-                                        borrarDatosRelevamientoLocalStorage();
-                                        location.reload();   
+                                    onClick={async ()=>{
+                                        var message = await devolverHojaDeRuta(hdr);
+                                        if(message=='descarga completa'){
+                                            borrarDatosRelevamientoLocalStorage();
+                                            location.reload();       
+                                        }else{
+                                            alert(message)
+                                        }
                                     }}
                                 >
                                     <SaveIcon/>
@@ -1914,40 +1919,3 @@ if(typeof window !== 'undefined'){
     // @ts-ignore para hacerlo
     window.dmHojaDeRuta = dmHojaDeRuta;
 }
-
-/*RELEVAMIENTO DIRECTO*/
-
-const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
-const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
-const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
-const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
-const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
-export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
-
-export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any){
-    localStorage.setItem(HDR_OPENED_LOCALSTORAGE_NAME, JSON.stringify(true));
-    localStorage.setItem(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
-    localStorage.setItem(HDR_PANEL_LOCALSTORAGE_NAME, JSON.stringify(panel));
-    localStorage.setItem(HDR_TAREA_LOCALSTORAGE_NAME, JSON.stringify(tarea));
-    localStorage.setItem(HDR_INFORMANTE_LOCALSTORAGE_NAME, JSON.stringify(informante));
-    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
-    localStorage.setItem(ESTRUCTURA_LOCALSTORAGE_NAME, JSON4all.stringify(estructura));
-}
-
-export function borrarDatosRelevamientoLocalStorage(){
-    localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
-    localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
-    localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
-}
-
-export function hayHdrRelevando(){
-    return !!localStorage.getItem(HDR_OPENED_LOCALSTORAGE_NAME) && 
-           !!localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && 
-           !!localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME);
-}
-
-/* FIN RELEVAMIENTO DIRECTO*/

@@ -429,3 +429,55 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     return {store, estructura:estructura!};
    
 }
+
+/*RELEVAMIENTO DIRECTO*/
+
+export async function devolverHojaDeRuta(hdr:HojaDeRuta){
+    var message:string;
+    try{
+        message = await my.ajax.dm2_descargar({
+            token_instalacion: false,
+            hoja_de_ruta: hdr,
+            encuestador: hdr.encuestador,
+            custom_data: true
+        });
+    }catch(err){
+        message=err.message;
+    }
+    return message;
+}
+
+const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
+const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
+const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
+const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
+const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
+export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
+
+export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any){
+    localStorage.setItem(HDR_OPENED_LOCALSTORAGE_NAME, JSON.stringify(true));
+    localStorage.setItem(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
+    localStorage.setItem(HDR_PANEL_LOCALSTORAGE_NAME, JSON.stringify(panel));
+    localStorage.setItem(HDR_TAREA_LOCALSTORAGE_NAME, JSON.stringify(tarea));
+    localStorage.setItem(HDR_INFORMANTE_LOCALSTORAGE_NAME, JSON.stringify(informante));
+    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
+    localStorage.setItem(ESTRUCTURA_LOCALSTORAGE_NAME, JSON4all.stringify(estructura));
+}
+
+export function borrarDatosRelevamientoLocalStorage(){
+    localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
+    localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+}
+
+export function hayHdrRelevando(){
+    return !!localStorage.getItem(HDR_OPENED_LOCALSTORAGE_NAME) && 
+           !!localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && 
+           !!localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+}
+
+/* FIN RELEVAMIENTO DIRECTO*/

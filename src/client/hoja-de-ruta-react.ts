@@ -1,10 +1,9 @@
 import {html}  from 'js-to-html';
 import * as JSON4all from "json4all";
-import {LOCAL_STORAGE_STATE_NAME} from "../unlogged/dm-react";
-import {
-    dmHojaDeRuta, registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage, 
-    ESTRUCTURA_LOCALSTORAGE_NAME, hayHdrRelevando 
-} from "../unlogged/ejemplo-precios";
+import {LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME, 
+       registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage,
+       hayHdrRelevando } from "../unlogged/dm-react";
+import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
 
 var my=myOwn;
@@ -107,7 +106,8 @@ async function descargarDispositivo2(tokenInstalacion: string, encuestador: stri
     var message = await my.ajax.dm2_descargar({
         token_instalacion: tokenInstalacion,
         hoja_de_ruta: JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!),
-        encuestador: encuestador
+        encuestador: encuestador,
+        custom_data: false
     });
     waitGif.style.display = 'none';
     if(message=='descarga completa'){

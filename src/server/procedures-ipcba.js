@@ -1661,35 +1661,40 @@ ProceduresIpcba = [
         action: 'dm2_descargar',
         parameters:[
             {name:'token_instalacion'  , typeName:'text' },
-            {name:'hoja_de_ruta'       , typeName:'jsonb' },
+            {name:'hoja_de_ruta'       , typeName:'jsonb'},
             {name:'encuestador'        , typeName:'text' },
+            {name:'custom_data'        , typeName:'boolean' },
         ],
         policy:'web',
         coreFunction:async function(context, params){
             var token = params.token_instalacion;
             try{
-                try{
-                    var idInstalacion = await context.client.query(
-                        `select id_instalacion from instalaciones where token_instalacion = $1`,
-                        [token]
-                    ).fetchUniqueValue();
-                }catch(err){
-                    if(err.code=='54011!'){
-                        throw new Error('No se encuentra el token_instalacion. Quizas la persona tiene otro dipopsitivo activo');
+                var habilitado = params.custom_data;
+                if(!params.custom_data){
+                    try{
+                        var idInstalacion = await context.client.query(
+                            `select id_instalacion from instalaciones where token_instalacion = $1`,
+                            [token]
+                        ).fetchUniqueValue();
+                    }catch(err){
+                        if(err.code=='54011!'){
+                            throw new Error('No se encuentra el token_instalacion. Quizas la persona tiene otro dipopsitivo activo');
+                        }
                     }
+                    var result = await context.client.query(
+                        `update reltar
+                            set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
+                                datos_descarga = $2
+                            where id_instalacion = $1 and descargado is null
+                            returning *`
+                    ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
+                    var tiposDePrecio = await context.client.query(
+                        `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
+                    ,[]).fetchAll();
+                    tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
+                    habilitado = result.rowCount;
                 }
-                var result = await context.client.query(
-                    `update reltar
-                        set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
-                            datos_descarga = $2
-                        where id_instalacion = $1 and descargado is null
-                        returning *`
-                ,[idInstalacion.value, params.hoja_de_ruta]).fetchAll();
-                var tiposDePrecio = await context.client.query(
-                    `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
-                ,[]).fetchAll();
-                tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
-                if(result.rowCount){
+                if(habilitado){
                     var hoja_de_ruta = params.hoja_de_ruta;
                     for(var informante of hoja_de_ruta.informantes){
                         for(var formulario of informante.formularios){
