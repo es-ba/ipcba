@@ -8,7 +8,7 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta} from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, LOCAL_STORAGE_DIRTY_NAME} from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
@@ -132,6 +132,10 @@ function ScrollTop(props: any) {
             </div>
         </Zoom>
     );
+}
+
+function isDirtyHDR(){
+    return !!localStorage.getItem(LOCAL_STORAGE_DIRTY_NAME);
 }
 
 function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
@@ -1716,22 +1720,34 @@ function PantallaHojaDeRuta(_props:{}){
                         {online?
                             customDataMode?
                                 <>
-                                    <Button
-                                        color="inherit"
-                                        onClick={async ()=>{
-                                            var message = await devolverHojaDeRuta(hdr);
-                                            if(message=='descarga completa'){
+                                    {isDirtyHDR()?
+                                        <Button
+                                            color="inherit"
+                                            onClick={async ()=>{
+                                                var message = await devolverHojaDeRuta(hdr);
+                                                if(message=='descarga completa'){
+                                                    borrarDatosRelevamientoLocalStorage();
+                                                    message+=', redirigiendo a grilla de relevamiento...';
+                                                    setTimeout(function(){
+                                                        location.reload();       
+                                                    }, 5000)
+                                                }
+                                                setMensajeDescarga(message)
+                                            }}
+                                        >
+                                            <SaveIcon/>
+                                        </Button>
+                                    :
+                                        <Button
+                                            color="inherit"
+                                            onClick={()=>{
                                                 borrarDatosRelevamientoLocalStorage();
-                                                message+=', redirigiendo a grilla de relevamiento...';
-                                                setTimeout(function(){
-                                                    location.reload();       
-                                                }, 5000)
-                                            }
-                                            setMensajeDescarga(message)
-                                        }}
-                                    >
-                                        <SaveIcon/>
-                                    </Button>
+                                                location.reload();   
+                                            }}
+                                        >
+                                            <ExitToAppIcon/>
+                                        </Button>
+                                    }
                                     <Dialog
                                         open={!!mensajeDescarga}
                                         onClose={()=>setMensajeDescarga(null)}

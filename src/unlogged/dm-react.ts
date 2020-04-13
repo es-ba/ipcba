@@ -8,6 +8,7 @@ import * as JSON4all from "json4all";
 var my=myOwn;
 
 export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
+export const LOCAL_STORAGE_DIRTY_NAME = LOCAL_STORAGE_STATE_NAME + '_dirty';
 
 /* REDUCERS */
 
@@ -415,6 +416,7 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     
     function saveState(state:HojaDeRuta){
         localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
+        localStorage.setItem(LOCAL_STORAGE_DIRTY_NAME, JSON.stringify(true));
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 
@@ -472,6 +474,7 @@ export function borrarDatosRelevamientoLocalStorage(){
     localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
     localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
     localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
 }
 
 export function hayHdrRelevando(){
