@@ -350,6 +350,7 @@ myOwn.clientSides.abrir={
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
         openButton.onclick=async function(){
+            openButton.disabled=true;
             try{
                 depot.rowControls[fieldName].appendChild(html.img({src:'img/loading16.gif'}).create());
                 var result = await my.ajax.dm2_preparar({
@@ -366,7 +367,9 @@ myOwn.clientSides.abrir={
                 }else{
                     throw new Error('no se pudo cargar la hoja de ruta');
                 }
+                openButton.disabled=false;
             }catch(err){
+                openButton.disabled=false;
                 borrarDatosRelevamientoLocalStorage()
                 alertPromise(err.message);
                 depot.rowControls[fieldName].innerHTML = '';
