@@ -497,7 +497,7 @@ NETWORK:
         var recepGabinete = {role:'recep_gabinete'};
         var migracion = {role:'migracion'};
         if(this.config.server.policy=='web'){
-            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista]
+            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, recepGabinete, supervisor]
             return {menu:[
                 {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta DM 1', showInOfflineMode: true, selectedByDefault: true},
                 {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
