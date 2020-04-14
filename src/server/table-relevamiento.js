@@ -15,7 +15,7 @@ module.exports = function(context){
             {name:'encuestador'     , typeName:'text', visible:false },
             {name:'abrir'           , typeName: 'text', clientSide:'abrir'},
         ],
-        primaryKey:['periodo', 'informante', 'visita'],
+        primaryKey:['periodo', 'panel', 'tarea', 'informante','visita'],
         sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'},{column:'informante'},{column:'visita'}],
         sql:{
             isTable: false,
