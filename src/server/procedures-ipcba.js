@@ -1593,6 +1593,8 @@ ProceduresIpcba = [
             {name:'informante'        , typeName:'integer' },
             {name:'encuestador'       , typeName:'text'    },
             {name:'demo'              , typeName:'boolean' },
+            {name:'useragent'         , typeName:'jsonb'   },
+            {name:'current_token'     , typeName:'text'    },
         ],
         policy:'web',
         coreFunction: async function(context, parameters){
@@ -1620,11 +1622,20 @@ ProceduresIpcba = [
                 ).fetchUniqueValue();
                 
                 var vencimientoSincronizacion2 = null;
-                var result
+                var result;
+                var token = parameters.current_token;
                 //si tiene informante viene de pantalla relevamiento
                 //o es demo
                 //solo necesita preparar la estructura y hdr
                 if(parameters.informante || parameters.demo){
+                    //vengo de relevamiento y no tengo token, pido uno nuevo
+                    if(parameters.informante && !token){
+                        var myToken = await be.procedure.token_get.coreFunction(context, {
+                            useragent: parameters.useragent, 
+                            username: context.user.usu_usu
+                        });
+                        token = myToken.token;
+                    }
                     result = await be.procedure.dm2_estructura_hdr_preparar.coreFunction(context, parameters);
                 //sino tambien prepara archivos y calculo sincronizacion
                 }else{
@@ -1633,7 +1644,7 @@ ProceduresIpcba = [
                 }
                 var {estructura, hdr} = result;
                 //resultado
-                return {status: 'ok', vencimientoSincronizacion2, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value}
+                return {status: 'ok', vencimientoSincronizacion2, estructura, hdr, tieneprecioscargados: hojaDeRutaConPrecios.value, token}
             }catch(err){
                 throw err
             }

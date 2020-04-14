@@ -1,6 +1,6 @@
 import {html}  from 'js-to-html';
 import * as JSON4all from "json4all";
-import {LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME, 
+import {LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME, TOKEN_LOCALSTORAGE_NAME,
        registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage,
        hayHdrRelevando } from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
@@ -360,9 +360,11 @@ myOwn.clientSides.abrir={
                     informante: informante,
                     encuestador: encuestador,
                     demo: false,
+                    useragent: my.config.useragent,
+                    current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME) || null
                 });
-                if(result.hdr && result.estructura){
-                    registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura)
+                if(result.hdr && result.estructura && result.token){
+                    registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
                     dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
                 }else{
                     throw new Error('no se pudo cargar la hoja de ruta');

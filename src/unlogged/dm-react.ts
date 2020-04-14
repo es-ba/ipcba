@@ -365,7 +365,7 @@ async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
         var result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m08', panel: 1, tarea: 1, sincronizar: false
             //periodo: 'a2019m08', panel: 3, tarea: 6, sincronizar: false
-            periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, encuestador: null, demo: true
+            periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, encuestador: null, demo: true, useragent: null, token: null
             //periodo: 'a2020m01', panel: 1, tarea: 1, encuestador: null, demo: true
         })
         estructura = result.estructura;
@@ -455,8 +455,9 @@ const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
 const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
 const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
 export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
+export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
 
-export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any){
+export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any, token:string){
     localStorage.setItem(HDR_OPENED_LOCALSTORAGE_NAME, JSON.stringify(true));
     localStorage.setItem(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
     localStorage.setItem(HDR_PANEL_LOCALSTORAGE_NAME, JSON.stringify(panel));
@@ -464,6 +465,7 @@ export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:
     localStorage.setItem(HDR_INFORMANTE_LOCALSTORAGE_NAME, JSON.stringify(informante));
     localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
     localStorage.setItem(ESTRUCTURA_LOCALSTORAGE_NAME, JSON4all.stringify(estructura));
+    localStorage.setItem(TOKEN_LOCALSTORAGE_NAME, token);
 }
 
 export function borrarDatosRelevamientoLocalStorage(){
