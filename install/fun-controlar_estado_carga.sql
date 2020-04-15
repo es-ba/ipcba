@@ -10,6 +10,7 @@ DECLARE
     vpanel integer:=p_panel;
     vtarea integer:=p_tarea;
     vpermitido  boolean;
+    vtoken text;
     vcargado text;
     vdescargado text;
 BEGIN
@@ -36,6 +37,12 @@ BEGIN
         WHERE periodo = p_periodo AND panel = vpanel AND tarea = vtarea;
     IF NOT vpermitido THEN
         RAISE EXCEPTION 'No se permite modificar el periodo %, panel %, tarea %. %, %', p_periodo, vpanel, vtarea, vcargado, vdescargado;
+    END IF;
+    SELECT token_relevamiento INTO vtoken
+        FROM cvp.relvis
+        WHERE periodo = p_periodo AND panel = vpanel AND tarea = vtarea and informante = p_informante;
+    IF vtoken IS NOT NULL THEN
+        RAISE EXCEPTION 'No se permite modificar el periodo %, panel %, tarea %, informante % ya que tiene token de relevamiento ', p_periodo, vpanel, vtarea, p_informante;
     END IF;
     RETURN;
 END;
