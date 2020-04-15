@@ -1352,6 +1352,7 @@ myOwn.clientSides.prepararDM={
                 panel: depot.row.panel,
                 tarea: depot.row.tarea,
                 informante: null,
+                visita: null,
                 encuestador: depot.row.encuestador,
                 demo: false,
                 useragent: null,

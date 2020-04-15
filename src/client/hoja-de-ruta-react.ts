@@ -346,7 +346,7 @@ myOwn.wScreens.relevamiento=function(_addrParams){
 myOwn.clientSides.abrir={
     update: undefined,
     prepare: function(depot, fieldName){
-        var {periodo, panel, tarea, informante, encuestador} = depot.row;
+        var {periodo, panel, tarea, informante, visita, encuestador} = depot.row;
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
         openButton.onclick=async function(){
@@ -358,6 +358,7 @@ myOwn.clientSides.abrir={
                     panel: panel,
                     tarea: tarea,
                     informante: informante,
+                    visita: visita,
                     encuestador: encuestador,
                     demo: false,
                     useragent: my.config.useragent,

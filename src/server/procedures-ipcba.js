@@ -1585,12 +1585,30 @@ ProceduresIpcba = [
         }
     },
     {
+        action:'dm2_relevamiento_unlock',
+        parameters:[
+            {name:'token'             , typeName:'text'    },
+        ],
+        policy:'web',
+        coreFunction: async function(context, parameters){
+            await context.client.query(
+                `update relvis
+                    set token_relevamiento = null
+                    where token_relevamiento = $1`
+                ,
+                [parameters.token]
+            ).execute();
+            return "ok";
+        }
+    },
+    {
         action:'dm2_preparar',
         parameters:[
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
             {name:'panel'             , typeName:'integer' },
             {name:'tarea'             , typeName:'integer' },
             {name:'informante'        , typeName:'integer' },
+            {name:'visita'            , typeName:'integer' },
             {name:'encuestador'       , typeName:'text'    },
             {name:'demo'              , typeName:'boolean' },
             {name:'useragent'         , typeName:'jsonb'   },
@@ -1628,13 +1646,24 @@ ProceduresIpcba = [
                 //o es demo
                 //solo necesita preparar la estructura y hdr
                 if(parameters.informante || parameters.demo){
-                    //vengo de relevamiento y no tengo token, pido uno nuevo
-                    if(parameters.informante && !token){
-                        var myToken = await be.procedure.token_get.coreFunction(context, {
-                            useragent: parameters.useragent, 
-                            username: context.user.usu_usu
-                        });
-                        token = myToken.token;
+                    //vengo de relevamiento
+                    if(parameters.informante){
+                        //no tengo token, pido uno nuevo
+                        if(!token){
+                            var myToken = await be.procedure.token_get.coreFunction(context, {
+                                useragent: parameters.useragent, 
+                                username: context.user.usu_usu
+                            });
+                            token = myToken.token;
+                        }
+                        //seteo token en relvis
+                        await context.client.query(
+                            `UPDATE relvis
+                                SET token_relevamiento = $5
+                                WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $6`
+                            ,
+                            [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, token, parameters.visita]
+                        ).execute();
                     }
                     result = await be.procedure.dm2_estructura_hdr_preparar.coreFunction(context, parameters);
                 //sino tambien prepara archivos y calculo sincronizacion

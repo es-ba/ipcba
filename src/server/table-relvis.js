@@ -37,6 +37,7 @@ module.exports = function(context){
             {name:'raz__escierredefinitivofor', typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
             {name:'direccion'                 , typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
             {name:'operadorrec'               , typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
+            {name:'token_relevamiento'        , typeName:'text'                                , allow:{update:context.user.usu_rol ==='programador'}},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sortColumns:[{column:'direccion'},{column:'orden'},{column:'visita'}],
@@ -49,6 +50,7 @@ module.exports = function(context){
             {references:'personal'   , fields:[{source:'encuestador'  , target:'persona'  }]},
             {references:'personal'   , fields:[{source:'ingresador'   , target:'persona'  }], alias:'pering'},
             {references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'},
+            {references:'tokens'     , fields:[{source:'token_relevamiento', target:'token'  }]},
             //{references:'personal'   , fields:[{source:'supervisor'   , target:'persona'  }], alias:'persup'},
         ],
         softForeignKeys:[
@@ -69,7 +71,7 @@ module.exports = function(context){
             from:`(
                 select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
                   v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                  v.fechageneracion, f.orden, i.direccion, v.preciosgenerados,
+                  v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento,
                   CASE WHEN rec.labor = 'R' THEN rec.persona 
                        WHEN per.labor = 'R' THEN per.persona 
                        ELSE rec.persona END operadorrec                 
