@@ -18,7 +18,7 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     isAdmin(reqOrContext){
         var be = this;
-        return reqOrContext && reqOrContext.user && reqOrContext.user[be.config.login.rolFieldName] == 'programador';
+        return reqOrContext && (reqOrContext.forDump || reqOrContext.user && reqOrContext.user[be.config.login.rolFieldName] == 'programador');
     }
     postConfig(){
         super.postConfig();
