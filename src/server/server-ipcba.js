@@ -297,13 +297,6 @@ class AppIpcba extends backendPlus.AppBackend{
     - vw-valorizacion_canasta.sql
     - vw-valorizacion_canasta_cuadros.sql
     */
-    addLoggedServices(){
-        var be = this;
-        super.addLoggedServices();
-        this.app.get('/echo', function(req,res){
-            res.end('echo');
-        });
-    }
     getManifestPaths(parameters){
         const centralPart=`${parameters.periodo}p${parameters.panel}t${parameters.tarea}`;
         return {
@@ -325,9 +318,9 @@ class AppIpcba extends backendPlus.AppBackend{
             var {useragent, user} = req;
             var parameters = req.query;
             const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
-            var extraFiles = [
+            /** @type {{type:'js', src:string}[]} */
+            const extraFiles = [
                 { type: 'js', src:estructuraPath },
-                // { type: 'js', src:hdrPath } no va, es un JSON
             ];
             var htmlMain=be.mainPage({useragent, user}, !be.config.devel["no-offline"], {skipMenu:true, manifestPath, extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
@@ -347,6 +340,7 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     addLoggedServices(opts){
         var be=this;
+        super.addLoggedServices();
         [
             {sufix:`manifest.manifest`, fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
             {sufix:`estructura.js`    , fieldName:'archivo_estructura', mimeType:'application/javascript'},
@@ -646,7 +640,7 @@ NETWORK:
                 {menuType:'table', name:'cuagru', label: 'grupos por cuadro'},
                 {menuType:'mostrar_cuadros', name:'cuadros', label:'cuadros para informe', onlyVisibleFor:[programador]},
                 //{menuType:'table', name:'cuadros', label: 'cuadros'},
-                {menuType:'menu', name:'frecuencia de cambio', name:'frecuencia de cambio', menuContent:[
+                {menuType:'menu', name:'frecuencia_de_cambio', label:'frecuencia de cambio', menuContent:[
                     {menuType:'table', name:'periodos_freccambio_nivel0', label:'nivel 0'},
                     {menuType:'table', name:'periodos_freccambio_nivel1', label:'nivel 1'},
                     {menuType:'table', name:'periodos_freccambio_nivel3', label:'nivel 3'},
