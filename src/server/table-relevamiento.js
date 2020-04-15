@@ -26,7 +26,7 @@ module.exports = function(context){
                     inner join personal per on rt.encuestador = per.persona
                     inner join informantes i on rv.informante = i.informante 
                 where p.ingresando = 'S' and 
-                      rv.fechasalida >= current_timestamp and
+                      rv.fechasalida = current_date and
                       per.username = '${context.user.usu_usu}'
                 group by periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion, rt.encuestador)`
         },
