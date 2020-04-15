@@ -468,15 +468,23 @@ export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:
     localStorage.setItem(TOKEN_LOCALSTORAGE_NAME, token);
 }
 
-export function borrarDatosRelevamientoLocalStorage(){
-    localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
-    localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
-    localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
-    localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
-    localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
+export async function borrarDatosRelevamientoLocalStorage(){
+    try{
+        await my.ajax.dm2_relevamiento_unlock({
+            token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME)
+        });
+        localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
+        localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
+        localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
+        localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
+        localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
+        localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
+        localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+        localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
+    }catch(err){
+        alertPromise(err.message);
+        throw err
+    }
 }
 
 export function hayHdrRelevando(){

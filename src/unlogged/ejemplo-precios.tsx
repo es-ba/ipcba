@@ -1726,7 +1726,7 @@ function PantallaHojaDeRuta(_props:{}){
                                             onClick={async ()=>{
                                                 var message = await devolverHojaDeRuta(hdr);
                                                 if(message=='descarga completa'){
-                                                    borrarDatosRelevamientoLocalStorage();
+                                                    await borrarDatosRelevamientoLocalStorage();
                                                     message+=', redirigiendo a grilla de relevamiento...';
                                                     setTimeout(function(){
                                                         location.reload();       
@@ -1740,8 +1740,8 @@ function PantallaHojaDeRuta(_props:{}){
                                     :
                                         <Button
                                             color="inherit"
-                                            onClick={()=>{
-                                                borrarDatosRelevamientoLocalStorage();
+                                            onClick={async ()=>{
+                                                await borrarDatosRelevamientoLocalStorage();
                                                 location.reload();   
                                             }}
                                         >
