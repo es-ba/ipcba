@@ -1698,6 +1698,7 @@ function PantallaHojaDeRuta(_props:{}){
     }
     const [online, setOnline] = useState(window.navigator.onLine);
     const [mensajeDescarga, setMensajeDescarga] = useState<string|null>(null);
+    const [descargaCompleta, setDescargaCompleta] = useState<boolean|null>(false);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
@@ -1726,6 +1727,7 @@ function PantallaHojaDeRuta(_props:{}){
                                             onClick={async ()=>{
                                                 var message = await devolverHojaDeRuta(hdr);
                                                 if(message=='descarga completa'){
+                                                    setDescargaCompleta(true);
                                                     await borrarDatosRelevamientoLocalStorage();
                                                     message+=', redirigiendo a grilla de relevamiento...';
                                                     setTimeout(function(){
@@ -1761,7 +1763,17 @@ function PantallaHojaDeRuta(_props:{}){
                                             </DialogContentText>
                                         </DialogContent>
                                         <DialogActions>
-                                            <Button onClick={()=>setMensajeDescarga(null)} color="primary" variant="contained">
+                                            <Button 
+                                                onClick={()=>{
+                                                    if(descargaCompleta){
+                                                        location.reload()
+                                                    }else{
+                                                        setMensajeDescarga(null)
+                                                    }
+                                                }} 
+                                                color="primary" 
+                                                variant="contained"
+                                            >
                                                 Cerrar
                                             </Button>
                                         </DialogActions>
