@@ -568,7 +568,7 @@ NETWORK:
                 {menuType:'table', name:'periodos_variaciones_minimas_vw'        , label:'variaciones mínimas', onlyVisibleFor:[programador,coordinador,analista]},
                 //{menuType:'table', name:'periodos_control_observaciones'         , label:'vista de control de observaciones', onlyVisibleFor:[programador,coordinador,analista]},
                 */
-            ]/*, onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]*/},
+            ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
             {menuType:'menu', name:'informantes', menuContent:[
                 {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                 {menuType:'menu', name:'hoja de ruta', menuContent:[
