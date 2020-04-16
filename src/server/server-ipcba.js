@@ -490,8 +490,9 @@ NETWORK:
         var supervisor = {role:'supervisor'};
         var recepGabinete = {role:'recep_gabinete'};
         var migracion = {role:'migracion'};
+        var encuestador = {role:'encuestador'};
         if(this.config.server.policy=='web'){
-            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, recepGabinete, supervisor]
+            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, recepGabinete, supervisor, encuestador]
             return {menu:[
                 {menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta DM 1', showInOfflineMode: true, selectedByDefault: true},
                 {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
