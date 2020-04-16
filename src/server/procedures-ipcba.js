@@ -1851,6 +1851,16 @@ ProceduresIpcba = [
                                 }
                             }
                             var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
+                            if(params.custom_data){
+                                //saco token antes de actualizar
+                                await context.client.query(`
+                                    update relvis 
+                                        set token_relevamiento = null
+                                        where periodo = $1 and informante = $2 and visita = $3 and formulario = $4 --pk verificada
+                                        returning true`
+                                    ,[hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario]
+                                ).fetchUniqueRow()
+                            }
                             if(limpiandoRazon){
                                 await actualizarObservaciones(observaciones);
                                 await actualizarRelVis();
