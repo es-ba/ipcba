@@ -555,7 +555,7 @@ const AtributosRow = function(props:{
             <EditableTd 
                 borderBottomColor={PRIMARY_COLOR}
                 borderBottomColorError={colorAdv}
-                hasError={tieneAdv}
+                hasError={tieneAdv && props.razonPositiva}
                 className="atributo-actual" 
                 inputId={props.inputId}
                 idProximo={props.idProximoAtributo || props.idProximoPrecio}
@@ -904,7 +904,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         <EditableTd 
                             borderBottomColor={PRIMARY_COLOR}
                             borderBottomColorError={colorAdv}
-                            hasError={tieneAdv}
+                            hasError={tieneAdv && props.razonPositiva}
                             inputId={inputIdPrecio} 
                             idProximo={props.inputIdProximo}
                             disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
