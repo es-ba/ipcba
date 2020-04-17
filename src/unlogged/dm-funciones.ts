@@ -185,14 +185,15 @@ export var criterio = (relPre:RelPre, relVis: RelVis, estructura:Estructura, sea
 && (queVer !='advertencias' || precioTieneAdvertencia(relPre, relVis, estructura))
 && (queVer !='pendientes' || precioEstaPendiente(relPre, relVis, estructura));
 
-export function getObservacionesFiltradas(observaciones:RelPre[], relVis: RelVis, estructura:Estructura, allForms:boolean, searchString:string, queVer:QueVer){
+export function getObservacionesFiltradas(otrosFormulariosInformanteIdx:{[key: string]: RelVis}, observaciones:RelPre[], relVis: RelVis, estructura:Estructura, allForms:boolean, searchString:string, queVer:QueVer){
     var observacionesFiltradasIdx:{iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
-        ((allForms?true:relPre.formulario==relVis.formulario) &&
+        ((allForms?estructura.razones[otrosFormulariosInformanteIdx[relPre.formulario].razon!].espositivoformulario:relPre.formulario==relVis.formulario) &&
         criterio(relPre, relVis, estructura, searchString, queVer))?{iRelPre}:null
     ).filter(filterNotNull);
     var observacionesFiltradasEnOtrosIdx:{iRelPre:number}[]=observaciones.map((relPre:RelPre, iRelPre:number) =>
         (!(allForms?true:relPre.formulario==relVis.formulario) && 
         (relPre.observacion==1 || queVer!='todos') && // si son todos no hace falta ver las observaciones=2
+        estructura.razones[otrosFormulariosInformanteIdx[relPre.formulario].razon!].espositivoformulario && //omito buscar en otros forms con razon negativa
         criterio(relPre, relVis, estructura, searchString, queVer))?{iRelPre}:null
     ).filter(filterNotNull);
     return {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}

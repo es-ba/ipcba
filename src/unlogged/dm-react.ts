@@ -4,6 +4,7 @@ import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtribut
 import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
+import * as likeAr from "like-ar";
 
 var my=myOwn;
 
@@ -122,8 +123,8 @@ var setTP = function setTP(
     });
 }
 
-var calcularListas=function(observaciones: RelPre[], relVis: RelVis, allForms:boolean, searchString: string, queVer: QueVer){
-    return getObservacionesFiltradas(observaciones, relVis, estructura, allForms, searchString, queVer);
+var calcularListas=function(otrosFormulariosInformanteIdx: {[key: string]: RelVis}, observaciones: RelPre[], relVis: RelVis, allForms:boolean, searchString: string, queVer: QueVer){
+    return getObservacionesFiltradas(otrosFormulariosInformanteIdx, observaciones, relVis, estructura, allForms, searchString, queVer);
 }
 
 var reducers={
@@ -248,7 +249,8 @@ var reducers={
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
+            var formulariosIdx = likeAr.createIndex(informante.formularios, 'formulario');
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(formulariosIdx, observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -287,7 +289,8 @@ var reducers={
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
             var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(observaciones, relVis, allForms, searchString, queVer);
+            var formulariosIdx = likeAr.createIndex(informante.formularios, 'formulario');
+            var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(formulariosIdx, observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -364,7 +367,7 @@ async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
         //DEMO
         var result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, visita: null, encuestador: null, demo: true, useragent: null, current_token: null
-            periodo: 'a2020m01', panel: 1, tarea: 1,, informante: null, visita: null, encuestador: null, demo: true, useragent: null, current_token: null
+            periodo: 'a2020m01', panel: 1, tarea: 1, informante: null, visita: null, encuestador: null, demo: true, useragent: null, current_token: null
         })
         estructura = result.estructura;
         if(result.hdr){
