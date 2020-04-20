@@ -19,7 +19,7 @@ module.exports = function(context){
         ],
         primaryKey:['periodo','panel','tarea'],
         detailTables:[
-            {table:'relinf', abr:'INF', label:'informantes', fields:['periodo','panel','tarea']},
+            {table:'relinf_observaciones', abr:'INF', label:'informantes', fields:['periodo','panel','tarea']},
         ],
         foreignKeys:[
             {references:'personal', fields:[

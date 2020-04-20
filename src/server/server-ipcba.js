@@ -922,6 +922,7 @@ NETWORK:
             {name: 'reltar', path: __dirname},
             {name: 'reltar_candidatas', path: __dirname},
             {name: 'relinf', path: __dirname},
+            {name: 'relinf_observaciones', path: __dirname},
             {name: 'calprodresp', path: __dirname},
             {name: 'cuadros', path: __dirname},
             {name: 'cuagru', path: __dirname},
