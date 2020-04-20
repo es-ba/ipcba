@@ -1712,7 +1712,15 @@ ProceduresIpcba = [
             try{
                 var habilitado = params.custom_data;
                 var tarea=params.hoja_de_ruta.tarea;
-                if(!params.custom_data){
+                if(params.custom_data){
+                    //saco token antes de actualizar
+                    await context.client.query(`
+                        update relvis 
+                            set token_relevamiento = null
+                            where token_relevamiento = $1`
+                        ,[params.current_token]
+                    ).execute()
+                }else{
                     try{
                         var idInstalacion = await context.client.query(
                             `select id_instalacion from instalaciones where token_instalacion = $1`,
@@ -1852,15 +1860,6 @@ ProceduresIpcba = [
                                 }
                             }
                             var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
-                            if(params.custom_data && params.current_token){
-                                //saco token antes de actualizar
-                                await context.client.query(`
-                                    update relvis 
-                                        set token_relevamiento = null
-                                        where token_relevamiento = $1`
-                                    ,[params.current_token]
-                                ).execute()
-                            }
                             if(limpiandoRazon){
                                 await actualizarObservaciones(observaciones);
                                 await actualizarRelVis();
