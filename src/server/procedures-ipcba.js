@@ -1743,7 +1743,7 @@ ProceduresIpcba = [
                             returning 1 as ok`
                         ,[params.current_token]
                     ).fetchAll()
-                    if(result.rowCount != params.hoja_de_ruta.informantes[0].formularios.length){
+                    if(result.rowCount < params.hoja_de_ruta.informantes[0].formularios.length){
                         throw new Error('El token expiró')
                     }
                 }else{
