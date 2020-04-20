@@ -347,31 +347,76 @@ myOwn.wScreens.relevamiento=function(_addrParams){
 myOwn.clientSides.abrir={
     update: undefined,
     prepare: function(depot, fieldName){
+        var mainLayout = document.getElementById('main_layout')!;
         var {periodo, panel, tarea, informante, visita, encuestador} = depot.row;
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
         openButton.onclick=async function(){
             openButton.disabled=true;
             try{
+                var relevarFun = async function(){
+                    var result = await my.ajax.dm2_preparar({
+                        periodo: periodo,
+                        panel: panel,
+                        tarea: tarea,
+                        informante: informante,
+                        visita: visita,
+                        encuestador: encuestador,
+                        demo: false,
+                        useragent: my.config.useragent,
+                        current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME) || null
+                    });
+                    if(result.hdr && result.estructura && result.token){
+                        registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
+                        dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
+                    }else{
+                        throw new Error('no se pudo cargar la hoja de ruta');
+                    }
+                    openButton.disabled=false;
+                }
                 depot.rowControls[fieldName].appendChild(html.img({src:'img/loading16.gif'}).create());
-                var result = await my.ajax.dm2_preparar({
+                var abierto = await my.ajax.dm2_relevamiento_chequear_informante_abierto({
                     periodo: periodo,
                     panel: panel,
                     tarea: tarea,
                     informante: informante,
                     visita: visita,
-                    encuestador: encuestador,
-                    demo: false,
-                    useragent: my.config.useragent,
-                    current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME) || null
                 });
-                if(result.hdr && result.estructura && result.token){
-                    registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
-                    dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
+                if(abierto.hayFormulariosAbiertos){
+                    var formulariosAbiertos = abierto.formulariosAbiertos;
+                    var mainDiv = html.div().create()
+                    mainDiv.appendChild(html.div({},[
+                        html.div({class:'danger'}, [`Existen formularios del panel ${panel}, tarea ${tarea}, informante ${informante} cargados en otro 
+                        dispositivo. Si continua no se podrá descargar el dispositivo.`].concat(
+                            formulariosAbiertos.map((openedForm:any)=>
+                                html.div(`usuario: ${openedForm.username}, formulario: ${openedForm.formulario}, SO: ${openedForm.useragent.os}, navegador: ${openedForm.useragent.browser+ ' ' + openedForm.useragent.version}`).create()
+                            )
+                        ))
+                    ]).create());
+                    var inputForzar = html.input({class:'input-forzar'}).create();
+                    mainDiv.appendChild(html.div([
+                        html.div(['Se puede forzar la carga ',inputForzar])
+                    ]).create());
+                    var clearButton = html.button({class:'load-ipad-button'},'forzar carga').create();
+                    var cancelButton = html.button('cancelar carga').create();
+                    cancelButton.onclick=function(){
+                        location.reload();
+                    }
+                    mainDiv.appendChild(clearButton);
+                    mainDiv.appendChild(cancelButton);
+                    mainLayout.prepend(mainDiv);
+                    clearButton.onclick = async function(){
+                        if(inputForzar.value=='forzar'){
+                            await confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton});
+                            clearButton.disabled=true;
+                            relevarFun();
+                        }else{
+                            alertPromise('si necesita cargar el D.M. escriba forzar.',{underElement:clearButton})
+                        }
+                    }
                 }else{
-                    throw new Error('no se pudo cargar la hoja de ruta');
+                    relevarFun();
                 }
-                openButton.disabled=false;
             }catch(err){
                 openButton.disabled=false;
                 borrarDatosRelevamientoLocalStorage()

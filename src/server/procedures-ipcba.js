@@ -1602,6 +1602,28 @@ ProceduresIpcba = [
         }
     },
     {
+        action:'dm2_relevamiento_chequear_informante_abierto',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+            {name:'informante'        , typeName:'integer' },
+            {name:'visita'            , typeName:'integer' },
+        ],
+        policy:'web',
+        coreFunction: async function(context, parameters){
+            var result = await context.client.query(
+                `select *
+                    from relvis r
+                    left join tokens t on r.token_relevamiento = t.token
+                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $5 and token_relevamiento is not null`
+                ,
+                [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, parameters.visita]
+            ).fetchAll();
+            return {hayFormulariosAbiertos: result.rowCount > 0, formulariosAbiertos: result.rows}
+        }
+    },
+    {
         action:'dm2_preparar',
         parameters:[
             {name:'periodo'           , typeName:'text'    , references:'periodos'},
@@ -1660,7 +1682,7 @@ ProceduresIpcba = [
                         await context.client.query(
                             `UPDATE relvis
                                 SET token_relevamiento = $5
-                                WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $6`
+                                WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $6 and fechasalida = current_date`
                             ,
                             [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, token, parameters.visita]
                         ).execute();
@@ -1714,12 +1736,16 @@ ProceduresIpcba = [
                 var tarea=params.hoja_de_ruta.tarea;
                 if(params.custom_data){
                     //saco token antes de actualizar
-                    await context.client.query(`
+                    var result = await context.client.query(`
                         update relvis 
                             set token_relevamiento = null
-                            where token_relevamiento = $1`
+                            where token_relevamiento = $1
+                            returning 1 as ok`
                         ,[params.current_token]
-                    ).execute()
+                    ).fetchAll()
+                    if(result.rowCount != params.hoja_de_ruta.informantes[0].formularios.length){
+                        throw new Error('El token expiró')
+                    }
                 }else{
                     try{
                         var idInstalacion = await context.client.query(
