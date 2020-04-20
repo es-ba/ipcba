@@ -442,7 +442,8 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
             token_instalacion: false,
             hoja_de_ruta: hdr,
             encuestador: hdr.encuestador,
-            custom_data: true
+            custom_data: true,
+            current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME)
         });
     }catch(err){
         message=err.message;

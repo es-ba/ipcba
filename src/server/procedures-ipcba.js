@@ -1704,6 +1704,7 @@ ProceduresIpcba = [
             {name:'hoja_de_ruta'       , typeName:'jsonb'},
             {name:'encuestador'        , typeName:'text' },
             {name:'custom_data'        , typeName:'boolean' },
+            {name:'current_token'      , typeName:'text' },
         ],
         policy:'web',
         coreFunction:async function(context, params){
@@ -1851,15 +1852,14 @@ ProceduresIpcba = [
                                 }
                             }
                             var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
-                            if(params.custom_data){
+                            if(params.custom_data && params.current_token){
                                 //saco token antes de actualizar
                                 await context.client.query(`
                                     update relvis 
                                         set token_relevamiento = null
-                                        where periodo = $1 and informante = $2 and visita = $3 and formulario = $4 --pk verificada
-                                        returning true`
-                                    ,[hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario]
-                                ).fetchUniqueRow()
+                                        where token_relevamiento = $1`
+                                    ,[params.current_token]
+                                ).execute()
                             }
                             if(limpiandoRazon){
                                 await actualizarObservaciones(observaciones);

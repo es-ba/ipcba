@@ -107,7 +107,8 @@ async function descargarDispositivo2(tokenInstalacion: string, encuestador: stri
         token_instalacion: tokenInstalacion,
         hoja_de_ruta: JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!),
         encuestador: encuestador,
-        custom_data: false
+        custom_data: false,
+        current_token: null
     });
     waitGif.style.display = 'none';
     if(message=='descarga completa'){
