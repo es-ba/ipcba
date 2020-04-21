@@ -1859,7 +1859,7 @@ ProceduresIpcba = [
                                     }
                                     for(var atributo of observacion.atributos){
                                         //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && !filtroValoresPrecioAtributo && !limpiandoRazon /* && atributo.valor*/){
+                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && filtroValoresPrecioAtributo && !limpiandoRazon /* && atributo.valor*/){
                                             try{
                                                 var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
                                                 await context.client.query(`
