@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='admin' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='jefe_campo'|| context.user.usu_rol ==='analista' || context.user.usu_rol ==='recepcionista';
+    var puedeEditar = context.user.usu_rol ==='admin' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='jefe_campo'|| context.user.usu_rol ==='analista' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'relpan',
         title:'paneles',
@@ -19,6 +19,8 @@ module.exports = function(context){
             {name:'fechageneracionpanel'    , typeName:'timestamp'              , allow:{update:puedeEditar}},
             {name:'periodoparapanelrotativo', typeName:'text'                   , allow:{update:puedeEditar}},
             {name:'generacionsupervisiones' , typeName:'timestamp'              , allow:{update:puedeEditar}},
+            {name:'fechasalidadesde'        , typeName:'date'                   , allow:{update:puedeEditar}},
+            {name:'fechasalidahasta'        , typeName:'date'                   , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','panel'],
         foreignKeys:[
