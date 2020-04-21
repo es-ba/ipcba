@@ -22,11 +22,12 @@ module.exports = function(context){
             from: `(select periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion,  rt.encuestador
                 from relvis rv 
                     inner join periodos p using (periodo)
+                    inner join relpan rp using (periodo, panel)
                     inner join reltar rt using (periodo, panel, tarea)
                     inner join personal per on rt.encuestador = per.persona
                     inner join informantes i on rv.informante = i.informante 
                 where p.ingresando = 'S' and 
-                      rv.fechasalida = current_date and
+                      rp.fechasalida = current_date and
                       per.username = '${context.user.usu_usu}'
                 group by periodo, panel, tarea, rv.informante, rv.visita, i.nombreinformante, i.direccion, rt.encuestador)`
         },
