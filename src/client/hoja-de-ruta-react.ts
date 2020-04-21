@@ -352,6 +352,10 @@ myOwn.clientSides.abrir={
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
         openButton.onclick=async function(){
+            if(!encuestador){
+                alertPromise("por ahora solo pueden abrir los encuestadores");
+                return; 
+            }
             openButton.disabled=true;
             try{
                 var relevarFun = async function(){
