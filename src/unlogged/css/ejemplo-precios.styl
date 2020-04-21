@@ -104,15 +104,15 @@ body
               max-height 40px
               line-height normal
               justify-content flex-start
-        .tipoPrecioAnterior
+        .tipo-precio-anterior
           padding-top 3px
-        .precioAnterior
+        .precio-anterior
           padding-top 3px
           text-align right
         .flechaTP
           .MuiButton-root
             width 85%
-        .tipoPrecio
+        .tipo-precio
         .precio
           width 100%
           padding 0px
@@ -258,5 +258,12 @@ main
 .boton-seleccionado-advertencias span svg path
   color orange
 
-
-  
+#formulario-visita[es-positivo=no]
+  .flechaTP
+    opacity 0.2
+  .tipo-precio
+    color rgba(0,0,0,0)
+  .precio
+    opacity 0
+  .atributo-actual
+    visibility hidden

@@ -561,7 +561,7 @@ const AtributosRow = function(props:{
                 idProximo={props.idProximoAtributo || props.idProximoPrecio}
                 disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
-                value={props.razonPositiva?relAtr.valor:null} 
+                value={relAtr.valor} 
                 onUpdate={value=>{
                     dispatch(dispatchers.SET_ATRIBUTO({
                         forPk:relAtr, 
@@ -786,8 +786,8 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             </Dialog>
                         </>}
                     </div>
-                    <div className="tipoPrecioAnterior">{relPre.tipoprecioanterior}</div>
-                    <div className="precioAnterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
+                    <div className="tipo-precio-anterior">{relPre.tipoprecioanterior}</div>
+                    <div className="precio-anterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
                         {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
                         :
@@ -835,7 +835,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 :'')
                             }
                         </div>
-                        <div className="tipoPrecio" button-container="yes">
+                        <div className="tipo-precio" button-container="yes">
                             <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
                                 handleSelection(relPre, hasSearchString, allForms, null);
                                 setMenuTipoPrecio(event.currentTarget)
@@ -910,8 +910,14 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                             placeholder={puedeCambiarPrecioYAtributos(estructura, relPre)?'$':undefined} 
                             className="precio" 
-                            value={props.razonPositiva?relPre.precio:null} 
+                            value={relPre.precio} 
                             onUpdate={value=>{
+                                /*
+                                if(!props.razonPositiva){
+                                    console.log('SE DETECTÓ UN ONUPDATE en razón negativa');
+                                    alert('SE DETECTÓ UN ONUPDATE en razón negativa');
+                                }
+                                */
                                 dispatch(dispatchers.SET_PRECIO({
                                     forPk:relPre, 
                                     iRelPre: props.iRelPre,
@@ -1394,7 +1400,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     };
     const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
     return (
-        <div id="formulario-visita" className="menu-informante-visita">
+        <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
             <div className={classes.root}>
                 <AppBar
                     position="fixed"
