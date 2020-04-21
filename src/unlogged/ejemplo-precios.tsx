@@ -22,7 +22,7 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    AppBar, Badge, Button, ButtonGroup, Chip, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, Button, ButtonGroup, Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
 } from "@material-ui/core";
@@ -200,9 +200,9 @@ function TypedInput<T extends string|number|null>(props:{
             var valorT:number=Number(value);
             if(isNaN(valorT)){
                 valorT=Number(value.replace(/[^0-9.,]/g,''));
-                // @ts-ignore sé que T es number
-                return valorT;
             }
+            // @ts-ignore sé que T es number
+            return valorT;
         }
         // @ts-ignore sé que T es string
         return value;
@@ -1699,6 +1699,7 @@ function PantallaHojaDeRuta(_props:{}){
     const [online, setOnline] = useState(window.navigator.onLine);
     const [mensajeDescarga, setMensajeDescarga] = useState<string|null>(null);
     const [descargaCompleta, setDescargaCompleta] = useState<boolean|null>(false);
+    const [descargando, setDescargando] = useState<boolean|null>(false);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
@@ -1725,7 +1726,10 @@ function PantallaHojaDeRuta(_props:{}){
                                         <Button
                                             color="inherit"
                                             onClick={async ()=>{
+                                                setMensajeDescarga('descargando, por favor espere...');
+                                                setDescargando(true);
                                                 var message = await devolverHojaDeRuta(hdr);
+                                                setDescargando(false);
                                                 if(message=='descarga completa'){
                                                     setDescargaCompleta(true);
                                                     await borrarDatosRelevamientoLocalStorage();
@@ -1752,30 +1756,35 @@ function PantallaHojaDeRuta(_props:{}){
                                     }
                                     <Dialog
                                         open={!!mensajeDescarga}
-                                        onClose={()=>setMensajeDescarga(null)}
+                                        //hace que no se cierre el mensaje
+                                        onClose={()=>setMensajeDescarga(mensajeDescarga)}
                                         aria-labelledby="alert-dialog-title"
                                         aria-describedby="alert-dialog-description"
                                     >
                                         <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
                                         <DialogContent>
                                             <DialogContentText id="alert-dialog-description">
-                                                {mensajeDescarga}
+                                                {mensajeDescarga}{descargando?<CircularProgress />:null}
                                             </DialogContentText>
                                         </DialogContent>
                                         <DialogActions>
-                                            <Button 
-                                                onClick={()=>{
-                                                    if(descargaCompleta){
-                                                        location.reload()
-                                                    }else{
-                                                        setMensajeDescarga(null)
-                                                    }
-                                                }} 
-                                                color="primary" 
-                                                variant="contained"
-                                            >
-                                                Cerrar
-                                            </Button>
+                                            {descargando?
+                                                null
+                                            :
+                                                <Button 
+                                                    onClick={()=>{
+                                                        if(descargaCompleta){
+                                                            location.reload()
+                                                        }else{
+                                                            setMensajeDescarga(null)
+                                                        }
+                                                    }} 
+                                                    color="primary" 
+                                                    variant="contained"
+                                                >
+                                                    Cerrar
+                                                </Button>
+                                            }
                                         </DialogActions>
                                     </Dialog>
                                 </>
