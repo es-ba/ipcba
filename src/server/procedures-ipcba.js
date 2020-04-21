@@ -1682,7 +1682,7 @@ ProceduresIpcba = [
                         await context.client.query(
                             `UPDATE relvis
                                 SET token_relevamiento = $5
-                                WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $6 and fechasalida = current_date`
+                                WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $6`
                             ,
                             [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, token, parameters.visita]
                         ).execute();
