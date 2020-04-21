@@ -200,9 +200,9 @@ function TypedInput<T extends string|number|null>(props:{
             var valorT:number=Number(value);
             if(isNaN(valorT)){
                 valorT=Number(value.replace(/[^0-9.,]/g,''));
-                // @ts-ignore sé que T es number
-                return valorT;
             }
+            // @ts-ignore sé que T es number
+            return valorT;
         }
         // @ts-ignore sé que T es string
         return value;
