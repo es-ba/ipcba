@@ -13,7 +13,7 @@ module.exports = function(context){
         },
         fields:[
             {name:'barrio'                 , typeName:'integer' , nullable:false, allow:{update:puedeEditar}},
-            {name:'nombrebarrio'           , typeName:'text'    , nullable:false, allow:{update:puedeEditar}},
+            {name:'nombrebarrio'           , typeName:'text'    , isName:true, nullable:false, allow:{update:puedeEditar}},
         ],
         primaryKey:['barrio'],
         constraints:[

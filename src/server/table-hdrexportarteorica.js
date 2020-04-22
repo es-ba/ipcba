@@ -20,6 +20,8 @@ module.exports = function(context){
             {name:'direccion'                    , typeName:'text'    },
             {name:'formularios'                  , typeName:'text'    },
             {name:'contacto'                     , typeName:'text'    },
+            {name:'web'                          , typeName:'text'    },
+            {name:'email'                        , typeName:'text'    },
             {name:'distrito'                     , typeName:'integer' },
             {name:'fraccion_ant'                 , typeName:'integer' },
             {name:'comuna'                       , typeName:'integer' },
