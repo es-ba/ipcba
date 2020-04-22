@@ -483,6 +483,7 @@ export async function borrarDatosRelevamientoLocalStorage(){
         localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
         localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
         localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
+        localStorage.removeItem(TOKEN_LOCALSTORAGE_NAME);
     }catch(err){
         alertPromise(err.message);
         throw err
