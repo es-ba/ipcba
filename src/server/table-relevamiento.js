@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'usuario'         , typeName:'text'    , title:'abierto por'},
             {name:'apenom'          , typeName:'text'    , title:'apellido y nombre', allowEmptyText:true},
         ],
+        refrescable: true,
         primaryKey:['periodo', 'panel', 'tarea', 'informante','visita'],
         sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'},{column:'informante'},{column:'visita'}],
         sql:{
