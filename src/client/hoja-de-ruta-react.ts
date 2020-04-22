@@ -347,10 +347,15 @@ myOwn.wScreens.relevamiento=function(_addrParams){
 myOwn.clientSides.abrir={
     update: undefined,
     prepare: function(depot, fieldName){
-        var mainLayout = document.getElementById('main_layout')!;
+        //var mainLayout = document.getElementById('main_layout')!;
         var {periodo, panel, tarea, informante, visita, encuestador} = depot.row;
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
+        var restablecerBotonAbrirFun = function restablecerBotonAbrirFun(){
+            depot.rowControls[fieldName].innerHTML = '';
+            depot.rowControls[fieldName].appendChild(openButton);
+            openButton.disabled=false;
+        }
         openButton.onclick=async function(){
             if(!encuestador){
                 alertPromise("por ahora solo pueden abrir los encuestadores");
@@ -384,47 +389,48 @@ myOwn.clientSides.abrir={
                     informante: informante,
                     visita: visita,
                 });
-                if(abierto.hayFormulariosAbiertos){
-                    var formulariosAbiertos = abierto.formulariosAbiertos;
+                if(abierto.informanteAbierto){
                     var mainDiv = html.div().create()
-                    mainDiv.appendChild(html.div({},[
-                        html.div({class:'danger'}, [`Existen formularios del panel ${panel}, tarea ${tarea}, informante ${informante} cargados en otro 
-                        dispositivo. Si continua no se podrá descargar el dispositivo.`].concat(
-                            formulariosAbiertos.map((openedForm:any)=>
-                                html.div(`usuario: ${openedForm.username}, formulario: ${openedForm.formulario}, SO: ${openedForm.useragent.os}, navegador: ${openedForm.useragent.browser+ ' ' + openedForm.useragent.version}`).create()
-                            )
-                        ))
-                    ]).create());
+                    mainDiv.appendChild(
+                        html.div({},[
+                            html.div({class:'danger'}, [`El panel ${panel}, tarea ${tarea}, informante ${informante} se encuentra cargado 
+                                en otro dispositivo. Si continua no se podrá descargar el mismo.`
+                            ].concat(
+                                abierto.dispositivosAbiertos.map((openedForm:any)=>
+                                    html.div(`usuario: ${openedForm.username}, SO: ${openedForm.useragent.os}, navegador: ${openedForm.useragent.browser+ ' ' + openedForm.useragent.version}`).create()
+                                )
+                            ))
+                        ]).create()
+                    );
                     var inputForzar = html.input({class:'input-forzar'}).create();
                     mainDiv.appendChild(html.div([
                         html.div(['Se puede forzar la carga ',inputForzar])
                     ]).create());
-                    var clearButton = html.button({class:'load-ipad-button'},'forzar carga').create();
-                    var cancelButton = html.button('cancelar carga').create();
-                    cancelButton.onclick=function(){
-                        location.reload();
-                    }
-                    mainDiv.appendChild(clearButton);
-                    mainDiv.appendChild(cancelButton);
-                    mainLayout.prepend(mainDiv);
-                    clearButton.onclick = async function(){
+                    var forzar = await confirmPromise(mainDiv, {
+                        withCloseButton: false,
+                        reject:false,
+                        buttonsDef:[
+                            {label:'forzar carga', value:true},
+                            {label:'cancelar carga', value:false}
+                        ]
+                    });
+                    if(forzar){
                         if(inputForzar.value=='forzar'){
-                            await confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton});
-                            clearButton.disabled=true;
                             relevarFun();
                         }else{
-                            alertPromise('si necesita cargar el D.M. escriba forzar.',{underElement:clearButton})
+                            restablecerBotonAbrirFun()
+                            alertPromise('si necesita cargar el D.M. escriba forzar.')
                         }
-                    }
+                    }else{
+                        restablecerBotonAbrirFun()
+                    };
                 }else{
                     relevarFun();
                 }
             }catch(err){
-                openButton.disabled=false;
                 borrarDatosRelevamientoLocalStorage()
                 alertPromise(err.message);
-                depot.rowControls[fieldName].innerHTML = '';
-                depot.rowControls[fieldName].appendChild(openButton);
+                restablecerBotonAbrirFun();
                 throw err;
             }
             

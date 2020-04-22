@@ -1613,14 +1613,15 @@ ProceduresIpcba = [
         policy:'web',
         coreFunction: async function(context, parameters){
             var result = await context.client.query(
-                `select *
+                `select t.username, t.useragent
                     from relvis r
                     left join tokens t on r.token_relevamiento = t.token
-                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $5 and token_relevamiento is not null`
+                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $5 and token_relevamiento is not null
+                    group by t.username, t.useragent`
                 ,
                 [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, parameters.visita]
             ).fetchAll();
-            return {hayFormulariosAbiertos: result.rowCount > 0, formulariosAbiertos: result.rows}
+            return {informanteAbierto: result.rowCount > 0, dispositivosAbiertos: result.rows}
         }
     },
     {
