@@ -1645,7 +1645,7 @@ ProceduresIpcba = [
                 if(!parameters.demo){
                     await context.client.query(
                         `update relvis
-                            set preciosgenerados = true, encuestador = (select * from personal per where per.username = ${db.quoteLiteral(context.user.usu_usu)})
+                            set preciosgenerados = true, encuestador = $4
                             where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
                         ,
                         [parameters.periodo, parameters.panel, parameters.tarea, parameters.encuestador]
