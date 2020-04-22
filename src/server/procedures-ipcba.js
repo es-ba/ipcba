@@ -1633,8 +1633,6 @@ ProceduresIpcba = [
             {name:'visita'            , typeName:'integer' },
             {name:'encuestador'       , typeName:'text'    },
             {name:'demo'              , typeName:'boolean' },
-            {name:'useragent'         , typeName:'jsonb'   },
-            {name:'current_token'     , typeName:'text'    },
         ],
         policy:'web',
         coreFunction: async function(context, parameters){
@@ -1647,7 +1645,7 @@ ProceduresIpcba = [
                 if(!parameters.demo){
                     await context.client.query(
                         `update relvis
-                            set preciosgenerados = true, encuestador = $4
+                            set preciosgenerados = true, encuestador = (select * from personal per where per.username = ${db.quoteLiteral(context.user.usu_usu)})
                             where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
                         ,
                         [parameters.periodo, parameters.panel, parameters.tarea, parameters.encuestador]
@@ -1663,21 +1661,19 @@ ProceduresIpcba = [
                 
                 var vencimientoSincronizacion2 = null;
                 var result;
-                var token = parameters.current_token;
+                var token;
                 //si tiene informante viene de pantalla relevamiento
                 //o es demo
                 //solo necesita preparar la estructura y hdr
                 if(parameters.informante || parameters.demo){
                     //vengo de relevamiento
                     if(parameters.informante){
-                        //no tengo token, pido uno nuevo
-                        if(!token){
-                            var myToken = await be.procedure.token_get.coreFunction(context, {
-                                useragent: parameters.useragent, 
-                                username: context.user.usu_usu
-                            });
-                            token = myToken.token;
-                        }
+                        //pido token
+                        var myToken = await be.procedure.token_get.coreFunction(context, {
+                            useragent: context.session.req.useragent, 
+                            username: context.user.usu_usu
+                        });
+                        token = myToken.token;
                         //seteo token en relvis
                         await context.client.query(
                             `UPDATE relvis

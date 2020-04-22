@@ -367,7 +367,7 @@ async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
         //DEMO
         var result = await my.ajax.dm2_preparar({
             //periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, visita: null, encuestador: null, demo: true, useragent: null, current_token: null
-            periodo: 'a2020m01', panel: 1, tarea: 1, informante: null, visita: null, encuestador: null, demo: true, useragent: null, current_token: null
+            periodo: 'a2020m01', panel: 1, tarea: 1, informante: null, visita: null, encuestador: null, demo: true
         })
         estructura = result.estructura;
         if(result.hdr){

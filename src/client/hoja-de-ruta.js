@@ -1355,8 +1355,6 @@ myOwn.clientSides.prepararDM={
                 visita: null,
                 encuestador: depot.row.encuestador,
                 demo: false,
-                useragent: null,
-                current_token: null
             }).then(function(result){
                 boton.disabled=false;
                 waitGif.style.display = 'none';

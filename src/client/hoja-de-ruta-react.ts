@@ -367,8 +367,6 @@ myOwn.clientSides.abrir={
                         visita: visita,
                         encuestador: encuestador,
                         demo: false,
-                        useragent: my.config.useragent,
-                        current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME) || null
                     });
                     if(result.hdr && result.estructura && result.token){
                         registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
