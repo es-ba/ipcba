@@ -366,8 +366,8 @@ async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
     }else{
         //DEMO
         var result = await my.ajax.dm2_preparar({
-            //periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, visita: null, encuestador: null, demo: true, useragent: null, current_token: null
-            periodo: 'a2020m01', panel: 1, tarea: 1, informante: null, visita: null, encuestador: null, demo: true
+            //periodo: 'a2019m12', panel: 3, tarea: 6, informante: null, visita: null, demo: true
+            periodo: 'a2020m01', panel: 1, tarea: 1, informante: null, visita: null, demo: true
         })
         estructura = result.estructura;
         if(result.hdr){
@@ -441,7 +441,6 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
         message = await my.ajax.dm2_descargar({
             token_instalacion: false,
             hoja_de_ruta: hdr,
-            encuestador: hdr.encuestador,
             custom_data: true,
             current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME)
         });

@@ -96,7 +96,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     }
 }
 
-async function descargarDispositivo2(tokenInstalacion: string, encuestador: string){
+async function descargarDispositivo2(tokenInstalacion: string){
     var mainLayout = document.getElementById('main_layout')!;
     var waitGif = mainLayout.appendChild(html.img({src:'img/loading16.gif'}).create());
     mainLayout.appendChild(html.p([
@@ -106,7 +106,6 @@ async function descargarDispositivo2(tokenInstalacion: string, encuestador: stri
     var message = await my.ajax.dm2_descargar({
         token_instalacion: tokenInstalacion,
         hoja_de_ruta: JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!),
-        encuestador: encuestador,
         custom_data: false,
         current_token: null
     });
@@ -131,7 +130,7 @@ myOwn.wScreens.sincronizar_dm2=async function(){
                 confirmPromise('¿confirma descarga de D.M.?').then(async function(){
                     downloadButton.disabled=true;
                     try{
-                        await descargarDispositivo2(tokenInstalacion||'no debería perderse el TOKEN si está el botón aún', encuestador!);
+                        await descargarDispositivo2(tokenInstalacion||'no debería perderse el TOKEN si está el botón aún');
                     }catch(err){
                         alertPromise(err.message);
                     }finally{
@@ -357,29 +356,30 @@ myOwn.clientSides.abrir={
             openButton.disabled=false;
         }
         openButton.onclick=async function(){
-            if(!encuestador){
-                alertPromise("por ahora solo pueden abrir los encuestadores");
-                return; 
-            }
+            //if(!encuestador){
+            //    alertPromise("por ahora solo pueden abrir los encuestadores");
+            //    return; 
+            //}
             openButton.disabled=true;
             try{
                 var relevarFun = async function(){
-                    var result = await my.ajax.dm2_preparar({
-                        periodo: periodo,
-                        panel: panel,
-                        tarea: tarea,
-                        informante: informante,
-                        visita: visita,
-                        encuestador: encuestador,
-                        demo: false,
-                    });
-                    if(result.hdr && result.estructura && result.token){
+                    try{
+                        var result = await my.ajax.dm2_preparar({
+                            periodo: periodo,
+                            panel: panel,
+                            tarea: tarea,
+                            informante: informante,
+                            visita: visita,
+                            demo: false,
+                        });
                         registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
                         dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
-                    }else{
-                        throw new Error('no se pudo cargar la hoja de ruta');
+                    }catch(err){
+                        alertPromise(err.message);
+                        throw new Error(err.message);
+                    }finally{
+                        restablecerBotonAbrirFun()
                     }
-                    openButton.disabled=false;
                 }
                 depot.rowControls[fieldName].appendChild(html.img({src:'img/loading16.gif'}).create());
                 var abierto = await my.ajax.dm2_relevamiento_chequear_informante_abierto({
