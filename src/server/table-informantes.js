@@ -51,6 +51,7 @@ module.exports = function(context){
             {name:'contacto'                  , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'telcontacto'               , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'web'                       , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'email'                     , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'modi_fec'                  , typeName:'timestamp'               , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'barrio'                    , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'comuna'                    , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
