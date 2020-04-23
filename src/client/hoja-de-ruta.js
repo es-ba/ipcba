@@ -1353,7 +1353,6 @@ myOwn.clientSides.prepararDM={
                 tarea: depot.row.tarea,
                 informante: null,
                 visita: null,
-                encuestador: depot.row.encuestador,
                 demo: false,
             }).then(function(result){
                 boton.disabled=false;

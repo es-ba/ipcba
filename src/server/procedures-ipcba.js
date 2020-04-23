@@ -1509,38 +1509,44 @@ ProceduresIpcba = [
             var {be, client} = context;
             try{
                 var {sqlEstructura, sqlHdR} = dm2CrearQueries(parameters);
-                var resultEstructura = await context.client.query(
-                    sqlEstructura,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).fetchOneRowIfExists();
-                var resultHdR = await context.client.query(
-                    sqlHdR,
-                    [parameters.periodo, parameters.panel, parameters.tarea]
-                ).fetchOneRowIfExists();
+                try{
+                    var resultEstructura = await context.client.query(
+                        sqlEstructura,
+                        [parameters.periodo, parameters.panel, parameters.tarea]
+                    ).fetchUniqueRow();
+                }catch(err){
+                    throw Error('error al buscar estructura. ', err.message)
+                }
+                try{
+                    var resultHdR = await context.client.query(
+                        sqlHdR,
+                        [parameters.periodo, parameters.panel, parameters.tarea]
+                    ).fetchUniqueRow();
+                }catch(err){
+                    throw Error('error al crear hoja de ruta, verifique que haya un encuestador asignado en reltar. ', err.message);
+                }
                 var estructura = resultEstructura.row;
                 var hdr = resultHdR.row;
-                if(estructura){
-                    likeAr(estructura.productos).forEach(p=>{
-                        p.lista_atributos = p.x_atributos.map(a=>a.atributo);
-                        p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
-                        likeAr(p.atributos).forEach(a=>{
-                            // if(a.x_prodatrval==null){
-                            //     a.x_prodatrval=[];
-                            // }
-                            a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
-                            a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
-                            delete p.x_prodatrval;
-                        });
-                        delete p.x_atributos;
+                likeAr(estructura.productos).forEach(p=>{
+                    p.lista_atributos = p.x_atributos.map(a=>a.atributo);
+                    p.atributos = likeAr.createIndex(p.x_atributos, 'atributo');
+                    likeAr(p.atributos).forEach(a=>{
+                        // if(a.x_prodatrval==null){
+                        //     a.x_prodatrval=[];
+                        // }
+                        a.lista_prodatrval = a.x_prodatrval.map(v=>v.valor);
+                        a.prodatrval = likeAr.createIndex(a.x_prodatrval, 'valor');
+                        delete p.x_prodatrval;
                     });
-                    likeAr(estructura.formularios).forEach(f=>{
-                        f.lista_productos = f.x_productos.map(p=>p.producto);
-                        f.productos = likeAr.createIndex(f.x_productos, 'producto');
-                        delete f.x_productos;
-                    });
-                    estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
-                    estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
-                }
+                    delete p.x_atributos;
+                });
+                likeAr(estructura.formularios).forEach(f=>{
+                    f.lista_productos = f.x_productos.map(p=>p.producto);
+                    f.productos = likeAr.createIndex(f.x_productos, 'producto');
+                    delete f.x_productos;
+                });
+                estructura.tipoPrecio=likeAr.createIndex(estructura.tiposPrecioDef, 'tipoprecio');
+                estructura.tipoPrecioPredeterminado = estructura.tipoPrecio['P'];
                 return {status: 'ok', estructura, hdr}
             }catch(err){
                 throw err
@@ -1632,7 +1638,6 @@ ProceduresIpcba = [
             {name:'tarea'             , typeName:'integer' },
             {name:'informante'        , typeName:'integer' },
             {name:'visita'            , typeName:'integer' },
-            {name:'encuestador'       , typeName:'text'    },
             {name:'demo'              , typeName:'boolean' },
         ],
         policy:'web',
@@ -1646,10 +1651,10 @@ ProceduresIpcba = [
                 if(!parameters.demo){
                     await context.client.query(
                         `update relvis
-                            set preciosgenerados = true, encuestador = $4
+                            set preciosgenerados = true
                             where periodo = $1 and panel = $2 and tarea = $3 and not preciosgenerados`
                         ,
-                        [parameters.periodo, parameters.panel, parameters.tarea, parameters.encuestador]
+                        [parameters.periodo, parameters.panel, parameters.tarea]
                     ).execute();
                 }
                 var hojaDeRutaConPrecios = await context.client.query(
@@ -1721,7 +1726,6 @@ ProceduresIpcba = [
         parameters:[
             {name:'token_instalacion'  , typeName:'text' },
             {name:'hoja_de_ruta'       , typeName:'jsonb'},
-            {name:'encuestador'        , typeName:'text' },
             {name:'custom_data'        , typeName:'boolean' },
             {name:'current_token'      , typeName:'text' },
         ],
@@ -1804,12 +1808,12 @@ ProceduresIpcba = [
                                 try{
                                     await context.client.query(`
                                         update relvis 
-                                            set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = $7
+                                            set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = $7, encuestador = $8
                                             where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada
                                             returning true`
                                         ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, 
                                             simplificateText(formulario.comentarios), 
-                                            persona.row.persona
+                                            persona.row.persona, hoja_de_ruta.encuestador
                                         ]
                                     ).fetchUniqueRow()
                                 }catch(err){
