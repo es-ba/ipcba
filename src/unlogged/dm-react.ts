@@ -435,8 +435,18 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
 
 /*RELEVAMIENTO DIRECTO*/
 
+var redirectIfNotLogged = function redirectIfNotLogged(err:Error){
+    if(err.message == my.messages.notLogged){
+        setTimeout(()=>{
+            history.replaceState(null, '', `${location.origin+location.pathname}/../login#i=relevamiento`);
+            location.reload();   
+        },1500)
+        
+    }
+}
+
 export async function devolverHojaDeRuta(hdr:HojaDeRuta){
-    var message:string;
+    var message:string='';
     try{
         message = await my.ajax.dm2_descargar({
             token_instalacion: false,
@@ -445,6 +455,7 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
             current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME)
         });
     }catch(err){
+        redirectIfNotLogged(err);
         message=err.message;
     }
     return message;
@@ -483,9 +494,10 @@ export async function borrarDatosRelevamientoLocalStorage(){
         localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
         localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
         localStorage.removeItem(TOKEN_LOCALSTORAGE_NAME);
+        return 'ok'
     }catch(err){
-        alertPromise(err.message);
-        throw err
+        redirectIfNotLogged(err);
+        return err.message;
     }
 }
 

@@ -1742,7 +1742,7 @@ function PantallaHojaDeRuta(_props:{}){
                                                     message+=', redirigiendo a grilla de relevamiento...';
                                                     setTimeout(function(){
                                                         location.reload();       
-                                                    }, 5000)
+                                                    }, 3000)
                                                 }
                                                 setMensajeDescarga(message)
                                             }}
@@ -1753,8 +1753,12 @@ function PantallaHojaDeRuta(_props:{}){
                                         <Button
                                             color="inherit"
                                             onClick={async ()=>{
-                                                await borrarDatosRelevamientoLocalStorage();
-                                                location.reload();   
+                                                var message = await borrarDatosRelevamientoLocalStorage();
+                                                if(message == 'ok'){
+                                                    location.reload();   
+                                                }else{
+                                                    setMensajeDescarga(message)
+                                                }
                                             }}
                                         >
                                             <ExitToAppIcon/>
