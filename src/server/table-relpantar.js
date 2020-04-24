@@ -35,9 +35,7 @@ module.exports = function(context){
                           case when rt.encuestador=t.encuestador then null else nullif(concat_ws(' ', tre.nombre, tre.apellido),'') end as suplente,
                           nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1) as sobrecargado
                      from reltar rt
-                       left join relpan r on rt.periodo=r.periodo and rt.panel=r.panel
-                       left join pantar p on rt.panel = p.panel and rt.tarea=p.tarea
-                       left join tareas t on p.tarea = t.tarea
+                       left join tareas t on rt.tarea = t.tarea
                        left join personal te on t.encuestador = te.persona
                        left join personal tre on rt.encuestador = tre.persona,
                        lateral (SELECT string_agg (verificado_rec,'') verif

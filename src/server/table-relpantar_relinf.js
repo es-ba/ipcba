@@ -27,9 +27,9 @@ module.exports = function(context){
             ]},
         ],
         sql:{
-            from:`(select r.periodo, r.panel, p.tarea, t.encuestador from 
-                     relpan r left join pantar p on r.panel = p.panel
-                     left join tareas t on p.tarea = t.tarea
+            from:`(select r.periodo, r.panel, r.tarea, r.encuestador from
+                     reltar r 
+                     left join tareas t on r.tarea = t.tarea
                      where t.activa = 'S'
                 )`
         }       
