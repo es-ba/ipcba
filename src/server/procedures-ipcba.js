@@ -325,7 +325,7 @@ function dm2CrearQueries(parameters){
                     'moneda'
             )} as relmon
             , ${jsono(`
-                SELECT informante, direccion
+                SELECT informante, direccion, contacto, telcontacto, web
                     FROM informantes INNER JOIN (
                         SELECT informante
                             FROM relvis 
@@ -462,7 +462,7 @@ function dm2CrearQueries(parameters){
                 AND informante=rvi.informante
         `;
     var sqlInformantes=`
-        SELECT periodo, informante, nombreinformante, direccion, 
+        SELECT periodo, informante, nombreinformante, direccion,
                 ${json(sqlFormularios,'orden, formulario')} as formularios,
                 ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones,
                 distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion
@@ -1515,7 +1515,7 @@ ProceduresIpcba = [
                         [parameters.periodo, parameters.panel, parameters.tarea]
                     ).fetchUniqueRow();
                 }catch(err){
-                    throw Error('error al buscar estructura. ', err.message)
+                    throw Error('error al buscar estructura. ' + err.message)
                 }
                 try{
                     var resultHdR = await context.client.query(
@@ -1523,7 +1523,7 @@ ProceduresIpcba = [
                         [parameters.periodo, parameters.panel, parameters.tarea]
                     ).fetchUniqueRow();
                 }catch(err){
-                    throw Error('error al crear hoja de ruta, verifique que haya un encuestador asignado en reltar. ', err.message);
+                    throw Error('error al crear hoja de ruta, verifique que haya un encuestador asignado en reltar. ' + err.message);
                 }
                 var estructura = resultEstructura.row;
                 var hdr = resultHdR.row;

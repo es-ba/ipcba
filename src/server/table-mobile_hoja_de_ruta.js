@@ -54,7 +54,7 @@ module.exports = function(context){
                       max(coalesce(p.nombre||' '||p.apellido, p.apellido, p.nombre, '')) as nombreencuestador,
                       v.panel, v.tarea,
                       jsonb_agg(jsonb_build_object('formulario',v.formulario,'nombreformulario',f.nombreformulario,'faltan',rp.faltan, 'adv',rp.adv, 'prod',prod,'nombrerazon',r.nombrerazon,'espositivoformulario',r.espositivoformulario) ORDER BY f.orden) as formularios, 
-                      jsonb_build_object('informante',v.informante,'nombreinformante',i.nombreinformante,'direccion',i.direccion,'comentarios',ri.observaciones,'cantidad_periodos_sin_informacion', distanciaperiodos(v.periodo, max_periodos.maxperiodoinformado)) as informantecompleto,
+                      jsonb_build_object('informante',v.informante,'nombreinformante',i.nombreinformante,'direccion',i.direccion,'comentarios',ri.observaciones,'cantidad_periodos_sin_informacion', distanciaperiodos(v.periodo, max_periodos.maxperiodoinformado), 'contacto', i.contacto, 'telcontacto', i.telcontacto, 'web', i.web) as informantecompleto,
                       i.direccion
                       from relvis v
                         join formularios f on v.formulario=f.formulario
@@ -75,7 +75,7 @@ module.exports = function(context){
                           WHERE razon = 1 and rv.informante = v.informante
                         ) as max_periodos
                         --where v.periodo = 'a2018m10' and v.panel=1 and v.tarea=1
-                      group by v.periodo, v.informante, i.nombreinformante, i.direccion, ri.observaciones,v.visita, v.panel, v.tarea, max_periodos.maxperiodoinformado
+                      group by v.periodo, v.informante, i.nombreinformante, i.direccion, ri.observaciones,v.visita, v.panel, v.tarea, max_periodos.maxperiodoinformado, contacto, telcontacto, web
                   )
             `
         }        

@@ -372,6 +372,19 @@ myOwn.clientSides.parseInformante={
         div.appendChild(html.span({class:'cantidad-periodos-sin-informacion'}, "(" + depot.row['informantecompleto'].cantidad_periodos_sin_informacion + ")").create());
         div.appendChild(html.div({class:'direccion-informante'}, depot.row['informantecompleto'].direccion).create());
         div.appendChild(html.div({class:'comentarios-informante'}, depot.row['informantecompleto'].comentarios).create());
+        var contacto = depot.row['informantecompleto'].contacto;
+        if(contacto){
+            div.appendChild(html.div({class:'contacto-informante'}, contacto).create());
+        }
+        var telcontacto = depot.row['informantecompleto'].telcontacto;
+        if(telcontacto){
+            div.appendChild(html.div({class:'telcontacto-informante'}, telcontacto).create());    
+        }
+        var web = depot.row['informantecompleto'].web;
+        if(web){
+            var href = (web.startsWith('http') || web.startsWith('https')?"":"//")+web;
+            div.appendChild(html.div({class:'web-informante'}, [html.a({href:href, target:'_blank'},web)]).create());
+        }
         depot.rowControls[fieldName].appendChild(div);
     }
 };

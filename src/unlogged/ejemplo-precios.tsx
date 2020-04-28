@@ -1630,6 +1630,9 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
 function InformanteRow(props:{informante:RelInf}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
+    const contacto = estructura.informantes[informante.informante].contacto;
+    const telcontacto = estructura.informantes[informante.informante].telcontacto;
+    const web = estructura.informantes[informante.informante].web;
     return (
         <>
             {informante.formularios.map((relVis:RelVis, index:number)=>{
@@ -1648,6 +1651,9 @@ function InformanteRow(props:{informante:RelInf}){
                                         <span className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`(${informante.cantidad_periodos_sin_informacion})`:''}</span>
                                     </div>
                                     <div className='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
+                                    {contacto?<div className='contacto-informante'>{contacto}</div>:null}
+                                    {telcontacto?<div className='telcontacto-informante'>{telcontacto}</div>:null}
+                                    {web?<div className='web-informante'><a href={(web.startsWith('http') || web.startsWith('https')?"":"//")+web} target="_blank">{web}</a></div>:null}
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:
