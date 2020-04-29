@@ -60,6 +60,9 @@ export type Formulario={
 export type Informante={
     informante :number
     direccion :string
+    contacto :string|null
+    telcontacto :string|null
+    web :string|null
 }
 
 export type Razon={
