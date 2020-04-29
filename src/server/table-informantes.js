@@ -60,6 +60,7 @@ module.exports = function(context){
             {name:'manzana'                   , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'depto'                     , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'pc_anio'                   , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
+            {name:'habilitar_prioritario'     , typeName:'boolean'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
         ],
         primaryKey:['informante'],
         foreignKeys:[
