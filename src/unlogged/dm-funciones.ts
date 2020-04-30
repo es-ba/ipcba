@@ -48,7 +48,7 @@ export function normalizarPrecio(relPre:RelPre, estructura:Estructura){
         if (prodAtr.tiponormalizacion=='Moneda' && relAtr.valor){
             relAtr.valor=String(estructura.relmon[relAtr.valor].valor_pesos);
         }
-        if (relAtr.valor && !isNaN(parseFloat(relAtr.valor))){
+        if (relAtr.valor && !isNaN(parseFloat(relAtr.valor.toString()))){
             vacumulador[vtope]=Number(relAtr.valor)
         }else{
             vacumulador[vtope]=null                    

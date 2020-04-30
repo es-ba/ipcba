@@ -105,9 +105,9 @@ export type RelAtr={
     formulario: number
     producto: string
     observacion: number
-    atributo: number,
-    valoranterior:string
-    valor:string|null
+    atributo: number
+    valoranterior:string|number
+    valor:string|number|null
 }
 
 export type Cambio = 'C'|'='

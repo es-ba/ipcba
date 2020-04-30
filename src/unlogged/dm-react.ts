@@ -205,7 +205,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|null}) => 
+    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) => 
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){

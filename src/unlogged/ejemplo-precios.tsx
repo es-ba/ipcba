@@ -1062,8 +1062,8 @@ function RelevamientoPrecios(props:{
             50+Math.max(
                 relPre.atributos.reduce(
                     (acum,relAtr)=>Math.ceil((Math.max(
-                        (relAtr.valoranterior||'').length,
-                        (relAtr.valor||'').length,
+                        (relAtr.valoranterior||'').toString().length,
+                        (relAtr.valor||'').toString().length,
                         (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
                     )+1)/8)*40+acum,0
                 ), 
