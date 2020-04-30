@@ -1052,32 +1052,6 @@ function RelevamientoPrecios(props:{
 }){
     const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
-    const rowHeights = new Array(1000)
-        .fill(true)
-        .map(() => 25 + Math.round(Math.random() * 50));
-    
-    const getItemSize = (index:number) => {
-        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
-        var relPre = props.observaciones[iRelPre];
-        return 50+Math.max(relPre.atributos.length*50, estructura.productos[relPre.producto].especificacioncompleta?.length*1.5);
-    } 
-    const Row = ({ index, style } : {index:number, style:Styles}) => {
-        var iRelPre = observacionesFiltradasIdx[index].iRelPre;
-        var relPre = props.observaciones[iRelPre];
-        var inputIdPrecio = relPre.producto+'-'+relPre.observacion;
-        return <PreciosRow 
-            style={style}
-            key={relPre.producto+'/'+relPre.observacion}
-            relPre={relPre}
-            iRelPre={Number(iRelPre)}
-            hasSearchString={!!searchString}
-            allForms={allForms}
-            inputIdPrecio={inputIdPrecio}
-            esPrecioActual={!!idActual && idActual.startsWith(inputIdPrecio)}
-            razonPositiva={props.razonPositiva}
-            compactar={props.compactar}
-        />
-    };
     var cantidadResultados = observacionesFiltradasIdx.length;
     const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;

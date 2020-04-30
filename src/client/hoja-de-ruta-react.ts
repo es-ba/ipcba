@@ -350,8 +350,7 @@ myOwn.wScreens.relevamiento=function(_addrParams){
 myOwn.clientSides.abrir={
     update: undefined,
     prepare: function(depot, fieldName){
-        //var mainLayout = document.getElementById('main_layout')!;
-        var {periodo, panel, tarea, informante, visita, encuestador} = depot.row;
+        var {periodo, panel, tarea, informante, visita} = depot.row;
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
         var restablecerBotonAbrirFun = function restablecerBotonAbrirFun(){
@@ -360,10 +359,6 @@ myOwn.clientSides.abrir={
             openButton.disabled=false;
         }
         openButton.onclick=async function(){
-            //if(!encuestador){
-            //    alertPromise("por ahora solo pueden abrir los encuestadores");
-            //    return; 
-            //}
             openButton.disabled=true;
             try{
                 var relevarFun = async function(){
