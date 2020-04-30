@@ -1906,6 +1906,57 @@ ProceduresIpcba = [
             }
         }
     },
+    {
+        action:'paneltarea_buscar',
+        parameters:[
+            {name:'periodo'    , typeName:'text'   , references:'periodos'   },
+            {name:'panel'      , typeName:'integer'                          },
+            {name:'tarea'      , typeName:'integer'                          },
+        ],
+        roles:['programador'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `SELECT *
+                FROM relvis rv 
+                WHERE rv.periodo = $1 and rv.panel = $2 and rv.tarea = $3;`,
+                [parameters.periodo,parameters.panel,parameters.tarea /*,parameters.otropanel,parameters.otratarea*/]
+            ).fetchAll().then(function(result){
+                return result.rows;
+            }).catch(function(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            });
+        }
+    },
+    {
+        action:'paneltarea_cambiar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+            {name:'panel'       , typeName:'integer'                          },
+            {name:'tarea'       , typeName:'integer', references:'tareas'     },
+            {name:'otropanel'   , typeName:'integer'                          },
+            {name:'otratarea'   , typeName:'integer', references:'tareas'     },
+        ],
+        roles:['programador'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `UPDATE relvis SET panel = $4, tarea = $5 
+                   WHERE periodo=$1  
+                     AND panel=$2 AND tarea = $3`,
+                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
+            ).execute().then(function(result){
+                return 'listo';
+            }).catch(function(err){
+                if(err.code=='54011!'){
+                    throw new Error('El periodo no esta abierto para ingreso');
+                }
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            });
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;

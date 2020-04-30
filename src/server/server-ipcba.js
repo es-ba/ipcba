@@ -530,6 +530,7 @@ NETWORK:
                 {menuType:'menu', name:'ingreso', menuContent:[
                     {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
+                    {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
@@ -935,6 +936,7 @@ NETWORK:
             {name: 'relpan', path: __dirname},
             {name: 'relpantar', path: __dirname},
             {name: 'relvis', path: __dirname},
+            {name: 'relvis_pt', path: __dirname},
             {name: 'parametros', path: __dirname},
             {name: 'mobile_hoja_de_ruta', path: __dirname},
             {name: 'matriz_de_un_producto', path: __dirname},

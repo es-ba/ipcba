@@ -917,3 +917,102 @@ my.wScreens.correr_periodobase=function(addrParams){
     },50);
 }
 */
+
+my.wScreens.cambiar_paneltarea=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var controlPeriodoDesde   =html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlPanelDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlTareaDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+
+        var controlPanelHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlTareaHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+
+        var botonBuscarDesde=html.button("buscar").create();
+        var botonCambiar=html.button("cambiar").create();
+        var resultDivDesde=html.div({class:"result-div"}).create();
+        var divGrillaDesde=html.div().create();
+        botonBuscarDesde.onclick=function(){
+            var periodoDesde = controlPeriodoDesde.getTypedValue();
+            var panelDesde = controlPanelDesde.getTypedValue();
+            var tareaDesde = controlTareaDesde.getTypedValue();
+            var panelHasta = controlPanelDesde.getTypedValue();
+            var tareaHasta = controlTareaDesde.getTypedValue();
+            my.ajax.paneltarea_buscar({
+                periodo:controlPeriodoDesde.getTypedValue(),
+                panel:controlPanelDesde.getTypedValue(),
+                tarea:controlTareaDesde.getTypedValue(),
+                //otropanel:controlPanelHasta.getTypedValue(),
+                //otratarea:controlTareaHasta.getTypedValue(),
+            }).then(function(result){
+                resultDivDesde.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelDesde});
+                fixedFields.push({fieldName: 'tarea', value: tareaDesde});
+                //fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                //fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
+                grid.refresh();
+            })
+        }
+        botonCambiar.onclick=function(){
+            var periodoDesde = controlPeriodoDesde.getTypedValue();
+            var panelDesde = controlPanelDesde.getTypedValue();
+            var tareaDesde = controlTareaDesde.getTypedValue();
+            var panelHasta = controlPanelDesde.getTypedValue();
+            var tareaHasta = controlTareaDesde.getTypedValue();
+            my.ajax.paneltarea_cambiar({
+                periodo:controlPeriodoDesde.getTypedValue(),
+                panel:controlPanelDesde.getTypedValue(),
+                tarea:controlTareaDesde.getTypedValue(),
+                otropanel:controlPanelHasta.getTypedValue(),
+                otratarea:controlTareaHasta.getTypedValue(),
+            }).then(function(result){
+                resultDivDesde.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelDesde});
+                fixedFields.push({fieldName: 'tarea', value: tareaDesde});
+                //fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                //fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
+                grid.refresh();
+            })            
+        }
+        TypedControls.adaptElement(controlPeriodoDesde   ,{typeName:'text'   , references:'periodos'});
+        TypedControls.adaptElement(controlPanelDesde     ,{typeName:'integer'                       });
+        TypedControls.adaptElement(controlTareaDesde     ,{typeName:'integer'                       });
+        TypedControls.adaptElement(controlPanelHasta     ,{typeName:'integer'                       });
+        TypedControls.adaptElement(controlTareaHasta     ,{typeName:'integer'                       });
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"cambiar panel-tarea"),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td("periodo"), controlPeriodoDesde, html.td({style:'min-width:200px'})
+                    ]),
+                    html.tr([
+                        html.td("panel desde"), controlPanelDesde
+                    ]),
+                    html.tr([
+                        html.td("tarea desde"), controlTareaDesde
+                    ]),
+                    html.tr([
+                        html.td("panel hasta"), controlPanelHasta
+                    ]),
+                    html.tr([
+                        html.td("tarea hasta"), controlTareaHasta
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonBuscarDesde]), 
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonCambiar]), 
+                    ])
+                ]),
+                divGrillaDesde,
+            ]).create()
+        );
+    },50);
+}
