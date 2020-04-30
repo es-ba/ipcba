@@ -1,8 +1,7 @@
 import {html}  from 'js-to-html';
-import * as JSON4all from "json4all";
-import {LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME, TOKEN_LOCALSTORAGE_NAME,
+import {HDR_OPENED_LOCALSTORAGE_NAME, LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME,
        registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage,
-       hayHdrRelevando } from "../unlogged/dm-react";
+       hayHdrRelevando, rescatarLocalStorage } from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
 
@@ -13,10 +12,10 @@ function getVersionSistema(){
 }
 
 function hayHojaDeRuta(){
-    var vaciadoStr:string|null=localStorage.getItem('ipc2.0-vaciado')
-    var storageStr:string|null=localStorage.getItem(LOCAL_STORAGE_STATE_NAME)
-    return storageStr && vaciadoStr !==null && !(JSON.parse(vaciadoStr)) ||
-        storageStr && vaciadoStr===null;
+    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
+    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME)
+    return storage && vaciado !==null && !(vaciado) ||
+        storage && vaciado===null;
 }
 
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
@@ -57,10 +56,10 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             panel: panel,
             tarea: tarea
         });
-        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
+        my.setLocalVar(LOCAL_STORAGE_STATE_NAME, hdr);
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-        localStorage.setItem('ipc2.0-descargado',JSON.stringify(false));
-        localStorage.setItem('ipc2.0-vaciado',JSON.stringify(false));
+        my.setLocalVar('ipc2.0-descargado',false);
+        my.setLocalVar('ipc2.0-vaciado',false);
         // @ts-ignore sabemos que hoja_ruta_2 es función
         myOwn.wScreens.hoja_ruta_2({});
     }
@@ -105,24 +104,24 @@ async function descargarDispositivo2(tokenInstalacion: string){
     ]).create());
     var message = await my.ajax.dm2_descargar({
         token_instalacion: tokenInstalacion,
-        hoja_de_ruta: JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!),
+        hoja_de_ruta: my.getLocalVar(LOCAL_STORAGE_STATE_NAME)!,
         custom_data: false,
         current_token: null
     });
     waitGif.style.display = 'none';
     if(message=='descarga completa'){
-        localStorage.setItem('ipc2.0-descargado',JSON.stringify(true));
+        my.setLocalVar('ipc2.0-descargado',true);
     }
     mainLayout.appendChild(html.p(message).create());
 }
 
 myOwn.wScreens.sincronizar_dm2=async function(){
     var mainLayout = document.getElementById('main_layout')!;
-    var tokenInstalacion = localStorage.getItem('ipc2.0-token_instalacion') || null;
-    var ipad = localStorage.getItem('ipc2.0-ipad') || null;
-    var encuestador = localStorage.getItem('ipc2.0-encuestador') || null;
+    var tokenInstalacion = my.getLocalVar('ipc2.0-token_instalacion');
+    var ipad = my.getLocalVar('ipc2.0-ipad');
+    var encuestador = my.getLocalVar('ipc2.0-encuestador');
     if(tokenInstalacion != null && ipad && encuestador){
-        if(hayHojaDeRuta() && (localStorage.getItem('ipc2.0-descargado') == null || localStorage.getItem('ipc2.0-descargado') == 'false')){
+        if(hayHojaDeRuta() && (my.getLocalVar('ipc2.0-descargado') == null || my.getLocalVar('ipc2.0-descargado') == false)){
             mainLayout.appendChild(html.p('El dispositivo tiene información cargada').create());
             var downloadButton = html.button({class:'download-ipad-button'},'descargar').create();
             mainLayout.appendChild(downloadButton);
@@ -165,7 +164,7 @@ myOwn.wScreens.hoja_ruta_2=async function(){
     var mainLayout = document.getElementById('main_layout')!;
     try{
         if(hayHojaDeRuta()){
-            var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+            var {periodo, panel, tarea} = my.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
             history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
         }else if(!location.pathname.endsWith('/dm')){
@@ -181,16 +180,16 @@ myOwn.wScreens.hoja_ruta_2=async function(){
 
 myOwn.wScreens.vaciar_dm2=async function(){
     var mainLayout = document.getElementById('main_layout')!;
-    var tokenInstalacion = localStorage.getItem('ipc2.0-token_instalacion') || null;
-    var ipad = localStorage.getItem('ipc2.0-ipad') || null;
-    var encuestador = localStorage.getItem('ipc2.0-encuestador') || null;
+    var tokenInstalacion = my.getLocalVar('ipc2.0-token_instalacion');
+    var ipad = my.getLocalVar('ipc2.0-ipad');
+    var encuestador = my.getLocalVar('ipc2.0-encuestador');
     if(tokenInstalacion && ipad && encuestador){
-        var vaciado = JSON.parse(localStorage.getItem('ipc2.0-vaciado')||'false');
+        var vaciado = my.getLocalVar('ipc2.0-vaciado')||false;
         if(vaciado){
             mainLayout.appendChild(html.p('El D.M. está vacío.').create());
         }else{
             var clearButton = html.button({class:'load-ipad-button'},'vaciar D.M.').create();
-            var fueDescargadoAntes = JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false');
+            var fueDescargadoAntes = my.getLocalVar('ipc2.0-descargado')||false;
             var inputForzar = html.input({class:'input-forzar'}).create();
             if(!fueDescargadoAntes){
                 mainLayout.appendChild(html.div([
@@ -204,7 +203,7 @@ myOwn.wScreens.vaciar_dm2=async function(){
                     var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton});
                     if(confirma){
                         clearButton.disabled=true;
-                        localStorage.setItem('ipc2.0-vaciado',JSON.stringify(true));
+                        my.setLocalVar('ipc2.0-vaciado',true);
                         mainLayout.appendChild(html.p('D.M. vaciado correctamente!').create());
                     };
                 }else{
@@ -311,17 +310,17 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
     return my.ajax.instalacion_crear({
         numero_encuestador: numeroEncuestador,
         numero_ipad: numeroIpad,
-        token_original: localStorage.getItem('ipc2.0-token_instalacion'),
+        token_original: my.getLocalVar('ipc2.0-token_instalacion'),
         version_sistema: getVersionSistema()
     }).then(function(token){
-        localStorage.setItem('ipc2.0-id_instalacion', token.id_instalacion);
-        localStorage.setItem('ipc2.0-token_instalacion', token.token_instalacion);
-        localStorage.setItem('ipc2.0-fecha_hora_instalacion', token.fecha_hora.toYmdHms());
-        localStorage.setItem('ipc2.0-encuestador', token.encuestador);
-        localStorage.setItem('ipc2.0-ipad', token.ipad);
-        localStorage.removeItem('ipc2.0-descargado');
-        localStorage.removeItem('ipc2.0-vaciado');
-        localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
+        my.setLocalVar('ipc2.0-id_instalacion', token.id_instalacion);
+        my.setLocalVar('ipc2.0-token_instalacion', token.token_instalacion);
+        my.setLocalVar('ipc2.0-fecha_hora_instalacion', token.fecha_hora.toYmdHms());
+        my.setLocalVar('ipc2.0-encuestador', token.encuestador);
+        my.setLocalVar('ipc2.0-ipad', token.ipad);
+        my.removeLocalVar('ipc2.0-descargado');
+        my.removeLocalVar('ipc2.0-vaciado');
+        my.removeLocalVar(LOCAL_STORAGE_STATE_NAME);
         divResult.appendChild(html.p('instalacion finalizada! Ya puede sincronizar el dispositivo.').create());
         waitGif.style.display = 'none';
     }).catch(function(err){
@@ -333,9 +332,14 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
 //relevamiento directo
 
 myOwn.wScreens.relevamiento=function(_addrParams){
+    //PROVISORIO
+    if(!my.existsLocalVar(HDR_OPENED_LOCALSTORAGE_NAME) && localStorage[HDR_OPENED_LOCALSTORAGE_NAME]=='true'){
+        rescatarLocalStorage()
+    }
+    //FIN PROVISORIO
     if(hayHdrRelevando()){
-        var estructura:Estructura = JSON4all.parse(localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME)!);
-        var hdr:HojaDeRuta = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+        var estructura:Estructura = my.getLocalVar(ESTRUCTURA_LOCALSTORAGE_NAME)!;
+        var hdr:HojaDeRuta = my.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
         dmHojaDeRuta({customData: {estructura, hdr}});
     }else{
         var mainLayout = document.getElementById('main_layout')!;

@@ -8,7 +8,8 @@ import {
     precioTieneError, 
     COLOR_ERRORES
 } from "./dm-funciones";
-import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, LOCAL_STORAGE_DIRTY_NAME} from "./dm-react";
+import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
+    hdrEstaDescargada, getCacheVersion} from "./dm-react";
 import {useState, useEffect, useRef} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
@@ -132,10 +133,6 @@ function ScrollTop(props: any) {
             </div>
         </Zoom>
     );
-}
-
-function isDirtyHDR(){
-    return !!localStorage.getItem(LOCAL_STORAGE_DIRTY_NAME);
 }
 
 function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
@@ -1398,7 +1395,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
-    const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
+    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return (
         <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
             <div className={classes.root}>
@@ -1703,7 +1700,7 @@ function PantallaHojaDeRuta(_props:{}){
     const classes = useStylesTable();
     const classesButton = useStylesButton();
     const dispatch = useDispatch();
-    const appVersion = localStorage.getItem('ipc2.0-app-cache-version');
+    const appVersion = getCacheVersion();
     const stylesTableHeader = {fontSize: "1.3rem"}
     const updateOnlineStatus = function(){
         setOnline(window.navigator.onLine);
@@ -1714,7 +1711,7 @@ function PantallaHojaDeRuta(_props:{}){
     const [descargando, setDescargando] = useState<boolean|null>(false);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    const toolbarStyle=JSON.parse(localStorage.getItem('ipc2.0-descargado')||'false')?{backgroundColor:'red'}:{};
+    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return (
         <>
             <AppBar position="fixed">

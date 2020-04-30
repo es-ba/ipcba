@@ -1,7 +1,6 @@
 "use strict";
 import {LOCAL_STORAGE_STATE_NAME} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
-import * as JSON4all from "json4all";
 import * as AjaxBestPromise from "ajax-best-promise";
 
 window.addEventListener('load', async function(){
@@ -15,8 +14,8 @@ window.addEventListener('load', async function(){
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
     var url = new URL(window.location.href);
     if(location.pathname.endsWith('/dm')){
-        if(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)){
-            const {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)!);
+        if(myOwn.existsLocalVar(LOCAL_STORAGE_STATE_NAME)){
+            const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
             history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
         }else{
@@ -68,12 +67,12 @@ appCache.addEventListener('error', async function(e:Event) {
 
 async function cacheReady(){
     wasDownloading=false;
-    var {periodo, panel, tarea} = JSON4all.parse(localStorage.getItem(LOCAL_STORAGE_STATE_NAME)||'{}');
+    var {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)||{};
     var result:string = await AjaxBestPromise.get({
         url:`carga-dm/${periodo?`${periodo}p${panel}t${tarea}_manifest.manifest`:'dm-manifest.manifest'}`,
         data:{}
     });
-    localStorage.setItem('ipc2.0-app-cache-version',result.split('\n')[1]);
+    myOwn.setLocalVar('ipc2.0-app-cache-version',result.split('\n')[1]);
     setTimeout(function(){
         var cacheStatusElement = document.getElementById('cache-status')!;
         if(!cacheStatusElement){

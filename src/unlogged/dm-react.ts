@@ -355,9 +355,9 @@ async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
     var estructura:Estructura;
     var hdr:HojaDeRuta;
     if(addrParams.periodo && addrParams.panel && addrParams.tarea){
-        var content = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+        var content = my.getLocalVar(LOCAL_STORAGE_STATE_NAME);
         if(content){
-            hdr = JSON4all.parse(content);
+            hdr = content;
             //@ts-ignore structFromManifest existe gracias al manifiesto
             estructura=structFromManifest;
         }else{
@@ -404,11 +404,10 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     }
 
     function loadState():HojaDeRuta{
-        var contentJson = localStorage.getItem(LOCAL_STORAGE_STATE_NAME);
+        var contentJson = my.getLocalVar(LOCAL_STORAGE_STATE_NAME);
         if(contentJson){
-            var content:HojaDeRuta = JSON4all.parse(contentJson);
-            completarOpcionesCambiosyAdvertencias(content);
-            return content;
+            completarOpcionesCambiosyAdvertencias(contentJson);
+            return contentJson;
         }else{
             completarOpcionesCambiosyAdvertencias(initialState);
             return initialState;
@@ -416,8 +415,8 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     }
     
     function saveState(state:HojaDeRuta){
-        localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(state));
-        localStorage.setItem(LOCAL_STORAGE_DIRTY_NAME, JSON.stringify(true));
+        my.setLocalVar(LOCAL_STORAGE_STATE_NAME, state);
+        my.setLocalVar(LOCAL_STORAGE_DIRTY_NAME, true);
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 
@@ -431,6 +430,14 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     //HDR CON STORE CREADO
     return {store, estructura:estructura!};
    
+}
+
+export function getCacheVersion(){
+    return my.getLocalVar('ipc2.0-app-cache-version');
+}
+
+export function hdrEstaDescargada(){
+    return my.getLocalVar('ipc2.0-descargado')||false;
 }
 
 /*RELEVAMIENTO DIRECTO*/
@@ -452,7 +459,7 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
             token_instalacion: false,
             hoja_de_ruta: hdr,
             custom_data: true,
-            current_token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME)
+            current_token: my.getLocalVar(TOKEN_LOCALSTORAGE_NAME)
         });
     }catch(err){
         redirectIfNotLogged(err);
@@ -461,7 +468,7 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
     return message;
 }
 
-const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
+export const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
 const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
 const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
 const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
@@ -469,31 +476,31 @@ const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
 export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
 export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
 
-export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: any, estructura: any, token:string){
-    localStorage.setItem(HDR_OPENED_LOCALSTORAGE_NAME, JSON.stringify(true));
-    localStorage.setItem(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
-    localStorage.setItem(HDR_PANEL_LOCALSTORAGE_NAME, JSON.stringify(panel));
-    localStorage.setItem(HDR_TAREA_LOCALSTORAGE_NAME, JSON.stringify(tarea));
-    localStorage.setItem(HDR_INFORMANTE_LOCALSTORAGE_NAME, JSON.stringify(informante));
-    localStorage.setItem(LOCAL_STORAGE_STATE_NAME, JSON4all.stringify(hdr));
-    localStorage.setItem(ESTRUCTURA_LOCALSTORAGE_NAME, JSON4all.stringify(estructura));
-    localStorage.setItem(TOKEN_LOCALSTORAGE_NAME, token);
+export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: HojaDeRuta, estructura: Estructura, token:string){
+    my.setLocalVar(HDR_OPENED_LOCALSTORAGE_NAME, true);
+    my.setLocalVar(HDR_PERIODO_LOCALSTORAGE_NAME, periodo);
+    my.setLocalVar(HDR_PANEL_LOCALSTORAGE_NAME, panel);
+    my.setLocalVar(HDR_TAREA_LOCALSTORAGE_NAME, tarea);
+    my.setLocalVar(HDR_INFORMANTE_LOCALSTORAGE_NAME, informante);
+    my.setLocalVar(LOCAL_STORAGE_STATE_NAME, hdr);
+    my.setLocalVar(ESTRUCTURA_LOCALSTORAGE_NAME, estructura);
+    my.setLocalVar(TOKEN_LOCALSTORAGE_NAME, token);
 }
 
 export async function borrarDatosRelevamientoLocalStorage(){
     try{
         await my.ajax.dm2_relevamiento_unlock({
-            token: localStorage.getItem(TOKEN_LOCALSTORAGE_NAME)
+            token: my.getLocalVar(TOKEN_LOCALSTORAGE_NAME)
         });
-        localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
-        localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
-        localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
-        localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
-        localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
-        localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
-        localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
-        localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
-        localStorage.removeItem(TOKEN_LOCALSTORAGE_NAME);
+        my.removeLocalVar(HDR_OPENED_LOCALSTORAGE_NAME);
+        my.removeLocalVar(HDR_PERIODO_LOCALSTORAGE_NAME);
+        my.removeLocalVar(HDR_PANEL_LOCALSTORAGE_NAME);
+        my.removeLocalVar(HDR_TAREA_LOCALSTORAGE_NAME);
+        my.removeLocalVar(HDR_INFORMANTE_LOCALSTORAGE_NAME);
+        my.removeLocalVar(LOCAL_STORAGE_STATE_NAME);
+        my.removeLocalVar(ESTRUCTURA_LOCALSTORAGE_NAME);
+        my.removeLocalVar(LOCAL_STORAGE_DIRTY_NAME);
+        my.removeLocalVar(TOKEN_LOCALSTORAGE_NAME);
         return 'ok'
     }catch(err){
         redirectIfNotLogged(err);
@@ -502,9 +509,35 @@ export async function borrarDatosRelevamientoLocalStorage(){
 }
 
 export function hayHdrRelevando(){
-    return !!localStorage.getItem(HDR_OPENED_LOCALSTORAGE_NAME) && 
-           !!localStorage.getItem(LOCAL_STORAGE_STATE_NAME) && 
-           !!localStorage.getItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+    return !!my.getLocalVar(HDR_OPENED_LOCALSTORAGE_NAME) && 
+           !!my.getLocalVar(LOCAL_STORAGE_STATE_NAME) && 
+           !!my.getLocalVar(ESTRUCTURA_LOCALSTORAGE_NAME);
 }
 
+export function isDirtyHDR(){
+    return !!my.getLocalVar(LOCAL_STORAGE_DIRTY_NAME);
+}
 /* FIN RELEVAMIENTO DIRECTO*/
+
+//PROVISORIO
+export function rescatarLocalStorage(){
+    var periodo:string = localStorage[HDR_PERIODO_LOCALSTORAGE_NAME];
+    var panel:number = JSON4all.parse(localStorage[HDR_PANEL_LOCALSTORAGE_NAME]);
+    var tarea:number = JSON4all.parse(localStorage[HDR_TAREA_LOCALSTORAGE_NAME]);
+    var informante:number = JSON4all.parse(localStorage[HDR_INFORMANTE_LOCALSTORAGE_NAME]);
+    var hdr:HojaDeRuta = JSON4all.parse(localStorage[LOCAL_STORAGE_STATE_NAME]);
+    var estructura:Estructura = JSON4all.parse(localStorage[ESTRUCTURA_LOCALSTORAGE_NAME]);
+    var token:string = localStorage[TOKEN_LOCALSTORAGE_NAME];
+    registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, hdr, estructura, token);
+    localStorage.removeItem(HDR_OPENED_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PERIODO_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_PANEL_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_TAREA_LOCALSTORAGE_NAME);
+    localStorage.removeItem(HDR_INFORMANTE_LOCALSTORAGE_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_STATE_NAME);
+    localStorage.removeItem(ESTRUCTURA_LOCALSTORAGE_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_DIRTY_NAME);
+    localStorage.removeItem(TOKEN_LOCALSTORAGE_NAME);
+
+}
+//FIN PROVISORIO
