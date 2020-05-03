@@ -8,6 +8,7 @@ module.exports = function(context){
         fields:[
             {name:'periodo'              ,typeName:'text'   }, 
             {name:'informante'           ,typeName:'integer'},
+            {name:'rubro'                ,typeName:'text'   },
             {name:'panel'                ,typeName:'integer'},
             {name:'tarea'                ,typeName:'integer'},
             {name:'operativo'            ,typeName:'text'   },
