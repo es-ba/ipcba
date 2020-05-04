@@ -4,15 +4,19 @@ CREATE OR REPLACE FUNCTION verificar_cargado_dm()
 AS $BODY$
 DECLARE
 vtabla       varchar(100);
+vsaltearcontrol boolean;
 BEGIN
 vtabla= TG_TABLE_NAME;
 CASE
     WHEN vtabla='relvis' THEN
-        IF TG_OP <> 'INSERT' THEN
-            perform cvp.controlar_estado_carga(old.periodo, old.panel, old.tarea);
-        END IF;
-        IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.panel, new.tarea)<>(old.periodo, old.panel, old.tarea) THEN
-            perform cvp.controlar_estado_carga(new.periodo, new.panel, new.tarea);
+        vsaltearcontrol = TG_OP = 'UPDATE' AND new.token_relevamiento IS DISTINCT FROM old.token_relevamiento;
+        IF not vsaltearcontrol THEN 
+		   IF TG_OP <> 'INSERT' THEN
+               perform cvp.controlar_estado_carga(old.periodo, old.panel, old.tarea, old.informante);
+           END IF;
+           IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.panel, new.tarea, new.informante)<>(old.periodo, old.panel, old.tarea, old.informante) THEN
+               perform cvp.controlar_estado_carga(new.periodo, new.panel, new.tarea, new.informante);
+           END IF;
         END IF;
     WHEN vtabla='relpre' THEN
         IF TG_OP <> 'INSERT' THEN
