@@ -11,9 +11,10 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
    string_agg(c.formulario::text || ' '::text || c.nombreformulario::text, chr(10) order by c.formulario) AS formularioshdr,
    lpad(' '::text, count(*)::integer, chr(10)) AS espacio,   
    c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|') AS formularios, 
-   (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto, 
-    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email
-   FROM cvp.control_hojas_ruta c 
+   i.contacto::text contacto, 
+   c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
+   pt.panelreferencia, pt.tareareferencia, i.telcontacto
+   FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.tareas t on c.tarea = t.tarea
    LEFT JOIN cvp.personal p on p.persona = t.encuestador 
    LEFT JOIN cvp.informantes i ON c.informante = i.informante
@@ -22,8 +23,13 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
                 FROM cvp.control_hojas_ruta
                 WHERE control_hojas_ruta.razon = 1
                 GROUP BY informante, visita) a ON c.informante = a.informante AND c.visita = a.visita
+   LEFT JOIN (SELECT informante, visita, string_agg(distinct panel::text,',' order by panel::text) as panelreferencia, string_agg(distinct tarea::text,',' order by tarea::text) as tareareferencia
+                FROM cvp.relvis v 
+                JOIN cvp.parametros par ON unicoregistro AND v.periodo = par.periodoReferenciaParaPanelTarea
+                GROUP BY informante, visita) pt ON c.informante = pt.informante AND c.visita = pt.visita 
   GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
-    (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text, c.conjuntomuestral, 
-    c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email;
+    i.contacto, c.conjuntomuestral, 
+    c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
+    pt.panelreferencia, pt.tareareferencia, i.telcontacto;
 
 GRANT SELECT ON TABLE hdrexportarteorica TO cvp_usuarios;

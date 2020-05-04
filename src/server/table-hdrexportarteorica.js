@@ -20,6 +20,7 @@ module.exports = function(context){
             {name:'direccion'                    , typeName:'text'    },
             {name:'formularios'                  , typeName:'text'    },
             {name:'contacto'                     , typeName:'text'    },
+            {name:'telcontacto'                  , typeName:'text'    },
             {name:'web'                          , typeName:'text'    },
             {name:'email'                        , typeName:'text'    },
             {name:'distrito'                     , typeName:'integer' },
@@ -34,6 +35,8 @@ module.exports = function(context){
             {name:'nombrerubro'                  , typeName:'text'    },
             {name:'maxperiodoinformado'          , typeName:'text'    },
             {name:'minperiodoinformado'          , typeName:'text'    },
+            {name:'panelreferencia'              , typeName:'text'    },
+            {name:'tareareferencia'              , typeName:'text'    },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
         sql:{
