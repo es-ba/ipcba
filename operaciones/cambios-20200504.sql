@@ -57,6 +57,48 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
     i.contacto, c.conjuntomuestral, 
     c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
     pt.panelreferencia, pt.tareareferencia, i.telcontacto;
-
+--------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION verificar_cargado_dm()
+    RETURNS trigger
+    LANGUAGE 'plpgsql' VOLATILE
+AS $BODY$
+DECLARE
+vtabla       varchar(100);
+vsaltearcontrol boolean;
+BEGIN
+vtabla= TG_TABLE_NAME;
+CASE
+    WHEN vtabla='relvis' THEN
+        vsaltearcontrol = TG_OP = 'UPDATE' AND new.token_relevamiento IS DISTINCT FROM old.token_relevamiento;
+        IF not vsaltearcontrol THEN 
+		   IF TG_OP <> 'INSERT' THEN
+               perform cvp.controlar_estado_carga(old.periodo, old.panel, old.tarea, old.informante);
+           END IF;
+           IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.panel, new.tarea, new.informante)<>(old.periodo, old.panel, old.tarea, old.informante) THEN
+               perform cvp.controlar_estado_carga(new.periodo, new.panel, new.tarea, new.informante);
+           END IF;
+        END IF;
+    WHEN vtabla='relpre' THEN
+        IF TG_OP <> 'INSERT' THEN
+            perform cvp.controlar_estado_carga(old.periodo, null, null, old.informante, old.visita, old.formulario);
+        END IF;
+        IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.formulario)<>(old.periodo, old.formulario) THEN
+            perform cvp.controlar_estado_carga(new.periodo, null, null, new.informante, new.visita, new.formulario);
+        END IF;
+    WHEN vtabla='relatr' THEN
+        IF TG_OP <> 'INSERT' THEN
+            perform cvp.controlar_estado_carga(old.periodo, null, null, old.informante, old.visita, null, old.producto, old.observacion);
+        END IF;
+        IF TG_OP = 'INSERT' THEN
+            perform cvp.controlar_estado_carga(new.periodo, null, null, new.informante, new.visita, null, new.producto, new.observacion);
+        END IF;
+END CASE;
+IF TG_OP='DELETE' THEN
+   RETURN OLD;
+ELSE  
+   RETURN NEW;
+END IF;
+END;
+$BODY$;
 
 
