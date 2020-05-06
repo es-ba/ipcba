@@ -20,8 +20,8 @@ module.exports = function(context){
             {name:'panel'                     , typeName:'integer' , nullable:false            , allow:{update:puedeEditar}                 },
             {name:'tarea'                     , typeName:'integer' , nullable:false            , allow:{update:puedeEditar}                 },
             //{name: "cambiar"                  , typeName: "bigint" , editable:false            ,clientSide:'cambiarPanelTarea'},
-            //{name:'otropanel'                 , typeName:'integer' , nullable:false            , allow:{update:puedeEditar}                 },
-            //{name:'otratarea'                 , typeName:'integer' , nullable:false            , allow:{update:puedeEditar}                 },
+            {name:'otropanel'                 , typeName:'integer' , nullable:false            , allow:{update:puedeEditar}                 },
+            {name:'otratarea'                 , typeName:'integer' , nullable:false            , allow:{update:puedeEditar}                 },
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sortColumns:[{column:'informante'},{column:'visita'},{column:'formulario'}],
@@ -32,10 +32,10 @@ module.exports = function(context){
             {references:'relpan'     , fields:['periodo','panel']},            
         ],
         sql:{
-            from:`(
-                  select periodo, informante, visita, formulario, panel, tarea
-                  from relvis rv
-                  )`,
-        }        
+            from:`(select rv.periodo, rv.informante, rv.visita, rv.formulario, rv.panel, rv.tarea, rt.panel otropanel, rt.tarea otratarea 
+                from relvis rv 
+                join reltar rt on rv.periodo = rt.periodo
+                )`,
+        } 
     },context);
 }

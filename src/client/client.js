@@ -928,40 +928,69 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         var controlPanelHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
         var controlTareaHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
 
-        var botonBuscarDesde=html.button("buscar").create();
-        var botonCambiar=html.button("cambiar").create();
+        var botonBuscarDesde=html.button("buscar desde").create();
+        var botonBuscarHasta=html.button("buscar hasta").create();
+        var botonCambiarDesde=html.button("cambiar >").create();
+        var botonCambiarHasta=html.button("cambiar <").create();
+        var botonIntercambiar=html.button("< intercambiar >").create();
         var resultDivDesde=html.div({class:"result-div"}).create();
+        var resultDivHasta=html.div({class:"result-div"}).create();
         var divGrillaDesde=html.div().create();
+        var divGrillaHasta=html.div().create();
         botonBuscarDesde.onclick=function(){
             var periodoDesde = controlPeriodoDesde.getTypedValue();
             var panelDesde = controlPanelDesde.getTypedValue();
             var tareaDesde = controlTareaDesde.getTypedValue();
-            var panelHasta = controlPanelDesde.getTypedValue();
-            var tareaHasta = controlTareaDesde.getTypedValue();
+            var panelHasta = controlPanelHasta.getTypedValue();
+            var tareaHasta = controlTareaHasta.getTypedValue();
             my.ajax.paneltarea_buscar({
                 periodo:controlPeriodoDesde.getTypedValue(),
                 panel:controlPanelDesde.getTypedValue(),
                 tarea:controlTareaDesde.getTypedValue(),
-                //otropanel:controlPanelHasta.getTypedValue(),
-                //otratarea:controlTareaHasta.getTypedValue(),
+                otropanel:controlPanelHasta.getTypedValue(),
+                otratarea:controlTareaHasta.getTypedValue(),
             }).then(function(result){
                 resultDivDesde.textContent=result.value;
                 var fixedFields = [];
                 fixedFields.push({fieldName: 'periodo', value: periodoDesde});
                 fixedFields.push({fieldName: 'panel', value: panelDesde});
                 fixedFields.push({fieldName: 'tarea', value: tareaDesde});
-                //fixedFields.push({fieldName: 'otropanel', value: panelHasta});
-                //fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
                 var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
                 grid.refresh();
             })
         }
-        botonCambiar.onclick=function(){
+        botonBuscarHasta.onclick=function(){
+            var periodoHasta = controlPeriodoDesde.getTypedValue();
+            var panelHasta = controlPanelHasta.getTypedValue();
+            var tareaHasta = controlTareaHasta.getTypedValue();
+            var panelDesde = controlPanelDesde.getTypedValue();
+            var tareaDesde = controlTareaDesde.getTypedValue();
+            my.ajax.paneltarea_buscar({
+                periodo:controlPeriodoDesde.getTypedValue(),
+                panel:controlPanelHasta.getTypedValue(),
+                tarea:controlTareaHasta.getTypedValue(),
+                otropanel:controlPanelDesde.getTypedValue(),
+                otratarea:controlTareaDesde.getTypedValue(),
+            }).then(function(result){
+                resultDivHasta.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoHasta});
+                fixedFields.push({fieldName: 'panel', value: panelHasta});
+                fixedFields.push({fieldName: 'tarea', value: tareaHasta});
+                fixedFields.push({fieldName: 'otropanel', value: panelDesde});
+                fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
+                var grid=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
+                grid.refresh();
+            })
+        }
+        botonCambiarDesde.onclick=function(){
             var periodoDesde = controlPeriodoDesde.getTypedValue();
             var panelDesde = controlPanelDesde.getTypedValue();
             var tareaDesde = controlTareaDesde.getTypedValue();
-            var panelHasta = controlPanelDesde.getTypedValue();
-            var tareaHasta = controlTareaDesde.getTypedValue();
+            var panelHasta = controlPanelHasta.getTypedValue();
+            var tareaHasta = controlTareaHasta.getTypedValue();
             my.ajax.paneltarea_cambiar({
                 periodo:controlPeriodoDesde.getTypedValue(),
                 panel:controlPanelDesde.getTypedValue(),
@@ -974,10 +1003,85 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 fixedFields.push({fieldName: 'periodo', value: periodoDesde});
                 fixedFields.push({fieldName: 'panel', value: panelDesde});
                 fixedFields.push({fieldName: 'tarea', value: tareaDesde});
-                //fixedFields.push({fieldName: 'otropanel', value: panelHasta});
-                //fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
-                var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
-                grid.refresh();
+                fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                var gridDesde=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
+                gridDesde.refresh();
+                resultDivHasta.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelHasta});
+                fixedFields.push({fieldName: 'tarea', value: tareaHasta});
+                fixedFields.push({fieldName: 'otropanel', value: panelDesde});
+                fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
+                var gridHasta=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
+                gridHasta.refresh();
+            })            
+        }
+        botonCambiarHasta.onclick=function(){
+            var periodoDesde = controlPeriodoDesde.getTypedValue();
+            var panelDesde = controlPanelDesde.getTypedValue();
+            var tareaDesde = controlTareaDesde.getTypedValue();
+            var panelHasta = controlPanelHasta.getTypedValue();
+            var tareaHasta = controlTareaHasta.getTypedValue();
+            my.ajax.paneltarea_cambiar({
+                periodo:controlPeriodoDesde.getTypedValue(),
+                panel:controlPanelHasta.getTypedValue(),
+                tarea:controlTareaHasta.getTypedValue(),
+                otropanel:controlPanelDesde.getTypedValue(),
+                otratarea:controlTareaDesde.getTypedValue(),
+            }).then(function(result){
+                resultDivDesde.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelDesde});
+                fixedFields.push({fieldName: 'tarea', value: tareaDesde});
+                fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                var gridDesde=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
+                gridDesde.refresh();
+                resultDivHasta.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelHasta});
+                fixedFields.push({fieldName: 'tarea', value: tareaHasta});
+                fixedFields.push({fieldName: 'otropanel', value: panelDesde});
+                fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
+                var gridHasta=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
+                gridHasta.refresh();
+            })            
+        }
+        botonIntercambiar.onclick=function(){
+            var periodoDesde = controlPeriodoDesde.getTypedValue();
+            var panelDesde = controlPanelDesde.getTypedValue();
+            var tareaDesde = controlTareaDesde.getTypedValue();
+            var panelHasta = controlPanelHasta.getTypedValue();
+            var tareaHasta = controlTareaHasta.getTypedValue();
+            my.ajax.paneltarea_intercambiar({
+                periodo:controlPeriodoDesde.getTypedValue(),
+                panel:controlPanelHasta.getTypedValue(),
+                tarea:controlTareaHasta.getTypedValue(),
+                otropanel:controlPanelDesde.getTypedValue(),
+                otratarea:controlTareaDesde.getTypedValue(),
+            }).then(function(result){
+                resultDivDesde.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelDesde});
+                fixedFields.push({fieldName: 'tarea', value: tareaDesde});
+                fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                var gridDesde=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
+                gridDesde.refresh();
+                resultDivHasta.textContent=result.value;
+                var fixedFields = [];
+                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                fixedFields.push({fieldName: 'panel', value: panelHasta});
+                fixedFields.push({fieldName: 'tarea', value: tareaHasta});
+                fixedFields.push({fieldName: 'otropanel', value: panelDesde});
+                fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
+                var gridHasta=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
+                gridHasta.refresh();
             })            
         }
         TypedControls.adaptElement(controlPeriodoDesde   ,{typeName:'text'   , references:'periodos'});
@@ -999,19 +1103,31 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                         html.td("tarea desde"), controlTareaDesde
                     ]),
                     html.tr([
+                        html.td(), html.td([botonBuscarDesde]), 
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonCambiarDesde]), 
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonIntercambiar]), 
+                    ])
+                ]),
+                divGrillaDesde,
+                html.table({class:'table-param-screen'},[
+                    html.tr([
                         html.td("panel hasta"), controlPanelHasta
                     ]),
                     html.tr([
                         html.td("tarea hasta"), controlTareaHasta
                     ]),
                     html.tr([
-                        html.td(), html.td([botonBuscarDesde]), 
+                        html.td(), html.td([botonBuscarHasta]), 
                     ]),
                     html.tr([
-                        html.td(), html.td([botonCambiar]), 
+                        html.td(), html.td([botonCambiarHasta]), 
                     ])
                 ]),
-                divGrillaDesde,
+                divGrillaHasta,
             ]).create()
         );
     },50);
