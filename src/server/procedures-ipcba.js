@@ -1745,7 +1745,7 @@ ProceduresIpcba = [
                         ,[params.current_token]
                     ).fetchAll()
                     if(result.rowCount < params.hoja_de_ruta.informantes[0].formularios.length){
-                        throw new Error('El token expiró')
+                        throw new Error(`Su token (${params.current_token}) ha expirado porque alguien abrió la hoja de ruta desde otro dispositivo.`)
                     }
                 }else{
                     try{
