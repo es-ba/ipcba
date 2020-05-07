@@ -1,3 +1,5 @@
+set search_path = cvp;
+
 CREATE OR REPLACE VIEW precios_porcentaje_positivos_y_anulados as
 select v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario||':'||f.nombreformulario as formulario, count(*) preciospotenciales,
 sum(CASE WHEN t.espositivo = 'S' THEN 1 ELSE 0 END) as positivos, sum(CASE WHEN t.espositivo = 'N' and t.visibleparaencuestador = 'N' THEN 1 ELSE 0 END) as anulados,
@@ -19,5 +21,3 @@ from cvp.relvis v
            group by pro.producto) a
 group by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario||':'||f.nombreformulario, i.rubro||':'||u.nombrerubro, v.encuestador, per.nombre||' '||per.apellido
 order by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario||':'||f.nombreformulario, i.rubro||':'||u.nombrerubro, v.encuestador, per.nombre||' '||per.apellido;
-
-GRANT SELECT ON TABLE precios_porcentaje_positivos_y_anulados TO cvp_administrador;
