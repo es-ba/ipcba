@@ -11,6 +11,8 @@ module.exports = function(context){
             {name:'rubro'                ,typeName:'text'   },
             {name:'panel'                ,typeName:'integer'},
             {name:'tarea'                ,typeName:'integer'},
+            {name:'encuestador'          ,typeName:'text'   },
+            {name:'encuestadornombre'    ,typeName:'text'   },
             {name:'operativo'            ,typeName:'text'   },
             {name:'formulario'           ,typeName:'text'   },
             {name:'preciospotenciales'   ,typeName:'integer'},
