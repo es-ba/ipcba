@@ -4,33 +4,31 @@ CREATE OR REPLACE FUNCTION verificar_cargado_dm()
 AS $BODY$
 DECLARE
 vtabla       varchar(100);
-vsaltearcontrol boolean;
+vcambiatoken boolean;
 BEGIN
 vtabla= TG_TABLE_NAME;
 CASE
     WHEN vtabla='relvis' THEN
-        vsaltearcontrol = TG_OP = 'UPDATE' AND new.token_relevamiento IS DISTINCT FROM old.token_relevamiento;
-        IF not vsaltearcontrol THEN 
-		   IF TG_OP <> 'INSERT' THEN
-               perform cvp.controlar_estado_carga(old.periodo, old.panel, old.tarea, old.informante);
-           END IF;
-           IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.panel, new.tarea, new.informante)<>(old.periodo, old.panel, old.tarea, old.informante) THEN
-               perform cvp.controlar_estado_carga(new.periodo, new.panel, new.tarea, new.informante);
-           END IF;
+        vcambiatoken = TG_OP = 'UPDATE' AND new.token_relevamiento IS DISTINCT FROM old.token_relevamiento;
+		IF TG_OP <> 'INSERT' THEN
+            perform cvp.controlar_estado_carga(vcambiatoken, old.periodo, old.panel, old.tarea, old.informante);
+        END IF;
+        IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.panel, new.tarea, new.informante)<>(old.periodo, old.panel, old.tarea, old.informante) THEN
+            perform cvp.controlar_estado_carga(vcambiatoken, new.periodo, new.panel, new.tarea, new.informante);
         END IF;
     WHEN vtabla='relpre' THEN
         IF TG_OP <> 'INSERT' THEN
-            perform cvp.controlar_estado_carga(old.periodo, null, null, old.informante, old.visita, old.formulario);
+            perform cvp.controlar_estado_carga(false, old.periodo, null, null, old.informante, old.visita, old.formulario);
         END IF;
         IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' AND (new.periodo, new.formulario)<>(old.periodo, old.formulario) THEN
-            perform cvp.controlar_estado_carga(new.periodo, null, null, new.informante, new.visita, new.formulario);
+            perform cvp.controlar_estado_carga(false, new.periodo, null, null, new.informante, new.visita, new.formulario);
         END IF;
     WHEN vtabla='relatr' THEN
         IF TG_OP <> 'INSERT' THEN
-            perform cvp.controlar_estado_carga(old.periodo, null, null, old.informante, old.visita, null, old.producto, old.observacion);
+            perform cvp.controlar_estado_carga(false, old.periodo, null, null, old.informante, old.visita, null, old.producto, old.observacion);
         END IF;
         IF TG_OP = 'INSERT' THEN
-            perform cvp.controlar_estado_carga(new.periodo, null, null, new.informante, new.visita, null, new.producto, new.observacion);
+            perform cvp.controlar_estado_carga(false, new.periodo, null, null, new.informante, new.visita, null, new.producto, new.observacion);
         END IF;
 END CASE;
 IF TG_OP='DELETE' THEN
