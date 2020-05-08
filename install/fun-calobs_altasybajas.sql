@@ -28,14 +28,20 @@ UPDATE CalObs AS c
       SinDatosEstacional=CASE WHEN c.promObs IS NOT NULL THEN NULL
                               ELSE CASE WHEN p.CantidadConPrecio<p.umbralBajaAuto THEN 1 ELSE 0 END
                          END,
-      AntiguedadExcluido= CASE WHEN c.promObs is not null and c.periodo <= coalesce(m.alta_inmediata_hasta_periodo,'a0000m00')THEN NULL
+      AntiguedadExcluido= CASE WHEN c.promObs is not null and (
+                                        c.periodo <= coalesce(m.alta_inmediata_hasta_periodo,'a0000m00')
+                                     or cp.CantPerAltaAuto = 1
+                             ) THEN NULL
                              ELSE 1
                           END,   
-      AntiguedadIncluido= CASE WHEN c.promObs is not null and c.periodo <= coalesce(m.alta_inmediata_hasta_periodo,'a0000m00')THEN 1
+      AntiguedadIncluido= CASE WHEN c.promObs is not null and (
+                                        c.periodo <= coalesce(m.alta_inmediata_hasta_periodo,'a0000m00')
+                                     or cp.CantPerAltaAuto = 1
+                              ) THEN 1
                               ELSE NULL 
                           END    
       
-  FROM CalDiv p, Muestras m     
+  FROM CalDiv p, Muestras m, CalProd cp
   WHERE c.periodo=pPeriodo
     AND c.calculo=pCalculo
     AND p.periodo= pPeriodo
@@ -43,6 +49,9 @@ UPDATE CalObs AS c
     AND p.producto= c.producto
     AND p.division=c.division
     AND c.muestra= m.muestra
+    AND cp.periodo=pPeriodo
+    AND cp.calculo=pCalculo
+    AND cp.producto=c.producto -- pk, verificada calProd
     AND NOT EXISTS ( SELECT 1 
                        FROM CalObs c_1 
                        WHERE c_1.Periodo=vPeriodo_1
