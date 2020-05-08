@@ -1029,6 +1029,7 @@ NETWORK:
             {name: 'infreemp', path: __dirname},
             {name: 'infreempdir', path: __dirname},
             {name: 'misma_direccion', path: __dirname}
+            {name: 'formulario-emergencia', path: __dirname}
         ]);
     }
 }
