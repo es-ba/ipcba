@@ -1995,6 +1995,35 @@ ProceduresIpcba = [
             });
         }
     },
+    {
+        action:'paneltarea_cambiaruninf',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+            {name:'informante'  , typeName:'integer', references:'informantes'},
+            {name:'visita'      , typeName:'integer'                          },
+            {name:'formulario'  , typeName:'integer', references:'formularios'},
+            {name:'otropanel'   , typeName:'integer'                          },
+            {name:'otratarea'   , typeName:'integer'                          },
+        ],
+        roles:['programador'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `UPDATE relvis SET panel = $5, tarea = $6 
+                   WHERE periodo = $1 AND informante = $2 AND visita = $3 AND formulario = $4
+                   RETURNING panel`,
+                [parameters.periodo,parameters.informante,parameters.visita, parameters.formulario, parameters.otropanel, parameters.otratarea]
+            ).fetchUniqueRow().then(function(result){
+                return 'ok ';
+            }).catch(function(err){
+                if(err.code=='54011!'){
+                    throw new Error('El perido no esta abierto para ingreso');
+                }
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            });
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
