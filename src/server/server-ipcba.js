@@ -1028,8 +1028,8 @@ NETWORK:
             {name: 'instalaciones', path: __dirname},
             {name: 'infreemp', path: __dirname},
             {name: 'infreempdir', path: __dirname},
-            {name: 'misma_direccion', path: __dirname}
-            {name: 'formulario-emergencia', path: __dirname}
+            {name: 'misma_direccion', path: __dirname},
+            {name: 'formulario_emergencia', path: __dirname}
         ]);
     }
 }

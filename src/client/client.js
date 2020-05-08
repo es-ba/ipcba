@@ -918,6 +918,20 @@ my.wScreens.correr_periodobase=function(addrParams){
 }
 */
 
+my.clientSides.cambiarPanelTareaUnInf = botonClientSideEnGrilla({
+    nombreBoton:'cambiar',
+    llamada:function(depot){
+        return my.ajax.paneltarea_cambiaruninf({
+            periodo: depot.row.periodo,
+            informante: depot.row.informante,
+            visita: depot.row.visita,
+            formulario: depot.row.formulario,
+            otropanel: depot.row.otropanel,
+            otratarea: depot.row.otratarea,
+        });
+    }
+});
+
 my.wScreens.cambiar_paneltarea=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
