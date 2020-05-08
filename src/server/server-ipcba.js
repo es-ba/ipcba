@@ -1029,7 +1029,8 @@ NETWORK:
             {name: 'infreemp', path: __dirname},
             {name: 'infreempdir', path: __dirname},
             {name: 'misma_direccion', path: __dirname},
-            {name: 'formulario_emergencia', path: __dirname}
+            {name: 'formulario_emergencia', path: __dirname},
+            {name: 'relinf_fechassalida', path: __dirname}
         ]);
     }
 }

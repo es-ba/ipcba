@@ -14,6 +14,8 @@ module.exports = function(context){
             {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
             {name:'visita'                 , typeName:'integer'                 , allow:{update:false}, inTable:false},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
         ],
         primaryKey:['periodo','informante','visita'],
         foreignKeys:[

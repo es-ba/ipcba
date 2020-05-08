@@ -30,7 +30,7 @@ module.exports = function(context){
         sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'},{column:'informante'},{column:'visita'}],
         sql:{
             isTable: false,
-            from: `(select periodo, panel, tarea, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email,
+            from: `(select rv.periodo, panel, tarea, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email,
                     case when per.labor = 'E' then per.persona else null end as encuestador,
                     per.persona, 
                     string_agg(distinct tk.username, ', ' order by tk.username) as usuario,
@@ -44,9 +44,10 @@ module.exports = function(context){
                     inner join informantes i on rv.informante = i.informante 
                     left join tokens tk on tk.token = token_relevamiento
                     left join personal ptk on ptk.username = tk.username
+                    left join relinf ri on rv.periodo = ri.periodo and rv.informante = ri.informante and rv.visita = ri.visita
                 where p.ingresando = 'S' 
-                    and current_date between COALESCE(rp.fechasalidadesde, rp.fechasalida) and COALESCE(rp.fechasalidahasta, rp.fechasalida) 
-                group by periodo, panel, tarea, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, per.persona, per.labor)`
+                    and current_date between COALESCE(ri.fechasalidadesde,rp.fechasalidadesde, rp.fechasalida) and COALESCE(ri.fechasalidahasta,rp.fechasalidahasta, rp.fechasalida) 
+                group by rv.periodo, panel, tarea, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, per.persona, per.labor)`
         },
     },context);
 }
