@@ -64,6 +64,7 @@ module.exports = function(context){
                 from relpre_1 p inner join informantes using(informante)
                      inner join formularios using(formulario)
                      inner join productos using(producto)
+                     inner join periodo per using(periodo)
                      left join relatr a1  on a1 .periodo=p.periodo  and a1 .informante=p.informante and a1 .visita=p.visita and a1 .producto=p.producto and a1 .observacion=p.observacion and a1 .atributo=1  
                      left join relatr a13 on a13.periodo=p.periodo  and a13.informante=p.informante and a13.visita=p.visita and a13.producto=p.producto and a13.observacion=p.observacion and a13.atributo=13 
                      left join relatr a15 on a15.periodo=p.periodo  and a15.informante=p.informante and a15.visita=p.visita and a15.producto=p.producto and a15.observacion=p.observacion and a15.atributo=15 
@@ -72,10 +73,10 @@ module.exports = function(context){
                      left join relatr a22 on a22.periodo=p.periodo  and a22.informante=p.informante and a22.visita=p.visita and a22.producto=p.producto and a22.observacion=p.observacion and a22.atributo=22 
                      left join relatr a23 on a23.periodo=p.periodo  and a23.informante=p.informante and a23.visita=p.visita and a23.producto=p.producto and a23.observacion=p.observacion and a23.atributo=23 ,
                     lateral (select string_agg(nombreatributo||':'||valor, ',') as otros 
-				       from relatr a inner join atributos using(atributo) 
-							               where a.periodo=p.periodo  and a.informante=p.informante and a.visita=p.visita and a.producto=p.producto and a.observacion=p.observacion and a.atributo not in (1,13,15,16,17,22,23)) as otros
-                 where prioritario is not null and habilitar_prioritario
- 				order by 
+                        from relatr a inner join atributos using(atributo) 
+                        where a.periodo=p.periodo  and a.informante=p.informante and a.visita=p.visita and a.producto=p.producto and a.observacion=p.observacion and a.atributo not in (1,13,15,16,17,22,23)) as otros
+                where prioritario is not null and habilitar_prioritario
+                order by 
                      p.periodo
                     ,p.informante
                     ,prioritario
