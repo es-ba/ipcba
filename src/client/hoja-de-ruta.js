@@ -232,6 +232,8 @@ myOwn.wScreens.hoja_de_ruta={
 
             var grid=my.tableGrid('mobile_hoja_de_ruta',gridMobileDiv,{tableDef:{
                 hiddenColumns:['informantes__nombreinformante', 'informantes__tipoinformante'],
+                firstDisplayCount: 1000,
+                firstDisplayOverLimit: 1100,
             }, fixedFields:fixedFields});
             return grid.waitForReady().then(function(){
                 return grid
