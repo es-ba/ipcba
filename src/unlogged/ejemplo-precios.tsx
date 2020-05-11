@@ -266,9 +266,8 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    const onClickFun = function<TE extends React.MouseEvent<HTMLTextAreaElement>>(event:TE){
-        // @ts-ignore element es un input o textarea
-        var element:HTMLTextAreaElement = event.target;
+    const onSelectFun = function<TE extends React.SyntheticEvent>(event:TE){
+        var element = event.target as HTMLTextAreaElement;
         var selection = element.value.length||0;
         element.selectionStart = selection;
         element.selectionEnd = selection;
@@ -288,8 +287,7 @@ function TypedInput<T extends string|number|null>(props:{
             value={value}
             type={props.dataType} 
             style={style}
-            onClick={(event)=>onClickFun(
-                // @ts-ignore pretende que el elemento es un DIV pero sabemos que es un Input o TextArea
+            onSelect={(event)=>onSelectFun(
                 event
             )}
             onChange={onChangeFun}
