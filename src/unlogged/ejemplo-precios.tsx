@@ -182,7 +182,6 @@ function TypedInput<T extends string|number|null>(props:{
     value:T,
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
-    altoActual:number,
     idProximo:string|null,
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
@@ -240,7 +239,6 @@ function TypedInput<T extends string|number|null>(props:{
     },[])
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
-    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
         var value = valueT(event.target.value);
         if(value!==props.value){
@@ -266,9 +264,8 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    const onClickFun = function<TE extends React.MouseEvent<HTMLTextAreaElement>>(event:TE){
-        // @ts-ignore element es un input o textarea
-        var element:HTMLTextAreaElement = event.target;
+    const onSelectFun = function<TE extends React.SyntheticEvent>(event:TE){
+        var element = event.target as HTMLTextAreaElement;
         var selection = element.value.length||0;
         element.selectionStart = selection;
         element.selectionEnd = selection;
@@ -287,9 +284,7 @@ function TypedInput<T extends string|number|null>(props:{
             id={inputId}
             value={value}
             type={props.dataType} 
-            style={style}
-            onClick={(event)=>onClickFun(
-                // @ts-ignore pretende que el elemento es un DIV pero sabemos que es un Input o TextArea
+            onSelect={(event)=>onSelectFun(
                 event
             )}
             onChange={onChangeFun}
@@ -310,7 +305,6 @@ function TypedInput<T extends string|number|null>(props:{
             id={inputId}
             value={value}
             type={props.dataType} 
-            style={style}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             onChange={onChangeFun}
@@ -379,7 +373,6 @@ function EditableTd<T extends string|number|null>(props:{
 }){
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
-    const [anchoSinEditar, setAnchoSinEditar] = useState(0);
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
@@ -403,12 +396,9 @@ function EditableTd<T extends string|number|null>(props:{
             <div  
                 className={props.className} 
                 ref={mostrarMenu} 
-                onClick={(event)=>{
+                onClick={(_event)=>{
                     if(!props.disabled){
                         setEditando(true);
-                        // @ts-ignore offsetHeight debería existir porque event.target es un TD
-                        var altoActual:number = event.target.offsetHeight!;
-                        setAnchoSinEditar(altoActual);
                         props.onFocus?props.onFocus():null;
                     }
                 }}
@@ -425,7 +415,6 @@ function EditableTd<T extends string|number|null>(props:{
                     disabled={props.disabled}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
-                    altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }}
