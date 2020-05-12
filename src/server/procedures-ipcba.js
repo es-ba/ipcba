@@ -1773,6 +1773,14 @@ ProceduresIpcba = [
                         `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
                     ,[]).fetchAll();
                     tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
+                    var productos = await context.client.query(
+                        `SELECT * from productos`
+                    ,[]).fetchAll();
+                    productos = likeAr.createIndex(productos.rows, 'producto');
+                    var atributos = await context.client.query(
+                        `SELECT * from atributos`
+                    ,[]).fetchAll();
+                    atributos = likeAr.createIndex(atributos.rows, 'atributo');
                     try{
                         try{
                             var persona = await context.client.query(`
@@ -1856,7 +1864,7 @@ ProceduresIpcba = [
                                             ]
                                         ).fetchUniqueRow()
                                     }catch(err){
-                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
                                     }
                                     for(var atributo of observacion.atributos){
                                         //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
@@ -1880,7 +1888,7 @@ ProceduresIpcba = [
                                                     valorAtributoMayusculado // para solo hacer update si hubo cambio
                                                 ]).fetchOneRowIfExists()
                                             }catch(err){
-                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
                                             }
                                         }
                                     }
