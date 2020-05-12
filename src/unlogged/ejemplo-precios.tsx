@@ -41,6 +41,7 @@ export const materialIoIconsSvgPath={
     Clear: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
     Close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
     Code: "M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z",
+    Delete:"M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
     Description: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
     EmojiObjects: "M12 3c-.46 0-.93.04-1.4.14-2.76.53-4.96 2.76-5.48 5.52-.48 2.61.48 5.01 2.22 6.56.43.38.66.91.66 1.47V19c0 1.1.9 2 2 2h.28c.35.6.98 1 1.72 1s1.38-.4 1.72-1H14c1.1 0 2-.9 2-2v-2.31c0-.55.22-1.09.64-1.46C18.09 13.95 19 12.08 19 10c0-3.87-3.13-7-7-7zm2 16h-4v-1h4v1zm0-2h-4v-1h4v1zm-1.5-5.59V14h-1v-2.59L9.67 9.59l.71-.71L12 10.5l1.62-1.62.71.71-1.83 1.82z",
     ExitToApp: "M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z",
@@ -66,7 +67,9 @@ const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
     <SvgIcon><path d={svgText}/></SvgIcon>
 ).plain();
 
+const ChevronLeftIcon = ICON.ChevronLeft;
 const MenuIcon = ICON.Menu;
+const DeleteIcon = ICON.Delete;
 const DescriptionIcon = ICON.Description;
 const SearchIcon = ICON.Search;
 const KeyboardArrowUpIcon = ICON.KeyboardArrowUp;
@@ -179,7 +182,6 @@ function TypedInput<T extends string|number|null>(props:{
     value:T,
     dataType: InputTypes
     onUpdate:OnUpdate<T>, 
-    altoActual:number,
     idProximo:string|null,
     inputId:string,
     tipoOpciones?:LetraTipoOpciones|null,
@@ -237,7 +239,6 @@ function TypedInput<T extends string|number|null>(props:{
     },[])
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
-    var style:any=props.altoActual?{height:props.altoActual+'px'}:{};
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
         var value = valueT(event.target.value);
         if(value!==props.value){
@@ -263,9 +264,8 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    const onClickFun = function<TE extends React.MouseEvent<HTMLTextAreaElement>>(event:TE){
-        // @ts-ignore element es un input o textarea
-        var element:HTMLTextAreaElement = event.target;
+    const onSelectFun = function<TE extends React.SyntheticEvent>(event:TE){
+        var element = event.target as HTMLTextAreaElement;
         var selection = element.value.length||0;
         element.selectionStart = selection;
         element.selectionEnd = selection;
@@ -284,9 +284,7 @@ function TypedInput<T extends string|number|null>(props:{
             id={inputId}
             value={value}
             type={props.dataType} 
-            style={style}
-            onClick={(event)=>onClickFun(
-                // @ts-ignore pretende que el elemento es un DIV pero sabemos que es un Input o TextArea
+            onSelect={(event)=>onSelectFun(
                 event
             )}
             onChange={onChangeFun}
@@ -304,10 +302,10 @@ function TypedInput<T extends string|number|null>(props:{
         var input = <TextField
             autoFocus={props.autoFocus}
             spellCheck={false}
+            placeholder={props.placeholder}
             id={inputId}
             value={value}
             type={props.dataType} 
-            style={style}
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             onChange={onChangeFun}
@@ -376,7 +374,6 @@ function EditableTd<T extends string|number|null>(props:{
 }){
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
-    const [anchoSinEditar, setAnchoSinEditar] = useState(0);
     const mostrarMenu = useRef<HTMLTableDataCellElement>(null);
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
@@ -400,12 +397,9 @@ function EditableTd<T extends string|number|null>(props:{
             <div  
                 className={props.className} 
                 ref={mostrarMenu} 
-                onClick={(event)=>{
+                onClick={(_event)=>{
                     if(!props.disabled){
                         setEditando(true);
-                        // @ts-ignore offsetHeight debería existir porque event.target es un TD
-                        var altoActual:number = event.target.offsetHeight!;
-                        setAnchoSinEditar(altoActual);
                         props.onFocus?props.onFocus():null;
                     }
                 }}
@@ -422,7 +416,6 @@ function EditableTd<T extends string|number|null>(props:{
                     disabled={props.disabled}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
-                    altoActual={anchoSinEditar}
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }}
@@ -1706,26 +1699,28 @@ function PantallaHojaDeRuta(_props:{}){
                             customDataMode?
                                 <>
                                     {isDirtyHDR()?
-                                        <Button
-                                            color="inherit"
-                                            onClick={async ()=>{
-                                                setMensajeDescarga('descargando, por favor espere...');
-                                                setDescargando(true);
-                                                var message = await devolverHojaDeRuta(hdr);
-                                                setDescargando(false);
-                                                if(message=='descarga completa'){
-                                                    setDescargaCompleta(true);
-                                                    await borrarDatosRelevamientoLocalStorage();
-                                                    message+=', redirigiendo a grilla de relevamiento...';
-                                                    setTimeout(function(){
-                                                        location.reload();       
-                                                    }, 3000)
-                                                }
-                                                setMensajeDescarga(message)
-                                            }}
-                                        >
-                                            <SaveIcon/>
-                                        </Button>
+                                        <>
+                                            <Button
+                                                color="inherit"
+                                                onClick={async ()=>{
+                                                    setMensajeDescarga('descargando, por favor espere...');
+                                                    setDescargando(true);
+                                                    var message = await devolverHojaDeRuta(hdr);
+                                                    setDescargando(false);
+                                                    if(message=='descarga completa'){
+                                                        setDescargaCompleta(true);
+                                                        await borrarDatosRelevamientoLocalStorage();
+                                                        message+=', redirigiendo a grilla de relevamiento...';
+                                                        setTimeout(function(){
+                                                            location.reload();       
+                                                        }, 3000)
+                                                    }
+                                                    setMensajeDescarga(message)
+                                                }}
+                                            >
+                                                <SaveIcon/>
+                                            </Button>
+                                        </>
                                     :
                                         <Button
                                             color="inherit"
@@ -1824,12 +1819,31 @@ function PantallaHojaDeRuta(_props:{}){
 }
 
 function PantallaOpciones(){
-    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>hdr.opciones)
+    const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, customDataMode} = useSelector((hdr:HojaDeRuta)=>hdr.opciones)
     const dispatch = useDispatch();
+    const [mensajeBorrar, setMensajeBorrar] = useState<string|null>(null);
+    const [habilitarBorrar, setHabilitarBorrar] = useState<boolean>(false);
+    const [online, setOnline] = useState(window.navigator.onLine);
+    const updateOnlineStatus = function(){
+        setOnline(window.navigator.onLine);
+    }
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    const FRASE_BORRADO = "forzar borrado";
     return (
         <>
             <AppBar position="fixed">
                 <Toolbar>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={()=>
+                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
+                        }
+                    >
+                        <ChevronLeftIcon />
+                    </IconButton>
                     <Typography variant="h6">Opciones del dispositivo móvil</Typography>
                 </Toolbar>
             </AppBar>
@@ -1871,16 +1885,69 @@ function PantallaOpciones(){
                         <Grid item>sí</Grid>
                     </Grid>            
                 </Typography>
-                <Button style={{marginTop:'2px'}}
-                    color="primary"
-                    variant="contained"
-                    onClick={()=>
-                        dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
-                    }
-                >
-                    <DescriptionIcon/>
-                    Volver a hoja de ruta
-                </Button>
+                {online && customDataMode && isDirtyHDR()?
+                    <Typography>
+                        <Button
+                            color="secondary"
+                            variant="contained"
+                            onClick={()=>{
+                                setMensajeBorrar(`Si continua perderá los datos 
+                                    de la hoja de ruta actual. Escriba "${FRASE_BORRADO}"`
+                                )
+                            }}
+                        >
+                            <DeleteIcon/> Descartar hoja de ruta
+                        </Button>
+                        <Dialog
+                            open={!!mensajeBorrar}
+                            //hace que no se cierre el mensaje
+                            onClose={()=>setMensajeBorrar(mensajeBorrar)}
+                            aria-labelledby="alert-dialog-title"
+                            aria-describedby="alert-dialog-description"
+                        >
+                            <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    {mensajeBorrar}
+                                </DialogContentText>
+                                <TextField
+                                    onChange={(event)=>
+                                        setHabilitarBorrar(event.target.value.toLowerCase()==FRASE_BORRADO)
+                                    }
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button 
+                                    onClick={()=>{
+                                        setMensajeBorrar(null)
+                                    }} 
+                                    color="primary" 
+                                    variant="outlined"
+                                >
+                                    Cancelar
+                                </Button>
+                                <Button 
+                                    onClick={async ()=>{
+                                        setMensajeBorrar("descartando hoja de ruta...")
+                                        var message = await borrarDatosRelevamientoLocalStorage();
+                                        if(message == 'ok'){
+                                            location.reload();   
+                                        }else{
+                                            setMensajeBorrar(message)
+                                        }
+                                    }} 
+                                    color="secondary" 
+                                    variant="outlined"
+                                    disabled={!habilitarBorrar}
+                                >
+                                    Descartar
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                    </Typography>
+                :
+                    null
+                }
             </main>
         </>
     )
