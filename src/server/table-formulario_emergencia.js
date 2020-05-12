@@ -9,11 +9,14 @@ module.exports = function(context){
         editable:false, //puedeEditar,
         fields:[
             {name:'periodo'               , typeName:'text'                                , allow:{update:false}        },
-            {name:'id_renglon'            , typeName:'text'                                , allow:{update:false}        },
-            {name:'tipo'                  , typeName:'text'   },
+            {name:'informante'            , typeName:'integer'   },
+            {name:'nombreinformante'      , typeName:'text'   },
+            {name:'formulario'            , typeName:'integer'},
+            {name:'nombreformulario'      , typeName:'text'   },
+            {name:'orden'                 , typeName:'integer'   },
             {name:'producto'              , typeName:'text'   },
             {name:'observacion'           , typeName:'integer'},
-            {name:'nombre'                , typeName:'text'   },
+            {name:'nombreproducto'        , typeName:'text'   },
             {name:'precio_1'              , typeName:'text'   , title:'precioᵃ'},
             {name:'tipoprecio_1'          , typeName:'text'   , title:'TPᵃ'},
             {name:'precio'                , typeName:'text'   },
@@ -28,8 +31,8 @@ module.exports = function(context){
             {name:'envase'                , typeName:'text'   },
             {name:'otros'                 , typeName:'text'   },
         ],
-        primaryKey:['periodo','producto','informante','observacion'],
-        sortColumns:[{column:'tipoinformante'},{column:'informante'},{column:'observacion'}],
+        primaryKey:['periodo','informante','formulario','producto','observacion'],
+        sortColumns:[{column:'periodo'},{column:'informante'},{column:'formulario'},{column:'orden'},{column:'producto'},{column:'observacion'}],
         foreignKeys:[
             {references:'informantes' , fields:['informante']},
             {references:'productos'   , fields:['producto']},
@@ -84,7 +87,7 @@ module.exports = function(context){
                 ,fp.orden
                 ,p.producto
                 ,p.observacion
-        )`
+            )`
        }        
     },context);
 }
