@@ -302,6 +302,7 @@ function TypedInput<T extends string|number|null>(props:{
         var input = <TextField
             autoFocus={props.autoFocus}
             spellCheck={false}
+            placeholder={props.placeholder}
             id={inputId}
             value={value}
             type={props.dataType} 
