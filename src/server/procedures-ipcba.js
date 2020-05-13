@@ -325,7 +325,7 @@ function dm2CrearQueries(parameters){
                     'moneda'
             )} as relmon
             , ${jsono(`
-                SELECT informante, direccion, contacto, telcontacto, web
+                SELECT informante, direccion, contacto, telcontacto, web, email
                     FROM informantes INNER JOIN (
                         SELECT informante
                             FROM relvis 

@@ -63,6 +63,7 @@ export type Informante={
     contacto :string|null
     telcontacto :string|null
     web :string|null
+    email :string|null
 }
 
 export type Razon={

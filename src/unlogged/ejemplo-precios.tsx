@@ -1597,6 +1597,7 @@ function InformanteRow(props:{informante:RelInf}){
     const contacto = estructura.informantes[informante.informante].contacto;
     const telcontacto = estructura.informantes[informante.informante].telcontacto;
     const web = estructura.informantes[informante.informante].web;
+    const email = estructura.informantes[informante.informante].email;
     return (
         <>
             {informante.formularios.map((relVis:RelVis, index:number)=>{
@@ -1618,6 +1619,7 @@ function InformanteRow(props:{informante:RelInf}){
                                     {contacto?<div className='contacto-informante'>{contacto}</div>:null}
                                     {telcontacto?<div className='telcontacto-informante'>{telcontacto}</div>:null}
                                     {web?<div className='web-informante'><a href={(web.startsWith('http') || web.startsWith('https')?"":"//")+web} target="_blank">{web}</a></div>:null}
+                                    {email?<div className='email-informante'>{email}</div>:null}
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:
