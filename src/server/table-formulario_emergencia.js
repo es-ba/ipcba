@@ -17,9 +17,9 @@ module.exports = function(context){
             {name:'producto'              , typeName:'text'   },
             {name:'observacion'           , typeName:'integer'},
             {name:'nombreproducto'        , typeName:'text'   },
-            {name:'precio_1'              , typeName:'text'   , title:'precioᵃ'},
+            {name:'precio_1'              , typeName:'decimal' , title:'precioᵃ'},
             {name:'tipoprecio_1'          , typeName:'text'   , title:'TPᵃ'},
-            {name:'precio'                , typeName:'text'   },
+            {name:'precio'                , typeName:'decimal' },
             {name:'tipoprecio'            , typeName:'text'   , title:'TP'},
             {name:'comentariosrelpre'     , typeName:'text'   , title:'comentarios'},
             {name:'unidad'                , typeName:'text'   },
@@ -80,7 +80,7 @@ module.exports = function(context){
                     from relatr a inner join atributos using(atributo) 
                     where a.periodo=p.periodo  and a.informante=p.informante and a.visita=p.visita and a.producto=p.producto and a.observacion=p.observacion and a.atributo not in (1,13,15,16,17,22,23)) as otros
             where prioritario is not null and habilitar_prioritario
-                and per.ingresando='S'
+                and per.periodo = (select max(periodo) from periodos where ingresando='N')
             order by 
                  p.periodo
                 ,p.informante
