@@ -68,10 +68,10 @@ module.exports = function(context){
                     from (select * from personal per where per.username = ${db.quoteLiteral(context.user.usu_usu)}) per
                         inner join reltar rt on rt.encuestador = per.persona or per.labor <> 'E'
                         inner join relvis rv using (periodo, panel, tarea)
-                        inner join razones z using(razon)
                         inner join periodos p using (periodo)
                         inner join relpan rp using (periodo, panel)
                         inner join informantes i on rv.informante = i.informante 
+                        left join razones z using(razon)
                         left join tokens tk on tk.token = token_relevamiento
                         left join personal ptk on ptk.username = tk.username
                         left join relinf ri on rv.periodo = ri.periodo and rv.informante = ri.informante and rv.visita = ri.visita
