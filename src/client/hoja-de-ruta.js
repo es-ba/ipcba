@@ -380,12 +380,16 @@ myOwn.clientSides.parseInformante={
         }
         var telcontacto = depot.row['informantecompleto'].telcontacto;
         if(telcontacto){
-            div.appendChild(html.div({class:'telcontacto-informante'}, telcontacto).create());    
+            div.appendChild(html.div({class:'telcontacto-informante'}, telcontacto).create());
         }
         var web = depot.row['informantecompleto'].web;
         if(web){
             var href = (web.startsWith('http') || web.startsWith('https')?"":"//")+web;
             div.appendChild(html.div({class:'web-informante'}, [html.a({href:href, target:'_blank'},web)]).create());
+        }
+        var email = depot.row['informantecompleto'].email;
+        if(email){
+            div.appendChild(html.div({class:'email-informante'}, email).create());
         }
         depot.rowControls[fieldName].appendChild(div);
     }

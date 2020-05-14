@@ -127,9 +127,12 @@ var calcularListas=function(otrosFormulariosInformanteIdx: {[key: string]: RelVi
     return getObservacionesFiltradas(otrosFormulariosInformanteIdx, observaciones, relVis, estructura, allForms, searchString, queVer);
 }
 
+var setDirty = () => my.setLocalVar(LOCAL_STORAGE_DIRTY_NAME, true);
+
 var reducers={
     SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 return {
                     ...miRelVis,
@@ -139,6 +142,7 @@ var reducers={
         },
     SET_COMENTARIO_RAZON : (payload: {forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 return {
                     ...miRelVis,
@@ -148,14 +152,17 @@ var reducers={
         },
     SET_TP               : (payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return setTP(state, payload, _ => payload.tipoprecio);
         },
     COPIAR_TP            :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return setTP(state, payload, relPre => puedeCopiarTipoPrecio(estructura!, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
         },
     SET_PRECIO           :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura!, miRelPre);
                 var nuevoRelPre:RelPre = {
@@ -169,6 +176,7 @@ var reducers={
         },
     SET_COMENTARIO_PRECIO:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {
                     ...miRelPre,
@@ -179,6 +187,7 @@ var reducers={
         },
     COPIAR_ATRIBUTOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var puedeCopiarAttrs = puedeCopiarAtributos(estructura!, relPre);
                 if(!puedeCopiarAttrs){
@@ -195,6 +204,7 @@ var reducers={
         },
     COPIAR_ATRIBUTOS_VACIOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 var nuevoRelPre:RelPre = {
                     ...relPre,
@@ -207,6 +217,7 @@ var reducers={
         },
     SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) => 
         function(state: HojaDeRuta){
+            setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){
                     return relPre;
@@ -324,7 +335,7 @@ var reducers={
                 }
             })
         },
-  RESET_OPCIONES:(_payload: {}) => 
+    RESET_OPCIONES:(_payload: {}) => 
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
@@ -416,7 +427,6 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     
     function saveState(state:HojaDeRuta){
         my.setLocalVar(LOCAL_STORAGE_STATE_NAME, state);
-        my.setLocalVar(LOCAL_STORAGE_DIRTY_NAME, true);
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 
