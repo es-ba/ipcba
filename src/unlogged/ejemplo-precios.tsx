@@ -265,8 +265,9 @@ function TypedInput<T extends string|number|null>(props:{
         }
     }
     const onClickFun = function<TE extends React.MouseEvent>(event:TE){
-        var element = event.target as HTMLTextAreaElement;
-        if(element &&  element.value){
+        var element = event.target;
+        //MEJORAR, puede ser div tambien
+        if(element instanceof HTMLTextAreaElement){
             var selection = element.value.length||0;
             element.selectionStart = selection;
             element.selectionEnd = selection;
