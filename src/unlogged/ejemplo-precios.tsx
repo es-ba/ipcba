@@ -264,11 +264,14 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    const onSelectFun = function<TE extends React.SyntheticEvent>(event:TE){
-        var element = event.target as HTMLTextAreaElement;
-        var selection = element.value.length||0;
-        element.selectionStart = selection;
-        element.selectionEnd = selection;
+    const onClickFun = function<TE extends React.MouseEvent>(event:TE){
+        var element = event.target;
+        //MEJORAR, puede ser div tambien
+        if(element instanceof HTMLTextAreaElement){
+            var selection = element.value.length||0;
+            element.selectionStart = selection;
+            element.selectionEnd = selection;
+        }
     }
     var readOnly = false;
     if(props.dataType=='text'){
@@ -284,7 +287,7 @@ function TypedInput<T extends string|number|null>(props:{
             id={inputId}
             value={value}
             type={props.dataType} 
-            onSelect={(event)=>onSelectFun(
+            onClick={(event)=>onClickFun(
                 event
             )}
             onChange={onChangeFun}
