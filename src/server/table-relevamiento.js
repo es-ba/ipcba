@@ -61,10 +61,10 @@ module.exports = function(context){
                         )
                     ) --estado intermedio
                     ) as cantformulariosfaltantes,
-                    sum(case when z.espositivoformulario = 'S' and pre.periodo is not null then 1 else 0 end) as cantpreciostotales,
-                    sum(case when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantprecioscompletos,
-                    sum(case when z.espositivoformulario = 'S' and pre.periodo is not null then 1 else 0 end) - 
-                    sum(case when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantpreciosfaltantes
+                    sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null then 1 else 0 end) as cantpreciostotales,
+                    sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantprecioscompletos,
+                    sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null then 1 else 0 end) - 
+                    sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantpreciosfaltantes
                     from (select * from personal per where per.username = ${db.quoteLiteral(context.user.usu_usu)}) per
                         inner join reltar rt on rt.encuestador = per.persona or per.labor <> 'E'
                         inner join relvis rv using (periodo, panel, tarea)
