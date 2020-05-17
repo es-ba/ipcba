@@ -46,8 +46,8 @@ module.exports = function(context){
                     count(distinct case when pre.tipoprecio is not null then pre.formulario else null end)  -
                     (select count(*) from 
                         regexp_matches (
-                        regexp_replace(string_agg(distinct pre.formulario::text||pre.tipo,'' order by pre.formulario::text||pre.tipo),'[NS]','', 'g')
-                        , '([0-9]{2,4})\\1'
+                        string_agg(distinct pre.formulario::text||pre.tipo,'' order by pre.formulario::text||pre.tipo)
+                        , '([0-9]{2,4}).\\1', 'g'
                         )
                     ) --estado intermedio
                     as cantformularioscompletos, 
@@ -56,8 +56,8 @@ module.exports = function(context){
                     count(distinct case when pre.tipoprecio is not null then pre.formulario else null end)  -
                     (select count(*) from 
                         regexp_matches (
-                        regexp_replace(string_agg(distinct pre.formulario::text||pre.tipo,'' order by pre.formulario::text||pre.tipo),'[NS]','', 'g')
-                        , '([0-9]{2,4})\\1'
+                        string_agg(distinct pre.formulario::text||pre.tipo,'' order by pre.formulario::text||pre.tipo)
+                        , '([0-9]{2,4}).\\1','g'
                         )
                     ) --estado intermedio
                     ) as cantformulariosfaltantes,
