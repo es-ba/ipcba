@@ -318,8 +318,8 @@ my.clientSides.control_precio = {
         myPromise = myPromise.then(function(){
             var tieneAdvertencias;
             if(depot.row.precio &&
-               ((depot.row.comentariosrelpre == null && depot.row.precionormalizado_1 && (depot.row.precionormalizado < depot.row.precionormalizado_1/2 || depot.row.precionormalizado > depot.row.precionormalizado_1*2)) ||
-                (depot.row.comentariosrelpre == null && depot.row.promobs_1 && (depot.row.precionormalizado < depot.row.promobs_1/2 || depot.row.precionormalizado > depot.row.promobs_1*2)) ||
+               (((depot.row.comentariosrelpre == null && my.offline.mode || !my.offline.mode)  && depot.row.precionormalizado_1 && (depot.row.precionormalizado < depot.row.precionormalizado_1/2 || depot.row.precionormalizado > depot.row.precionormalizado_1*2)) ||
+                ((depot.row.comentariosrelpre == null && my.offline.mode || !my.offline.mode)  && depot.row.promobs_1 && (depot.row.precionormalizado < depot.row.promobs_1/2 || depot.row.precionormalizado > depot.row.promobs_1*2)) ||
                 normsindato === 'S' || fueraderango === 'S'
                )
             ){
