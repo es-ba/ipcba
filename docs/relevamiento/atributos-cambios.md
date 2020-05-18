@@ -154,7 +154,7 @@ La implementación es similar a la otra:
 No se almacena una señal de *atributos confirmados* porque no es necesaria (si hay tipo de precio es porque los atributos están confirmados). 
 Tampoco se almacena la señal "C" porque se puede calcular en base a los atributos del mes anterior. 
 
-En el dispositivo móvil ya no es necesario mostrar la flecha porque los atributos se copian en el momento de ingresar el precio. 
+En el dispositivo móvil ya no es necesario mostrar la flecha porque los atributos se copian automáticamente. 
 
 Se pueden calcular las mismas señales de cambio que en las otras dos alternativas. 
 
@@ -168,10 +168,16 @@ Es la más simple de las 3 alternativas. Mantiene las características de la alt
 
 La "C" como señal de control y resumen de la situación del precio es importante y existe en todas las alternativas con igual funcionalidad. 
 
-La alternativa "C manual" es más parecida a la situación previa al desarollo del dipositivo móvil. 
+La "L" se ve como necesaria en todas las alternativas, lo mismo el mejorar los controles de generación. 
+
+La alternativa "C manual" es más parecida a la situación previa al desarrollo del dispositivo móvil 
+en lo referido al almacenamiento en la base de datos, 
+pero no en lo referido al uso del sistema por parte del encuestador. 
 
 La alternativa "C automática" tiene como ventaja ser directo en las señales sobre los precios gracias al campo *atributos confirmados* de *relpre*
 (en la alternativa "C manual" la confirmación está implícita en la señal de cambio). 
 
-La alternativa "C pura" es la más simple, tiene menos combinaciones de estados y situaciones; 
-y por lo tanto más fácil de probar y por lo tanto menos probable de que haya errores en la programación del sistema. 
+La alternativa "C pura" es la más simple, 
+es la más parecida a la situación previa al desarrollo del dispositivo móvil en lo referido al uso del sistema por el ignresador,
+tiene menos combinaciones de estados y situaciones, 
+por lo tanto más fácil de probar y por eso menos probable de que haya errores en la programación del sistema. 
