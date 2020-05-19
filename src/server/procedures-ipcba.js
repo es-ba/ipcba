@@ -400,10 +400,8 @@ function dm2CrearQueries(parameters){
         WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
     `;
     var sqlAtributos=`
-        SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
-                case when tp.espositivo='S' then ra.valor else null end as valor, 
-                ra_1.valor as valoranterior, 
-                pa.orden
+        SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ra.valor, 
+                ra_1.valor as valoranterior, pa.orden
             FROM relatr ra 
                 INNER JOIN relatr ra_1 
                     ON ra_1.periodo = rp.periodo_1
@@ -419,7 +417,9 @@ function dm2CrearQueries(parameters){
                 AND ra.producto=rp.producto
                 AND ra.observacion=rp.observacion`
     var sqlObservaciones=`                
-        SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, rp.tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+        SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, 
+                case when rp.tipoprecio='L' then null else rp.tipoprecio end as tipoprecio, 
+                tipoprecio_1 as tipoprecioanterior,
                 cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
                 f.orden as orden_formulario,
                 fp.orden as orden_producto,
