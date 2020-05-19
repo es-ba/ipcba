@@ -1,32 +1,35 @@
 CREATE OR REPLACE FUNCTION permitir_actualizar_valor_trg()
-  RETURNS trigger AS
-$BODY$
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    VOLATILE NOT LEAKPROOF SECURITY DEFINER
+AS $BODY$
 DECLARE
-  vcambio  cvp.relpre.cambio%type;
+  --vcambio  cvp.relpre.cambio%type;
   valterable  cvp.prodatr.alterable%type;
   vvalor_1 cvp.relatr.valor%type;
   vvaloresvalidos record;
   vvalido boolean;
   vhayquevalidar boolean;
+  vespositivo cvp.tipopre.espositivo%type;
+  
 BEGIN
   IF OLD.valor IS DISTINCT FROM NEW.valor THEN
-    SELECT cambio INTO vcambio
-      FROM cvp.relpre
-      WHERE periodo=NEW.periodo AND informante=NEW.informante AND visita=NEW.visita AND producto=NEW.producto AND
-            observacion=NEW.observacion;
-    IF vcambio IS DISTINCT FROM 'C' THEN
-        SELECT r_1.valor_1 INTO vvalor_1
-          FROM cvp.relatr_1 r_1
-          WHERE r_1.periodo=NEW.periodo AND 
-                r_1.producto=NEW.producto AND
-                r_1.observacion=NEW.observacion AND 
-                r_1.informante=NEW.informante AND
-                r_1.visita=NEW.visita AND 
-                r_1.atributo=NEW.atributo;
-      IF vvalor_1 IS DISTINCT FROM NEW.valor THEN 
-          RAISE EXCEPTION 'No es posible modificar el valor del atributo cuando el campo cambio es distinto de C % %', vvalor_1, NEW.valor;
-          RETURN NULL;
-      END IF;
+    --SELECT cambio INTO vcambio
+    --  FROM cvp.relpre
+    --  WHERE periodo=NEW.periodo AND informante=NEW.informante AND visita=NEW.visita AND producto=NEW.producto AND
+    --        observacion=NEW.observacion;
+    --IF vcambio IS DISTINCT FROM 'C' THEN
+    --  RAISE EXCEPTION 'No es posible modificar el valor del atributo cuando el campo cambio es distinto de C';
+    --  RETURN NULL;
+    --ELSE
+    SELECT coalesce(t.espositivo,'S') INTO vespositivo
+      FROM cvp.relpre r 
+	  LEFT JOIN cvp.tipopre t on r.tipoprecio = t.tipoprecio
+      WHERE r.periodo=NEW.periodo AND r.informante=NEW.informante AND r.visita=NEW.visita AND r.producto=NEW.producto AND
+            r.observacion=NEW.observacion;
+    IF vespositivo='N' THEN
+  	  RAISE EXCEPTION 'No es posible modificar el valor del atributo cuando el precio no es positivo';
+      RETURN NULL;
     ELSE
       SELECT alterable INTO valterable
         FROM cvp.prodatr
@@ -67,8 +70,8 @@ BEGIN
   
   RETURN NEW;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE SECURITY DEFINER;
+$BODY$;
+
 
 CREATE TRIGGER relatr_actualizar_valor_trg
   BEFORE UPDATE
