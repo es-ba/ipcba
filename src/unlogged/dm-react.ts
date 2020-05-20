@@ -109,15 +109,8 @@ var setTP = function setTP(
 ){
     return surfRelPre(hdrState, payload, (relPre:RelPre)=>{
         var tipoPrecioNuevo = tipoPrecioRedux(relPre);
-        var esNegativo = !tipoPrecioNuevo || !estructura!.tipoPrecio[tipoPrecioNuevo].espositivo;
-        var paraLimipar=esNegativo?{
-            precio: null,
-            cambio: null,
-            atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
-        }:{};
         return {
             ...relPre,
-            ...paraLimipar,
             tipoprecio: tipoPrecioNuevo
         };
     });

@@ -25,7 +25,7 @@ export function puedeCambiarTP(estructura:Estructura, relVis:RelVis){
 }
 
 export function tpNecesitaConfirmacion(estructura:Estructura, relPre:RelPre, tipoPrecioSeleccionado:string){
-    return !estructura.tipoPrecio[tipoPrecioSeleccionado].espositivo && (relPre.precio != null || relPre.cambio != null)
+    return !estructura.tipoPrecio[tipoPrecioSeleccionado].espositivo && relPre.precio != null
 }
 
 export function calcularCambioAtributosEnPrecio(relPre:RelPre){
@@ -143,15 +143,11 @@ export function controlarPrecio(relPre:RelPre, estructura:Estructura, esElActual
     });
     var tieneAdvertencias:boolean = false;
     var tieneErrores:boolean = false;
-    if(!esElActual && !relPre.precio && (relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo || relPre.cambio)){
+    if(!esElActual && !relPre.precio && relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo){
         color=COLOR_ERRORES; //rojo   // color='#BA7AFF'; //violeta autorizado por Juli
         tieneAdvertencias = true;
         tieneErrores = true;
-    }else if(!esElActual && relPre.cambio && !(relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo)){
-        color=COLOR_ERRORES; //rojo
-        tieneAdvertencias = true;
-        tieneErrores = true;
-    }else if(relPre.precio && relPre.precionormalizado && (
+    }else if(relPre.precio && relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo && relPre.precionormalizado && (
         (relPre.comentariosrelpre == null && relPre.precionormalizado_1 && (relPre.precionormalizado < relPre.precionormalizado_1/2 || relPre.precionormalizado > relPre.precionormalizado_1*2)) ||
         (relPre.comentariosrelpre == null && relPre.promobs_1 && (relPre.precionormalizado < relPre.promobs_1/2 || relPre.precionormalizado > relPre.promobs_1*2)) 
        ) || atributoTieneAdvertencia
