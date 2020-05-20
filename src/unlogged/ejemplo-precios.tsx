@@ -674,7 +674,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     }
 
     return (
-        <div style={props.style} className="caja-relpre">
+        <div style={props.style} className="caja-relpre" es-positivo={relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo?'no':'si'}>
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
