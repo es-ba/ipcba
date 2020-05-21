@@ -30,6 +30,8 @@ module.exports = function(context){
             {name:'nombre'                , typeName:'text'   },
             {name:'envase'                , typeName:'text'   },
             {name:'otros'                 , typeName:'text'   },
+            {name:'grupo_prioridad'       , typeName:'integer'},
+            {name:'obs_no_unica'          , typeName:'integer'},
         ],
         primaryKey:['periodo','informante','formulario','producto','observacion'],
         sortColumns:[{column:'periodo'},{column:'informante'},{column:'formulario'},{column:'orden'},{column:'producto'},{column:'observacion'}],
@@ -64,6 +66,10 @@ module.exports = function(context){
                 ,a22.valor as nombre
                 ,a23.valor as envase
                 ,otros
+                ,case when (select count(*) 
+                    from relpre where (periodo, informante, visita, producto) = (p.periodo, p.informante, p.visita, p.producto) 
+                    ) = 1 then 0 else p.observacion end obs_no_unica
+                ,grupo_prioridad
             from relpre_1 p inner join informantes using(informante)
                  inner join formularios using(formulario)
                  inner join forprod fp using(formulario,producto)
@@ -79,7 +85,7 @@ module.exports = function(context){
                 lateral (select string_agg(nombreatributo||':'||valor, ',') as otros 
                     from relatr a inner join atributos using(atributo) 
                     where a.periodo=p.periodo  and a.informante=p.informante and a.visita=p.visita and a.producto=p.producto and a.observacion=p.observacion and a.atributo not in (1,13,15,16,17,22,23)) as otros
-            where prioritario is not null and habilitar_prioritario
+            where prioritario is not null and grupo_prioridad is not null
                 and per.periodo = (select max(periodo) from periodos where ingresando='N')
             order by 
                  p.periodo
