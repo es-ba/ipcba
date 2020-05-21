@@ -3,10 +3,10 @@
 -- DROP FUNCTION cvp.generar_formulario(text, integer, integer, timestamp without time zone);
 
 CREATE OR REPLACE FUNCTION cvp.generar_formulario(
-	pperiodo text,
-	pinformante integer,
-	pformulario integer,
-	pfechageneracion timestamp without time zone)
+  pperiodo text,
+  pinformante integer,
+  pformulario integer,
+  pfechageneracion timestamp without time zone)
     RETURNS text
     LANGUAGE 'plpgsql'
     VOLATILE SECURITY DEFINER 
@@ -25,6 +25,9 @@ declare
   */
   vcantidadpreciosgenerados integer;
   vvisita INTEGER := 1;
+  vcantidadatributosgenerados integer;
+  vcantidadatributosenformulario integer;
+  
 begin
   --raise notice 'pap 1';
   insert into cvp.bitacora (que) values ('nueva generacion '||pperiodo||' i:'||pinformante||' f:'||pformulario||' g:'||pfechageneracion);
@@ -60,6 +63,29 @@ begin
     --raise Exception 'Error, No se generaron filas del formulario del periodo %, informante%, formulario%  sin registros en relpre', pperiodo, pinformante, pformulario;  
     raise Notice 'ADVERTENCIA, No se generaron filas del formulario del periodo %, informante%, formulario%  sin registros en relpre', pperiodo, pinformante, pformulario;  
     
+  END IF;
+
+  select count(*) into vcantidadatributosgenerados
+    from cvp.relatr a
+  left join cvp.periodos p on a.periodo = p.periodoanterior
+    left join cvp.relpre r on
+    a.periodo = r.periodo and 
+    a.producto = r.producto and 
+    a.observacion = r.observacion and 
+    a.informante = r.informante and 
+    a.visita = r.visita
+    where p.periodo=pperiodo
+      and a.informante=pinformante
+      and r.formulario=pformulario
+      and a.visita=vvisita;
+    
+  select count(*) into vcantidadatributosenformulario
+  from cvp.prodatr pa
+  left join cvp.forprod fp using (producto)
+  where fp.formulario = pformulario;
+
+  IF vcantidadatributosenformulario > 0 and vcantidadatributosgenerados=0 THEN
+    raise Exception 'Error, No se generaron los atributos del periodo anterior; periodo %, informante%, formulario% ', pperiodo, pinformante, pformulario;
   END IF;
   
   --raise notice 'pap 4';
@@ -110,7 +136,7 @@ begin
         and rp.formulario=pformulario
         and rp.periodo=pperiodo
         and rp.visita=vvisita;
-	
+  
   --raise notice 'pap 5';
   return null;
 end
