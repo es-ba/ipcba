@@ -1770,7 +1770,7 @@ ProceduresIpcba = [
                 }
                 if(habilitado){
                     var tiposDePrecio = await context.client.query(
-                        `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
+                        `SELECT tipoprecio, espositivo='S' as espositivo, puedecambiaratributos FROM tipopre`
                     ,[]).fetchAll();
                     tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
                     var productos = await context.client.query(
@@ -1842,33 +1842,37 @@ ProceduresIpcba = [
                             }catch(err){
                                 throw new Error('Error al caracterizar la visita para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
                             }
-                            var actualizarObservaciones=async function(observaciones){
-                                for(var observacion of observaciones){
-                                    try{
-                                        observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
-                                        await context.client.query(`
+                            var actualizarObservacionesYAtributos=async function(observaciones){
+                                var actualizarObservacion=async function(observacion){
+                                    await context.client.query(`
                                             update relpre
-                                                set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
-                                                where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
-                                                returning true`
-                                            ,[
-                                                filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio), 
-                                                filtroValoresPrecioAtributo && observacion.tipoprecio && observacion.precio, 
-                                                filtroValoresPrecioAtributo && observacion.cambio,
-                                                observacion.periodo, 
-                                                observacion.informante, 
-                                                observacion.visita, 
-                                                observacion.producto, 
-                                                observacion.observacion,
-                                                simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre)
-                                            ]
+                                            set tipoprecio = $1, precio = $2, comentariosrelpre = $8
+                                            where periodo = $3 and informante = $4 and visita = $5 and producto = $6 and observacion = $7 --pk verificada
+                                            returning true`
+                                        ,[
+                                            filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio),
+                                            filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo?observacion.precio:null), 
+                                            observacion.periodo, 
+                                            observacion.informante, 
+                                            observacion.visita, 
+                                            observacion.producto, 
+                                            observacion.observacion,
+                                            simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre),
+                                        ]
                                         ).fetchUniqueRow()
-                                    }catch(err){
-                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                };
+                                for(var observacion of observaciones){
+                                    observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
+                                    var tpEsNegativo = !!(observacion.tipoprecio && !tiposDePrecio[observacion.tipoprecio].espositivo);
+                                    var actualizarPrecioAntes = false;
+                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo){
+                                        actualizarPrecioAntes = true;
+                                        observacion.tipoprecio="L";
+                                        await actualizarObservacion(observacion);
                                     }
                                     for(var atributo of observacion.atributos){
-                                        //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && filtroValoresPrecioAtributo && !limpiandoRazon /* && atributo.valor*/){
+                                        //solo actualizo atributo si el tipoprecio puede cambiar atributos (si el valor es nulo, se guarda nulo)
+                                        if(!tpEsNegativo/* && filtroValoresPrecioAtributo && !limpiandoRazon *//* && atributo.valor*/){
                                             try{
                                                 var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
                                                 await context.client.query(`
@@ -1892,15 +1896,22 @@ ProceduresIpcba = [
                                             }
                                         }
                                     }
+                                    try{
+                                        if(!actualizarPrecioAntes){
+                                            await actualizarObservacion(observacion);
+                                        }
+                                    }catch(err){
+                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                    }
                                 }
                             }
                             var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
                             if(limpiandoRazon){
-                                await actualizarObservaciones(observaciones);
+                                await actualizarObservacionesYAtributos(observaciones);
                                 await actualizarRelVis();
                             }else{
                                 await actualizarRelVis();
-                                await actualizarObservaciones(observaciones);
+                                await actualizarObservacionesYAtributos(observaciones);
                             }
                         };
                     };              

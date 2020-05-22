@@ -29,9 +29,9 @@ export function tpNecesitaConfirmacion(estructura:Estructura, relPre:RelPre, tip
 }
 
 export function calcularCambioAtributosEnPrecio(relPre:RelPre){
-    var hayAtributosActuales = relPre.atributos.some(relAtr=>relAtr.valor != null);
+    //var hayAtributosActuales = relPre.atributos.some(relAtr=>relAtr.valor != null);
     var hayDiferenciasEntreAtributos = relPre.atributos.some(relAtr=>relAtr.valor!=relAtr.valoranterior);
-    return !hayAtributosActuales?null:(!hayDiferenciasEntreAtributos?'=':'C')
+    return hayDiferenciasEntreAtributos?'C':'='
 }
 
 export function normalizarPrecio(relPre:RelPre, estructura:Estructura){
