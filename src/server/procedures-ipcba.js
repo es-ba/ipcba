@@ -1872,9 +1872,13 @@ ProceduresIpcba = [
                                     }
                                     for(var atributo of observacion.atributos){
                                         //solo actualizo atributo si el tipoprecio puede cambiar atributos (si el valor es nulo, se guarda nulo)
-                                        if(!tpEsNegativo/* && filtroValoresPrecioAtributo && !limpiandoRazon *//* && atributo.valor*/){
+                                        //if(!tpEsNegativo/* && filtroValoresPrecioAtributo && !limpiandoRazon *//* && atributo.valor*/){
                                             try{
-                                                var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
+                                                var valor = tpEsNegativo?
+                                                    atributo.valoranterior?atributo.valoranterior.toString().trim().toUpperCase():null
+                                                :
+                                                    atributo.valor?atributo.valor.toString().trim().toUpperCase():null
+                                                var valorAtributoMayusculado = simplificateText(valor);
                                                 await context.client.query(`
                                                     update relatr
                                                         set valor = $1
@@ -1894,7 +1898,7 @@ ProceduresIpcba = [
                                             }catch(err){
                                                 throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
                                             }
-                                        }
+                                        //}
                                     }
                                     try{
                                         if(!actualizarPrecioAntes){
