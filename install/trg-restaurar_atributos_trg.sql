@@ -3,15 +3,15 @@ CREATE OR REPLACE FUNCTION restaurar_atributos_trg()
 $BODY$
 DECLARE
   vatributos RECORD;
-  vesposnew  cvp.tipopre.espositivo%type;
-  vesposold  cvp.tipopre.espositivo%type;
+  vpuedecambiaratributosnew  cvp.tipopre.puedecambiaratributos%type;
+  vpuedecambiaratributosold  cvp.tipopre.puedecambiaratributos%type;
   vblanqueonew  cvp.tipopre.registrablanqueo%type;
   vblanqueoold  cvp.tipopre.registrablanqueo%type;
 BEGIN
-  SELECT espositivo, registrablanqueo INTO vesposnew, vblanqueonew
+  SELECT puedecambiaratributos, registrablanqueo INTO vpuedecambiaratributosnew, vblanqueonew
     FROM  cvp.tipopre
     WHERE tipoprecio=NEW.tipoprecio;
-  SELECT espositivo, registrablanqueo INTO vesposold, vblanqueoold
+  SELECT puedecambiaratributos, registrablanqueo INTO vpuedecambiaratributosold, vblanqueoold
     FROM  cvp.tipopre
     WHERE tipoprecio=OLD.tipoprecio;
   
@@ -48,7 +48,7 @@ BEGIN
               visita=NEW.visita;
     END IF;
   END IF;
-  IF ((NEW.cambio IS NULL AND OLD.cambio ='C') OR (vesposnew is distinct from 'S')) AND vblanqueonew IS NOT TRUE THEN
+  IF ((NEW.cambio IS NULL AND OLD.cambio ='C') OR (not vpuedecambiaratributosnew)) AND vblanqueonew IS NOT TRUE THEN
     /*IF NEW.cambio='C' THEN --este caso solo para la segunda condicion si hubiera C
        NEW.cambio:=NULL;     --lo saco porque se solapa con la validacion de tipoprecio valido
     END IF; */
