@@ -1865,7 +1865,7 @@ ProceduresIpcba = [
                                     observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
                                     var tpEsNegativo = !!(observacion.tipoprecio && !tiposDePrecio[observacion.tipoprecio].espositivo);
                                     var actualizarPrecioAntes = false;
-                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo){
+                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !limpiandoRazon){
                                         actualizarPrecioAntes = true;
                                         observacion.tipoprecio="L";
                                         await actualizarObservacion(observacion);
@@ -1874,7 +1874,7 @@ ProceduresIpcba = [
                                         //solo actualizo atributo si el tipoprecio puede cambiar atributos (si el valor es nulo, se guarda nulo)
                                         //if(!tpEsNegativo/* && filtroValoresPrecioAtributo && !limpiandoRazon *//* && atributo.valor*/){
                                             try{
-                                                var valor = tpEsNegativo?
+                                                var valor = tpEsNegativo || limpiandoRazon?
                                                     atributo.valoranterior?atributo.valoranterior.toString().trim().toUpperCase():null
                                                 :
                                                     atributo.valor?atributo.valor.toString().trim().toUpperCase():null
