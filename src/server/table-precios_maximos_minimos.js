@@ -46,36 +46,69 @@ module.exports = function(context){
             {references:'productos', fields:['producto']},
         ],
         sql:{
-            from: `(select cp.periodo, cp.producto, cp.responsable as analista, 
-                    split_part(m.precio1,'X',1)::decimal as precio1, CASE WHEN m.precio1 like '%X' THEN 'X' ELSE NULL END as ex1, 
-                    split_part(m.precio2,'X',1)::decimal as precio2, CASE WHEN m.precio2 like '%X' THEN 'X' ELSE NULL END as ex2,
-                    split_part(m.precio3,'X',1)::decimal as precio3, CASE WHEN m.precio3 like '%X' THEN 'X' ELSE NULL END as ex3,
-                    split_part(m.precio4,'X',1)::decimal as precio4, CASE WHEN m.precio4 like '%X' THEN 'X' ELSE NULL END as ex4,
-                    split_part(m.precio5,'X',1)::decimal as precio5, CASE WHEN m.precio5 like '%X' THEN 'X' ELSE NULL END as ex5,
-                    p.unidadmedidaabreviada as umabreviada,
-                    string_agg(CASE WHEN pa.normalizable = 'S' THEN pa.valornormal||' '||a.unidaddemedida END,',') as normaliza,
-                    CASE WHEN string_agg(CASE WHEN pa.normalizable = 'S' THEN pa.valornormal||' '||a.unidaddemedida END,',') IS NULL THEN false ELSE true END as normalizable,
-                    split_part(x.precio6, 'X',1)::decimal as precio6 , CASE WHEN x.precio6  like '%X' THEN 'X' ELSE NULL END as ex6, 
-                    split_part(x.precio7, 'X',1)::decimal as precio7 , CASE WHEN x.precio7  like '%X' THEN 'X' ELSE NULL END as ex7, 
-                    split_part(x.precio8, 'X',1)::decimal as precio8 , CASE WHEN x.precio8  like '%X' THEN 'X' ELSE NULL END as ex8, 
-                    split_part(x.precio9, 'X',1)::decimal as precio9 , CASE WHEN x.precio9  like '%X' THEN 'X' ELSE NULL END as ex9, 
-                    split_part(x.precio10,'X',1)::decimal as precio10, CASE WHEN x.precio10 like '%X' THEN 'X' ELSE NULL END as ex10, 
-                    CASE WHEN comun.es_numero(split_part(m.precio1,'X',1)) and comun.es_numero(split_part(m.precio2,'X',1)) THEN 
-                    round(split_part(m.precio2,'X',1)::decimal/split_part(m.precio1,'X',1)::decimal*100-100,2) else null END as varmin,
-                    CASE WHEN comun.es_numero(split_part(x.precio9,'X',1)) and comun.es_numero(split_part(x.precio10,'X',1)) THEN 
-                    round(split_part(x.precio10,'X',1)::decimal/split_part(x.precio9,'X',1)::decimal*100-100,2) else null END as varmax,
-                    m.informantes1, m.informantes2, x.informantes9, x.informantes10
-                    from calprodresp cp
-                         left join productos p on cp.producto = p.producto
-                         left join precios_maximos_vw x on cp.periodo = x.periodo and cp.producto = x.producto
-                         left join prodatr pa on cp.producto = pa.producto
-                         left join atributos a on pa.atributo = a.atributo
-                         left join precios_minimos_vw m on cp.periodo = m.periodo and cp.producto = m.producto
-                    where cp.calculo = 0
-                    group by cp.periodo, cp.producto, cp.responsable, m.precio1, m.precio2, m.precio3, m.precio4, m.precio5,
-                    x.precio6, x.precio7, x.precio8, x.precio9, x.precio10, p.unidadmedidaabreviada, m.informantes1, m.informantes2,
-                    x.informantes9, x.informantes10
-                    )`,
+            from: `(SELECT periodo, producto, analista,
+                max(CASE WHEN orden_precio_minimo = 1 THEN q.precio END) as precio1,
+                max(CASE WHEN orden_precio_minimo = 1 THEN q.marca END) as ex1,
+                max(CASE WHEN orden_precio_minimo = 2 THEN q.precio END) as precio2,
+                max(CASE WHEN orden_precio_minimo = 2 THEN q.marca END) as ex2,
+                max(CASE WHEN orden_precio_minimo = 3 THEN q.precio END) as precio3,
+                max(CASE WHEN orden_precio_minimo = 3 THEN q.marca END) as ex3,
+                max(CASE WHEN orden_precio_minimo = 4 THEN q.precio END) as precio4,
+                max(CASE WHEN orden_precio_minimo = 4 THEN q.marca END) as ex4,
+                max(CASE WHEN orden_precio_minimo = 5 THEN q.precio END) as precio5,
+                max(CASE WHEN orden_precio_minimo = 5 THEN q.marca END) as ex5,
+                umabreviada, normaliza, normalizable,
+                max(CASE WHEN orden_precio_maximo = 5 THEN q.precio END) as precio6,
+                max(CASE WHEN orden_precio_maximo = 5 THEN q.marca END) as ex6,
+                max(CASE WHEN orden_precio_maximo = 4 THEN q.precio END) as precio7,
+                max(CASE WHEN orden_precio_maximo = 4 THEN q.marca END) as ex7,
+                max(CASE WHEN orden_precio_maximo = 3 THEN q.precio END) as precio8,
+                max(CASE WHEN orden_precio_maximo = 3 THEN q.marca END) as ex8,
+                max(CASE WHEN orden_precio_maximo = 2 THEN q.precio END) as precio9,
+                max(CASE WHEN orden_precio_maximo = 2 THEN q.marca END) as ex9,
+                max(CASE WHEN orden_precio_maximo = 1 THEN q.precio END) as precio10,
+                max(CASE WHEN orden_precio_maximo = 1 THEN q.marca END) as ex10,
+                CASE WHEN max(CASE WHEN orden_precio_minimo = 1 THEN q.precio END)>0 THEN
+                      round((max(CASE WHEN orden_precio_minimo = 2 THEN q.precio END)
+                           /max(CASE WHEN orden_precio_minimo = 1 THEN q.precio END))::decimal*100-100,2) ELSE null END as varmin,
+                CASE WHEN max(CASE WHEN orden_precio_maximo = 2 THEN q.precio END)>0 THEN
+                      round((max(CASE WHEN orden_precio_maximo = 1 THEN q.precio END)
+                           /max(CASE WHEN orden_precio_maximo = 2 THEN q.precio END))::decimal*100-100,2) ELSE null END as varmax,
+                string_agg(CASE WHEN orden_precio_minimo = 1 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes1,
+                string_agg(CASE WHEN orden_precio_minimo = 2 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes2,
+                string_agg(CASE WHEN orden_precio_maximo = 2 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes9,
+                string_agg(CASE WHEN orden_precio_maximo = 1 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes10
+              FROM (
+                SELECT e.periodo, e.producto, cp.responsable as analista, o.nombreproducto, o.unidadmedidaabreviada as umabreviada,
+                CASE WHEN pa.producto is not null THEN pa.valornormal||' '||t.unidaddemedida ELSE NULL END as normaliza,
+                pa.producto is not null as normalizable, 
+                CASE WHEN o.controlar_precios_sin_normalizar THEN precio ELSE round(precionormalizado::decimal,2) END as precio, 
+                CASE WHEN antiguedadexcluido is NOT NULL THEN 'X' ELSE null END as marca,
+                e.informante, e.observacion, e.tipoprecio, v.panel, v.tarea,
+                dense_rank() 
+                OVER (PARTITION BY e.periodo, e.producto, o.nombreproducto  
+                       ORDER BY CASE WHEN o.controlar_precios_sin_normalizar THEN precio ELSE round(precionormalizado::decimal,2) END, 
+                                CASE WHEN antiguedadexcluido is NOT NULL THEN 'X' ELSE null END)
+                as orden_precio_minimo,
+                dense_rank() 
+                OVER (PARTITION BY e.periodo, e.producto, o.nombreproducto  
+                       ORDER BY (CASE WHEN o.controlar_precios_sin_normalizar THEN precio ELSE round(precionormalizado::decimal,2) END, 
+                           CASE WHEN antiguedadexcluido is NOT NULL THEN 'X' ELSE null END) desc) 
+                as orden_precio_maximo
+                FROM calprodresp cp
+                INNER JOIN relpre e ON cp.periodo = e.periodo and cp.producto = e.producto
+                INNER JOIN productos o on e.producto = o.producto
+                INNER JOIN relvis v on e.periodo = v.periodo and e.informante = v.informante and e.visita = v.visita and e.formulario = v.formulario
+                LEFT JOIN (SELECT * FROM prodatr WHERE normalizable = 'S') pa on e.producto = pa.producto
+                LEFT JOIN atributos t on pa.atributo = t.atributo
+                LEFT JOIN calculos a on e.periodo = a.periodo and cp.calculo = a.calculo
+                LEFT JOIN calobs c on e.periodo = c.periodo and c.calculo = a.calculo and e.producto = c.producto and e.informante = c.informante and e.observacion = c.observacion
+                WHERE e.precionormalizado is not null and not(c.division is null AND e.modi_fec < a.fechacalculo)
+                      and cp.calculo = 0
+                ) q
+                group by periodo, producto, analista, umabreviada, normaliza, normalizable
+                order by periodo, producto, analista, umabreviada, normaliza, normalizable
+            )`,
             isTable: false,
         }    
     },context);
