@@ -10,7 +10,7 @@ BEGIN
     FROM cvp.relatr_1 a
     JOIN cvp.atributos t using (atributo)
       WHERE  a.periodo=NEW.periodo AND a.informante=NEW.informante AND a.visita=NEW.visita 
-        AND  a.producto=NEW.producto AND a.observacion=NEW.observacion and a.valor <> a.valor_1
+        AND  a.producto=NEW.producto AND a.observacion=NEW.observacion and a.valor is distinct from a.valor_1
         AND not coalesce(t.es_vigencia, false); 
 
     UPDATE cvp.relpre  
