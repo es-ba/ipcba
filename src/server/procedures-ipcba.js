@@ -1865,9 +1865,9 @@ ProceduresIpcba = [
                                     observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
                                     var tpEsNegativo = !!(observacion.tipoprecio && !tiposDePrecio[observacion.tipoprecio].espositivo);
                                     var actualizarPrecioAntes = false;
-                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !limpiandoRazon){
+                                    if(observacion.cambio && !tpEsNegativo && !limpiandoRazon){
                                         actualizarPrecioAntes = true;
-                                        observacion.tipoprecio="L";
+                                        observacion.tipoprecio=observacion.precio?observacion.tipoprecio:"L" ;
                                         await actualizarObservacion(observacion);
                                     }
                                     for(var atributo of observacion.atributos){
