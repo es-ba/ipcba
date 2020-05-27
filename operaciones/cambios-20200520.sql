@@ -400,3 +400,5 @@ CREATE TRIGGER relatr_calcula_cambio_precio_trg
     ON cvp.relatr
     FOR EACH ROW
     EXECUTE PROCEDURE cvp.calcular_cambioenprecio_relatr_trg();
+
+ALTER TABLE novpre DISABLE TRIGGER novpre_cambio_trg;
