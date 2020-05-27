@@ -378,10 +378,8 @@ DECLARE
 BEGIN
  SELECT case when count(*)=0 THEN NULL ELSE 'C' END INTO vcambio
     FROM cvp.relatr_1 a
-    JOIN cvp.atributos t using (atributo)
       WHERE  a.periodo=NEW.periodo AND a.informante=NEW.informante AND a.visita=NEW.visita 
-        AND  a.producto=NEW.producto AND a.observacion=NEW.observacion and a.valor is distinct from a.valor_1
-        AND not coalesce(t.es_vigencia, false); 
+        AND  a.producto=NEW.producto AND a.observacion=NEW.observacion and a.valor is distinct from a.valor_1; 
 
     UPDATE cvp.relpre  
       SET cambio=vcambio
@@ -394,9 +392,11 @@ $BODY$;
 
 ALTER FUNCTION cvp.calcular_cambioenprecio_relatr_trg()
     OWNER TO cvpowner;
-	
+
+DROP TRIGGER IF EXISTS relatr_calcula_cambio_precio_trg ON relatr;
+
 CREATE TRIGGER relatr_calcula_cambio_precio_trg
-    AFTER UPDATE OR INSERT
+    AFTER UPDATE
     ON cvp.relatr
     FOR EACH ROW
     EXECUTE PROCEDURE cvp.calcular_cambioenprecio_relatr_trg();
