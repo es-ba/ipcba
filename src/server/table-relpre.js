@@ -56,7 +56,7 @@ module.exports = function(context){
         ],
         sortColumns:[{column:'orden'},{column:'observacion'}],
         detailTables:[
-            {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita']},
+            {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita'], refreshParent: true},
         ],
         sql:{
             from:`(select r.periodo, r.producto, r.informante, r.formulario, r.visita, r.observacion, r.precio, r.tipoprecio, r.cambio, 
