@@ -252,8 +252,9 @@ DECLARE
   vatributos RECORD;
   vpuedecambiaratributosnew  cvp.tipopre.puedecambiaratributos%type;
   vpuedecambiaratributosold  cvp.tipopre.puedecambiaratributos%type;
+  vblanqueonew               cvp.tipopre.registrablanqueo%type;
 BEGIN
-  SELECT puedecambiaratributos INTO vpuedecambiaratributosnew
+  SELECT puedecambiaratributos, registrablanqueo INTO vpuedecambiaratributosnew, vblanqueonew
     FROM  cvp.tipopre
     WHERE tipoprecio=NEW.tipoprecio;
   SELECT puedecambiaratributos INTO vpuedecambiaratributosold
