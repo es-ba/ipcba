@@ -261,7 +261,7 @@ BEGIN
     FROM  cvp.tipopre
     WHERE tipoprecio=OLD.tipoprecio;
 
-  IF ((NEW.cambio IS NULL AND OLD.cambio ='C') OR (not vpuedecambiaratributosnew)) AND vblanqueonew IS NOT TRUE THEN
+  IF (not vpuedecambiaratributosnew and vpuedecambiaratributosold) AND vblanqueonew IS NOT TRUE THEN
     /*IF NEW.cambio='C' THEN --este caso solo para la segunda condicion si hubiera C
        NEW.cambio:=NULL;     --lo saco porque se solapa con la validacion de tipoprecio valido
     END IF; */
@@ -288,7 +288,8 @@ BEGIN
                 visita=NEW.visita AND
                 atributo=vatributos.atributo ; --TOMAR VALOR DE ATRIBUTO
       END IF;   
-    END LOOP;  
+    END LOOP;
+	NEW.cambio:=NULL;	
   END IF;
  RETURN NEW; 
 END;
@@ -334,6 +335,7 @@ BEGIN
 END;
 $$;
 
+/*
 CREATE OR REPLACE FUNCTION cvp.calcular_cambioenprecio_relatr_trg()
     RETURNS trigger
     LANGUAGE 'plpgsql'
@@ -358,15 +360,15 @@ $BODY$;
 
 ALTER FUNCTION cvp.calcular_cambioenprecio_relatr_trg()
     OWNER TO cvpowner;
-
+*/
 DROP TRIGGER IF EXISTS relatr_calcula_cambio_precio_trg ON relatr;
-
+/*
 CREATE TRIGGER relatr_calcula_cambio_precio_trg
     AFTER UPDATE
     ON cvp.relatr
     FOR EACH ROW
     EXECUTE PROCEDURE cvp.calcular_cambioenprecio_relatr_trg();
-
+*/
 CREATE OR REPLACE FUNCTION adm_blanqueo_precios_trg()
   RETURNS trigger AS
 $BODY$
@@ -419,8 +421,44 @@ END;
 $BODY$
   LANGUAGE 'plpgsql' VOLATILE SECURITY DEFINER;
 
+DROP TRIGGER IF EXISTS relpre_adm_blanqueo_precios_trg ON relpre;
+
 CREATE TRIGGER relpre_adm_blanqueo_precios_trg
     BEFORE UPDATE 
     ON relpre
     FOR EACH ROW
     EXECUTE PROCEDURE adm_blanqueo_precios_trg();
+
+CREATE OR REPLACE FUNCTION calcular_precionormaliz_relatr_trg()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    VOLATILE NOT LEAKPROOF SECURITY DEFINER
+AS $BODY$
+DECLARE 
+existesemaforo INTEGER;
+vcambio cvp.relpre.cambio%type;
+
+BEGIN
+ --raise notice 'calcular_precionormaliz_relatr_trg new.valor: % , old.valor: % ', new.valor, old.valor;
+ SELECT 1 INTO existesemaforo
+   FROM cvp.relpresemaforo a
+      WHERE  a.periodo=NEW.periodo AND a.informante=NEW.informante AND a.visita=NEW.visita 
+        AND  a.producto=NEW.producto AND a.observacion=NEW.observacion; 
+ IF existesemaforo IS NULL THEN
+   INSERT INTO cvp.relpresemaforo(periodo,informante,visita,producto,observacion)
+     VALUES(NEW.periodo,NEW.informante,NEW.visita,NEW.producto, NEW.observacion);
+ 
+   SELECT case when count(*)=0 THEN NULL ELSE 'C' END INTO vcambio
+    FROM cvp.relatr_1 a
+      WHERE  a.periodo=NEW.periodo AND a.informante=NEW.informante AND a.visita=NEW.visita 
+        AND  a.producto=NEW.producto AND a.observacion=NEW.observacion and a.valor is distinct from a.valor_1; 
+
+    UPDATE cvp.relpre  
+      SET precionormalizado=NULL, cambio = vcambio
+      WHERE periodo=NEW.periodo AND informante=NEW.informante 
+        AND visita=NEW.visita AND producto=NEW.producto AND observacion=NEW.observacion;     
+ END IF;
+ RETURN NULL;
+ 
+END;
+$BODY$;
