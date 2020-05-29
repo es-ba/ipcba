@@ -1844,11 +1844,12 @@ ProceduresIpcba = [
                             }
                             var actualizarObservacionesYAtributos=async function(observaciones){
                                 var actualizarObservacion=async function(observacion){
-                                    await context.client.query(`
+                                    try{
+                                        await context.client.query(`
                                             update relpre
-                                            set tipoprecio = $1, precio = $2, comentariosrelpre = $8
-                                            where periodo = $3 and informante = $4 and visita = $5 and producto = $6 and observacion = $7 --pk verificada
-                                            returning true`
+                                                set tipoprecio = $1, precio = $2, comentariosrelpre = $8
+                                                where periodo = $3 and informante = $4 and visita = $5 and producto = $6 and observacion = $7 --pk verificada
+                                                returning true`
                                         ,[
                                             filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio),
                                             filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo?observacion.precio:null), 
@@ -1858,23 +1859,27 @@ ProceduresIpcba = [
                                             observacion.producto, 
                                             observacion.observacion,
                                             simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre),
-                                        ]
-                                        ).fetchUniqueRow()
+                                        ]).fetchUniqueRow()
+                                    }catch(err){
+                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                    }
                                 };
                                 for(var observacion of observaciones){
                                     observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
                                     var tpEsNegativo = !!(observacion.tipoprecio && !tiposDePrecio[observacion.tipoprecio].espositivo);
-                                    var actualizarPrecioAntes = false;
-                                    if(observacion.cambio && !tpEsNegativo && !limpiandoRazon){
-                                        actualizarPrecioAntes = true;
-                                        observacion.tipoprecio=observacion.precio?observacion.tipoprecio:"L" ;
+                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !limpiandoRazon){
+                                        observacion.tipoprecio="L";
+                                    }
+                                    //no tengo cambio y estoy limpiando razon o no tengo cambio ni TP ni precio 
+                                    //blanqueo atributos primero porque puede ser que haya cambio = C en la base
+                                    var blanquearAtributosAntes = !!(observacion.cambio && limpiandoRazon || !observacion.cambio && !observacion.tipo && !observacion.precio);
+                                    if(!blanquearAtributosAntes){
                                         await actualizarObservacion(observacion);
                                     }
                                     for(var atributo of observacion.atributos){
-                                        //solo actualizo atributo si el tipoprecio puede cambiar atributos (si el valor es nulo, se guarda nulo)
-                                        //if(!tpEsNegativo/* && filtroValoresPrecioAtributo && !limpiandoRazon *//* && atributo.valor*/){
+                                        if(!tpEsNegativo){
                                             try{
-                                                var valor = tpEsNegativo || limpiandoRazon?
+                                                var valor = limpiandoRazon?
                                                     atributo.valoranterior?atributo.valoranterior.toString().trim().toUpperCase():null
                                                 :
                                                     atributo.valor?atributo.valor.toString().trim().toUpperCase():null
@@ -1898,14 +1903,10 @@ ProceduresIpcba = [
                                             }catch(err){
                                                 throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
                                             }
-                                        //}
-                                    }
-                                    try{
-                                        if(!actualizarPrecioAntes){
-                                            await actualizarObservacion(observacion);
                                         }
-                                    }catch(err){
-                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                    }
+                                    if(blanquearAtributosAntes){
+                                        await actualizarObservacion(observacion);
                                     }
                                 }
                             }
