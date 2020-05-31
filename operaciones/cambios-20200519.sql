@@ -41,7 +41,7 @@ BEGIN
             a.visita     =NEW.visita AND 
             a.atributo   =NEW.atributo;
     IF vcantidadatributosgenerados>0 THEN
-      raise Exception 'Ya has sido generados los atributos del periodo sigiente; periodo %, producto % observacion % informante%, visita%, atributo % ', NEW.periodo, NEW.producto, NEW.observacion, NEW.informante, NEW.visita, NEW.atributo;
+      raise Exception 'Ya has sido generados los atributos del periodo siguiente; periodo %, producto % observacion % informante%, visita%, atributo % ', NEW.periodo, NEW.producto, NEW.observacion, NEW.informante, NEW.visita, NEW.atributo;
       RETURN NULL;
     ELSE
       SELECT coalesce(t.puedecambiaratributos,false) INTO vpuedecambiaratributos

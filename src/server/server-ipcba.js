@@ -153,12 +153,13 @@ class AppIpcba extends backendPlus.AppBackend{
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
+                - trg-adm_blanqueo_precios_trg.sql
                 - trg-agrupaciones_fijas_trg.sql
                 - trg-altamanualdeinformantes_trg.sql
                 - trg-blanquear_precios_trg.sql
                 - trg-borrar_precios_trg.sql
                 - trg-borrar_visita_trg.sql
-                - trg-calcular_precionormaliz_relatr_trg.sql
+                - trg-calcular_precionormaliz_cambio_relatr_trg.sql
                 - trg-calcular_precionormaliz_relpre_trg.sql
                 - trg-cambio_panel_tarea_trg.sql
                 - trg-cambios_razon_trg.sql

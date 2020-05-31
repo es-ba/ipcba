@@ -14,7 +14,7 @@ BEGIN
     FROM  cvp.tipopre
     WHERE tipoprecio=OLD.tipoprecio;
 
-  IF ((NEW.cambio IS NULL AND OLD.cambio ='C') OR (not vpuedecambiaratributosnew)) AND vblanqueonew IS NOT TRUE THEN
+  IF (not vpuedecambiaratributosnew and vpuedecambiaratributosold) AND vblanqueonew IS NOT TRUE THEN
     /*IF NEW.cambio='C' THEN --este caso solo para la segunda condicion si hubiera C
        NEW.cambio:=NULL;     --lo saco porque se solapa con la validacion de tipoprecio valido
     END IF; */
@@ -41,12 +41,14 @@ BEGIN
                 visita=NEW.visita AND
                 atributo=vatributos.atributo ; --TOMAR VALOR DE ATRIBUTO
       END IF;   
-    END LOOP;  
+    END LOOP;
+    NEW.cambio:=NULL;	
   END IF;
  RETURN NEW; 
 END;
 $BODY$
   LANGUAGE 'plpgsql' VOLATILE SECURITY DEFINER;
+
 
 CREATE TRIGGER relpre_restaura_atributos_trg 
    BEFORE UPDATE 

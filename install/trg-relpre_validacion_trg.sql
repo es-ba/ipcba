@@ -11,7 +11,7 @@ BEGIN
     RAISE EXCEPTION 'TipoPrecio sin dato';
     RETURN NULL;
   ELSIF new.tipoprecio IS NULL and new.cambio is not null THEN
-	RAISE EXCEPTION 'No puede quitar tipo de precio si hay cambios de atributos';
+    RAISE EXCEPTION 'No puede quitar tipo de precio si hay cambios de atributos';
     RETURN NULL;
   ELSIF new.tipoprecio IS NOT NULL THEN
     SELECT espositivo, activo, registrablanqueo, puedecambiaratributos INTO vespositivo, vactivo, vregistrablanqueo, vpuedecambiaratributos
