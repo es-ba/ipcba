@@ -809,7 +809,12 @@ my.setPlaceHolder = function setPlaceHolderWithDefault(typedControl, valueOrCond
 }
 
 my.clientSides.ingreso_tipoprecio = {
-    update:false,
+    update:function(depot, fieldName){
+        var detailDef=depot.detailControls.relatr;
+        if(detailDef.show && depot.row.cambio == null && depot.rowControls.cambio.getTypedValue() == 'C'){
+            detailDef.forceDisplayDetailGrid({fixedFields:detailDef.calculateFixedFields(), detailing:{}},{});
+        }
+    },
     prepare:function(depot, fieldName){
         my.setPlaceHolder(depot.rowControls[fieldName], function(){
             return depot.rowControls.precio.getTypedValue() && 'P';
