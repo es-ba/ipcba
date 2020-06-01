@@ -96,7 +96,8 @@ UPDATE CalObs c
                          ELSE null--c0.antiguedadexcluido
                     END
              ELSE
-                CASE WHEN c.AntiguedadSinPrecio - c.SinDatosEstacional>=p.CantPerBajaAuto AND c0.antiguedadIncluido>0 THEN  1
+                CASE WHEN p.CantPerAltaAuto = 1  AND c0.antiguedadIncluido is null AND c.AntiguedadconPrecio>=p.CantPerAltaAuto  THEN NULL
+                     WHEN c.AntiguedadSinPrecio - c.SinDatosEstacional>=p.CantPerBajaAuto AND c0.antiguedadIncluido>0 THEN  1
                      WHEN c0.antiguedadExcluido IS NULL THEN NULL
                      WHEN c0.PromObs is not null AND c0.antiguedadExcluido>0 AND c.AntiguedadconPrecio>=p.CantPerAltaAuto  THEN NULL
                      ELSE c0.AntiguedadExcluido + 1                                       
@@ -108,7 +109,8 @@ UPDATE CalObs c
                          ELSE coalesce(c0.antiguedadIncluido,0) + 1
                     END
              ELSE
-                CASE WHEN c0.PromObs is not null AND c0.antiguedadIncluido is null AND c.AntiguedadconPrecio>=p.CantPerAltaAuto  THEN 1
+                CASE WHEN p.CantPerAltaAuto = 1  AND c0.antiguedadIncluido is null AND c.AntiguedadconPrecio>=p.CantPerAltaAuto  THEN 1
+                     WHEN c0.PromObs is not null AND c0.antiguedadIncluido is null AND c.AntiguedadconPrecio>=p.CantPerAltaAuto  THEN 1
                      WHEN c0.antiguedadIncluido IS NULL THEN NULL
                      WHEN c.AntiguedadSinPrecio - c.SinDatosEstacional>=p.CantPerBajaAuto AND c0.antiguedadIncluido>0 THEN  NULL
                      ELSE c0.AntiguedadIncluido + 1                                   
