@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='analista';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador';
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'productos',
@@ -12,7 +12,7 @@ module.exports = function(context){
         },        
         fields:[
             {name:'producto'                    , typeName:'text' , nullable:false                                         },
-            {name:'nombreproducto'              , typeName:'text' , isName:true                      , allow:{update:puedeEditar||puedeEditarMigracion} },
+            {name:'nombreproducto'              , typeName:'text' , isName:true                      , allow:{update:puedeEditarMigracion} },
             {name:'formula'                     , typeName:'text' , nullable:false, default:'General',defaultValue:'General', allow:{select:puedeEditarMigracion}},
             {name:'estacional'                  , typeName:'text' , nullable:false, default:'N',defaultValue:'N'      , allow:{select:puedeEditarMigracion}},
             {name:'imputacon'                   , typeName:'text'                                    , allow:{update:puedeEditar||puedeEditarMigracion} },
