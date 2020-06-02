@@ -33,7 +33,7 @@ Loop
     UPDATE CalDiv t
       SET PromPriImpAct=CASE WHEN vrec.Calculo=-1 AND vrec.indice>0 AND vrec.indice_1>0 THEN vrec.indice   WHEN vrec.Cant >= vrec.umbralPriImp THEN vrec.PromAct WHEN vrec.indice>0 AND vrec.indice_1>0 THEN vrec.indice   ELSE null END,
           PromPriImpAnt=CASE WHEN vrec.Calculo=-1 AND vrec.indice>0 AND vrec.indice_1>0 THEN vrec.indice_1 WHEN vrec.Cant >= vrec.umbralPriImp THEN vrec.PromAnt WHEN vrec.indice>0 AND vrec.indice_1>0 THEN vrec.indice_1 ELSE null END, 
-          ImpDiv=       CASE WHEN vrec.Calculo=-1 AND vrec.indice>0 AND vrec.indice_1>0 THEN 'BE'          WHEN vrec.Cant >= vrec.umbralPriImp THEN 'IP'         WHEN vrec.indice>0 AND vrec.indice_1>0 THEN 'BE'          ELSE null END,
+          ImpDiv=       CASE WHEN vrec.Calculo=-1 AND vrec.indice>0 AND vrec.indice_1>0 THEN 'BE'          WHEN vrec.Cant >= vrec.umbralPriImp THEN 'IP'         WHEN vrec.indice>0 AND vrec.indice_1>0 THEN 'BE'          ELSE 'IOD' END,
           PromVar=      CASE WHEN vrec.PromAnt<>0 THEN vrec.PromAct/vrec.PromAnt*100-100 ELSE NULL END,
           CantPriImp = vrec.cant
     WHERE t.periodo=vrec.periodo AND t.calculo=vrec.calculo AND t.producto=vrec.producto AND t.division=vrec.division;

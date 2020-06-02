@@ -347,7 +347,7 @@ function dm2CrearQueries(parameters){
                     'atributo'
             )} as atributos
             , ${jsono(`
-                SELECT p.producto, nombreproducto, ${ESPECIFICACION_COMPLETA}, e.destacada as destacado,
+                SELECT p.producto, coalesce(nombreparaformulario,nombreproducto) as nombreproducto, ${ESPECIFICACION_COMPLETA}, e.destacada as destacado,
                         ${json(
                             `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, 
                                 ${json(
@@ -400,16 +400,11 @@ function dm2CrearQueries(parameters){
         WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
     `;
     var sqlAtributos=`
-        SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, ra.valor, 
-                ra_1.valor as valoranterior, pa.orden
-            FROM relatr ra 
-                INNER JOIN relatr ra_1 
-                    ON ra_1.periodo = rp.periodo_1
-                    AND ra_1.visita = ra.visita
-                    AND ra_1.informante = ra.informante
-                    AND ra_1.producto=ra.producto
-                    AND ra_1.observacion=ra.observacion
-                    AND ra_1.atributo=ra.atributo
+        SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
+                case when tp.espositivo='S' then ra.valor else null end as valor, 
+                ra.valor_1 as valoranterior, 
+                pa.orden
+            FROM relatr_1 ra
                 INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
             WHERE ra.periodo=rp.periodo 
                 AND ra.visita=rp.visita 
@@ -427,7 +422,7 @@ function dm2CrearQueries(parameters){
                 false as adv,
                 ${json(sqlAtributos, 'orden, atributo')} as atributos,
                 c.promobs as promobs_1,
-                distanciaperiodos(rv.periodo,ultimoperiodoconprecio) cantidadperiodossinprecio,
+                distanciaperiodos(rp.periodo_1,ultimoperiodoconprecio) cantidadperiodossinprecio,
                 split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
                 split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
                 r_his.sinpreciohace4meses = 'S' sinpreciohace4meses

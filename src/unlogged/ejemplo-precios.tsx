@@ -1896,8 +1896,9 @@ function PantallaOpciones(){
                             color="secondary"
                             variant="contained"
                             onClick={()=>{
-                                setMensajeBorrar(`Si continua perderá los datos 
-                                    de la hoja de ruta actual. Escriba "${FRASE_BORRADO}"`
+                                setMensajeBorrar(`Si continua perderá los datos que haya ingresado en el dispositivo 
+                                desde la última vez que la descargó. Los datos descargados previamente 
+                                (que ya están en la base de datos) se conservan. Escriba "${FRASE_BORRADO}"`
                                 )
                             }}
                         >
