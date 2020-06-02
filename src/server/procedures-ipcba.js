@@ -401,9 +401,7 @@ function dm2CrearQueries(parameters){
     `;
     var sqlAtributos=`
         SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
-                case when tp.espositivo='S' then ra.valor else null end as valor, 
-                ra.valor_1 as valoranterior, 
-                pa.orden
+                ra.valor, ra.valor_1 as valoranterior, pa.orden
             FROM relatr_1 ra
                 INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
             WHERE ra.periodo=rp.periodo 
