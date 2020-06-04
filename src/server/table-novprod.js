@@ -11,13 +11,15 @@ module.exports = function(context){
             delete:puedeEditar,
             update:puedeEditar,
         },
+        hiddenColumns:['tipoexterno'],
         fields:[
             {name:'periodo'                      , typeName:'text'    , nullable:false, allow:{update:false}, inTable: true},
-            {name:'calculo'                      , typeName:'integer' , nullable:false, allow:{update:false}, inTable: true},
+            {name:'calculo'                      , typeName:'integer' , nullable:false, default:0, allow:{update:false}, inTable: true},
             {name:'producto'                     , typeName:'text'    , nullable:false, allow:{update:puedeEditar}, inTable: true},
             {name:'promedioext'                  , typeName:'decimal'  , allow:{update:puedeEditar}, inTable: true},
             {name:'anterior'                     , typeName:'decimal'  , allow:{update:false}, inTable: false},
             {name:'variacion'                    , typeName:'decimal'  , default:0, allow:{update:puedeEditar}, inTable: true},
+            {name:'tipoexterno'                  , typeName:'text'     , allow:{update:puedeEditar}, inTable: true},
         ],
         /*
         filterColumns:[
@@ -31,7 +33,7 @@ module.exports = function(context){
             {references:'productos', fields:['producto']},
         ],
         sql:{
-            from:`(SELECT n.periodo, n.calculo, n.producto, n.promedioext, round(c0.promdiv::decimal,2)::decimal as anterior, variacion
+            from:`(SELECT n.periodo, n.calculo, n.producto, n.promedioext, round(c0.promdiv::decimal,2)::decimal as anterior, variacion, n.tipoexterno
                 FROM novprod n
                 LEFT JOIN calculos l ON n.periodo = l.periodo AND n.calculo = l.calculo 
                 LEFT JOIN caldiv c0 ON c0.periodo = l.periodoanterior and c0.calculo = l.calculoanterior and n.producto = c0.producto and c0.division = '0'

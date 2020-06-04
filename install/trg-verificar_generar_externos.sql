@@ -2,13 +2,12 @@ CREATE OR REPLACE FUNCTION verificar_generar_externos()
   RETURNS trigger AS
 $BODY$
 BEGIN
-  --if TG_OP='UPDATE' then
     if OLD.fechageneracionexternos is null and NEW.fechageneracionexternos is not null
        or OLD.fechageneracionexternos<>NEW.fechageneracionexternos
     then
         --NovProd (externos)
-        INSERT INTO cvp.NovProd (periodo, calculo, producto, promedioext)
-        (SELECT l.periodo, l.calculo, c.producto, c.promdiv
+        INSERT INTO cvp.NovProd (periodo, calculo, producto, promedioext, variacion)
+        (SELECT l.periodo, l.calculo, c.producto, c.promdiv, 0
             FROM cvp.calculos l
             LEFT JOIN cvp.caldiv c ON c.periodo = l.periodoanterior AND c.calculo = l.calculoanterior
             LEFT JOIN cvp.productos p ON c.producto = p.producto
@@ -19,7 +18,6 @@ BEGIN
                 AND n.producto IS NULL /*los que aún no están en novprod*/
         );
     end if;
-  --end if;
   RETURN NEW;
 END;
 $BODY$

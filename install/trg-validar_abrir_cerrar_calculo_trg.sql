@@ -51,7 +51,7 @@ IF OLD.abierto IS DISTINCT FROM NEW.abierto AND NEW.abierto='N' THEN
         FROM cvp.caldiv c 
         INNER JOIN cvp.novprod n ON c.producto = n.producto and c.calculo = n.calculo and c.periodo = n.periodo
         INNER JOIN cvp.productos p ON c.producto = p.producto
-        WHERE c.periodo=NEW.periodo AND c.calculo=NEW.calculo AND p.tipoexterno = 'P' AND c.division = '0';
+        WHERE c.periodo=NEW.periodo AND c.calculo=NEW.calculo AND coalesce(n.tipoexterno, p.tipoexterno) is distinct from 'D' AND c.division = '0';
       SELECT DISTINCT 1 INTO vNOestantodosextdef 
         FROM cvp.productos p LEFT JOIN cvp.novprod n ON p.producto = n.producto AND n.periodo = NEW.periodo AND n.calculo = NEW.calculo
         WHERE p.tipoexterno = 'D' and n.periodo is null;        
@@ -94,6 +94,7 @@ IF OLD.abierto IS DISTINCT FROM NEW.abierto AND NEW.abierto='S' THEN
 END IF;
 RETURN NEW;
 END;
+
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY INVOKER;
 
