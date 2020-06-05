@@ -373,7 +373,8 @@ function EditableTd<T extends string|number|null>(props:{
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null,
     titulo?:string,
-    onFocus?:()=>void
+    onFocus?:()=>void,
+    textTransform?:'uppercase'|'lowercase'
 }){
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
@@ -420,6 +421,10 @@ function EditableTd<T extends string|number|null>(props:{
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
                     onUpdate={value =>{
+                        if(props.textTransform && props.dataType == 'text' && value){
+                            // @ts-ignore value es string
+                            value = props.textTransform == 'lowercase'?value.toLowerCase():value.toUpperCase();
+                        }
                         props.onUpdate(value);
                     }}
                     tipoOpciones={props.tipoOpciones}
@@ -555,6 +560,7 @@ const AtributosRow = function(props:{
                 disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
+                textTransform='uppercase'
                 onUpdate={value=>{
                     dispatch(dispatchers.SET_ATRIBUTO({
                         forPk:relAtr, 
