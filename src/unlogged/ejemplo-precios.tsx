@@ -6,7 +6,8 @@ import {
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
     controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente,
     precioTieneError, 
-    COLOR_ERRORES
+    COLOR_ERRORES,
+    simplificateText
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
     hdrEstaDescargada, getCacheVersion} from "./dm-react";
@@ -189,6 +190,8 @@ function TypedInput<T extends string|number|null>(props:{
     onFocus?:()=>void
     disabled?:boolean,
     placeholder?:string,
+    simplificateText: boolean,
+    textTransform?:'lowercase'|'uppercase',
 }){
     const dispatch = useDispatch();
     function valueT(value:string):T{
@@ -240,7 +243,11 @@ function TypedInput<T extends string|number|null>(props:{
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
-        var value = valueT(event.target.value);
+        var customValue = event.target.value.trim();
+        customValue = props.textTransform?props.textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
+        customValue = props.simplificateText?simplificateText(customValue):customValue;
+        setValue(customValue);
+        var value = valueT(customValue);
         if(value!==props.value){
             props.onUpdate(value);
         }
@@ -374,7 +381,8 @@ function EditableTd<T extends string|number|null>(props:{
     opciones?:string[]|null,
     titulo?:string,
     onFocus?:()=>void,
-    textTransform?:'uppercase'|'lowercase'
+    textTransform?:'uppercase'|'lowercase',
+    simplificateText?:boolean,
 }){
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
@@ -420,10 +428,14 @@ function EditableTd<T extends string|number|null>(props:{
                     disabled={props.disabled}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
+                    simplificateText={!!props.simplificateText}
+                    textTransform={props.textTransform}
                     onUpdate={value =>{
-                        if(props.textTransform && props.dataType == 'text' && value){
+                        if(value && props.dataType == 'text'){
                             // @ts-ignore value es string
-                            value = props.textTransform == 'lowercase'?value.toLowerCase():value.toUpperCase();
+                            //value = props.textTransform?props.textTransform == 'lowercase'?value.toLowerCase():value.toUpperCase():value;
+                            // @ts-ignore value es string    
+                            //value = props.simplificateText?simplificateText(value):value;
                         }
                         props.onUpdate(value);
                     }}
@@ -561,6 +573,7 @@ const AtributosRow = function(props:{
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
                 textTransform='uppercase'
+                simplificateText={true}
                 onUpdate={value=>{
                     dispatch(dispatchers.SET_ATRIBUTO({
                         forPk:relAtr, 
