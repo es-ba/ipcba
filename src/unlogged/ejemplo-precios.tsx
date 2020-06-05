@@ -431,12 +431,6 @@ function EditableTd<T extends string|number|null>(props:{
                     simplificateText={!!props.simplificateText}
                     textTransform={props.textTransform}
                     onUpdate={value =>{
-                        if(value && props.dataType == 'text'){
-                            // @ts-ignore value es string
-                            //value = props.textTransform?props.textTransform == 'lowercase'?value.toLowerCase():value.toUpperCase():value;
-                            // @ts-ignore value es string    
-                            //value = props.simplificateText?simplificateText(value):value;
-                        }
                         props.onUpdate(value);
                     }}
                     tipoOpciones={props.tipoOpciones}
