@@ -1945,7 +1945,7 @@ function PantallaOpciones(){
                                 )
                             }}
                         >
-                            <DeleteIcon/> Descartar hoja de ruta
+                            <DeleteIcon/> No guardar
                         </Button>
                         <Dialog
                             open={!!mensajeBorrar}
