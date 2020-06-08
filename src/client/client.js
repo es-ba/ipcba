@@ -658,6 +658,7 @@ my.wScreens.controles_formulario={
             {table:'control_diccionario_atributos', abr:'DIC', label:'Control de diccionario de atributos', fields:['periodo','informante','visita','formulario']},
             {table:'control_verificar_precio', abr:'CVP', label:'Control para verificar precio', fields:['periodo','informante','visita','formulario']},
             {table:'precios_positivos', abr:'PP', label:'Control precios positivos', fields:['periodo','informante','visita','formulario']},
+            {table:'precios_inconsistentes', abr:'PI', label:'Control precios inconsistentes', fields:['periodo','informante','visita','formulario']},
         ];
         return Promise.all(detailTables.map(function(det){
             var divGrilla=html.div().create();

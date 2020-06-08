@@ -933,6 +933,7 @@ NETWORK:
             {name: 'precios_maximos_vw', path: __dirname},
             {name: 'precios_maximos_minimos', path: __dirname},
             {name: 'precios_positivos', path: __dirname},
+            {name: 'precios_inconsistentes', path: __dirname},
             {name: 'monedas', path: __dirname},
             {name: 'relenc', path: __dirname},
             {name: 'relmon', path: __dirname},
