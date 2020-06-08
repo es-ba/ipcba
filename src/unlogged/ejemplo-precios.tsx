@@ -1945,7 +1945,7 @@ function PantallaOpciones(){
                                 )
                             }}
                         >
-                            <DeleteIcon/> No guardar
+                            <DeleteIcon/> Descartar cambios hoja de ruta
                         </Button>
                         <Dialog
                             open={!!mensajeBorrar}
@@ -1989,7 +1989,7 @@ function PantallaOpciones(){
                                     variant="outlined"
                                     disabled={!habilitarBorrar}
                                 >
-                                    Descartar
+                                    No guardar
                                 </Button>
                             </DialogActions>
                         </Dialog>
