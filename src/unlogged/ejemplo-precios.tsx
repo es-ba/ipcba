@@ -7,7 +7,8 @@ import {
     controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente,
     precioTieneError, 
     COLOR_ERRORES,
-    simplificateText
+    simplificateText,
+    precioTieneAtributosCargados
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
     hdrEstaDescargada, getCacheVersion} from "./dm-react";
@@ -533,11 +534,11 @@ const AtributosRow = function(props:{
             <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
-                    {!props.razonPositiva?'':(
+                    {props.razonPositiva?(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
                                 props.onSelection();
-                                dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                                dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                                     forPk:relAtr, 
                                     iRelPre:props.iRelPre,
                                 }))
@@ -552,8 +553,15 @@ const AtributosRow = function(props:{
                             }}>
                                 C
                             </Button>
+                        :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                                props.onSelection();
+                                setMenuCambioAtributos(event.currentTarget)                            
+                            }}>
+                                =
+                            </Button>
                         :relPre.cambio
-                    )}
+                    ):null}
                 </div>
             :null}
             <EditableTd 
@@ -587,26 +595,41 @@ const AtributosRow = function(props:{
                 anchorEl={menuCambioAtributos}
                 onClose={()=>setMenuCambioAtributos(null)}
             >
+                {relPre.cambio == 'C'?
+                    <>
+                        <MenuItem onClick={()=>{
+                            dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                            }))
+                            setMenuCambioAtributos(null)
+                        }}>
+                            <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
+                                Copiar el resto de los atributos vacíos
+                            </ListItemText>
+                        </MenuItem>
+                        <MenuItem onClick={()=>{
+                            dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                            }))
+                            setMenuCambioAtributos(null)
+                        }}>
+                            <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
+                                Anular el cambio pisando los valores distintos
+                            </ListItemText>
+                        </MenuItem>
+                    </>
+                :null}
                 <MenuItem onClick={()=>{
-                    dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
-                        forPk:relAtr, 
-                        iRelPre:props.iRelPre,
-                    }))
-                    setMenuCambioAtributos(null)
-                }}>
-                    <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
-                        Copiar el resto de los atributos vacíos
-                    </ListItemText>
-                </MenuItem>
-                <MenuItem onClick={()=>{
-                    dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                    dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
                     }))
                     setMenuCambioAtributos(null)
                 }}>
                     <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
-                        Anular el cambio pisando los valores distintos
+                        Blanquear atributos
                     </ListItemText>
                 </MenuItem>
             </Menu>

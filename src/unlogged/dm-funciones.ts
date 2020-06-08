@@ -34,6 +34,10 @@ export function calcularCambioAtributosEnPrecio(relPre:RelPre){
     return hayDiferenciasEntreAtributos?'C':'='
 }
 
+export function precioTieneAtributosCargados(relPre:RelPre){
+    return relPre.atributos.some(relAtr=>relAtr.valor!=null);
+}
+
 export function normalizarPrecio(relPre:RelPre, estructura:Estructura){
     if(!relPre.precio){
         return null

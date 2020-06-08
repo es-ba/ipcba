@@ -208,6 +208,19 @@ var reducers={
                 return nuevoRelPre;
             });
         },
+    BLANQUEAR_ATRIBUTOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+        function(state: HojaDeRuta){
+            setDirty();
+            return surfRelPre(state, payload, (relPre:RelPre)=>{
+                var nuevoRelPre:RelPre = {
+                    ...relPre,
+                    atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
+                };
+                nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
+                nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
+                return nuevoRelPre;
+            });
+        },
     SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) => 
         function(state: HojaDeRuta){
             setDirty();
