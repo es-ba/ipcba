@@ -1877,7 +1877,7 @@ function PantallaOpciones(){
     }
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    const FRASE_BORRADO = "forzar borrado";
+    const FRASE_BORRADO = "no guardar";
     return (
         <>
             <AppBar position="fixed">
