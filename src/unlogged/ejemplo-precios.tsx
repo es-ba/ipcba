@@ -161,7 +161,8 @@ const useStylesTextField = makeStyles((_theme: Theme) =>
                 color: PRIMARY_COLOR,
             },
             fontSize: "1.3rem",
-            lineHeight: 1.43
+            lineHeight: 1.43,
+            color:(props:{color:string}) => props.color,
         },
         underline: {
             "&:after": {
@@ -180,6 +181,7 @@ function TypedInput<T extends string|number|null>(props:{
     autoFocus:boolean,
     borderBottomColor:string,
     borderBottomColorError:string
+    color:string
     hasError:boolean,
     value:T,
     dataType: InputTypes
@@ -221,7 +223,8 @@ function TypedInput<T extends string|number|null>(props:{
     }
     const classes = useStylesTextField({
         borderBottomColor: props.borderBottomColor,
-        borderBottomColorError: props.borderBottomColorError
+        borderBottomColorError: props.borderBottomColorError,
+        color: props.color
     });
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
@@ -369,6 +372,7 @@ function EditableTd<T extends string|number|null>(props:{
     autoFocus?:boolean,
     borderBottomColor?:string,
     borderBottomColorError?:string
+    color?:string
     hasError:boolean,
     inputId:string,
     idProximo?:string|null,
@@ -391,6 +395,7 @@ function EditableTd<T extends string|number|null>(props:{
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
     const borderBottomColorError = props.borderBottomColorError || DEFAULT_ERROR_COLOR;
+    const color = props.color || '#000000';
     const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
@@ -424,6 +429,7 @@ function EditableTd<T extends string|number|null>(props:{
                     hasError={props.hasError}
                     borderBottomColor={borderBottomColor}
                     borderBottomColorError={borderBottomColorError}
+                    color={color}
                     inputId={props.inputId}
                     value={props.value}
                     disabled={props.disabled}
@@ -567,6 +573,7 @@ const AtributosRow = function(props:{
             <EditableTd 
                 borderBottomColor={PRIMARY_COLOR}
                 borderBottomColorError={colorAdv}
+                color={relPre.cambio != "C" && relPre.tipoprecio == null?PRIMARY_COLOR:undefined}
                 hasError={tieneAdv && props.razonPositiva}
                 className="atributo-actual" 
                 inputId={props.inputId}
