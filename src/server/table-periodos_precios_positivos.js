@@ -20,7 +20,6 @@ module.exports = function(context){
         ],
         detailTables:[
             {table: 'precios_positivos' , fields:['periodo'], abr:'P' , label: 'cantidad de precios positivos por formulario'},
-            //{table: 'precios_porcentaje_positivos_y_anulados' , fields:['periodo'], abr:'P' , label: 'cantidad de precios positivos por formulario'},
         ],
     });
     defNewElement.sql={
