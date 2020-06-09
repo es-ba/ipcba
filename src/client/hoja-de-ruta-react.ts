@@ -348,11 +348,26 @@ myOwn.wScreens.relevamiento=function(_addrParams){
 };
 
 myOwn.clientSides.abrir={
-    update: undefined,
+    update: function(depot, fieldName){
+        var row = depot.row;
+        depot.rowControls[fieldName].button.textContent = row.usuario ? 'tomar' : 'abrir';
+        depot.rowControls[fieldName].button.style.fontWeight = row.usuario ? 'normal' : 'bold';
+        var tcolor = row.usuario ? 'white' : 'black';
+        // var color = row.usuario ? '-internal-light-dark-color(rgb(255, 229, 229), rgb(74, 74, 74))' : '-internal-light-dark-color(rgb(239, 239, 239), rgb(74, 74, 74))';
+        var color = row.usuario ? 'red' :( 
+            row.cantpreciosinconsistentes>0 ? '#EE8': (
+            row.cantformulariosfaltantes==0 && row.cantpreciosfaltantes==0 ? '#8D8': (
+            row.cantformularioscompletos>0 || row.cantprecioscompletos>0 ? '#AAE': (
+            '#DDD'
+        ))));
+        depot.rowControls[fieldName].button.style.backgroundColor=color;
+        depot.rowControls[fieldName].button.style.color=tcolor;
+    },
     prepare: function(depot, fieldName){
         var {periodo, panel, tarea, informante, visita} = depot.row;
         var openButton = html.button({},'abrir').create();
         depot.rowControls[fieldName].appendChild(openButton);
+        depot.rowControls[fieldName].style.textAlign='center';
         var restablecerBotonAbrirFun = function restablecerBotonAbrirFun(){
             depot.rowControls[fieldName].innerHTML = '';
             depot.rowControls[fieldName].appendChild(openButton);
@@ -434,6 +449,10 @@ myOwn.clientSides.abrir={
             }
             
         }
+        depot.rowControls[fieldName].button=openButton;
+        depot.rowControls[fieldName].button.style.webkitAppearance='button';
+        depot.rowControls[fieldName].button.style.border='0.5px solid black';
+        depot.rowControls[fieldName].button.style.borderRadius='3px';
    }
 }
 //fin relevamiento directo
