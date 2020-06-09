@@ -82,7 +82,7 @@ module.exports = function(context){
                         left join relinf ri on rv.periodo = ri.periodo and rv.informante = ri.informante and rv.visita = ri.visita
                         left join (select pre.*, tp.inconsistente, case when tipoprecio is null then 'N' else 'S' end as tipo from relpre pre left join tipopre tp using(tipoprecio)) pre on rv.periodo = pre.periodo and rv.informante = pre.informante and rv.visita = pre.visita and rv.formulario = pre.formulario
                         where p.ingresando = 'S' 
-                        and current_date between COALESCE(ri.fechasalidadesde,rp.fechasalidadesde, rp.fechasalida) and COALESCE(ri.fechasalidahasta,rp.fechasalidahasta, rp.fechasalida)
+                        and current_timestamp between COALESCE(ri.fechasalidadesde,rp.fechasalidadesde, rp.fechasalida)+interval '9 hours'  and COALESCE(ri.fechasalidahasta,rp.fechasalidahasta, rp.fechasalida)
                     group by rv.periodo, panel, tarea, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, per.persona, per.labor)`
         },
     },context);
