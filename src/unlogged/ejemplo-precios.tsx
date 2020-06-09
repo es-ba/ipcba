@@ -704,7 +704,19 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
-    const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
+    const chipColor = relPre.tipoprecioanterior=='S' && !relPre.sinpreciohace4meses?
+        '#FFFFFF'
+    :
+        (relPre.sinpreciohace4meses?
+            "#66b58b"
+        :
+            (relPre.tipoprecioanterior == "N"?
+                "#76bee4"
+            :
+                null
+            )
+        );
+    const chipTextColor = relPre.tipoprecioanterior=='S' && !relPre.sinpreciohace4meses?'#000000':'#ffffff'
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
@@ -845,7 +857,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }
                         >
                             {chipColor?
-                                <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
