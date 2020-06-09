@@ -355,10 +355,10 @@ myOwn.clientSides.abrir={
         var tcolor = row.usuario ? 'white' : 'black';
         // var color = row.usuario ? '-internal-light-dark-color(rgb(255, 229, 229), rgb(74, 74, 74))' : '-internal-light-dark-color(rgb(239, 239, 239), rgb(74, 74, 74))';
         var color = row.usuario ? 'red' :( 
-            row.cantpreciosinconsistentes>0 ? '#EE8': (
-            row.cantformulariosfaltantes==0 && row.cantpreciosfaltantes==0 ? '#8D8': (
-            row.cantformularioscompletos>0 || row.cantprecioscompletos>0 ? '#AAE': (
-            '#DDD'
+            row.cantpreciosinconsistentes>0 ? '#efaf7b' /* naranja */: (
+            row.cantformulariosfaltantes==0 && row.cantpreciosfaltantes==0 ? '#8D8' /*verde*/: (
+            row.cantformularioscompletos>0 || row.cantprecioscompletos>0 ? '#EE8' /*amarillo*/: (
+            '#DDD' /*gris */
         ))));
         depot.rowControls[fieldName].button.style.backgroundColor=color;
         depot.rowControls[fieldName].button.style.color=tcolor;
