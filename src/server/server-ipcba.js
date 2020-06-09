@@ -618,6 +618,7 @@ NETWORK:
                     {menuType:'menu', name:'precios'  , label:'precios'  , onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                         {menuType:'table', name:'periodos_relpre_control_rangos_analisis'         , label:'inconsistencias de precios analisis'},
                         {menuType:'table', name:'periodos_precios_porcentaje_positivos_y_anulados', label:'porcentajes de potenciales y positivos por formulario'},
+                        {menuType:'table', name:'periodos_precios_positivos'                      , label:'precios positivos periodo referente'},
                         {menuType:'table', name:'periodos_control_ajustes'                        , label:'ajustes de precios'},
                         {menuType:'table', name:'periodos_control_sinvariacion'                   , label:'precios sin variacion'},
                         {menuType:'table', name:'periodos_control_tipoprecio'                     , label:'tipos de precios'},
