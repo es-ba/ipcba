@@ -6,7 +6,9 @@ import {
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
     controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente,
     precioTieneError, 
-    COLOR_ERRORES
+    COLOR_ERRORES,
+    simplificateText,
+    precioTieneAtributosCargados
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
     hdrEstaDescargada, getCacheVersion} from "./dm-react";
@@ -159,7 +161,8 @@ const useStylesTextField = makeStyles((_theme: Theme) =>
                 color: PRIMARY_COLOR,
             },
             fontSize: "1.3rem",
-            lineHeight: 1.43
+            lineHeight: 1.43,
+            color:(props:{color:string}) => props.color,
         },
         underline: {
             "&:after": {
@@ -178,6 +181,7 @@ function TypedInput<T extends string|number|null>(props:{
     autoFocus:boolean,
     borderBottomColor:string,
     borderBottomColorError:string
+    color:string
     hasError:boolean,
     value:T,
     dataType: InputTypes
@@ -189,6 +193,8 @@ function TypedInput<T extends string|number|null>(props:{
     onFocus?:()=>void
     disabled?:boolean,
     placeholder?:string,
+    simplificateText: boolean,
+    textTransform?:'lowercase'|'uppercase',
 }){
     const dispatch = useDispatch();
     function valueT(value:string):T{
@@ -217,7 +223,8 @@ function TypedInput<T extends string|number|null>(props:{
     }
     const classes = useStylesTextField({
         borderBottomColor: props.borderBottomColor,
-        borderBottomColorError: props.borderBottomColorError
+        borderBottomColorError: props.borderBottomColorError,
+        color: props.color
     });
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
@@ -240,7 +247,11 @@ function TypedInput<T extends string|number|null>(props:{
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
-        var value = valueT(event.target.value);
+        var customValue = event.target.value.trim();
+        customValue = props.textTransform?props.textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
+        customValue = props.simplificateText?simplificateText(customValue):customValue;
+        setValue(customValue);
+        var value = valueT(customValue);
         if(value!==props.value){
             props.onUpdate(value);
         }
@@ -361,6 +372,7 @@ function EditableTd<T extends string|number|null>(props:{
     autoFocus?:boolean,
     borderBottomColor?:string,
     borderBottomColorError?:string
+    color?:string
     hasError:boolean,
     inputId:string,
     idProximo?:string|null,
@@ -373,7 +385,9 @@ function EditableTd<T extends string|number|null>(props:{
     tipoOpciones?:LetraTipoOpciones|null,
     opciones?:string[]|null,
     titulo?:string,
-    onFocus?:()=>void
+    onFocus?:()=>void,
+    textTransform?:'uppercase'|'lowercase',
+    simplificateText?:boolean,
 }){
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
@@ -381,6 +395,7 @@ function EditableTd<T extends string|number|null>(props:{
     const editaEnLista = props.tipoOpciones=='C' || props.tipoOpciones=='A';
     const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
     const borderBottomColorError = props.borderBottomColorError || DEFAULT_ERROR_COLOR;
+    const color = props.color || '#000000';
     const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
@@ -414,11 +429,14 @@ function EditableTd<T extends string|number|null>(props:{
                     hasError={props.hasError}
                     borderBottomColor={borderBottomColor}
                     borderBottomColorError={borderBottomColorError}
+                    color={color}
                     inputId={props.inputId}
                     value={props.value}
                     disabled={props.disabled}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
+                    simplificateText={!!props.simplificateText}
+                    textTransform={props.textTransform}
                     onUpdate={value =>{
                         props.onUpdate(value);
                     }}
@@ -522,11 +540,11 @@ const AtributosRow = function(props:{
             <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
-                    {!props.razonPositiva?'':(
+                    {props.razonPositiva?(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
                             <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
                                 props.onSelection();
-                                dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                                dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                                     forPk:relAtr, 
                                     iRelPre:props.iRelPre,
                                 }))
@@ -541,13 +559,21 @@ const AtributosRow = function(props:{
                             }}>
                                 C
                             </Button>
+                        :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                                props.onSelection();
+                                setMenuCambioAtributos(event.currentTarget)                            
+                            }}>
+                                =
+                            </Button>
                         :relPre.cambio
-                    )}
+                    ):null}
                 </div>
             :null}
             <EditableTd 
                 borderBottomColor={PRIMARY_COLOR}
                 borderBottomColorError={colorAdv}
+                color={relPre.cambio != "C" && relPre.tipoprecio == null?PRIMARY_COLOR:undefined}
                 hasError={tieneAdv && props.razonPositiva}
                 className="atributo-actual" 
                 inputId={props.inputId}
@@ -555,6 +581,8 @@ const AtributosRow = function(props:{
                 disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
+                textTransform='uppercase'
+                simplificateText={true}
                 onUpdate={value=>{
                     dispatch(dispatchers.SET_ATRIBUTO({
                         forPk:relAtr, 
@@ -574,26 +602,41 @@ const AtributosRow = function(props:{
                 anchorEl={menuCambioAtributos}
                 onClose={()=>setMenuCambioAtributos(null)}
             >
+                {relPre.cambio == 'C'?
+                    <>
+                        <MenuItem onClick={()=>{
+                            dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                            }))
+                            setMenuCambioAtributos(null)
+                        }}>
+                            <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
+                                Copiar el resto de los atributos vacíos
+                            </ListItemText>
+                        </MenuItem>
+                        <MenuItem onClick={()=>{
+                            dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                            }))
+                            setMenuCambioAtributos(null)
+                        }}>
+                            <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
+                                Anular el cambio pisando los valores distintos
+                            </ListItemText>
+                        </MenuItem>
+                    </>
+                :null}
                 <MenuItem onClick={()=>{
-                    dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
-                        forPk:relAtr, 
-                        iRelPre:props.iRelPre,
-                    }))
-                    setMenuCambioAtributos(null)
-                }}>
-                    <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
-                        Copiar el resto de los atributos vacíos
-                    </ListItemText>
-                </MenuItem>
-                <MenuItem onClick={()=>{
-                    dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                    dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                         forPk:relAtr, 
                         iRelPre:props.iRelPre,
                     }))
                     setMenuCambioAtributos(null)
                 }}>
                     <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
-                        Anular el cambio pisando los valores distintos
+                        Blanquear atributos
                     </ListItemText>
                 </MenuItem>
             </Menu>
@@ -661,7 +704,19 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
-    const chipColor = relPre.sinpreciohace4meses?"#66b58b":(relPre.tipoprecioanterior == "N"?"#76bee4":null);
+    const chipColor = relPre.tipoprecioanterior=='S' && !relPre.sinpreciohace4meses?
+        '#FFFFFF'
+    :
+        (relPre.sinpreciohace4meses?
+            "#66b58b"
+        :
+            (relPre.tipoprecioanterior == "N"?
+                "#76bee4"
+            :
+                null
+            )
+        );
+    const chipTextColor = relPre.tipoprecioanterior=='S' && !relPre.sinpreciohace4meses?'#000000':'#ffffff'
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
@@ -674,7 +729,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     }
 
     return (
-        <div style={props.style} className="caja-relpre">
+        <div style={props.style} className="caja-relpre" es-positivo={relPre.tipoprecio == null ? (relPre.cambio=='C'?'si':'maso'):(estructura.tipoPrecio[relPre.tipoprecio].espositivo?'si':'no')}>
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
@@ -802,7 +857,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }
                         >
                             {chipColor?
-                                <Chip style={{backgroundColor:chipColor, color:"#ffffff", width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
@@ -1834,7 +1889,7 @@ function PantallaOpciones(){
     }
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    const FRASE_BORRADO = "forzar borrado";
+    const FRASE_BORRADO = "no guardar";
     return (
         <>
             <AppBar position="fixed">
@@ -1902,7 +1957,7 @@ function PantallaOpciones(){
                                 )
                             }}
                         >
-                            <DeleteIcon/> Descartar hoja de ruta
+                            <DeleteIcon/> Descartar cambios hoja de ruta
                         </Button>
                         <Dialog
                             open={!!mensajeBorrar}
@@ -1946,7 +2001,7 @@ function PantallaOpciones(){
                                     variant="outlined"
                                     disabled={!habilitarBorrar}
                                 >
-                                    Descartar
+                                    No guardar
                                 </Button>
                             </DialogActions>
                         </Dialog>

@@ -109,15 +109,11 @@ var setTP = function setTP(
 ){
     return surfRelPre(hdrState, payload, (relPre:RelPre)=>{
         var tipoPrecioNuevo = tipoPrecioRedux(relPre);
-        var esNegativo = !tipoPrecioNuevo || !estructura!.tipoPrecio[tipoPrecioNuevo].espositivo;
-        var paraLimipar=esNegativo?{
-            precio: null,
-            cambio: null,
-            atributos: relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
-        }:{};
+        if(tipoPrecioNuevo != relPre.tipoprecio){
+            setDirty();
+        }
         return {
             ...relPre,
-            ...paraLimipar,
             tipoprecio: tipoPrecioNuevo
         };
     });
@@ -132,8 +128,10 @@ var setDirty = () => my.setLocalVar(LOCAL_STORAGE_DIRTY_NAME, true);
 var reducers={
     SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) => 
         function(state: HojaDeRuta){
-            setDirty();
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
+                if(miRelVis.razon != payload.razon){
+                    setDirty();
+                }
                 return {
                     ...miRelVis,
                     razon: payload.razon
@@ -142,8 +140,10 @@ var reducers={
         },
     SET_COMENTARIO_RAZON : (payload: {forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
         function(state: HojaDeRuta){
-            setDirty();
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
+                if(miRelVis.comentarios != payload.comentarios){
+                    setDirty();
+                }
                 return {
                     ...miRelVis,
                     comentarios: payload.comentarios
@@ -152,18 +152,18 @@ var reducers={
         },
     SET_TP               : (payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
         function(state: HojaDeRuta){
-            setDirty();
             return setTP(state, payload, _ => payload.tipoprecio);
         },
     COPIAR_TP            :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
-            setDirty();
             return setTP(state, payload, relPre => puedeCopiarTipoPrecio(estructura!, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
         },
     SET_PRECIO           :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
         function(state: HojaDeRuta){
-            setDirty();
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
+                if(miRelPre.precio != payload.precio){
+                    setDirty();
+                }
                 var puedeCambiarPrecio = puedeCambiarPrecioYAtributos(estructura!, miRelPre);
                 var nuevoRelPre:RelPre = {
                     ...miRelPre,
@@ -176,8 +176,10 @@ var reducers={
         },
     SET_COMENTARIO_PRECIO:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
         function(state: HojaDeRuta){
-            setDirty();
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
+                if(miRelPre.comentariosrelpre != payload.comentario){
+                    setDirty();
+                }
                 var nuevoRelPre:RelPre = {
                     ...miRelPre,
                     comentariosrelpre: payload.comentario
@@ -215,12 +217,27 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) => 
+    BLANQUEAR_ATRIBUTOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
         function(state: HojaDeRuta){
             setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
+                var nuevoRelPre:RelPre = {
+                    ...relPre,
+                    atributos:relPre.atributos.map(relAtr=>({...relAtr, valor:null}))
+                };
+                nuevoRelPre.cambio = calcularCambioAtributosEnPrecio(nuevoRelPre);
+                nuevoRelPre.precionormalizado = normalizarPrecio(nuevoRelPre, estructura!);
+                return nuevoRelPre;
+            });
+        },
+    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelPre(state, payload, (relPre:RelPre)=>{
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){
                     return relPre;
+                }
+                if(relPre.atributos.find(relAtr=>relAtr.atributo==payload.forPk.atributo && relAtr.valor != payload.valor)){
+                    setDirty();
                 }
                 var nuevoRelPre:RelPre = {
                     ...relPre,

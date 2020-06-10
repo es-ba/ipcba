@@ -23,6 +23,8 @@ module.exports = function(context){
             {name:'encuestador'           , typeName:'text'       , allow:{update:puedeEditar}, title:'enc.r'},
             {name:'suplente'              , typeName:'text'       , allow:{update:false}},
             {name:'sobrecargado'          , typeName:'integer'    , allow:{update:false}},
+            {name:'fechasalidadesde'      , typeName:'date'       , allow:{update:puedeEditar}},
+            {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','panel','tarea'],
         detailTables:[
@@ -34,7 +36,8 @@ module.exports = function(context){
             from:`(select rt.periodo, rt.panel, rt.tarea, t.recepcionista, CASE WHEN verif like '%N%' THEN ' ' ELSE '✓' END verificado, 
                           t.encuestador encuestador_titular, te.nombre||' '||te.apellido as titular, rt.encuestador, 
                           case when rt.encuestador=t.encuestador then null else nullif(concat_ws(' ', tre.nombre, tre.apellido),'') end as suplente,
-                          nullif(nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1),0) as sobrecargado
+                          nullif(nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1),0) as sobrecargado,
+                          rt.fechasalidadesde, rt.fechasalidahasta
                      from reltar rt
                        left join tareas t on rt.tarea = t.tarea
                        left join personal te on t.encuestador = te.persona

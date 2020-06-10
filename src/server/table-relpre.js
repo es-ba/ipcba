@@ -23,7 +23,7 @@ module.exports = function(context){
             {name:'observacion'                  , typeName:'integer' , nullable:false             , allow:{update:false}, title:'obs'      , inTable: true},
             {name:'precio'                       , typeName:'decimal' , allow:{update:puedeEditar} ,width:75,clientSide:'control_precio' , serverSide:true, inTable: true},
             {name:'tipoprecio'                   , typeName:'text'                                 , allow:{update:puedeEditar} ,title:'TP', postInput:'upperSpanish', clientSide:'ingreso_tipoprecio', serverSide:true , inTable: true},
-            {name:'cambio'                       , typeName:'text'                                 , allow:{update:puedeEditar}            , postInput:'upperSpanish', clientSide:'navegar_cambio'    , serverSide:true , inTable: true},            
+            {name:'cambio'                       , typeName:'text'                                 , allow:{update:false}            , postInput:'upperSpanish', clientSide:'navegar_cambio'    , serverSide:true , inTable: true},            
             {name:'repregunta'                   , typeName:'text'                                 , allow:{import:false, update:false}, title:'R', inTable: false},            
             {name:'excluido'                     , typeName:'text'                                 , allow:{import:false, update:false}, title:'X', inTable: false},            
             {name:'antiguedadsinprecioant'       , typeName:'integer'                              , allow:{import:false, update:false}, title:'Aspa', inTable: false},            
@@ -56,7 +56,7 @@ module.exports = function(context){
         ],
         sortColumns:[{column:'orden'},{column:'observacion'}],
         detailTables:[
-            {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita']},
+            {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita'], refreshParent: true},
         ],
         sql:{
             from:`(select r.periodo, r.producto, r.informante, r.formulario, r.visita, r.observacion, r.precio, r.tipoprecio, r.cambio, 

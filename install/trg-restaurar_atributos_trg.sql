@@ -3,52 +3,18 @@ CREATE OR REPLACE FUNCTION restaurar_atributos_trg()
 $BODY$
 DECLARE
   vatributos RECORD;
-  vesposnew  cvp.tipopre.espositivo%type;
-  vesposold  cvp.tipopre.espositivo%type;
-  vblanqueonew  cvp.tipopre.registrablanqueo%type;
-  vblanqueoold  cvp.tipopre.registrablanqueo%type;
+  vpuedecambiaratributosnew  cvp.tipopre.puedecambiaratributos%type;
+  vpuedecambiaratributosold  cvp.tipopre.puedecambiaratributos%type;
+  vblanqueonew               cvp.tipopre.registrablanqueo%type;
 BEGIN
-  SELECT espositivo, registrablanqueo INTO vesposnew, vblanqueonew
+  SELECT puedecambiaratributos, registrablanqueo INTO vpuedecambiaratributosnew, vblanqueonew
     FROM  cvp.tipopre
     WHERE tipoprecio=NEW.tipoprecio;
-  SELECT espositivo, registrablanqueo INTO vesposold, vblanqueoold
+  SELECT puedecambiaratributos INTO vpuedecambiaratributosold
     FROM  cvp.tipopre
     WHERE tipoprecio=OLD.tipoprecio;
-  
-  IF OLD.tipoprecio is distinct from NEW.tipoprecio THEN
-    IF vblanqueonew and not vblanqueoold THEN
-        INSERT INTO cvp.blapre(
-            periodo, producto, observacion, informante, formulario, precio, 
-            tipoprecio, visita, modi_usu, modi_fec, modi_ope, comentariosrelpre, 
-            cambio, precionormalizado, especificacion, ultima_visita)
-        VALUES (OLD.periodo, OLD.producto, OLD.observacion, OLD.informante, OLD.formulario, OLD.precio, 
-            OLD.tipoprecio, OLD.visita, OLD.modi_usu, OLD.modi_fec, OLD.modi_ope, OLD.comentariosrelpre, 
-            OLD.cambio, OLD.precionormalizado, OLD.especificacion, OLD.ultima_visita);
-        --
-        INSERT INTO cvp.blaatr 
-            SELECT * FROM cvp.relatr 
-            WHERE periodo=NEW.periodo AND 
-               producto=NEW.producto AND
-               observacion=NEW.observacion AND 
-               informante=NEW.informante AND
-               visita=NEW.visita;  
-    END IF;
-    IF not vblanqueonew and vblanqueoold THEN
-        DELETE FROM cvp.blaatr 
-        WHERE periodo=NEW.periodo AND 
-              producto=NEW.producto AND
-              observacion=NEW.observacion AND 
-              informante=NEW.informante AND
-              visita=NEW.visita;
-        DELETE FROM cvp.blapre
-        WHERE periodo=NEW.periodo AND 
-              producto=NEW.producto AND
-              observacion=NEW.observacion AND 
-              informante=NEW.informante AND
-              visita=NEW.visita;
-    END IF;
-  END IF;
-  IF ((NEW.cambio IS NULL AND OLD.cambio ='C') OR (vesposnew is distinct from 'S')) AND vblanqueonew IS NOT TRUE THEN
+
+  IF (not vpuedecambiaratributosnew and vpuedecambiaratributosold) AND vblanqueonew IS NOT TRUE THEN
     /*IF NEW.cambio='C' THEN --este caso solo para la segunda condicion si hubiera C
        NEW.cambio:=NULL;     --lo saco porque se solapa con la validacion de tipoprecio valido
     END IF; */
@@ -75,12 +41,14 @@ BEGIN
                 visita=NEW.visita AND
                 atributo=vatributos.atributo ; --TOMAR VALOR DE ATRIBUTO
       END IF;   
-    END LOOP;  
+    END LOOP;
+    NEW.cambio:=NULL;	
   END IF;
  RETURN NEW; 
 END;
 $BODY$
   LANGUAGE 'plpgsql' VOLATILE SECURITY DEFINER;
+
 
 CREATE TRIGGER relpre_restaura_atributos_trg 
    BEFORE UPDATE 

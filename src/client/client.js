@@ -658,6 +658,7 @@ my.wScreens.controles_formulario={
             {table:'control_diccionario_atributos', abr:'DIC', label:'Control de diccionario de atributos', fields:['periodo','informante','visita','formulario']},
             {table:'control_verificar_precio', abr:'CVP', label:'Control para verificar precio', fields:['periodo','informante','visita','formulario']},
             {table:'precios_positivos', abr:'PP', label:'Control precios positivos', fields:['periodo','informante','visita','formulario']},
+            {table:'precios_inconsistentes', abr:'PI', label:'Control precios inconsistentes', fields:['periodo','informante','visita','formulario']},
         ];
         return Promise.all(detailTables.map(function(det){
             var divGrilla=html.div().create();
@@ -810,7 +811,12 @@ my.setPlaceHolder = function setPlaceHolderWithDefault(typedControl, valueOrCond
 }
 
 my.clientSides.ingreso_tipoprecio = {
-    update:false,
+    update:function(depot, fieldName){
+        var detailDef=depot.detailControls.relatr;
+        if(detailDef.show && depot.row.cambio == null && depot.rowControls.cambio.getTypedValue() == 'C'){
+            detailDef.forceDisplayDetailGrid({fixedFields:detailDef.calculateFixedFields(), detailing:{}},{});
+        }
+    },
     prepare:function(depot, fieldName){
         my.setPlaceHolder(depot.rowControls[fieldName], function(){
             return depot.rowControls.precio.getTypedValue() && 'P';

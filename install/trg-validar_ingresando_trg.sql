@@ -12,6 +12,9 @@ DECLARE
   vesadministrador integer;
   vescoordinacion integer;
   vAlgunasNoIngresadas text;
+  vCantPreciosInconsistentes integer;
+  vPreciosInconsistentes text;
+  
 BEGIN
 
 SELECT 1 INTO vesadministrador
@@ -56,12 +59,28 @@ IF OLD.ingresando IS DISTINCT FROM NEW.ingresando THEN
       IF vnvis <> vnvisnonula THEN
            RAISE EXCEPTION 'ERROR no se puede Cerrar el periodo "%" porque no estan todas las visitas ingresadas. Faltan ingresar % visitas. Por ejemplo % ' ,new.periodo, vnvis-vnvisnonula, vAlgunasNoIngresadas;
       END IF;
+    
+    SELECT count(*), substr(string_agg(
+               CASE WHEN coalesce(inconsistente, true) 
+                    THEN 'i'||v.informante||' p'||v.panel||' t'||v.tarea||' f'||v.formulario||' p'||p.producto||' v'||v.visita||' o'||p.observacion
+                    ELSE null 
+               END ,', '),1,100) -- pongo un límite para que la excepción no sea muy larga.
+    INTO vCantPreciosInconsistentes, vPreciosInconsistentes
+    FROM cvp.relvis v
+    LEFT JOIN cvp.razones z using (razon)
+    LEFT JOIN cvp.relpre p using (periodo, informante, visita, formulario)
+    LEFT JOIN cvp.tipopre tp using (tipoprecio)
+    WHERE periodo=NEW.periodo AND coalesce(espositivoformulario, 'S') = 'S' AND coalesce(inconsistente, true);
+      IF vCantPreciosInconsistentes > 0 THEN
+           RAISE EXCEPTION 'ERROR no se puede Cerrar el periodo "%" porque hay % registros de precios inconsistentes. Por ejemplo % ' ,new.periodo, vCantPreciosInconsistentes, vPreciosInconsistentes;
+      END IF;
+        
       NEW.fecha_cierre_ingreso=CURRENT_TIMESTAMP(3);
       /*Blanquear el vencimiento_sincronizacion al cerrar el periodo*/
       UPDATE cvp.reltar SET vencimiento_sincronizacion = null
-          WHERE periodo = NEW.periodo AND vencimiento_sincronizacion IS NOT NULL;      
-      UPDATE cvp.reltar SET vencimiento_sincronizacion2 = null
-          WHERE periodo = NEW.periodo AND vencimiento_sincronizacion2 IS NOT NULL;      
+      WHERE periodo = NEW.periodo AND vencimiento_sincronizacion IS NOT NULL;      
+
+
   ELSIF NEW.ingresando='S'  AND vescoordinacion=1 THEN -- abrir
       SELECT  abierto INTO vabierto
       FROM cvp.calculos

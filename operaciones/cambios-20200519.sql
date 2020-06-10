@@ -1,3 +1,11 @@
+SET SEARCH_PATH = cvp;
+
+ALTER TABLE tipopre ADD COLUMN puedecambiaratributos BOOLEAN DEFAULT FALSE;
+ALTER TABLE tipopre ADD COLUMN inconsistente BOOLEAN DEFAULT FALSE;
+
+UPDATE tipopre SET puedecambiaratributos = true WHERE espositivo ='S';
+
+-----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION permitir_actualizar_valor_trg()
     RETURNS trigger
     LANGUAGE 'plpgsql'
@@ -86,10 +94,3 @@ BEGIN
   RETURN NEW;
 END;
 $BODY$;
-
-CREATE TRIGGER relatr_actualizar_valor_trg
-  BEFORE UPDATE
-  ON relatr
-  FOR EACH ROW
-  EXECUTE PROCEDURE permitir_actualizar_valor_trg();
-

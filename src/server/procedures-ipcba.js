@@ -401,9 +401,7 @@ function dm2CrearQueries(parameters){
     `;
     var sqlAtributos=`
         SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
-                case when tp.espositivo='S' then ra.valor else null end as valor, 
-                ra.valor_1 as valoranterior, 
-                pa.orden
+                ra.valor, ra.valor_1 as valoranterior, pa.orden
             FROM relatr_1 ra
                 INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
             WHERE ra.periodo=rp.periodo 
@@ -412,7 +410,9 @@ function dm2CrearQueries(parameters){
                 AND ra.producto=rp.producto
                 AND ra.observacion=rp.observacion`
     var sqlObservaciones=`                
-        SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, rp.tipoprecio,  tipoprecio_1 as tipoprecioanterior,
+        SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, 
+                case when rp.tipoprecio='L' then null else rp.tipoprecio end as tipoprecio, 
+                tipoprecio_1 as tipoprecioanterior,
                 cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
                 f.orden as orden_formulario,
                 fp.orden as orden_producto,
@@ -1763,7 +1763,7 @@ ProceduresIpcba = [
                 }
                 if(habilitado){
                     var tiposDePrecio = await context.client.query(
-                        `SELECT tipoprecio, espositivo='S' as espositivo FROM tipopre`
+                        `SELECT tipoprecio, espositivo='S' as espositivo, puedecambiaratributos FROM tipopre`
                     ,[]).fetchAll();
                     tiposDePrecio = likeAr.createIndex(tiposDePrecio.rows, 'tipoprecio');
                     var productos = await context.client.query(
@@ -1835,35 +1835,48 @@ ProceduresIpcba = [
                             }catch(err){
                                 throw new Error('Error al caracterizar la visita para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
                             }
-                            var actualizarObservaciones=async function(observaciones){
-                                for(var observacion of observaciones){
+                            var actualizarObservacionesYAtributos=async function(observaciones){
+                                var actualizarObservacion=async function(observacion){
                                     try{
-                                        observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
                                         await context.client.query(`
                                             update relpre
-                                                set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
-                                                where periodo = $4 and informante = $5 and visita = $6 and producto = $7 and observacion = $8 --pk verificada
+                                                set tipoprecio = $1, precio = $2, comentariosrelpre = $8
+                                                where periodo = $3 and informante = $4 and visita = $5 and producto = $6 and observacion = $7 --pk verificada
                                                 returning true`
-                                            ,[
-                                                filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio), 
-                                                filtroValoresPrecioAtributo && observacion.tipoprecio && observacion.precio, 
-                                                filtroValoresPrecioAtributo && observacion.cambio,
-                                                observacion.periodo, 
-                                                observacion.informante, 
-                                                observacion.visita, 
-                                                observacion.producto, 
-                                                observacion.observacion,
-                                                simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre)
-                                            ]
-                                        ).fetchUniqueRow()
+                                        ,[
+                                            filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio),
+                                            filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo?observacion.precio:null), 
+                                            observacion.periodo, 
+                                            observacion.informante, 
+                                            observacion.visita, 
+                                            observacion.producto, 
+                                            observacion.observacion,
+                                            simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre),
+                                        ]).fetchUniqueRow()
                                     }catch(err){
                                         throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
                                     }
+                                };
+                                for(var observacion of observaciones){
+                                    observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
+                                    var tpEsNegativo = !!(observacion.tipoprecio && !tiposDePrecio[observacion.tipoprecio].espositivo);
+                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !limpiandoRazon){
+                                        observacion.tipoprecio="L";
+                                    }
+                                    //no tengo cambio y estoy limpiando razon o no tengo cambio ni TP ni precio 
+                                    //blanqueo atributos primero porque puede ser que haya cambio = C en la base
+                                    var blanquearAtributosAntes = !!(observacion.cambio && limpiandoRazon || !observacion.cambio && !observacion.tipo && !observacion.precio);
+                                    if(!blanquearAtributosAntes){
+                                        await actualizarObservacion(observacion);
+                                    }
                                     for(var atributo of observacion.atributos){
-                                        //solo actualizo atributo si el tipoprecio es positivo (si el valor es nulo, se guarda nulo)
-                                        if(observacion.tipoprecio && tiposDePrecio[observacion.tipoprecio].espositivo && observacion.precio && filtroValoresPrecioAtributo && !limpiandoRazon /* && atributo.valor*/){
+                                        if(!tpEsNegativo){
                                             try{
-                                                var valorAtributoMayusculado = simplificateText(atributo.valor?atributo.valor.toString().trim().toUpperCase():null);
+                                                var valor = limpiandoRazon?
+                                                    atributo.valoranterior?atributo.valoranterior.toString().trim().toUpperCase():null
+                                                :
+                                                    atributo.valor?atributo.valor.toString().trim().toUpperCase():null
+                                                var valorAtributoMayusculado = simplificateText(valor);
                                                 await context.client.query(`
                                                     update relatr
                                                         set valor = $1
@@ -1885,15 +1898,18 @@ ProceduresIpcba = [
                                             }
                                         }
                                     }
+                                    if(blanquearAtributosAntes){
+                                        await actualizarObservacion(observacion);
+                                    }
                                 }
                             }
                             var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
                             if(limpiandoRazon){
-                                await actualizarObservaciones(observaciones);
+                                await actualizarObservacionesYAtributos(observaciones);
                                 await actualizarRelVis();
                             }else{
                                 await actualizarRelVis();
-                                await actualizarObservaciones(observaciones);
+                                await actualizarObservacionesYAtributos(observaciones);
                             }
                         };
                     };              

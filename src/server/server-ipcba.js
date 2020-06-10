@@ -153,12 +153,13 @@ class AppIpcba extends backendPlus.AppBackend{
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
+                - trg-adm_blanqueo_precios_trg.sql
                 - trg-agrupaciones_fijas_trg.sql
                 - trg-altamanualdeinformantes_trg.sql
                 - trg-blanquear_precios_trg.sql
                 - trg-borrar_precios_trg.sql
                 - trg-borrar_visita_trg.sql
-                - trg-calcular_precionormaliz_relatr_trg.sql
+                - trg-calcular_precionormaliz_cambio_relatr_trg.sql
                 - trg-calcular_precionormaliz_relpre_trg.sql
                 - trg-cambio_panel_tarea_trg.sql
                 - trg-cambios_razon_trg.sql
@@ -617,6 +618,7 @@ NETWORK:
                     {menuType:'menu', name:'precios'  , label:'precios'  , onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                         {menuType:'table', name:'periodos_relpre_control_rangos_analisis'         , label:'inconsistencias de precios analisis'},
                         {menuType:'table', name:'periodos_precios_porcentaje_positivos_y_anulados', label:'porcentajes de potenciales y positivos por formulario'},
+                        {menuType:'table', name:'periodos_precios_positivos'                      , label:'precios positivos periodo referente'},
                         {menuType:'table', name:'periodos_control_ajustes'                        , label:'ajustes de precios'},
                         {menuType:'table', name:'periodos_control_sinvariacion'                   , label:'precios sin variacion'},
                         {menuType:'table', name:'periodos_control_tipoprecio'                     , label:'tipos de precios'},
@@ -933,6 +935,7 @@ NETWORK:
             {name: 'precios_maximos_vw', path: __dirname},
             {name: 'precios_maximos_minimos', path: __dirname},
             {name: 'precios_positivos', path: __dirname},
+            {name: 'precios_inconsistentes', path: __dirname},
             {name: 'monedas', path: __dirname},
             {name: 'relenc', path: __dirname},
             {name: 'relmon', path: __dirname},

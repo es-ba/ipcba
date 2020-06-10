@@ -261,12 +261,16 @@ main
 .boton-seleccionado-advertencias span svg path
   color orange
 
-#formulario-visita[es-positivo=no]
+.caja-relpre[es-positivo=maso]
+  .atributo-actual
+    opacity 0.5
+
+#formulario-visita[es-positivo=no], .caja-relpre[es-positivo=no]
   .flechaTP
     opacity 0.2
   .tipo-precio
     color rgba(0,0,0,0)
-  .precio
+  .precio, .flechaAtributos
     opacity 0
   .atributo-actual
     visibility hidden
