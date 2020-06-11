@@ -124,17 +124,19 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
         return !prodAtr.mostrar_cant_um && prodAtr.valornormal && Number(relAtr.valor)==prodAtr.valornormal
     }
     var esNormalizableSinValor = function esNormalizableSinValor(relAtr:RelAtr, prodAtr:ProdAtr, relPre:RelPre){
-        return prodAtr.valornormal && prodAtr.normalizable && relAtr.valor == null && relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+        return prodAtr.valornormal && prodAtr.normalizable && relAtr.valor == null;
     }
     var tieneAdvertencia:boolean=false;
     var color:string|undefined = undefined;
-    if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor != null){
-        color='#FFCE33';
-        tieneAdvertencia = true;
-    }
-    if(esNormalizableSinValor(relAtr, prodAtr, relPre)){
-        tieneAdvertencia = true;
-        color='#FF9333';
+    if(relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo){
+        if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor != null){
+            color='#FFCE33';
+            tieneAdvertencia = true;
+        }
+        if(esNormalizableSinValor(relAtr, prodAtr, relPre)){
+            tieneAdvertencia = true;
+            color='#FF9333';
+        }
     }
     return {tieneAdv: tieneAdvertencia, color}
 }
