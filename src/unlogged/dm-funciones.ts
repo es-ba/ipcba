@@ -124,11 +124,12 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
         return !prodAtr.mostrar_cant_um && prodAtr.valornormal && Number(relAtr.valor)==prodAtr.valornormal
     }
     var esNormalizableSinValor = function esNormalizableSinValor(relAtr:RelAtr, prodAtr:ProdAtr, relPre:RelPre){
-        return prodAtr.valornormal && prodAtr.normalizable && relAtr.valor == null;
+        return prodAtr.valornormal && prodAtr.normalizable && relAtr.valor == null && relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo;
     }
     var tieneAdvertencia:boolean=false;
     var color:string|undefined = undefined;
-    if(relPre.tipoprecio && estructura.tipoPrecio[relPre.tipoprecio].espositivo){
+    var tpEsNegativo = !!(relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo);
+    if(!tpEsNegativo){
         if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor != null){
             color='#FFCE33';
             tieneAdvertencia = true;
