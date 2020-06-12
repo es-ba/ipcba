@@ -1873,7 +1873,7 @@ ProceduresIpcba = [
                                         if(!tpEsNegativo){
                                             try{
                                                 var valor = limpiandoRazon?
-                                                    atributo.valoranterior?atributo.valoranterior.toString().trim().toUpperCase():null
+                                                    atributo.valoranterior?atributo.valoranterior:null
                                                 :
                                                     atributo.valor?atributo.valor.toString().trim().toUpperCase():null
                                                 var valorAtributoMayusculado = simplificateText(valor);
