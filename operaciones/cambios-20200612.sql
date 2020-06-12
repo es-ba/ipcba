@@ -1,6 +1,9 @@
-CREATE OR REPLACE FUNCTION restaurar_atributos_trg()
-  RETURNS trigger AS
-$BODY$
+set search_path = cvp;
+CREATE OR REPLACE FUNCTION cvp.restaurar_atributos_trg()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    VOLATILE NOT LEAKPROOF SECURITY DEFINER
+AS $BODY$
 DECLARE
   vatributos RECORD;
   vpuedecambiaratributosnew  cvp.tipopre.puedecambiaratributos%type;
@@ -46,11 +49,4 @@ BEGIN
   END IF;
  RETURN NEW; 
 END;
-$BODY$
-  LANGUAGE 'plpgsql' VOLATILE SECURITY DEFINER;
-
-
-CREATE TRIGGER relpre_restaura_atributos_trg 
-   BEFORE UPDATE 
-   ON relpre 
-   FOR EACH ROW EXECUTE PROCEDURE restaurar_atributos_trg();
+$BODY$;
