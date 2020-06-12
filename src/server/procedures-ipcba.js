@@ -1875,8 +1875,7 @@ ProceduresIpcba = [
                                                 var valor = limpiandoRazon?
                                                     atributo.valoranterior?atributo.valoranterior:null
                                                 :
-                                                    atributo.valor?atributo.valor.toString().trim().toUpperCase():null
-                                                var valorAtributoMayusculado = simplificateText(valor);
+                                                    atributo.valor?simplificateText(atributo.valor.toString().trim().toUpperCase()):null
                                                 await context.client.query(`
                                                     update relatr
                                                         set valor = $1
@@ -1884,14 +1883,14 @@ ProceduresIpcba = [
                                                           and upper(trim(valor)) is distinct from $8
                                                         returning true`
                                                 ,[
-                                                    valorAtributoMayusculado, 
+                                                    valor, 
                                                     atributo.periodo, 
                                                     atributo.informante, 
                                                     atributo.visita, 
                                                     atributo.producto, 
                                                     atributo.observacion,
                                                     atributo.atributo,
-                                                    valorAtributoMayusculado // para solo hacer update si hubo cambio
+                                                    valor // para solo hacer update si hubo cambio
                                                 ]).fetchOneRowIfExists()
                                             }catch(err){
                                                 throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
