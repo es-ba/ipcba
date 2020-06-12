@@ -1835,7 +1835,6 @@ ProceduresIpcba = [
                                     ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario]
                                 ).fetchUniqueRow()
                                 filtroValoresPrecioAtributo = result.row.filtro_valores;
-                                //limpiandoRazon = result.row.limpiar_precios;
                             }catch(err){
                                 throw new Error('Error al caracterizar la visita para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
                             }
@@ -1867,19 +1866,18 @@ ProceduresIpcba = [
                                     if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !razonNegativa){
                                         observacion.tipoprecio="L";
                                     }
-                                    //no tengo cambio y estoy limpiando razon o no tengo cambio ni TP ni precio 
-                                    //blanqueo atributos primero porque puede ser que haya cambio = C en la base
-                                    var blanquearAtributosAntes = !!(observacion.cambio && razonNegativa || !observacion.cambio && !observacion.tipo && !observacion.precio);
+                                    var blanquearAtributosAntes = razonNegativa;
                                     if(!blanquearAtributosAntes){
                                         await actualizarObservacion(observacion);
                                     }
                                     for(var atributo of observacion.atributos){
                                         if(!tpEsNegativo){
                                             try{
-                                                var valor = razonNegativa?
-                                                    atributo.valoranterior?atributo.valoranterior:null
-                                                :
+                                                //razon positiva (no hay null nunca) y hay cambio, a veces hay problemas con los numeros
+                                                var valor = !razonNegativa && observacion.cambio?
                                                     atributo.valor?simplificateText(atributo.valor.toString().trim().toUpperCase()):null
+                                                :
+                                                    atributo.valoranterior?atributo.valoranterior:null    
                                                 await context.client.query(`
                                                     update relatr
                                                         set valor = $1
