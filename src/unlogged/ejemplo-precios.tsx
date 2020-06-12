@@ -616,7 +616,7 @@ const AtributosRow = function(props:{
                             </ListItemText>
                         </MenuItem>
                         <MenuItem onClick={()=>{
-                            dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
+                            dispatch(dispatchers.COPIAR_ATRIBUTOS({
                                 forPk:relAtr, 
                                 iRelPre:props.iRelPre,
                             }))
