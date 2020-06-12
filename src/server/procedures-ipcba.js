@@ -1774,6 +1774,10 @@ ProceduresIpcba = [
                         `SELECT * from atributos`
                     ,[]).fetchAll();
                     atributos = likeAr.createIndex(atributos.rows, 'atributo');
+                    var razones = await context.client.query(
+                        `SELECT * from razones`
+                    ,[]).fetchAll();
+                    razones = likeAr.createIndex(razones.rows, 'razon');
                     try{
                         try{
                             var persona = await context.client.query(`
@@ -1804,7 +1808,7 @@ ProceduresIpcba = [
                     for(var informante of hoja_de_ruta.informantes){
                         for(var formulario of informante.formularios){
                             var filtroValoresPrecioAtributo;
-                            var limpiandoRazon;
+                            var razonNegativa = razones[formulario.razon].espositivoformulario=="N";
                             var actualizarRelVis=async function(){
                                 try{
                                     await context.client.query(`
@@ -1831,7 +1835,7 @@ ProceduresIpcba = [
                                     ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario]
                                 ).fetchUniqueRow()
                                 filtroValoresPrecioAtributo = result.row.filtro_valores;
-                                limpiandoRazon = result.row.limpiar_precios;
+                                //limpiandoRazon = result.row.limpiar_precios;
                             }catch(err){
                                 throw new Error('Error al caracterizar la visita para el informante: ' + formulario.informante + ', formulario: ' + formulario.formulario + '. '+ err.message);
                             }
@@ -1860,19 +1864,19 @@ ProceduresIpcba = [
                                 for(var observacion of observaciones){
                                     observacion.cambio=observacion.cambio=='='?null:observacion.cambio;
                                     var tpEsNegativo = !!(observacion.tipoprecio && !tiposDePrecio[observacion.tipoprecio].espositivo);
-                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !limpiandoRazon){
+                                    if(observacion.cambio &&!observacion.precio && !tpEsNegativo && !razonNegativa){
                                         observacion.tipoprecio="L";
                                     }
                                     //no tengo cambio y estoy limpiando razon o no tengo cambio ni TP ni precio 
                                     //blanqueo atributos primero porque puede ser que haya cambio = C en la base
-                                    var blanquearAtributosAntes = !!(observacion.cambio && limpiandoRazon || !observacion.cambio && !observacion.tipo && !observacion.precio);
+                                    var blanquearAtributosAntes = !!(observacion.cambio && razonNegativa || !observacion.cambio && !observacion.tipo && !observacion.precio);
                                     if(!blanquearAtributosAntes){
                                         await actualizarObservacion(observacion);
                                     }
                                     for(var atributo of observacion.atributos){
                                         if(!tpEsNegativo){
                                             try{
-                                                var valor = limpiandoRazon?
+                                                var valor = razonNegativa?
                                                     atributo.valoranterior?atributo.valoranterior:null
                                                 :
                                                     atributo.valor?simplificateText(atributo.valor.toString().trim().toUpperCase()):null
@@ -1893,7 +1897,7 @@ ProceduresIpcba = [
                                                     valor // para solo hacer update si hubo cambio
                                                 ]).fetchOneRowIfExists()
                                             }catch(err){
-                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + valor + '". '+ err.message);
+                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
                                             }
                                         }
                                     }
@@ -1903,7 +1907,7 @@ ProceduresIpcba = [
                                 }
                             }
                             var observaciones = informante.observaciones.filter((observacion)=>observacion.formulario==formulario.formulario)
-                            if(limpiandoRazon){
+                            if(razonNegativa){
                                 await actualizarObservacionesYAtributos(observaciones);
                                 await actualizarRelVis();
                             }else{
