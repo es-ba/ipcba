@@ -1893,7 +1893,7 @@ ProceduresIpcba = [
                                                     valor // para solo hacer update si hubo cambio
                                                 ]).fetchOneRowIfExists()
                                             }catch(err){
-                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + valor + '". '+ err.message);
                                             }
                                         }
                                     }
