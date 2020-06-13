@@ -1857,7 +1857,7 @@ ProceduresIpcba = [
                                             simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre),
                                         ]).fetchUniqueRow()
                                     }catch(err){
-                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
+                                        throw new Error('Error al actualizar precio para el informante: ' + observacion.informante + ', formulario: ' + observacion.formulario + ', producto: ' + observacion.producto + ' ' + productos[observacion.producto].nombreproducto + ', observacion: ' + observacion.observacion +  '. '+ err.message);
                                     }
                                 };
                                 for(var observacion of observaciones){
@@ -1895,7 +1895,7 @@ ProceduresIpcba = [
                                                     valor // para solo hacer update si hubo cambio
                                                 ]).fetchOneRowIfExists()
                                             }catch(err){
-                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
+                                                throw new Error('Error al actualizar atributo para el informante: ' + atributo.informante + ', formulario: ' + atributo.formulario + ', producto: ' + atributo.producto+' '+productos[atributo.producto].nombreproducto + ', observacion: ' + atributo.observacion + ', atributo: ' + atributo.atributo +' '+ atributos[atributo.atributo].nombreatributo + ', valor: "' + atributo.valor + '". '+ err.message);
                                             }
                                         }
                                     }

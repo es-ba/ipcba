@@ -9,9 +9,9 @@
     "install"
   ],
   "dependencies": {
-    "@material-ui/core": "~4.10.0",
+    "@material-ui/core": "~4.10.2",
     "@material-ui/icons": "~4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.54",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "ajax-best-promise": "^0.3.7",
     "best-globals": "^0.10.24",
     "like-ar": "^0.2.19",
@@ -25,27 +25,31 @@
     "backend-plus": "~1.4.2"
   },
   "devDependencies": {
-    "@types/react": "^16.9.35",
+    "@types/node": "^14.0.13",
+    "@types/mocha": "^7.0.2",
+    "@types/react": "^16.9.36",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
     "@types/react-window": "^1.8.2",
     "source-map-loader": "^1.0.0",
     "ts-loader": "^7.0.5",
-    "typescript": "^3.9.3",
+    "typescript": "^3.9.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "server4test": "^0.5.3",
     "types.d.ts": "^0.5.0",
     "mixin-patch": "~0.3.3",
-    "material-styles": "~0.0.7"
+    "material-styles": "~0.0.7",
+    "mocha": "^8.0.1"
   },
   "scripts": {
     "prepublish": "npm run build",
-    "build": "(tsc -p tsconfig-client.json || echo \"continue w/error\") && (tsc -p tsconfig-tests.json || echo \"continue w/error\") && (tsc -p tsconfig-server.json  || echo \"continue w/error\") && (tsc -p tsconfig-unlogged.json || echo \"continue w/error\") && mixin-patch",
+    "build": "(tsc -p tsconfig-client.json || echo \"continue w/error\") && (tsc -p tsconfig-test.json || echo \"continue w/error\") && (tsc -p tsconfig-server.json  || echo \"continue w/error\") && (tsc -p tsconfig-unlogged.json || echo \"continue w/error\") && mixin-patch",
     "watch:buildC": "(tsc -p tsconfig-client.json --watch || echo \"continue w/error\")",
     "watch:buildS": "(tsc -p tsconfig-server.json --watch || echo \"continue w/error\")",
     "watch:buildU": "(tsc -p tsconfig-unlogged.json --watch || echo \"continue w/error\")",
-    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test": "mocha --reporter spec --bail --check-leaks dist/test/",
+    "build-test": "tsc -p tsconfig-test.json & npm test",
     "dump": "npm start -- --dump-db",
     "dumpb": "(tsc -p tsconfig-server.json  || echo \"continue w/error\") && npm run dump",
     "start": "node dist/server/server-ipcba.js",
