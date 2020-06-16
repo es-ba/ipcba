@@ -1874,7 +1874,7 @@ ProceduresIpcba = [
                                         if(!tpEsNegativo){
                                             try{
                                                 //razon positiva (no hay null nunca) y hay cambio, a veces hay problemas con los numeros
-                                                var valor = !razonNegativa && observacion.cambio?
+                                                var valor = !razonNegativa && atributo.valor != atributo.valoranterior?
                                                     atributo.valor?simplificateText(atributo.valor.toString().trim().toUpperCase()):null
                                                 :
                                                     atributo.valoranterior?atributo.valoranterior:null    
