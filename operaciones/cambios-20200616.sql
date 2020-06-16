@@ -1,7 +1,4 @@
--- FUNCTION: cvp.generar_formulario(text, integer, integer, timestamp without time zone)
-
--- DROP FUNCTION cvp.generar_formulario(text, integer, integer, timestamp without time zone);
-
+set search_path = cvp;
 CREATE OR REPLACE FUNCTION cvp.generar_formulario(
   pperiodo text,
   pinformante integer,
