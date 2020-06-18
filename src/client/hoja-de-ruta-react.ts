@@ -4,6 +4,7 @@ import {HDR_OPENED_LOCALSTORAGE_NAME, LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCAL
        hayHdrRelevando, rescatarLocalStorage } from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
+import * as likeAr from "like-ar";
 
 var my=myOwn;
 
@@ -331,6 +332,9 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
 
 //relevamiento directo
 
+const FILTRO_RELEVAMIENTO = "filtro_relevamiento";
+const SORT_COLUMNS_RELEVAMIENTO = "sort_columns_relevamiento";
+
 myOwn.wScreens.relevamiento=function(_addrParams){
     //PROVISORIO
     if(!my.existsLocalVar(HDR_OPENED_LOCALSTORAGE_NAME) && localStorage[HDR_OPENED_LOCALSTORAGE_NAME]=='true'){
@@ -343,7 +347,11 @@ myOwn.wScreens.relevamiento=function(_addrParams){
         dmHojaDeRuta({customData: {estructura, hdr}});
     }else{
         var mainLayout = document.getElementById('main_layout')!;
-        return my.tableGrid('relevamiento',mainLayout,{});
+        var filterColumns = my.getSessionVar(FILTRO_RELEVAMIENTO) || [];
+        var sortColumns = my.getSessionVar(SORT_COLUMNS_RELEVAMIENTO) || [];
+        my.removeSessionVar(FILTRO_RELEVAMIENTO);
+        my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO);
+        return my.tableGrid('relevamiento',mainLayout,{tableDef:{filterColumns, sortColumns}});
     }
 };
 
@@ -386,6 +394,28 @@ myOwn.clientSides.abrir={
                             visita: visita,
                             demo: false,
                         });
+                        try{
+                            if(depot.manager.view.filter){
+                                //value, column,  operator
+                                var myFilters = depot.manager.view.filter.map(filter=>{
+                                    return likeAr(filter.row).map((value, colname)=>{
+                                        return {value:value, column:colname, operator: filter.rowSymbols[colname]}
+                                    }).array()
+                                }) 
+                                my.setSessionVar(FILTRO_RELEVAMIENTO, myFilters);
+                            }else{
+                                my.removeSessionVar(FILTRO_RELEVAMIENTO);
+                            }
+                            if(depot.manager.view.sortColumns){
+                                my.setSessionVar(SORT_COLUMNS_RELEVAMIENTO, depot.manager.view.sortColumns.map(sortColumn=>{return {column:sortColumn.column, order: sortColumn.order}}));
+                            }else{
+                                my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO)
+                            }
+                        }catch(err){
+                            //si hay error por algun motivo, no guardo nada
+                            my.removeSessionVar(FILTRO_RELEVAMIENTO);
+                            my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO);
+                        }
                         registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
                         dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
                     }catch(err){
