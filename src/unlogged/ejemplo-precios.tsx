@@ -704,20 +704,22 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
-    const chipColor = relPre.tipoprecioanterior=='S' && !relPre.sinpreciohace4meses?
-        '#FFFFFF'
+    const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
+    const chipColor = relPre.tipoprecioanterior == "N"?
+        "#76bee4"
     :
-        (relPre.sinpreciohace4meses?
+        
+        (relPre.tipoprecioanterior=='S' && relPre.sinpreciohace4meses?
             "#66b58b"
         :
-            (relPre.tipoprecioanterior == "N"?
-                "#76bee4"
+            (precioAnteriorAMostrar && relPre.tipoprecioanterior && !estructura.tipoPrecio[relPre.tipoprecioanterior].espositivo?
+                '#FFFFFF'
             :
                 null
             )
-        );
-    const chipTextColor = relPre.tipoprecioanterior=='S' && !relPre.sinpreciohace4meses?'#000000':'#ffffff'
-    const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
+        )
+    ;
+    const chipTextColor = chipColor=='#FFFFFF'?'#000000':'#FFFFFF'
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null){
