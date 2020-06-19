@@ -705,21 +705,20 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
-    const chipColor = relPre.tipoprecioanterior == "N"?
-        "#76bee4"
+    const chipColor = (relPre.tipoprecioanterior && estructura.tipoPrecio[relPre.tipoprecioanterior].espositivo?
+        null
     :
-        
-        (relPre.tipoprecioanterior=='S' && relPre.sinpreciohace4meses?
-            "#66b58b"
+        (relPre.tipoprecioanterior == "N"?
+            "#76bee4"
         :
-            (precioAnteriorAMostrar && relPre.tipoprecioanterior && !estructura.tipoPrecio[relPre.tipoprecioanterior].espositivo?
+            (relPre.tipoprecioanterior=='S' && relPre.sinpreciohace4meses?
+                "#66b58b"
+            :    
                 '#FFFFFF'
-            :
-                null
             )
         )
-    ;
-    const chipTextColor = chipColor=='#FFFFFF'?'#000000':'#FFFFFF'
+    );
+    const chipTextColor = chipColor=='#FFFFFF'?'#000000':'#FFFFFF';
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
     var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null){
