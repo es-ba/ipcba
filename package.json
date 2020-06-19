@@ -22,7 +22,7 @@
     "react-window": "^1.8.5",
     "redux": "^4.0.5",
     "redux-typed-reducer": "~0.1.1",
-    "backend-plus": "~1.4.2"
+    "backend-plus": "~1.4.4"
   },
   "devDependencies": {
     "@types/node": "^14.0.13",
