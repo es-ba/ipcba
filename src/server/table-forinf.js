@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='migracion' || context.user.usu_rol ==='admin';
+    var puedeEditar = context.user.usu_rol ==='migracion' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'forinf',
         editable:puedeEditar,
@@ -18,6 +18,7 @@ module.exports = function(context){
             {name:'altamanualperiodo'           , typeName:'text'                         , allow:{update:puedeEditar}},
         ],
         primaryKey:['formulario','informante'],
+        hiddenColumns:['generar','cantobs'],
         foreignKeys:[
             {references:'formularios', fields:[
                 {source:'formulario'  , target:'formulario'     },

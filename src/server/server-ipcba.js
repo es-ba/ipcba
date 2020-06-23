@@ -572,6 +572,7 @@ NETWORK:
                 */
             ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
             {menuType:'menu', name:'informantes', menuContent:[
+                {menuType:'table', name:'informantes_altamanual'                , label:'alta manual', onlyVisibleFor:[programador]},
                 {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                 {menuType:'menu', name:'hoja de ruta', menuContent:[
                     {menuType:'table', name:'periodos_hdrexportarteorica'       , label:'teórica'             , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},
@@ -1000,6 +1001,7 @@ NETWORK:
             {name: 'informantesrazon', path: __dirname},
             {name: 'informantesrubro', path: __dirname},
             {name: 'informantesactivos', path: __dirname},
+            {name: 'informantes_altamanual', path: __dirname},
             {name: 'variaciones_minimas_vw', path: __dirname},
             {name: 'variaciones_maximas_vw', path: __dirname},
             {name: 'parhog', path: __dirname},
