@@ -2042,6 +2042,30 @@ ProceduresIpcba = [
             });
         }
     },
+    {
+        action:'altamanualconfirmar_touch',
+        parameters:[
+            {name:'informante', typeName:'integer', references:'informantes'},
+        ],
+        roles:['programador'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `UPDATE informantes SET altamanualconfirmar = current_timestamp 
+                   WHERE informante = $1
+                   RETURNING altamanualperiodo,altamanualpanel,altamanualtarea, altamanualconfirmar`,
+                [parameters.informante]
+            ).fetchUniqueRow().then(function(result){
+                return 'generado Periodo: '+result.row.altamanualperiodo+' Panel: '+result.row.altamanualpanel+ ' Tarea: '+result.row.altamanualtarea +' '+result.row.altamanualconfirmar.toHms();
+            }).catch(function(err){
+                if(err.code=='54011!'){
+                    throw new Error('El perido no esta abierto para ingreso');
+                }
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            });
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;

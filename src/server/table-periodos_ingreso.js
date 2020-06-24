@@ -21,6 +21,9 @@ module.exports = function(context){
             {name:'habilitado'                  , typeName:'text'                                                  },
         ],
         primaryKey:['periodo'],
+        filterColumns:[
+            {column:'ingresando', operator:'=', value:'S'},
+        ],        
         sortColumns:[{column:'periodo', order:-1}],
         detailTables:[
             {table:'relpan', abr:'PAN', label:'paneles', fields:['periodo']},
@@ -28,7 +31,6 @@ module.exports = function(context){
         sql:{
             from:`(select periodo, ano, mes, ingresando, fechageneracionperiodo, habilitado
                     from periodos
-                    where ingresando = 'S'
                   )`,
         }        
     },context);

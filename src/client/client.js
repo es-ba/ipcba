@@ -1153,3 +1153,12 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         );
     },50);
 }
+
+my.clientSides.altamanualgenerar = botonClientSideEnGrilla({
+    nombreBoton:'generar',
+    llamada:function(depot){
+        return my.ajax.altamanualconfirmar_touch({
+            informante: depot.row.informante,
+        });
+    }
+});
