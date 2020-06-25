@@ -952,7 +952,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         var botonBuscarDesde=html.button("buscar desde").create();
         var botonBuscarHasta=html.button("buscar hasta").create();
         var botonCambiarDesde=html.button("cambiar >").create();
-        var botonCambiarHasta=html.button("cambiar <").create();
+        var botonCambiarHasta=html.button("< cambiar").create();
         var botonIntercambiar=html.button("< intercambiar >").create();
         var resultDivDesde=html.div({class:"result-div"}).create();
         var resultDivHasta=html.div({class:"result-div"}).create();
@@ -1117,38 +1117,42 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                     html.tr([
                         html.td("periodo"), controlPeriodoDesde, html.td({style:'min-width:200px'})
                     ]),
-                    html.tr([
-                        html.td("panel desde"), controlPanelDesde
-                    ]),
-                    html.tr([
-                        html.td("tarea desde"), controlTareaDesde
-                    ]),
-                    html.tr([
-                        html.td(), html.td([botonBuscarDesde]), 
-                    ]),
-                    html.tr([
-                        html.td(), html.td([botonCambiarDesde]), 
-                    ]),
-                    html.tr([
-                        html.td(), html.td([botonIntercambiar]), 
-                    ])
                 ]),
-                divGrillaDesde,
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td("panel hasta"), controlPanelHasta
+                        html.td({style:'width:700px'},[html.td("panel desde"), controlPanelDesde,]),
+                        html.td({style:'width:700px'},[html.td("panel desde"), controlPanelHasta,]),
                     ]),
+                ]),
+                html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td("tarea hasta"), controlTareaHasta
+                        html.td({style:'width:700px'},[html.td("tarea desde "), controlTareaDesde,]),
+                        html.td({style:'width:700px'},[html.td("tarea hasta "), controlTareaHasta,]),
                     ]),
+                ]),
+                html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td(), html.td([botonBuscarHasta]), 
+                        html.td({style:'width:700px'},[html.td(), html.td([botonBuscarDesde]),]), 
+                        html.td({style:'width:700px'},[html.td(), html.td([botonBuscarHasta]),]), 
                     ]),
+                ]),
+                html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td(), html.td([botonCambiarHasta]), 
+                        html.td({style:'width:700px'},[html.td(), html.td([botonCambiarDesde]),]), 
+                        html.td({style:'width:700px'},[html.td(), html.td([botonCambiarHasta]),]), 
                     ])
                 ]),
-                divGrillaHasta,
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td({style:'width:1000px'},[html.td(), html.td([botonIntercambiar]),]), 
+                    ])
+                ]),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td(), html.td([divGrillaDesde]),
+                        html.td(), html.td([divGrillaHasta]),
+                    ]),
+                ]),
             ]).create()
         );
     },50);

@@ -74,13 +74,13 @@ module.exports = function(context){
                 CASE WHEN max(CASE WHEN orden_precio_maximo = 2 THEN q.precio END)>0 THEN
                       round((max(CASE WHEN orden_precio_maximo = 1 THEN q.precio END)
                            /max(CASE WHEN orden_precio_maximo = 2 THEN q.precio END))::decimal*100-100,2) ELSE null END as varmax,
-                string_agg(CASE WHEN orden_precio_minimo = 1 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes1,
-                string_agg(CASE WHEN orden_precio_minimo = 2 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes2,
-                string_agg(CASE WHEN orden_precio_maximo = 2 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes9,
-                string_agg(CASE WHEN orden_precio_maximo = 1 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante) AS informantes10
+                string_agg(CASE WHEN orden_precio_minimo = 1 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante,q.observacion) AS informantes1,
+                string_agg(CASE WHEN orden_precio_minimo = 2 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante,q.observacion) AS informantes2,
+                string_agg(CASE WHEN orden_precio_maximo = 2 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante,q.observacion) AS informantes9,
+                string_agg(CASE WHEN orden_precio_maximo = 1 THEN q.informante::text||'('||q.observacion||')'||'('||q.tipoprecio||')p:'||q.panel||' t:'||q.tarea END, '|' order by q.informante,q.observacion) AS informantes10
               FROM (
                 SELECT e.periodo, e.producto, cp.responsable as analista, o.nombreproducto, o.unidadmedidaabreviada as umabreviada,
-                CASE WHEN pa.producto is not null THEN pa.valornormal||' '||t.unidaddemedida ELSE NULL END as normaliza,
+                normaliza,
                 pa.producto is not null as normalizable, 
                 CASE WHEN o.controlar_precios_sin_normalizar THEN precio ELSE round(precionormalizado::decimal,2) END as precio, 
                 CASE WHEN antiguedadexcluido is NOT NULL THEN 'X' ELSE null END as marca,
@@ -99,8 +99,8 @@ module.exports = function(context){
                 INNER JOIN relpre e ON cp.periodo = e.periodo and cp.producto = e.producto
                 INNER JOIN productos o on e.producto = o.producto
                 INNER JOIN relvis v on e.periodo = v.periodo and e.informante = v.informante and e.visita = v.visita and e.formulario = v.formulario
-                LEFT JOIN (SELECT * FROM prodatr WHERE normalizable = 'S') pa on e.producto = pa.producto
-                LEFT JOIN atributos t on pa.atributo = t.atributo
+                LEFT JOIN (SELECT producto, string_agg(distinct concat_ws(' ', valornormal, unidaddemedida),' ') normaliza FROM prodatr
+                            LEFT JOIN atributos using(atributo) WHERE normalizable = 'S' GROUP BY producto) pa on e.producto = pa.producto
                 LEFT JOIN calculos a on e.periodo = a.periodo and cp.calculo = a.calculo
                 LEFT JOIN calobs c on e.periodo = c.periodo and c.calculo = a.calculo and e.producto = c.producto and e.informante = c.informante and e.observacion = c.observacion
                 WHERE e.precionormalizado is not null and not(c.division is null AND e.modi_fec < a.fechacalculo)
