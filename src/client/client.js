@@ -1132,25 +1132,25 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 ]),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td({style:'width:700px'},[html.td(), html.td([botonBuscarDesde]),]), 
-                        html.td({style:'width:700px'},[html.td(), html.td([botonBuscarHasta]),]), 
+                        html.td({style:'width:700px'},[html.td([botonBuscarDesde]),]), 
+                        html.td({style:'width:700px'},[html.td([botonBuscarHasta]),]), 
                     ]),
                 ]),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td({style:'width:700px'},[html.td(), html.td([botonCambiarDesde]),]), 
-                        html.td({style:'width:700px'},[html.td(), html.td([botonCambiarHasta]),]), 
+                        html.td({style:'width:700px'},[html.td([botonCambiarDesde]),]), 
+                        html.td({style:'width:700px'},[html.td([botonCambiarHasta]),]), 
                     ])
                 ]),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td({style:'width:1000px'},[html.td(), html.td([botonIntercambiar]),]), 
+                        html.td({style:'width:1400px; display:flex; justify-content:center'},[html.td([botonIntercambiar]),]), 
                     ])
                 ]),
                 html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td(), html.td([divGrillaDesde]),
-                        html.td(), html.td([divGrillaHasta]),
+                    html.tr({style:'display:flex'},[
+                        html.td({style:'min-width:700px;'},[divGrillaDesde]),
+                        html.td({style:'min-width:700px;'},[divGrillaHasta]),
                     ]),
                 ]),
             ]).create()

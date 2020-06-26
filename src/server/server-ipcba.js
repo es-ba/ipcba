@@ -532,6 +532,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
                     {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador]},
+                    {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
