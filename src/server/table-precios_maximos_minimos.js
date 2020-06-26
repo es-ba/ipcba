@@ -11,7 +11,7 @@ module.exports = function(context){
             {name:'producto'                         , typeName:'text'    , nullable:false , allow:{update:false}},
             {name:'analista'                         , typeName:'text'    , nullable:false , allow:{update:false}},
             {name:'umabreviada'                      , typeName:'text'                     , allow:{update:false}},
-            {name:'normaliza'                        , typeName:'text'                     , allow:{update:false}, visible:false},
+            {name:'normaliza'                        , typeName:'text'                     , allow:{update:false}},
             {name:'normalizable'                     , typeName:'boolean'                  , allow:{update:false}},
             {name:'precio1'                          , typeName:'decimal'                  , allow:{update:false}},
             {name:'ex1'                              , typeName:'text'                     , allow:{update:false}},
@@ -41,6 +41,7 @@ module.exports = function(context){
             {name:'informantes10'                    , typeName:'text'                     , allow:{update:false}},
         ],
         primaryKey:['periodo','producto'],
+        hiddenColumns:['normaliza'],
         foreignKeys:[
             {references:'periodos', fields:['periodo']},
             {references:'productos', fields:['producto']},
