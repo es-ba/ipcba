@@ -1644,7 +1644,7 @@ ProceduresIpcba = [
                 if(!parameters.demo){
                     await context.client.query(
                         `update relvis
-                            set preciosgenerados = true
+                            set preciosgenerados = true , token_relevamiento = null
                             where periodo = $1 and panel = $2 and tarea = $3 /*and not preciosgenerados*/`
                         ,
                         [parameters.periodo, parameters.panel, parameters.tarea]
