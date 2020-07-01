@@ -1642,13 +1642,25 @@ ProceduresIpcba = [
             }
             try{
                 if(!parameters.demo){
-                    await context.client.query(
-                        `update relvis
-                            set preciosgenerados = true , token_relevamiento = null
-                            where periodo = $1 and panel = $2 and tarea = $3 and informante = $4 and visita = $5 /*and not preciosgenerados*/`
-                        ,
-                        [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, parameters.visita]
-                    ).execute();
+                    //entro por pantalla de relevamiento
+                    if(parameters.informante && parameters.visita){
+                        await context.client.query(
+                            `update relvis
+                                set preciosgenerados = true , token_relevamiento = null
+                                where periodo = $1 and panel = $2 and tarea = $3 and informante = $4 and visita = $5 /*and not preciosgenerados*/`
+                            ,
+                            [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, parameters.visita]
+                        ).execute();
+                    }else{
+                        //entro por aplicacion dm (carga habitual)
+                        await context.client.query(
+                            `update relvis
+                                set preciosgenerados = true
+                                where periodo = $1 and panel = $2 and tarea = $3`
+                            ,
+                            [parameters.periodo, parameters.panel, parameters.tarea]
+                        ).execute();
+                    }
                 }
                 var hojaDeRutaConPrecios = await context.client.query(
                     `SELECT count(*) > 0 as tieneprecioscargados
