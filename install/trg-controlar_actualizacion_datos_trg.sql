@@ -1,11 +1,12 @@
 CREATE OR REPLACE FUNCTION controlar_actualizacion_datos_trg()
-  RETURNS trigger AS
-$BODY$  
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    VOLATILE NOT LEAKPROOF SECURITY DEFINER
+AS $BODY$  
 DECLARE
  vpositivoinf  cvp.razones.espositivoinformante%type; 
  vpositivoform cvp.razones.espositivoformulario%type;
  vrazon        cvp.razones.razon%type;
- vcantidadatributosgenerados integer; --en el periodo siguiente
  
 BEGIN
   IF TG_TABLE_NAME= 'relpre' THEN
@@ -24,19 +25,6 @@ BEGIN
              RETURN NULL;
          END IF;
     END IF;
-    IF OLD.cambio IS DISTINCT FROM NEW.cambio THEN
-       SELECT COUNT(*) into vcantidadatributosgenerados
-       FROM cvp.relatr a
-       WHERE a.periodo    =cvp.moverperiodos(NEW.periodo,1) AND 
-          a.producto   =NEW.producto AND
-          a.observacion=NEW.observacion AND 
-          a.informante =NEW.informante AND
-          a.visita     =NEW.visita;
-       IF vcantidadatributosgenerados>0 THEN
-         RAISE EXCEPTION 'Ya has sido generados los atributos del periodo siguiente; periodo %, producto % observacion % informante%, visita%, atributo % ', NEW.periodo, NEW.producto, NEW.observacion, NEW.informante, NEW.visita, NEW.atributo;
-         RETURN NULL;
-       END IF;
-    END IF;	
   ELSIF TG_TABLE_NAME= 'relatr' THEN
     SELECT razon INTO vrazon
       FROM cvp.relvis v 
@@ -60,7 +48,6 @@ BEGIN
   RETURN NEW;
 END;
 $BODY$;
-  LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
 
 CREATE TRIGGER relatr_act_datos_trg 
   BEFORE UPDATE ON relatr 

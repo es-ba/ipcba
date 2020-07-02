@@ -4,38 +4,15 @@ CREATE OR REPLACE FUNCTION permitir_actualizar_valor_trg()
     VOLATILE NOT LEAKPROOF SECURITY DEFINER
 AS $BODY$
 DECLARE
-  --vcambio  cvp.relpre.cambio%type;
   valterable  cvp.prodatr.alterable%type;
   vvalor_1 cvp.relatr.valor%type;
   vvaloresvalidos record;
   vvalido boolean;
   vhayquevalidar boolean;
-  --vespositivo cvp.tipopre.espositivo%type;
   vpuedecambiaratributos cvp.tipopre.puedecambiaratributos%type;
-  vcantidadatributosgenerados integer; --en el periodo siguiente
   
 BEGIN
   IF OLD.valor IS DISTINCT FROM NEW.valor THEN
-    --SELECT cambio INTO vcambio
-    --  FROM cvp.relpre
-    --  WHERE periodo=NEW.periodo AND informante=NEW.informante AND visita=NEW.visita AND producto=NEW.producto AND
-    --        observacion=NEW.observacion;
-    --IF vcambio IS DISTINCT FROM 'C' THEN
-    --  RAISE EXCEPTION 'No es posible modificar el valor del atributo cuando el campo cambio es distinto de C';
-    --  RETURN NULL;
-    --ELSE
-    select count(*) into vcantidadatributosgenerados
-      from cvp.relatr a
-      where a.periodo    =cvp.moverperiodos(NEW.periodo,1) AND 
-            a.producto   =NEW.producto AND
-            a.observacion=NEW.observacion AND 
-            a.informante =NEW.informante AND
-            a.visita     =NEW.visita AND 
-            a.atributo   =NEW.atributo;
-    IF vcantidadatributosgenerados>0 THEN
-      raise Exception 'Ya has sido generados los atributos del periodo siguiente; periodo %, producto % observacion % informante%, visita%, atributo % ', NEW.periodo, NEW.producto, NEW.observacion, NEW.informante, NEW.visita, NEW.atributo;
-      RETURN NULL;
-    ELSE
       SELECT coalesce(t.puedecambiaratributos,false) INTO vpuedecambiaratributos
       FROM cvp.relpre r 
       LEFT JOIN cvp.tipopre t on r.tipoprecio = t.tipoprecio
@@ -80,7 +57,6 @@ BEGIN
            END IF;
         END IF;
       END IF;
-    END IF;
   END IF;
   
   RETURN NEW;
