@@ -23,6 +23,7 @@ module.exports = function(context){
             {name:'tipoprecio'           ,typeName:'text'   },
         ],
         primaryKey:['periodo', 'producto', 'observacion', 'informante', 'visita'],
+        sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'},{column:'informante'},{column:'visita'},{column:'formulario'},{column:'producto'},{column:'observacion'}],
         foreignKeys:[
             {references:'formularios', fields:['formulario'] },
             {references:'productos'  , fields:['producto']   },
@@ -38,8 +39,7 @@ module.exports = function(context){
             left join tipopre t on r.tipoprecio = t.tipoprecio
             where coalesce(z.espositivoformulario, 'N') = 'S' and coalesce(t.inconsistente, true) and
             not (current_timestamp between COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida)+interval '9 hours'  
-            and COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida) +interval '24 hours')
-            order by v.periodo, v.panel, v.tarea, v.informante, v.visita, v.formulario, r.producto, r.observacion)`
+            and COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida) +interval '24 hours'))`
             },
     },context);
 }
