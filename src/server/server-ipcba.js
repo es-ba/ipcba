@@ -986,6 +986,7 @@ NETWORK:
             {name: 'control_tipoprecio', path: __dirname},
             {name: 'control_sinprecio', path: __dirname},
             {name: 'control_sinvariacion', path: __dirname},
+            {name: 'relpre_control_sinvariacion', path: __dirname},
             {name: 'control_rangos', path: __dirname},
             {name: 'control_hojas_ruta', path: __dirname},
             {name: 'control_grupos_para_cierre', path: __dirname},

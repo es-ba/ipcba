@@ -20,7 +20,7 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'    , nullable:false},
         ],
         detailTables:[
-            {table: 'control_sinvariacion' , fields:['periodo'], abr:'CV' , label: 'Control precios sin variacion'},
+            {table: 'relpre_control_sinvariacion' , fields:['periodo'], abr:'CV' , label: 'Control precios sin variacion'},
         ],
     });
     defNewElement.sql={

@@ -10,6 +10,7 @@ module.exports = function(context){
             {name:'tarea'                        ,typeName:'integer'},
             {name:'periodoant'                   ,typeName:'text'   },
             {name:'producto'                     ,typeName:'text'   },
+            {name:'nombreproducto'               ,typeName:'text'   },
             {name:'informante'                   ,typeName:'integer'},
             {name:'formulario'                   ,typeName:'integer'},
             {name:'visita'                       ,typeName:'integer'},
@@ -22,16 +23,18 @@ module.exports = function(context){
             {name:'tipoprecio'                   ,typeName:'text'   },
             {name:'variacion'                    ,typeName:'decimal'},
             {name:'comentariosrelpre'            ,typeName:'text'   },
-            {name:'cantperiodosconigualprecio'   ,typeName:'integer'},
+            {name:'cantperiodosconigualprecioant',typeName:'integer'},
  
         ],
+        refrescable:true,
         primaryKey:['periodo','informante','producto','visita','observacion'],
         sql:{
-         from:`(SELECT cv.panel, cv.tarea, cv.periodo as periodoant, cv.producto, cv.informante, rp.formulario, cv.visita, cv.observacion, cv.precionormalizado as precionormalizadoant,
+         from:`(SELECT rv.panel, rv.tarea, cv.periodo as periodoant, cv.producto, cv.nombreproducto, cv.informante, rp.formulario, cv.visita, cv.observacion, cv.precionormalizado as precionormalizadoant,
                   cv.tipoprecio as tipoprecioant, cv.comentariosrelpre as comentariosrelpreant, rp.periodo, rp.precionormalizado, rp.tipoprecio, 
                   case when cv.precionormalizado is not null and rp.precionormalizado is not null and cv.precionormalizado is distinct from rp.precionormalizado then
-                  round((rp.precionormalizado/cv.precionormalizado*100-100)::decimal,2) else null end variacion, rp.comentariosrelpre, cv.cantprecios as cantperiodosconigualprecio 
-                  FROM relpre rp 
+                  round((rp.precionormalizado/cv.precionormalizado*100-100)::decimal,2) else null end variacion, rp.comentariosrelpre, cv.cantprecios as cantperiodosconigualprecioant 
+                  FROM relpre rp
+                  INNER JOIN relvis rv on rp.periodo = rv.periodo and rp.informante = rv.informante and rp.visita = rv.visita and rp.formulario = rv.formulario 
                   INNER JOIN control_sinvariacion cv on cv.periodo = cvp.moverperiodos(rp.periodo,-1) and cv.informante = rp.informante and cv.producto = rp.producto and 
                   cv.visita = rp.visita and cv.observacion = rp.observacion
                   INNER JOIN tareas t on cv.tarea = t.tarea
