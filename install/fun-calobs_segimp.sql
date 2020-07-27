@@ -8,6 +8,7 @@ DECLARE
   vPeriodo_1 Text;
   vCalculo_1 integer;
   v_agrupacion varchar(10);
+  vPromPriImpAct double precision;
   vrec record;
   vCantIncluidosTipo integer;
   vumbraldescartetipo integer;
@@ -36,13 +37,13 @@ FOR vrec IN
                    JOIN CalProd p  ON  c.periodo=p.periodo AND c.calculo=p.calculo 
                                    AND c.producto=p.producto 
   LOOP
-    SELECT CASE WHEN vDescarteDefinitivoSegImp THEN t.CantRealesIncluidos ELSE t.CantIncluidos END, t.umbraldescarte, t.ImpDiv
-       INTO vCantIncluidosTipo, vumbraldescartetipo, vImpDiv
+    SELECT CASE WHEN vDescarteDefinitivoSegImp THEN t.CantRealesIncluidos ELSE t.CantIncluidos END, t.umbraldescarte, t.ImpDiv, t.PromPriImpAct
+       INTO vCantIncluidosTipo, vumbraldescartetipo, vImpDiv, vPromPriImpAct
       FROM CalDiv t
       WHERE vrec.periodo=t.periodo AND vrec.calculo=t.calculo 
         AND vrec.producto=t.producto AND vrec.division=t.division;
     
-    IF (vrec.promObs is null OR vCantIncluidosTipo <vumbraldescartetipo OR vImpDiv='BII') AND vrec.promobsant>0 THEN
+    IF (vrec.promObs is null OR vCantIncluidosTipo <vumbraldescartetipo AND vPromPriImpAct is null OR vImpDiv='BII') AND vrec.promobsant>0 THEN
           UPDATE CalObs c 
             SET PromObs=CASE WHEN g0.Indice=0 THEN 0 ELSE vrec.promobsant*g.IndicePrel/g0.Indice END,
                  ImpObs=CASE WHEN vImpDiv='BII' THEN vImpDiv||'-'||g.ImpGru WHEN g0.Indice=0 THEN 'A0' ELSE COALESCE(g.ImpGru,'AGV') END
