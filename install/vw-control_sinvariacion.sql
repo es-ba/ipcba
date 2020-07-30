@@ -1,64 +1,28 @@
 CREATE OR REPLACE view control_sinvariacion AS  
-SELECT r.periodo, r.informante, i.nombreinformante, i.tipoinformante, r.producto, t.nombreproducto, r.visita, r.observacion, v.panel, v.tarea, v.recepcionista, 
-       r.precionormalizado, cantprecios, r.tipoprecio, r.comentariosrelpre 
-FROM cvp.relpre r
-JOIN (SELECT p.* FROM cvp.periodos p 
-       LEFT JOIN cvp.periodos p_sig on p_sig.periodoanterior = p.periodo 
-       WHERE p.ingresando = 'S' or p_sig.ingresando='S') p on r.periodo = p.periodo
-LEFT JOIN cvp.relvis v on 
-    r.periodo = v.periodo and
-    r.informante = v.informante and
-    r.formulario = v.formulario and
-    r.visita = v.visita 
-LEFT JOIN cvp.relpre r_1 on 
-    r_1.periodo = cvp.moverperiodos(r.periodo, -1) and 
-    r.informante = r_1.informante and 
-    r.visita = r_1.visita and 
-    r.observacion = r_1.observacion and
-    r.producto = r_1.producto
-LEFT JOIN cvp.relpre r_2 on 
-    r_2.periodo = cvp.moverperiodos(r.periodo, -2) and 
-    r.informante = r_2.informante and 
-    r.visita = r_2.visita and 
-    r.observacion = r_2.observacion and
-    r.producto = r_2.producto
-LEFT JOIN cvp.relpre r_3 on 
-    r_3.periodo = cvp.moverperiodos(r.periodo, -3) and 
-    r.informante = r_3.informante and 
-    r.visita = r_3.visita and 
-    r.observacion = r_3.observacion and
-    r.producto = r_3.producto
-LEFT JOIN cvp.relpre r_4 on 
-    r_4.periodo = cvp.moverperiodos(r.periodo, -4) and 
-    r.informante = r_4.informante and 
-    r.visita = r_4.visita and 
-    r.observacion = r_4.observacion and
-    r.producto = r_4.producto
-LEFT JOIN cvp.relpre r_5 on 
-    r_5.periodo = cvp.moverperiodos(r.periodo, -5) and 
-    r.informante = r_5.informante and 
-    r.visita = r_5.visita and 
-    r.observacion = r_5.observacion and
-    r.producto = r_5.producto
-LEFT JOIN cvp.informantes i on r.informante = i.informante
-LEFT JOIN cvp.productos t on r.producto = t.producto,
-LATERAL (SELECT COUNT(*) cantprecios FROM cvp.relpre 
-          WHERE	informante = r.informante and 
-            producto = r.producto and 
-            visita = r.visita and 
-            observacion = r.observacion and
-            precionormalizado = r.precionormalizado) pre
-WHERE r.precionormalizado > 0 and
-    r_1.precionormalizado > 0 and
-    r_2.precionormalizado > 0 and
-    r_3.precionormalizado > 0 and
-    r_4.precionormalizado > 0 and
-    r_5.precionormalizado > 0 and
-    r.precionormalizado = r_1.precionormalizado and
-    r_1.precionormalizado = r_2.precionormalizado and
-    r_2.precionormalizado = r_3.precionormalizado and
-    r_3.precionormalizado = r_4.precionormalizado and
-    r_4.precionormalizado = r_5.precionormalizado;
+SELECT periodo, informante, nombreinformante, tipoinformante, producto, nombreproducto, visita, observacion, panel, tarea, 
+recepcionista, precionormalizado, SUM(cantprecio) as cantprecios, tipoprecio, comentariosrelpre
+FROM (SELECT p.periodo, p.informante, i.nombreinformante, i.tipoinformante, p.producto, prod.nombreproducto, p.visita, p.observacion, 
+	    v.panel, v.tarea, v.recepcionista, p.precionormalizado, pant.periodo as periodo_ant,
+	    CASE WHEN pant.precionormalizado IS NULL THEN p.precionormalizado ELSE pant.precionormalizado END AS precioparacontar, 
+        CASE WHEN pant.precionormalizado = (CASE WHEN pant.precionormalizado IS NULL THEN p.precionormalizado ELSE pant.precionormalizado end)
+                  and pant.periodo <= p.periodo		
+	    THEN 1 ELSE 0 END AS cantprecio, p.tipoprecio, p.comentariosrelpre
+      FROM cvp.relpre p
+      JOIN (SELECT periodo, cvp.moverperiodos(periodo, -5) as perreferencia
+              FROM cvp.periodos 
+              WHERE ingresando = 'S' OR periodo = (SELECT MAX(periodo) FROM cvp.periodos WHERE ingresando = 'N')) per ON p.periodo = per.periodo
+      JOIN cvp.relpre pant ON p.informante =pant.informante AND p.producto = pant.producto AND p.visita = pant.visita AND p.observacion = pant.observacion
+                           AND (p.precionormalizado = pant.precionormalizado OR pant.precionormalizado is null OR
+	                       (pant.precionormalizado <> p.precionormalizado AND pant.periodo between per.perreferencia AND p.periodo))
+      JOIN cvp.relvis v ON p.periodo = v.periodo AND p.informante = v.informante AND p.visita = v.visita AND p.formulario = v.formulario
+      JOIN cvp.informantes i ON p.informante = i.informante
+      JOIN cvp.productos prod ON p.producto = prod.producto
+      WHERE p.precionormalizado is not null) q 
+GROUP BY periodo, informante, nombreinformante, tipoinformante, producto, nombreproducto, visita, observacion, panel, tarea, recepcionista, precionormalizado,
+tipoprecio, comentariosrelpre
+HAVING MIN(precioparacontar)=MAX(precioparacontar) AND SUM(cantprecio) >= 6
+ORDER BY periodo, informante, nombreinformante, tipoinformante, producto, nombreproducto, visita, observacion, panel, tarea, recepcionista, precionormalizado,
+tipoprecio, comentariosrelpre;
 
 GRANT SELECT ON TABLE control_sinvariacion TO cvp_administrador;
 GRANT SELECT ON TABLE control_sinvariacion TO cvp_recepcionista;
