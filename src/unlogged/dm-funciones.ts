@@ -270,5 +270,5 @@ export function simplificateText(text:string):string{
         "ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st",
         "ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j","ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"
     };
-    return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return simplificatedChars[a]||a});
+    return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return simplificatedChars[a]||a}).replace(/ {2,}/g, ' ');
 }
