@@ -13,6 +13,7 @@ module.exports = function(context){
             {name:'fechasalida'     , typeName:'date'    },
             {name:'informante'      , typeName:'integer' },
             {name:'visita'          , typeName:'integer' }, 
+            {name:'razones'         , typeName:'text'    },
             {name:'abrir'           , typeName:'text', clientSide:'abrir'},
             {name:'nombreinformante', typeName:'text'    },
             {name:'nombrerubro'     , typeName:'text'    },
@@ -68,7 +69,8 @@ module.exports = function(context){
                     sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantprecioscompletos,
                     sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null then 1 else 0 end) - 
                     sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantpreciosfaltantes,
-                    sum(case when pre.inconsistente then 1 else null end) as cantpreciosinconsistentes
+                    sum(case when pre.inconsistente then 1 else null end) as cantpreciosinconsistentes,
+                    string_agg (distinct rv.razon::text,'~' order by rv.razon::text) as razones
                     from (select * from personal per where per.username = ${db.quoteLiteral(context.user.usu_usu)}) per
                         inner join reltar rt on rt.encuestador = per.persona or per.labor not in ('E','S')
                         inner join relvis rv using (periodo, panel, tarea)
