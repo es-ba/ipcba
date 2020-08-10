@@ -26,12 +26,13 @@ module.exports = function(context){
             {name:'precionormalizado'            ,typeName:'decimal', allow:{update:false}},
             {name:'cantprecios'                  ,title:'cantperiodosconigualprecio',typeName:'integer', allow:{update:false}},
             {name:'tipoprecio'                   ,typeName:'text'   , allow:{update:false}}, 
-            {name:'comentariosrelpre'            ,typeName:'text'   , allow:{update:puedeEditar}}
+            {name:'comentariosrelpre'            ,typeName:'text'   , allow:{update:puedeEditar}},
+            {name:'esvisiblecomentarioendm'      ,typeName:'boolean', title:'Ver', allow:{update:puedeEditar}}
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
         sql:{
             from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.tipoinformante, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.panel, cv.tarea, cv.recepcionista,
-                cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre 
+                cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm 
                 FROM relpre rp 
                 INNER JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
                 cv.visita = rp.visita and cv.observacion = rp.observacion
