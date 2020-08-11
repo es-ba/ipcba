@@ -19,7 +19,7 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'    , nullable:false},
         ],
         detailTables:[
-            {table: 'control_diccionario_atributos' , fields:['periodo'], abr:'DA' , label: 'Control diccionario de atributos'},
+            {table: 'relpre_control_diccionario_atributos' , fields:['periodo'], abr:'DA' , label: 'Control diccionario de atributos'},
         ],
     });
     defNewElement.sql={
