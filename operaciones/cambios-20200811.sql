@@ -2,7 +2,7 @@ set search_path = cvp;
 
 --ALTER TABLE pantar DROP COLUMN activa;
 ALTER TABLE pantar ADD COLUMN activa cvp.sino_dom;
-GRANT UPDATE ON TABLE pantar TO cvp_administrador;
+GRANT UPDATE, INSERT ON TABLE pantar TO cvp_administrador;
 
 --seteo activas los paneles-tarea que están en a2020m08 (todos los paneles están generados)
 UPDATE pantar pt SET activa= 'S' 
