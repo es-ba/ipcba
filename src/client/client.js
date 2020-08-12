@@ -1121,7 +1121,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 html.table({class:'table-param-screen'},[
                     html.tr([
                         html.td({style:'width:700px'},[html.td("panel desde"), controlPanelDesde,]),
-                        html.td({style:'width:700px'},[html.td("panel desde"), controlPanelHasta,]),
+                        html.td({style:'width:700px'},[html.td("panel hasta"), controlPanelHasta,]),
                     ]),
                 ]),
                 html.table({class:'table-param-screen'},[

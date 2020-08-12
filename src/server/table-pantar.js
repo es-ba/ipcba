@@ -14,11 +14,13 @@ module.exports = function(context){
         fields:[
             {name:'panel'                  , typeName:'integer' , nullable:false, allow:{update:puedeEditar}},
             {name:'tarea'                  , typeName:'integer' , nullable:false, allow:{update:puedeEditar}},
+            {name:'activa'                 , typeName:'text'                    , allow:{update:puedeEditar}},
             {name:'grupozonal'             , typeName:'text'                    , allow:{update:puedeEditar}},
             {name:'panel2009'              , typeName:'integer'                 , allow:{update:puedeEditar}},
             {name:'tamannosupervision'     , typeName:'integer'                 , allow:{update:puedeEditar}},
         ],
         primaryKey:['panel','tarea'],
+        hiddenColumns:['grupozonal','panel2009','tamannosupervision'],
         constraints:[
             {constraintType:'unique', fields:['tarea','grupozonal','panel2009']},
         ]
