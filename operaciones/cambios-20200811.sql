@@ -169,3 +169,103 @@ BEGIN
   RETURN NULL;
 END
 $BODY$;
+
+------------------------------------------------------
+----periodoalta
+set search_path = cvp;
+CREATE OR REPLACE VIEW hdrexportar AS 
+ SELECT c.periodo, c.panel, c.tarea, c.fechasalida, c.informante, i.tipoinformante as ti, c.encuestador, c.nombreencuestador, c.recepcionista, c.nombrerecepcionista,
+   c.ingresador, c.nombreingresador, c.supervisor, c.nombresupervisor,
+   CASE
+     WHEN min(c.razon) <> max(c.razon) THEN (min(c.razon) || '~'::text) || max(c.razon)
+     ELSE COALESCE(min(c.razon) || ''::text, null)
+   END AS razon, 
+   c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|'::text) AS formularios, 
+   (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto, 
+    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, 
+    a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta
+   FROM cvp.control_hojas_ruta c
+   LEFT JOIN cvp.informantes i ON c.informante = i.informante
+   LEFT JOIN cvp.rubros r ON i.rubro = r.rubro
+   LEFT JOIN (SELECT cr.informante, cr.visita, max(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as maxperiodoinformado,
+                min(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as minperiodoinformado, min(periodo) as periodoalta
+                FROM cvp.control_hojas_ruta cr 
+                LEFT JOIN cvp.razones z using(razon)
+                GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
+  GROUP BY c.periodo, c.panel, c.tarea, c.fechasalida, c.informante, i.tipoinformante, c.encuestador, c.nombreencuestador, c.recepcionista, c.nombrerecepcionista, 
+    c.ingresador, c.nombreingresador, c.supervisor, c.nombresupervisor, c.visita, c.nombreinformante, c.direccion, 
+    (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text, c.conjuntomuestral, 
+    c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, 
+    a.minperiodoinformado, a.periodoalta;
+	
+CREATE OR REPLACE VIEW hdrexportarteorica AS 
+ SELECT c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante as ti, t.encuestador||':'||p.nombre||' '||p.apellido as encuestador,
+   COALESCE(string_agg(distinct c.encuestador||':'||c.nombreencuestador, '|'::text),null) as encuestadores, 
+   COALESCE(string_agg(distinct c.recepcionista||':'||c.nombrerecepcionista, '|'::text),null) as recepcionistas, 
+   COALESCE(string_agg(distinct c.ingresador||':'||c.nombreingresador, '|'::text),null) as ingresadores, 
+   COALESCE(string_agg(distinct c.supervisor||':'||c.nombresupervisor, '|'::text),null) as supervisores, 
+   CASE
+     WHEN min(c.razon) <> max(c.razon) THEN (min(c.razon) || '~'::text) || max(c.razon)
+     ELSE COALESCE(min(c.razon) || ''::text, null)
+   END AS razon,
+   string_agg(c.formulario::text || ' '::text || c.nombreformulario::text, chr(10) order by c.formulario) AS formularioshdr,
+   lpad(' '::text, count(*)::integer, chr(10)) AS espacio,   
+   c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|') AS formularios, 
+   i.contacto::text contacto, 
+   c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
+   pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta
+   FROM cvp.control_hojas_ruta c
+   LEFT JOIN cvp.tareas t on c.tarea = t.tarea
+   LEFT JOIN cvp.personal p on p.persona = t.encuestador 
+   LEFT JOIN cvp.informantes i ON c.informante = i.informante
+   LEFT JOIN cvp.rubros r ON i.rubro = r.rubro
+   LEFT JOIN (SELECT cr.informante, cr.visita, max(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as maxperiodoinformado,
+                min(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as minperiodoinformado, min(periodo) as periodoalta
+                FROM cvp.control_hojas_ruta cr 
+                LEFT JOIN cvp.razones z using(razon)
+                GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
+   LEFT JOIN (SELECT informante, visita, string_agg(distinct panel::text,',' order by panel::text) as panelreferencia, string_agg(distinct tarea::text,',' order by tarea::text) as tareareferencia
+                FROM cvp.relvis v 
+                JOIN cvp.parametros par ON unicoregistro AND v.periodo = par.periodoReferenciaParaPanelTarea
+                GROUP BY informante, visita) pt ON c.informante = pt.informante AND c.visita = pt.visita 
+  GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
+    i.contacto, c.conjuntomuestral, 
+    c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
+    pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta;
+	
+CREATE OR REPLACE VIEW hojaderuta AS 
+ SELECT v.periodo,
+    v.panel,
+    v.tarea,
+    v.fechasalida,
+    v.informante,
+    i.tipoinformante,
+    v.encuestador,
+    COALESCE(p.nombre::text || ' '::text, ''::text) || COALESCE(p.apellido, ''::character varying)::text AS nombreencuestador,
+        CASE
+            WHEN min(v.razon) <> max(v.razon) THEN (min(v.razon) || '~'::text) || max(v.razon)
+            ELSE COALESCE(min(v.razon) || ''::text, ''::text)
+        END || lpad(' '::text, count(*)::integer, chr(10)) AS razon,
+    v.visita,
+    i.nombreinformante,
+    i.direccion,
+    cvp.formularioshdr(v.periodo::text, v.informante, v.visita, v.fechasalida, v.encuestador) AS formularios,
+    lpad(' '::text, count(*)::integer, chr(10)) AS espacio,
+    COALESCE(i.contacto,'')||chr(10)||COALESCE(i.telcontacto,'') as contacto,
+    i.conjuntomuestral,
+    i.ordenhdr,
+    a.maxperiodoinformado,
+    a.minperiodoinformado,
+    a.periodoalta
+   FROM cvp.relvis v
+     JOIN cvp.informantes i ON v.informante = i.informante
+     LEFT JOIN cvp.personal p ON v.encuestador::text = p.persona::text
+     LEFT JOIN (SELECT cr.informante, cr.visita, max(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as maxperiodoinformado,
+                min(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as minperiodoinformado, min(periodo) as periodoalta
+                FROM cvp.control_hojas_ruta cr 
+                LEFT JOIN cvp.razones z using(razon)
+                GROUP BY cr.informante, cr.visita) a ON v.informante = a.informante AND v.visita = a.visita
+  GROUP BY v.periodo, v.panel, v.tarea, v.fechasalida, v.informante, i.tipoinformante, v.encuestador, v.visita, 
+    COALESCE(p.nombre::text || ' '::text, ''::text) || COALESCE(p.apellido, ''::character varying)::text,
+    COALESCE(i.contacto,'')||chr(10)||COALESCE(i.telcontacto,''),    
+    i.nombreinformante, i.direccion, i.conjuntomuestral, i.ordenhdr, a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta ;	

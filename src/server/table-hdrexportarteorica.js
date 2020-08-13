@@ -37,6 +37,7 @@ module.exports = function(context){
             {name:'minperiodoinformado'          , typeName:'text'    },
             {name:'panelreferencia'              , typeName:'text'    },
             {name:'tareareferencia'              , typeName:'text'    },
+            {name:'periodoalta'                  , typeName: 'text'   },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
         sql:{

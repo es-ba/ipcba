@@ -33,6 +33,7 @@ module.exports = function(context){
             {name:'nombrerubro'                  , typeName:'text'    },
             {name:'maxperiodoinformado'          , typeName:'text'    },
             {name:'minperiodoinformado'          , typeName:'text'    },
+            {name:'periodoalta'                  , typeName:'text'    },
         ],
         primaryKey:['periodo','informante','visita'],
         //sortColumns:[{column:'valor'}],
@@ -71,22 +72,21 @@ module.exports = function(context){
                 r.nombrerubro,
                 a.maxperiodoinformado,
                 a.minperiodoinformado,
-                c.fechasalida
+                c.fechasalida,
+                a.periodoalta
             FROM cvp.control_hojas_ruta c
                 LEFT JOIN cvp.tareas t ON c.tarea = t.tarea
                 LEFT JOIN cvp.personal p ON p.persona::text = t.encuestador::text
                 LEFT JOIN cvp.informantes i ON c.informante = i.informante
                 LEFT JOIN cvp.rubros r ON i.rubro = r.rubro
-                LEFT JOIN ( SELECT control_hojas_ruta.informante,
-                        control_hojas_ruta.visita,
-                        max(control_hojas_ruta.periodo::text) AS maxperiodoinformado,
-                        min(control_hojas_ruta.periodo::text) AS minperiodoinformado
-                    FROM cvp.control_hojas_ruta
-                    WHERE control_hojas_ruta.razon = 1 
-                    GROUP BY control_hojas_ruta.informante, control_hojas_ruta.visita) a ON c.informante = a.informante AND c.visita = a.visita
+                LEFT JOIN (SELECT cr.informante, cr.visita, max(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as maxperiodoinformado,
+                           min(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as minperiodoinformado, min(periodo) as periodoalta
+                           FROM cvp.control_hojas_ruta cr 
+                           LEFT JOIN cvp.razones z using(razon)
+                           GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
             GROUP BY c.periodo, c.panel, c.informante, i.tipoinformante, c.visita, c.nombreinformante, c.direccion, 
             ((COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text), c.conjuntomuestral, c.ordenhdr, i.distrito,
-            i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida
+            i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, a.periodoalta
             )`
         }
     },context);

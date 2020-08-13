@@ -20,17 +20,19 @@ CREATE OR REPLACE VIEW hojaderuta AS
     i.conjuntomuestral,
     i.ordenhdr,
     a.maxperiodoinformado,
-    a.minperiodoinformado
+    a.minperiodoinformado,
+    a.periodoalta
    FROM cvp.relvis v
      JOIN cvp.informantes i ON v.informante = i.informante
      LEFT JOIN cvp.personal p ON v.encuestador::text = p.persona::text
-     LEFT JOIN (SELECT informante, visita, max(periodo) AS maxperiodoinformado, min(periodo) AS minperiodoinformado
-                FROM cvp.control_hojas_ruta
-                WHERE control_hojas_ruta.razon = 1
-                GROUP BY informante, visita) a ON v.informante = a.informante AND v.visita = a.visita
+     LEFT JOIN (SELECT cr.informante, cr.visita, max(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as maxperiodoinformado,
+                min(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as minperiodoinformado, min(periodo) as periodoalta
+                FROM cvp.control_hojas_ruta cr 
+                LEFT JOIN cvp.razones z using(razon)
+                GROUP BY cr.informante, cr.visita) a ON v.informante = a.informante AND v.visita = a.visita
   GROUP BY v.periodo, v.panel, v.tarea, v.fechasalida, v.informante, i.tipoinformante, v.encuestador, v.visita, 
     COALESCE(p.nombre::text || ' '::text, ''::text) || COALESCE(p.apellido, ''::character varying)::text,
     COALESCE(i.contacto,'')||chr(10)||COALESCE(i.telcontacto,''),    
-    i.nombreinformante, i.direccion, i.conjuntomuestral, i.ordenhdr, a.maxperiodoinformado, a.minperiodoinformado ;
+    i.nombreinformante, i.direccion, i.conjuntomuestral, i.ordenhdr, a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta ;
 
 GRANT SELECT ON TABLE hojaderuta TO cvp_usuarios;

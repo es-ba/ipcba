@@ -13,16 +13,17 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
    c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|') AS formularios, 
    i.contacto::text contacto, 
    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
-   pt.panelreferencia, pt.tareareferencia, i.telcontacto
+   pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta
    FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.tareas t on c.tarea = t.tarea
    LEFT JOIN cvp.personal p on p.persona = t.encuestador 
    LEFT JOIN cvp.informantes i ON c.informante = i.informante
    LEFT JOIN cvp.rubros r ON i.rubro = r.rubro
-   LEFT JOIN (SELECT informante, visita, max(periodo) AS maxperiodoinformado, min(periodo) AS minperiodoinformado
-                FROM cvp.control_hojas_ruta
-                WHERE control_hojas_ruta.razon = 1
-                GROUP BY informante, visita) a ON c.informante = a.informante AND c.visita = a.visita
+   LEFT JOIN (SELECT cr.informante, cr.visita, max(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as maxperiodoinformado,
+                min(CASE WHEN espositivoformulario = 'S' THEN periodo ELSE NULL END) as minperiodoinformado, min(periodo) as periodoalta
+                FROM cvp.control_hojas_ruta cr 
+                LEFT JOIN cvp.razones z using(razon)
+                GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
    LEFT JOIN (SELECT informante, visita, string_agg(distinct panel::text,',' order by panel::text) as panelreferencia, string_agg(distinct tarea::text,',' order by tarea::text) as tareareferencia
                 FROM cvp.relvis v 
                 JOIN cvp.parametros par ON unicoregistro AND v.periodo = par.periodoReferenciaParaPanelTarea
@@ -30,6 +31,6 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
   GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
     i.contacto, c.conjuntomuestral, 
     c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
-    pt.panelreferencia, pt.tareareferencia, i.telcontacto;
+    pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta;
 
 GRANT SELECT ON TABLE hdrexportarteorica TO cvp_usuarios;
