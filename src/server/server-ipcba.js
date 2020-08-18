@@ -868,6 +868,7 @@ NETWORK:
             {name: 'muestras', path: __dirname},
             {name: 'rubros', path: __dirname},
             {name: 'informantes', path: __dirname},
+            {name: 'contactos', path: __dirname},
             {name: 'personal', path: __dirname},
             {name: 'razones', path: __dirname},
             {name: 'razones_encuestador', path: __dirname},

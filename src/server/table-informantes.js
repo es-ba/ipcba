@@ -63,6 +63,9 @@ module.exports = function(context){
             {name:'grupo_prioridad'           , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
         ],
         primaryKey:['informante'],
+        detailTables:[
+            {table:'contactos', abr:'CON', label:'contactos', fields:['informante']},
+        ],
         foreignKeys:[
             {references:'conjuntomuestral', fields:['conjuntomuestral']},
             {references:'rubros'          , fields:['rubro']           },

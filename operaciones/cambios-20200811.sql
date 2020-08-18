@@ -269,3 +269,148 @@ CREATE OR REPLACE VIEW hojaderuta AS
     COALESCE(p.nombre::text || ' '::text, ''::text) || COALESCE(p.apellido, ''::character varying)::text,
     COALESCE(i.contacto,'')||chr(10)||COALESCE(i.telcontacto,''),    
     i.nombreinformante, i.direccion, i.conjuntomuestral, i.ordenhdr, a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta ;	
+	
+SET SEARCH_PATH = cvp;
+SET role cvpowner;
+
+CREATE TABLE contactos
+(
+informante integer NOT NULL,
+contacto text NOT NULL,
+tipo character varying(1),
+referente text,
+fechaalta date,
+fechabaja date,
+visibleparaencuestador sino_dom NOT NULL DEFAULT 'S',
+modi_usu character varying(30),
+modi_fec timestamp without time zone,
+modi_ope character varying(1),
+
+PRIMARY KEY (informante, contacto),
+    FOREIGN KEY (informante) REFERENCES informantes (informante),
+    CONSTRAINT "texto invalido en contacto de tabla contactos" CHECK (comun.cadena_valida(contacto, 'amplio'::text)),
+    CONSTRAINT "blancos extra en contacto tabla contactos" CHECK (NOT contacto IS DISTINCT FROM btrim(regexp_replace(contacto, ' {2,}', ' ', 'g'))),
+    CONSTRAINT "texto invalido en referente de tabla contactos" CHECK (comun.cadena_valida(referente, 'castellano'::text)),
+    CONSTRAINT "blancos extra en referente tabla contactos" CHECK (NOT referente IS DISTINCT FROM btrim(regexp_replace(referente, ' {2,}', ' ', 'g'))),
+	CONSTRAINT "Tipo de contacto debe ser M (Mail), T (Teléfono) o W (Web)" CHECK (tipo = ANY (ARRAY['M', 'T', 'W']))
+);
+
+GRANT INSERT, UPDATE, DELETE ON TABLE contactos TO cvp_administrador;
+GRANT SELECT ON TABLE contactos TO cvp_usuarios;
+
+
+CREATE OR REPLACE FUNCTION hisc_contactos_trg()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    VOLATILE SECURITY DEFINER
+AS $BODY$
+      DECLARE
+        v_operacion text:=substr(TG_OP,1,1);
+      BEGIN
+        
+      IF v_operacion='I' THEN
+        
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_number)
+                     VALUES ('cvp','contactos','informante','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.informante),new.informante);			 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_text)
+                     VALUES ('cvp','contactos','contacto','I'  ,new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.contacto),new.contacto);	 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_text)
+                     VALUES ('cvp','contactos','tipo','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.tipo),new.tipo);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_text)
+                     VALUES ('cvp','contactos','referente','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.referente),new.referente);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_datetime)
+                     VALUES ('cvp','contactos','fechaalta','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.fechaalta),new.fechaalta);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_datetime)
+                     VALUES ('cvp','contactos','fechabaja','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.fechabaja),new.fechabaja);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_text)
+                     VALUES ('cvp','contactos','visibleparaencuestador','I'  ,new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.visibleparaencuestador),new.visibleparaencuestador);	 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_text)
+                     VALUES ('cvp','cotactos','modi_usu','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.modi_usu),new.modi_usu);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_datetime)
+                     VALUES ('cvp','cotactos','modi_fec','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.modi_fec),new.modi_fec);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,new_text)
+                     VALUES ('cvp','cotactos','modi_ope','I',new.informante||'|'||new.contacto,new.informante, new.contacto,'I:'||comun.a_texto(new.modi_ope),new.modi_ope);
+      END IF;
+      IF v_operacion='U' THEN
+            
+            IF new.informante IS DISTINCT FROM old.informante THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_number,new_number)
+                     VALUES ('cvp','contactos','informante','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.informante)||'->'||comun.a_texto(new.informante),old.informante,new.informante);
+            END IF;    
+            IF new.contacto IS DISTINCT FROM old.contacto THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text,new_text)
+                     VALUES ('cvp','contactos','contacto','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.contacto)||'->'||comun.a_texto(new.contacto),old.contacto,new.contacto);
+            END IF;    
+            IF new.tipo IS DISTINCT FROM old.tipo THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text,new_text)
+                     VALUES ('cvp','contactos','tipo','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.tipo)||'->'||comun.a_texto(new.tipo),old.tipo,new.tipo);
+            END IF;
+            IF new.referente IS DISTINCT FROM old.referente THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text,new_text)
+                     VALUES ('cvp','contactos','referente','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.referente)||'->'||comun.a_texto(new.referente),old.referente,new.referente);
+            END IF;    
+            IF new.fechaalta IS DISTINCT FROM old.fechaalta THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_datetime,new_datetime)
+                     VALUES ('cvp','contactos','fechaalta','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.fechaalta)||'->'||comun.a_texto(new.fechaalta),old.fechaalta,new.fechaalta);
+            END IF;    
+            IF new.fechabaja IS DISTINCT FROM old.fechabaja THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_datetime,new_datetime)
+                     VALUES ('cvp','contactos','fechabaja','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.fechabaja)||'->'||comun.a_texto(new.fechabaja),old.fechabaja,new.fechabaja);
+            END IF;    
+            IF new.visibleparaencuestador IS DISTINCT FROM old.visibleparaencuestador THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text,new_text)
+                     VALUES ('cvp','contactos','visibleparaencuestador','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.visibleparaencuestador)||'->'||comun.a_texto(new.visibleparaencuestador),old.visibleparaencuestador,new.visibleparaencuestador);
+            END IF;        
+            IF new.modi_usu IS DISTINCT FROM old.modi_usu THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text,new_text)
+                     VALUES ('cvp','contactos','modi_usu','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.modi_usu)||'->'||comun.a_texto(new.modi_usu),old.modi_usu,new.modi_usu);
+            END IF;    
+            IF new.modi_fec IS DISTINCT FROM old.modi_fec THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_datetime,new_datetime)
+                     VALUES ('cvp','contactos','modi_fec','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.modi_fec)||'->'||comun.a_texto(new.modi_fec),old.modi_fec,new.modi_fec);
+            END IF;    
+            IF new.modi_ope IS DISTINCT FROM old.modi_ope THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text,new_text)
+                     VALUES ('cvp','contactos','modi_ope','U',new.informante||'|'||new.contacto,new.informante, new.contacto,comun.A_TEXTO(old.modi_ope)||'->'||comun.a_texto(new.modi_ope),old.modi_ope,new.modi_ope);
+            END IF;
+      END IF;
+      IF v_operacion='D' THEN
+        
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_number)
+                     VALUES ('cvp','contactos','informante','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.informante),old.informante);			 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text)
+                     VALUES ('cvp','contactos','contacto','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.contacto),old.contacto);			 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text)
+                     VALUES ('cvp','contactos','tipo','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.tipo),old.tipo);					 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text)
+                     VALUES ('cvp','contactos','referente','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.referente),old.referente);					 
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_datetime)
+                     VALUES ('cvp','contactos','fechaalta','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.fechaalta),old.fechaalta);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_datetime)
+                     VALUES ('cvp','contactos','fechabaja','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.fechabaja),old.fechabaja);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text)
+                     VALUES ('cvp','contactos','visibleparaencuestador','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.visibleparaencuestador),old.visibleparaencuestador);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text)
+                     VALUES ('cvp','contactos','modi_usu','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.modi_usu),old.modi_usu);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_datetime)
+                     VALUES ('cvp','contactos','modi_fec','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.modi_fec),old.modi_fec);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,pk_text_2,change_value,old_text)
+                     VALUES ('cvp','cotactos','modi_ope','D',old.informante||'|'||old.contacto,old.informante, old.contacto,'D:'||comun.a_texto(old.modi_ope),old.modi_ope);
+      END IF;
+      
+        IF v_operacion<>'D' THEN
+          RETURN new;
+        ELSE
+          RETURN old;  
+        END IF;
+      END;
+     $BODY$;
+
+
+
+CREATE TRIGGER hisc_trg
+    BEFORE INSERT OR DELETE OR UPDATE 
+    ON contactos
+    FOR EACH ROW
+    EXECUTE PROCEDURE hisc_contactos_trg();
+	
