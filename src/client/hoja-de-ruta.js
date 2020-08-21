@@ -1379,7 +1379,8 @@ myOwn.clientSides.prepararDM={
                 if(result.tieneprecioscargados){
                     alertPromise('La hoja de ruta que preparó tiene precios cargados')
                 }
-                depot.rowControls.vencimiento_sincronizacion2.setTypedValue(result.vencimientoSincronizacion2, true);
+                var grid=depot.manager;
+                grid.retrieveRowAndRefresh(depot)
             }).catch(function(err){
                 my.alertError(err);
                 boton.disabled=false;
