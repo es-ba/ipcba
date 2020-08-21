@@ -1,7 +1,7 @@
 import {html}  from 'js-to-html';
 import {HDR_OPENED_LOCALSTORAGE_NAME, LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME,
        registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage,
-       hayHdrRelevando, rescatarLocalStorage } from "../unlogged/dm-react";
+       hayHdrRelevando, rescatarLocalStorage, hayHojaDeRuta } from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
 import * as likeAr from "like-ar";
@@ -10,13 +10,6 @@ var my=myOwn;
 
 function getVersionSistema(){
     return document.body.getAttribute('app-version');
-}
-
-function hayHojaDeRuta(){
-    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
-    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME)
-    return storage && vaciado !==null && !(vaciado) ||
-        storage && vaciado===null;
 }
 
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){

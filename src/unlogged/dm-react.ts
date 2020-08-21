@@ -11,6 +11,13 @@ var my=myOwn;
 export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
 export const LOCAL_STORAGE_DIRTY_NAME = LOCAL_STORAGE_STATE_NAME + '_dirty';
 
+export function hayHojaDeRuta(){
+    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
+    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME)
+    return storage && vaciado !==null && !(vaciado) ||
+        storage && vaciado===null;
+}
+
 /* REDUCERS */
 
 type NextID = string | false;

@@ -1,5 +1,5 @@
 "use strict";
-import {LOCAL_STORAGE_STATE_NAME} from "../unlogged/dm-react";
+import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 import * as AjaxBestPromise from "ajax-best-promise";
 
@@ -14,7 +14,7 @@ window.addEventListener('load', async function(){
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
     var url = new URL(window.location.href);
     if(location.pathname.endsWith('/dm')){
-        if(myOwn.existsLocalVar(LOCAL_STORAGE_STATE_NAME)){
+        if(hayHojaDeRuta()){
             const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
             history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
             location.reload();
