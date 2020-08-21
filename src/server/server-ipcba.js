@@ -413,6 +413,8 @@ CACHE:
 ../lib/clsx.min.js
 ../lib/redux.min.js
 ../lib/react-redux.min.js
+../lib/index-prod.umd.js
+../lib/memoize-one.js
 ../lib/require-bro.js
 ../lib/like-ar.js
 ../lib/best-globals.js
