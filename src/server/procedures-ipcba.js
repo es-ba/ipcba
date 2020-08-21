@@ -1021,7 +1021,9 @@ ProceduresIpcba = [
                         left join personal p on p.persona = i.encuestador
                         where r.encuestador = $1 and 
                               vencimiento_sincronizacion2 is not null and 
-                              vencimiento_sincronizacion2 > current_timestamp`
+                              vencimiento_sincronizacion2 > current_timestamp
+                        order by vencimiento_sincronizacion2 desc 
+                        limit 1`
                     ,
                     [persona.row.persona]
                 ).fetchUniqueRow();
