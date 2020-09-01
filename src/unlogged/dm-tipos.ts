@@ -31,6 +31,7 @@ export type ProdAtr = {
     valornormal: number | null
     lista_prodatrval:string[]
     mostrar_cant_um: boolean
+    validaropciones: boolean
 }
 
 export type Producto={

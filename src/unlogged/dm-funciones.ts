@@ -117,6 +117,10 @@ export function normalizarPrecio(relPre:RelPre, estructura:Estructura){
 
 export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estructura){
     var prodAtr = estructura.productos[relPre.producto].atributos[relAtr.atributo];
+    //var enListaDeValores = function enListaDeValores(relAtr:RelAtr, prodAtr:ProdAtr){
+    //    return relAtr.valor == prodAtr.lista_prodatrval.find(function (elemento){return elemento == relAtr.valor})
+    //}
+    //var esValidoAtributoPorListaDeValores = !prodAtr.validaropciones || enListaDeValores(relAtr,prodAtr); 
     var esValidoAtributo = function esValidoAtributo(relAtr:RelAtr, prodAtr:ProdAtr){
         return !((prodAtr.rangodesde && Number(relAtr.valor)<prodAtr.rangodesde) || (prodAtr.rangohasta && Number(relAtr.valor)>prodAtr.rangohasta))
     }
@@ -130,6 +134,10 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
     var color:string|undefined = undefined;
     var tpEsNegativo = !!(relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo);
     if(!tpEsNegativo){
+        //if(!esValidoAtributoPorListaDeValores && relAtr.valor != null){
+        //    color='#FFCE33';
+        //    tieneAdvertencia = true;
+        //}
         if(!esValidoAtributo(relAtr, prodAtr) && !esValorNormal(relAtr, prodAtr) && relAtr.valor != null){
             color='#FFCE33';
             tieneAdvertencia = true;

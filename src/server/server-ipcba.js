@@ -521,11 +521,11 @@ NETWORK:
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
             ], showInOfflineMode: true},
             {menuType:'menu', name:'administracion', label:'administración', menuContent:[
-                {menuType:'table', name:'prodatrval', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista]},
+                {menuType:'table', name:'prodatrval', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
                 //{menuType:'table', name:'cierre_periodos', label:'cierre de períodos'},
                 {menuType:'table', name:'cuadros', label: 'textos de los cuadros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'ipcba_usuarios', label: 'usuarios', onlyVisibleFor:[programador,coordinador,analista]},
-            ], onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
+            ], onlyVisibleFor:[programador,coordinador,analista,recepGabinete, recepcionista]},
             {menuType:'menu', name:'salida_campo', label:'salida a campo', menuContent:[
                 {menuType:'table', name:'relenc', label:'titulares de panel-tarea', selectedByDefault:true},
             ], onlyVisibleFor:[programador,coordinador,jefeCampo]},
