@@ -248,12 +248,10 @@ function TypedInput<T extends string|number|null>(props:{
     var [value, setValue] = useState<string>(valueS(props.value));
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
         /* CANDIDATO */ 
-        var customValue = event.target.value
-        /*
+        // var customValue = event.target.value
         var customValue = event.target.value.trim();
         customValue = props.textTransform?props.textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
         customValue = props.simplificateText?simplificateText(customValue):customValue;
-        */
         setValue(customValue);
         var value = valueT(customValue);
         if(value!==props.value){

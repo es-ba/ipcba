@@ -280,6 +280,7 @@ var reducers={
         },    
     SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
         function(state: HojaDeRuta){
+            window.ultimoStore=0;
             var {queVer} = state.opciones;
             var searchString = '';
             var allForms = false;
@@ -303,6 +304,7 @@ var reducers={
         },
     UNSET_FORMULARIO_ACTUAL:(_payload: {}) => 
         function(state: HojaDeRuta){
+            window.ultimoStore=0;
             return deepFreeze({
                 ...state,
                 opciones:{
@@ -451,12 +453,12 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
         }
     }
 
-    var ultimoStore=0
+    window.ultimoStore=0
 
     function saveState(state:HojaDeRuta){
         var nuevoStore=new Date().getTime();
-        if(nuevoStore>ultimoStore+10000){
-            ultimoStore = nuevoStore;
+        if(nuevoStore>window.ultimoStore+10000){
+            window.ultimoStore = nuevoStore;
             my.setLocalVar(LOCAL_STORAGE_STATE_NAME, state);
         }
     }
