@@ -247,9 +247,13 @@ function TypedInput<T extends string|number|null>(props:{
     var inputId=props.inputId;
     var [value, setValue] = useState<string>(valueS(props.value));
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
+        /* CANDIDATO */ 
+        var customValue = event.target.value
+        /*
         var customValue = event.target.value.trim();
         customValue = props.textTransform?props.textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
         customValue = props.simplificateText?simplificateText(customValue):customValue;
+        */
         setValue(customValue);
         var value = valueT(customValue);
         if(value!==props.value){
@@ -1018,6 +1022,8 @@ function DetalleFiltroObservaciones(_props:{}){
         )}
     </>
 }
+
+/* CANDIDATO */
 const IndexedPreciosRow = /*React.memo*/(({ data, index, isScrolling, style }: {data: any, index:number, isScrolling:boolean, style:Styles}) => {
     var {items, observaciones, idActual, razonPositiva, allForms, searchString, compactar} = data;
     var item = items[index];

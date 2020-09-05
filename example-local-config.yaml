@@ -12,6 +12,7 @@ db:
 client-setup:
   skin: default
 devel:
+  useFileDevelopment: true
   delay: 0
 log:
   db:

@@ -1,10 +1,12 @@
 import { createStore } from "redux";
 import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, OptsHdr, QueVer } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio, getObservacionesFiltradas} from "./dm-funciones";
-import { deepFreeze } from "best-globals";
+// import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
 import * as JSON4all from "json4all";
 import * as likeAr from "like-ar";
+
+var deepFreeze = <T extends any>(x:T)=>x;
 
 var my=myOwn;
 
@@ -448,9 +450,15 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
             return initialState;
         }
     }
-    
+
+    var ultimoStore=0
+
     function saveState(state:HojaDeRuta){
-        my.setLocalVar(LOCAL_STORAGE_STATE_NAME, state);
+        var nuevoStore=new Date().getTime();
+        if(nuevoStore>ultimoStore+10000){
+            ultimoStore = nuevoStore;
+            my.setLocalVar(LOCAL_STORAGE_STATE_NAME, state);
+        }
     }
     /* FIN CARGA Y GUARDADO DE STATE */
 

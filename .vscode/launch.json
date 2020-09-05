@@ -20,6 +20,18 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Fast Launch",
+            "program": "${workspaceFolder}/dist/server/server-ipcba.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]/*,
+            "env":{
+                "BACKEND_PLUS_LOCAL_CONFIG":"local-config-web.yaml"
+            }*/
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "dumpDb",
             "preLaunchTask": "build-all",
             "program": "${workspaceFolder}/dist/server/server-ipcba.js",
