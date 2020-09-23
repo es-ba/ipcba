@@ -1482,13 +1482,23 @@ ProceduresIpcba = [
                 `select id_instalacion from instalaciones where token_instalacion = $1`,
                 [parameters.token_instalacion]
             ).fetchUniqueValue();
+            //blanqueamos instalaciones, fecha de carga, sincro
+            //de cargas sin descargar para esa instalación en ese periodo por si descartó una hdr
+            await context.client.query(
+                `update reltar
+                    set cargado = null, id_instalacion = null, vencimiento_sincronizacion2 = null
+                    where periodo = $1 and id_instalacion = $2 and descargado is null and cargado is not null`
+                ,
+                [parameters.periodo, idInstalacion.value]
+            ).execute();
             await context.client.query(
                 `update reltar
                     set cargado = current_timestamp, descargado = null, id_instalacion = $4
-                    where periodo = $1 and panel = $2 and tarea = $3`
+                    where periodo = $1 and panel = $2 and tarea = $3 --PK verificada
+                    returning true`
                 ,
                 [parameters.periodo, parameters.panel, parameters.tarea, idInstalacion.value]
-            ).execute();
+            ).fetchUniqueRow();
             return "ok"
         }
     },
