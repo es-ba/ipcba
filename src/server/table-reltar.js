@@ -29,6 +29,7 @@ module.exports = function(context){
             {name:'puntos'                     , typeName:'integer'  , allow:{update:false}        , visible:false                 },
             {name:'archivo_manifiesto'         , typeName:'text'     , allow:{update:false}        , visible:false                 },
             {name:'archivo_estructura'         , typeName:'text'     , allow:{update:false}        , visible:false                 },
+            {name:'archivo_cache'              , typeName:'text'     , allow:{update:false}        , visible:false                 },
             {name:'archivo_hdr'                , typeName:'text'     , allow:{update:false}        , visible:false                 },
             {name:'fechasalidadesde'           , typeName:'date'     , allow:{update:puedeEditar}                                  },
             {name:'fechasalidahasta'           , typeName:'date'     , allow:{update:puedeEditar}                                  },

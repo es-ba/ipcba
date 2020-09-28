@@ -6,6 +6,7 @@ var MiniTools = require('mini-tools');
 var uptime = new Date().toString();
 
 var {changing, datetime} = require('best-globals');
+const { json } = require('backend-plus');
 
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
@@ -343,9 +344,10 @@ class AppIpcba extends backendPlus.AppBackend{
         var be=this;
         super.addLoggedServices();
         [
-            {sufix:`manifest.manifest`, fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
-            {sufix:`estructura.js`    , fieldName:'archivo_estructura', mimeType:'application/javascript'},
-            {sufix:`hdr.json`         , fieldName:'archivo_hdr'       , mimeType:'application/json'},
+            {sufix:`manifest.manifest`     , fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
+            {sufix:`estructura.js`         , fieldName:'archivo_estructura', mimeType:'application/javascript'},
+            {sufix:`hdr.json`              , fieldName:'archivo_hdr'       , mimeType:'application/json'},
+            {sufix:`resources_cache.json`  , fieldName:'archivo_cache'     , mimeType:'application/json'},
 
         ].forEach(function(def){
             be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
@@ -483,6 +485,96 @@ FALLBACK:
 NETWORK:
 *`
         );
+    }
+    getResourcesForCacheJson(parameters){
+        var be = this;
+        var jsonResult = {};
+            //"version":"3.3",
+            //"appName":"exampleApp",
+            //"fallback":[
+            //    {"path":"./login", "fallback":"./example-no-network.html"}
+            //]
+        const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toYmdHms()}`:uptime;
+        jsonResult.version = `#${version}`;
+        jsonResult.appName = 'ipcba';
+        if(parameters.periodo){
+            var {estructuraPath, hdrPath} = be.getManifestPaths(parameters);
+        }
+        const especifico=[];
+        if(parameters.periodo){
+            especifico.push(`../${estructuraPath}`);
+            especifico.push(`../${hdrPath}`);
+            especifico.push(`../dm`);
+        }
+        jsonResult.cache=[
+            "../lib/react.production.min.js",
+            "../lib/react-dom.production.min.js",
+            "../lib/material-ui.production.min.js",
+            "../lib/material-styles.production.min.js",
+            "../lib/clsx.min.js",
+            "../lib/redux.min.js",
+            "../lib/react-redux.min.js",
+            "../lib/index-prod.umd.js",
+            "../lib/memoize-one.js",
+            "../lib/require-bro.js",
+            "../lib/like-ar.js",
+            "../lib/best-globals.js",
+            "../lib/json4all.js",
+            "../lib/js-to-html.js",
+            "../lib/redux-typed-reducer.js",
+            "../adapt.js",
+            "../dm-tipos.js",
+            "../dm-funciones.js",
+            "../dm-react.js",
+            "../ejemplo-precios.js",
+            "../unlogged.js",
+            "../lib/js-yaml.js",
+            "../lib/xlsx.core.min.js",
+            "../lib/lazy-some.js",
+            "../lib/sql-tools.js",
+            "../dialog-promise/dialog-promise.js",
+            "../moment/min/moment.js",
+            "../pikaday/pikaday.js",
+            "../lib/polyfills-bro.js",
+            "../lib/big.js",
+            "../lib/type-store.js",
+            "../lib/typed-controls.js",
+            "../lib/ajax-best-promise.js",
+            "../my-ajax.js",
+            "../my-start.js",
+            "../lib/my-localdb.js",
+            "../lib/my-websqldb.js",
+            "../lib/my-localdb.js.map",
+            "../lib/my-websqldb.js.map",
+            "../lib/my-things.js",
+            "../lib/my-tables.js",
+            "../lib/my-inform-net-status.js",
+            "../lib/my-menu.js",
+            "../lib/my-skin.js",
+            "../lib/cliente-en-castellano.js",
+            "../client/client.js",
+            "../client/menu.js",
+            "../client/hoja-de-ruta.js",
+            "../client/hoja-de-ruta-react.js",
+            "../dialog-promise/dialog-promise.css",
+            "../pikaday/pikaday.css",
+            "../css/my-things.css",
+            "../css/my-tables.css",
+            "../css/my-menu.css",
+            "../css/menu.css",
+            "../css/offline-mode.css",
+            "../css/hoja-de-ruta.css",
+            "../default/css/my-things.css",
+            "../default/css/my-tables.css",
+            "../default/css/my-menu.css",
+            "../css/ejemplo-precios.css",
+            "../default/css/ejemplo-precios.css",
+            "../img/logo.png",
+            "../img/logo-dm.png",
+            "../img/main-loading.gif"
+        ].concat(especifico);
+        jsonResult.fallback=[];
+        return jsonResult
     }
     getMenu(context){
         var programador = {role:'programador'};
@@ -766,6 +858,8 @@ NETWORK:
             menuedResources = menuedResources.concat(opts.extraFiles);
         }
         return [
+            { type: 'js', module: 'service-worker-admin',  file:'service-worker-admin.js' },
+            { type: 'js', module: 'service-worker-admin',  file:'service-worker-wo-manifest.js' },
             { type: 'js', module: 'react', modPath: 'umd', fileDevelopment:'react.development.js', file:'react.production.min.js' },
             { type: 'js', module: 'react-dom', modPath: 'umd', fileDevelopment:'react-dom.development.js', file:'react-dom.production.min.js' },
             { type: 'js', module: '@material-ui/core', modPath: 'umd', fileDevelopment:'material-ui.development.js', file:'material-ui.production.min.js' },

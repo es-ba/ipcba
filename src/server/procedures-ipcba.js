@@ -1575,14 +1575,16 @@ ProceduresIpcba = [
                 const PATH = 'dist/client/';
                 const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
                 var manifest = be.getManifestContent(parameters);
+                var resourcesForCache = be.getResourcesForCacheJson(parameters);
                 await client.query(`
                     UPDATE reltar 
-                        SET archivo_manifiesto = $1, archivo_estructura = $2, archivo_hdr = $3
-                        WHERE periodo = $4 AND panel=$5 AND tarea = $6`,
+                        SET archivo_manifiesto = $1, archivo_estructura = $2, archivo_hdr = $3, archivo_cache = $4
+                        WHERE periodo = $5 AND panel=$6 AND tarea = $7`,
                     [
                         manifest,
                         "var structFromManifest=" + JSON.stringify(estructura),
                         JSON4all.stringify(hdr),
+                        JSON4all.stringify(resourcesForCache),
                         parameters.periodo,
                         parameters.panel,
                         parameters.tarea,
