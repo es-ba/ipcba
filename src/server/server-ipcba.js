@@ -4,6 +4,8 @@ var Path = require('path');
 var backendPlus = require("backend-plus");
 var MiniTools = require('mini-tools');
 var uptime = new Date().toString();
+var fs = require("fs").promises;
+var cookieParser = require('cookie-parser')
 
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
@@ -324,7 +326,7 @@ class AppIpcba extends backendPlus.AppBackend{
             const extraFiles = [
                 { type: 'js', src:estructuraPath },
             ];
-            var htmlMain=be.mainPage({useragent, user}, !be.config.devel["no-offline"], {skipMenu:true, manifestPath, extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
@@ -335,7 +337,7 @@ class AppIpcba extends backendPlus.AppBackend{
             var extraFiles = [
                 // { type: 'js', src:'dm-main.js' },
             ];
-            var htmlMain=be.mainPage({useragent, user}, !be.config.devel["no-offline"], {skipMenu:true, manifestPath, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user},false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         super.addSchrödingerServices(mainApp, baseUrl);
@@ -374,6 +376,22 @@ class AppIpcba extends backendPlus.AppBackend{
             }catch(err){
                 console.log(err);
                 MiniTools.serveErr(req, res, next)(err);
+            }
+        });
+        be.app.use(cookieParser());
+        be.app.get(`/carga-dm/sw-manifest.js`, async function(req, res, next){
+            try{
+                var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
+                var {periodo, panel, tarea} = req.cookies;
+                var manifest = await be.getResourcesForCacheJson({periodo,panel,tarea});
+                var swManifest = sw
+                    .replace("'/*version*/'", JSON.stringify(manifest.version))
+                    .replace("'/*appName*/'", JSON.stringify(manifest.appName))
+                    .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
+                    .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
+                MiniTools.serveText(swManifest,'application/javascript')(req,res);
+            }catch(err){
+                MiniTools.serveErr(req,res,next)(err);
             }
         });
         super.addLoggedServices(opts);
@@ -858,8 +876,6 @@ NETWORK:
             menuedResources = menuedResources.concat(opts.extraFiles);
         }
         return [
-            { type: 'js', module: 'service-worker-admin',  file:'service-worker-admin.js' },
-            { type: 'js', module: 'service-worker-admin',  file:'service-worker-wo-manifest.js' },
             { type: 'js', module: 'react', modPath: 'umd', fileDevelopment:'react.development.js', file:'react.production.min.js' },
             { type: 'js', module: 'react-dom', modPath: 'umd', fileDevelopment:'react-dom.development.js', file:'react-dom.production.min.js' },
             { type: 'js', module: '@material-ui/core', modPath: 'umd', fileDevelopment:'material-ui.development.js', file:'material-ui.production.min.js' },
@@ -870,6 +886,7 @@ NETWORK:
             { type: 'js', module: 'react-window', fileDevelopment:'index-dev.umd.js', file:'index-prod.umd.js' },
             { type: 'js', module: 'memoize-one',  file:'memoize-one.js' },
             ...super.clientIncludes(req, opts),
+            { type: 'js', module: 'service-worker-admin',  file:'service-worker-admin.js' },
             { type: 'js', module: 'redux-typed-reducer', modPath:'../dist', file:'redux-typed-reducer.js' },
             { type: 'js', src: 'adapt.js' },
             { type: 'js', src: 'dm-tipos.js' },
