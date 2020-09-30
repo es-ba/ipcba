@@ -45,6 +45,11 @@ module.exports = function(context){
         ],
         sortColumns:[{column:'ordenpor'}],        
         primaryKey:['periodo','calculo','agrupacion','grupo'],
+        foreignKeys:[
+            {references:'productos', fields:[
+                {source:'grupo'         , target:'producto'     },
+            ]},
+        ],
         sql:{
             isTable: false,
         },
