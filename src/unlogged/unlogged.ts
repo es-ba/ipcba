@@ -45,10 +45,14 @@ window.addEventListener('load', async function(){
                 console.log(context, err, 'error-console')
             },
             onJustInstalled:async (run)=>{
+                console.log("on just installed")
                 run()
             },
-            onReadyToStart:startApp,
+            onReadyToStart:()=>{
+                startApp()
+            },
             onNewVersionAvailable:(install)=>{
+                console.log("on new version available")
                 install();
             }
         });
