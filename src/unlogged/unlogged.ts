@@ -56,7 +56,9 @@ window.addEventListener('load', async function(){
                 install();
             }
         });
-        var startApp = ()=>{
+        var startApp = async ()=>{
+            var version = await swa.getSW('version');
+            myOwn.setLocalVar('ipc2.0-app-cache-version', version);
             //@ts-ignore existe 
             dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
         }
