@@ -35,6 +35,7 @@ module.exports = function(context){
             {name:'permitir_cualquier_cambio_panel_tarea', typeName:'boolean'          , default:false, defaultValue:false, allow:{update:puedeEditar}},
             {name:'periodoreferenciaparapaneltarea'      , typeName:'text'              , allow:{update:puedeEditar}},
             {name:'periodoreferenciaparapreciospositivos', typeName:'text'              , allow:{update:puedeEditar}},
+            {name:'solo_cluster'                         , typeName:'integer'           , allow:{update:puedeEditar}},
         ],
         primaryKey:['unicoregistro'],
     },context);

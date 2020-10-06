@@ -15,6 +15,7 @@ module.exports = function(context){
             {name:'agrupacion'                   , typeName:'text'    , nullable:false, allow:{update:puedeEditarMigracion}},
             {name:'grupo'                        , typeName:'text'    , nullable:false, allow:{update:puedeEditarMigracion}},
             {name:'nombregrupo'                  , typeName:'text'    , isName:true   , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'cluster'                      , typeName:'integer' , isName:true   , allow:{update:puedeEditarMigracion}},
             {name:'grupopadre'                   , typeName:'text'                    , allow:{update:puedeEditarMigracion}},
             {name:'ponderador'                   , typeName:'decimal'                 , allow:{update:puedeEditarMigracion}},
             {name:'nivel'                        , typeName:'integer'                 , allow:{update:puedeEditarMigracion}},
@@ -38,10 +39,10 @@ module.exports = function(context){
             {references:'agrupaciones', fields:[
                 {source:'agrupacionorigen'  , target:'agrupacion'     },
             ], alias: 'ag_origen'},
-            {references:'grupos', fields:[
-                {source:'agrupacionorigen'  , target:'agrupacion'     },
-                {source:'grupo'             , target:'grupo'          },
-            ], alias: 'ag_origen_g'},
+            //{references:'grupos', fields:[
+            //    {source:'agrupacionorigen'  , target:'agrupacion'     },
+            //    {source:'grupo'             , target:'grupo'          },
+            //], alias: 'ag_origen_g'},
         ]
     },context);
 }
