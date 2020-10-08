@@ -437,3 +437,5 @@ from cvp.relvis v
            group by pro.producto) a
 group by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario||':'||f.nombreformulario, i.rubro||':'||u.nombrerubro, v.encuestador, per.nombre||' '||per.apellido, coalesce(par.solo_cluster,pp."cluster")
 order by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario||':'||f.nombreformulario, i.rubro||':'||u.nombrerubro, v.encuestador, per.nombre||' '||per.apellido, coalesce(par.solo_cluster,pp."cluster");
+
+GRANT update ON TABLE parametros TO cvp_administrador;

@@ -523,6 +523,7 @@ NETWORK:
             {menuType:'menu', name:'administracion', label:'administración', menuContent:[
                 {menuType:'table', name:'prodatrval', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
                 //{menuType:'table', name:'cierre_periodos', label:'cierre de períodos'},
+                {menuType:'table', name:'parametros', label:'parametros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'cuadros', label: 'textos de los cuadros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'ipcba_usuarios', label: 'usuarios', onlyVisibleFor:[programador,coordinador,analista]},
             ], onlyVisibleFor:[programador,coordinador,analista,recepGabinete, recepcionista]},
