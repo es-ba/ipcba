@@ -321,24 +321,96 @@ class AppIpcba extends backendPlus.AppBackend{
             // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
             var {useragent, user} = req;
             var parameters = req.query;
-            const {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
+            var webManifestPath = 'carga-dm/web-manifest.webmanifest';
+            const {estructuraPath} = be.getManifestPaths(parameters);
             /** @type {{type:'js', src:string}[]} */
             const extraFiles = [
                 { type: 'js', src:estructuraPath },
             ];
-            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, extraFiles, webManifestPath}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
             // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
-            var manifestPath = 'carga-dm/dm-manifest.manifest';
+            var webManifestPath = 'carga-dm/web-manifest.webmanifest';
             var {useragent, user} = req;
             var parameters = req.query;
             var extraFiles = [
                 // { type: 'js', src:'dm-main.js' },
             ];
-            var htmlMain=be.mainPage({useragent, user},false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles, webManifestPath}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
+        });
+        mainApp.use(cookieParser());
+        mainApp.get(baseUrl+`/sw-manifest.js`, async function(req, res, next){
+            try{
+                var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
+                var {periodo, panel, tarea} = req.cookies;
+                var manifest
+                if(periodo && panel && tarea){
+                    manifest= await be.getResourcesForCacheJson({periodo,panel,tarea})
+                }else{
+                    //EVALUAR SI CORRESPONDE
+                    manifest = await be.createResourcesForCacheJson({});
+                }
+                var swManifest = sw
+                    .replace("'/*version*/'", JSON.stringify(manifest.version))
+                    .replace("'/*appName*/'", JSON.stringify(manifest.appName))
+                    .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
+                    .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
+                MiniTools.serveText(swManifest,'application/javascript')(req,res);
+            }catch(err){
+                MiniTools.serveErr(req,res,next)(err);
+            }
+        });
+        mainApp.get(baseUrl+`/carga-dm/web-manifest.webmanifest`, async function(req, res, next){
+            try{
+                const content = {
+                  "name": "IPCBA Progressive Web App",
+                  "short_name": "IPCBA PWA",
+                  "description": "Progressive Web App for IPCBA.",
+                  "icons": [
+                    {
+                      "src": "../img/logo-dm-32.png",
+                      "sizes": "32x32",
+                      "type": "image/png"
+                    },
+                    {
+                      "src": "../img/logo-dm-48.png",
+                      "sizes": "48x48",
+                      "type": "image/png"
+                    },
+                    {
+                      "src": "../img/logo-dm-64.png",
+                      "sizes": "64x64",
+                      "type": "image/png"
+                    },
+                    {
+                      "src": "../img/logo-dm-72.png",
+                      "sizes": "72x72",
+                      "type": "image/png"
+                    },
+                    {
+                      "src": "../img/logo-dm-192.png",
+                      "sizes": "192x192",
+                      "type": "image/png"
+                    },
+                    {
+                      "src": "../img/logo-dm-512.png",
+                      "sizes": "512x512",
+                      "type": "image/png"
+                    }
+                  ],
+                  "start_url": "../dm",
+                  "display": "standalone",
+                  "theme_color": "#3F51B5",
+                  "background_color": "#FED214"
+                }
+                MiniTools.serveText(JSON.stringify(content), 'application/json')(req,res);
+            }catch(err){
+                console.log(err);
+                MiniTools.serveErr(req, res, next)(err);
+            }
         });
         super.addSchrödingerServices(mainApp, baseUrl);
     }
@@ -376,28 +448,6 @@ class AppIpcba extends backendPlus.AppBackend{
             }catch(err){
                 console.log(err);
                 MiniTools.serveErr(req, res, next)(err);
-            }
-        });
-        be.app.use(cookieParser());
-        be.app.get(`/sw-manifest.js`, async function(req, res, next){
-            try{
-                var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
-                var {periodo, panel, tarea} = req.cookies;
-                var manifest
-                if(periodo && panel && tarea){
-                    manifest= await be.getResourcesForCacheJson({periodo,panel,tarea})
-                }else{
-                    //EVALUAR SI CORRESPONDE
-                    manifest = await be.createResourcesForCacheJson({});
-                }
-                var swManifest = sw
-                    .replace("'/*version*/'", JSON.stringify(manifest.version))
-                    .replace("'/*appName*/'", JSON.stringify(manifest.appName))
-                    .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
-                    .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
-                MiniTools.serveText(swManifest,'application/javascript')(req,res);
-            }catch(err){
-                MiniTools.serveErr(req,res,next)(err);
             }
         });
         super.addLoggedServices(opts);
@@ -524,11 +574,6 @@ NETWORK:
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-            //"version":"3.3",
-            //"appName":"exampleApp",
-            //"fallback":[
-            //    {"path":"./login", "fallback":"./example-no-network.html"}
-            //]
         const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toYmdHms()}`:uptime;
         jsonResult.version = `#${version}`;
         jsonResult.appName = 'ipcba';
@@ -539,10 +584,10 @@ NETWORK:
         if(parameters.periodo){
             especifico.push(`${estructuraPath}`);
             especifico.push(`${hdrPath}`);
-            especifico.push(`dm`);
             especifico.push(`hdr?periodo=${parameters.periodo}&panel=${parameters.panel}&tarea=${parameters.tarea}`);
         }
         jsonResult.cache=[
+            "dm",
             "lib/react.production.min.js",
             "lib/react-dom.production.min.js",
             "lib/material-ui.production.min.js",
@@ -589,6 +634,7 @@ NETWORK:
             "lib/my-skin.js",
             "lib/cliente-en-castellano.js",
             "lib/service-worker-admin.js",
+            "client/imp-formularios.js",
             "client/client.js",
             "client/menu.js",
             "client/hoja-de-ruta.js",
@@ -610,7 +656,11 @@ NETWORK:
             "img/logo-dm.png",
             "img/main-loading.gif"
         ].concat(especifico);
-        jsonResult.fallback=[];
+        jsonResult.fallback=[
+            {"path":"login", "fallback":"dm"},
+            {"path":"logout", "fallback":"dm"},
+            {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"dm"}
+        ];
         return jsonResult
     }
     getMenu(context){
