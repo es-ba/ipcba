@@ -654,11 +654,13 @@ NETWORK:
             "default/css/ejemplo-precios.css",
             "img/logo.png",
             "img/logo-dm.png",
-            "img/main-loading.gif"
+            "img/main-loading.gif",
+            "client-setup"
         ].concat(especifico);
         jsonResult.fallback=[
             {"path":"login", "fallback":"dm"},
             {"path":"logout", "fallback":"dm"},
+            {"path":"login#i=dm2,sincronizar_dm2", "fallback":"dm"},
             {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"dm"}
         ];
         return jsonResult

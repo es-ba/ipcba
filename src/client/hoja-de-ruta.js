@@ -1793,161 +1793,161 @@ myOwn.wScreens.vaciar=function(){
         mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
     }
 };
-var wasDownloading=false;
-var appCache = window.applicationCache;
-appCache.addEventListener('downloading', function(e) {
-    wasDownloading=true;
-    awaitForCacheLayout.then(function(layout){
-        document.getElementById('app-status');
-        layout.insertBefore(
-            html.p({id:'cache-status', class:'warning'},[
-                'descargando aplicación, por favor no desconecte el dispositivo',
-                html.img({src:'img/loading16.gif'}).create()
-            ]).create(), 
-            layout.firstChild
-        );
-    })
-    
-}, false);
-appCache.addEventListener('error', function(e) {
-    if(wasDownloading){
-        console.log('error al descargar cache')
-        awaitForCacheLayout.then(function(layout){
-            document.getElementById('app-status');
-            layout.insertBefore(
-                html.p({id:'cache-status', class:'danger'},'error al descargar la aplicación').create(), 
-                layout.firstChild
-            );
-        })
-    }
-}, false);
-
-function cacheReady(){
-    wasDownloading=false;
-    AjaxBestPromise.get({
-        url:'ext/app.manifest',
-        data:{}
-    }).then(function(result){
-        localStorage.setItem('app-cache-version',result.split('\n')[1]);
-        setTimeout(function(){
-            var cacheStatusElement = document.getElementById('cache-status');
-            if(!cacheStatusElement){
-                var mainLayout = document.getElementById('main_layout');
-                cacheStatusElement = html.p({id:'cache-status'}).create();
-                mainLayout.insertBefore(cacheStatusElement, mainLayout.firstChild);
-            }
-            setTimeout(function(){
-                cacheStatusElement.classList.add('all-ok')
-                cacheStatusElement.textContent='aplicación actualizada, puede desconectar el dispositivo';
-                setTimeout(function(){
-                    cacheStatusElement.style.display='none';
-                }, 5000);
-                setTimeout(function(){
-                    location.reload();
-                },2000)
-            }, 5000);
-        },500)
-    });
-}
-appCache.addEventListener('updateready', function (e) {
-    console.log("actualiza cache");
-    if (appCache.status == appCache.UPDATEREADY) {
-        console.log("swap cache");
-        appCache.swapCache()
-    }
-    cacheReady()
-}, false);
-appCache.addEventListener('cached', function() {
-    console.log("cachea primera vez");
-    cacheReady()
-}, false );
-
-var awaitForCacheLayout = function prepareLayoutForCache(){
-    return new Promise(function(resolve, _reject){
-        window.addEventListener('load',resolve);
-    }).then(function(){
-        var layout=(document.getElementById('cache-layout')||document.createElement('div'));
-        if(!layout.id){
-            layout.id='cache-layout';
-            layout.appendChild(html.div({id:'app-versions'}).create());
-            layout.appendChild(html.div({id:'app-status'}).create());
-            document.body.appendChild(layout.appendChild(html.div({id:'cache-log'}).create()));
-            document.body.insertBefore(layout,document.body.firstChild)
-        }
-        return layout;
-    });
-    
-}();
-function displayWhenReady(message, type, message2, enOtroRenglon){
-    return awaitForCacheLayout.then(function(layout){
-        var logLayout = document.getElementById('cache-log');
-        var texto = logLayout.firstElementChild;
-        texto=document.createElement('div');
-        logLayout.appendChild(texto);
-        texto.className='log_manifest';
-        texto.textContent=message;
-        if(type!='progress'){
-            var texto2=document.createElement('span');
-            texto2.className='mensaje_alerta';
-            texto2.textContent=' '+message2;
-            texto.appendChild(texto2);
-        }
-    })
-}
-function mostrarComoCachea(){
-    var cacheStatusValues = [
-        /* 0 */ 'uncached',
-        /* 1 */ 'idle',
-        /* 2 */ 'checking',
-        /* 3 */ 'downloading',
-        /* 4 */ 'updateready',
-        /* 5 */ 'obsolete',
-    ];
-    var cachear={
-        checking:{},
-        downloading:{},
-        error:{},
-        noupdate:{},
-        obsolete:{},
-        progress:{},
-        // updateready:{},
-    }
-    for(var que_cachear in cachear){
-        var message_ant;
-        window.applicationCache.addEventListener(que_cachear, function(e) {
-            var online, status, type, message;
-            online = (navigator.onLine) ? 'sí' : 'no';
-            status = cacheStatusValues[window.applicationCache.status];
-            type = e.type;
-            message = 'online: ' + online;
-            message+= ', evento: ' + type;
-            message+= ', estado: ' + status;
-            var message_ok = 'online: sí, evento: progress, estado: downloading';
-            var enOtroRenglon = message!==message_ok || message_ant!==message_ok;
-            message_ant=message;
-            if (type == 'error' && navigator.onLine) {
-                message+= ' (!!)';
-            }
-            if(type=='progress'){
-                message+=' '+e.loaded+'/'+e.total;
-            }
-            displayWhenReady(message, type, (e.message||e.url||'!'),enOtroRenglon)
-        }, false);
-    }
-}
+//var wasDownloading=false;
+//var appCache = window.applicationCache;
+//appCache.addEventListener('downloading', function(e) {
+//    wasDownloading=true;
+//    awaitForCacheLayout.then(function(layout){
+//        document.getElementById('app-status');
+//        layout.insertBefore(
+//            html.p({id:'cache-status', class:'warning'},[
+//                'descargando aplicación, por favor no desconecte el dispositivo',
+//                html.img({src:'img/loading16.gif'}).create()
+//            ]).create(), 
+//            layout.firstChild
+//        );
+//    })
+//    
+//}, false);
+//appCache.addEventListener('error', function(e) {
+//    if(wasDownloading){
+//        console.log('error al descargar cache')
+//        awaitForCacheLayout.then(function(layout){
+//            document.getElementById('app-status');
+//            layout.insertBefore(
+//                html.p({id:'cache-status', class:'danger'},'error al descargar la aplicación').create(), 
+//                layout.firstChild
+//            );
+//        })
+//    }
+//}, false);
+//
+//function cacheReady(){
+//    wasDownloading=false;
+//    AjaxBestPromise.get({
+//        url:'ext/app.manifest',
+//        data:{}
+//    }).then(function(result){
+//        localStorage.setItem('app-cache-version',result.split('\n')[1]);
+//        setTimeout(function(){
+//            var cacheStatusElement = document.getElementById('cache-status');
+//            if(!cacheStatusElement){
+//                var mainLayout = document.getElementById('main_layout');
+//                cacheStatusElement = html.p({id:'cache-status'}).create();
+//                mainLayout.insertBefore(cacheStatusElement, mainLayout.firstChild);
+//            }
+//            setTimeout(function(){
+//                cacheStatusElement.classList.add('all-ok')
+//                cacheStatusElement.textContent='aplicación actualizada, puede desconectar el dispositivo';
+//                setTimeout(function(){
+//                    cacheStatusElement.style.display='none';
+//                }, 5000);
+//                setTimeout(function(){
+//                    location.reload();
+//                },2000)
+//            }, 5000);
+//        },500)
+//    });
+//}
+//appCache.addEventListener('updateready', function (e) {
+//    console.log("actualiza cache");
+//    if (appCache.status == appCache.UPDATEREADY) {
+//        console.log("swap cache");
+//        appCache.swapCache()
+//    }
+//    cacheReady()
+//}, false);
+//appCache.addEventListener('cached', function() {
+//    console.log("cachea primera vez");
+//    cacheReady()
+//}, false );
+//
+//var awaitForCacheLayout = function prepareLayoutForCache(){
+//    return new Promise(function(resolve, _reject){
+//        window.addEventListener('load',resolve);
+//    }).then(function(){
+//        var layout=(document.getElementById('cache-layout')||document.createElement('div'));
+//        if(!layout.id){
+//            layout.id='cache-layout';
+//            layout.appendChild(html.div({id:'app-versions'}).create());
+//            layout.appendChild(html.div({id:'app-status'}).create());
+//            document.body.appendChild(layout.appendChild(html.div({id:'cache-log'}).create()));
+//            document.body.insertBefore(layout,document.body.firstChild)
+//        }
+//        return layout;
+//    });
+//    
+//}();
+//function displayWhenReady(message, type, message2, enOtroRenglon){
+//    return awaitForCacheLayout.then(function(layout){
+//        var logLayout = document.getElementById('cache-log');
+//        var texto = logLayout.firstElementChild;
+//        texto=document.createElement('div');
+//        logLayout.appendChild(texto);
+//        texto.className='log_manifest';
+//        texto.textContent=message;
+//        if(type!='progress'){
+//            var texto2=document.createElement('span');
+//            texto2.className='mensaje_alerta';
+//            texto2.textContent=' '+message2;
+//            texto.appendChild(texto2);
+//        }
+//    })
+//}
+//function mostrarComoCachea(){
+//    var cacheStatusValues = [
+//        /* 0 */ 'uncached',
+//        /* 1 */ 'idle',
+//        /* 2 */ 'checking',
+//        /* 3 */ 'downloading',
+//        /* 4 */ 'updateready',
+//        /* 5 */ 'obsolete',
+//    ];
+//    var cachear={
+//        checking:{},
+//        downloading:{},
+//        error:{},
+//        noupdate:{},
+//        obsolete:{},
+//        progress:{},
+//        // updateready:{},
+//    }
+//    for(var que_cachear in cachear){
+//        var message_ant;
+//        window.applicationCache.addEventListener(que_cachear, function(e) {
+//            var online, status, type, message;
+//            online = (navigator.onLine) ? 'sí' : 'no';
+//            status = cacheStatusValues[window.applicationCache.status];
+//            type = e.type;
+//            message = 'online: ' + online;
+//            message+= ', evento: ' + type;
+//            message+= ', estado: ' + status;
+//            var message_ok = 'online: sí, evento: progress, estado: downloading';
+//            var enOtroRenglon = message!==message_ok || message_ant!==message_ok;
+//            message_ant=message;
+//            if (type == 'error' && navigator.onLine) {
+//                message+= ' (!!)';
+//            }
+//            if(type=='progress'){
+//                message+=' '+e.loaded+'/'+e.total;
+//            }
+//            displayWhenReady(message, type, (e.message||e.url||'!'),enOtroRenglon)
+//        }, false);
+//    }
+//}
 
 //mostrarComoCachea();
 
-my.autoSetupFunctions.push(function(){
-    if(my.offline.mode){
-        awaitForCacheLayout.then(function(mainLayout){
-            var appVersionsLayout = document.getElementById('app-versions');
-            var appCacheVersion = localStorage.getItem('app-cache-version');
-            var appVersion = document.body.getAttribute('app-version');
-            appVersionsLayout.appendChild(html.span({id:'app-cache-version'},'v'+ appVersion).create());
-            if(appCacheVersion){
-                appVersionsLayout.appendChild(html.span({id:'app-dm-version'},appCacheVersion).create())
-            }
-        })
-    }
-})
+//my.autoSetupFunctions.push(function(){
+//    if(my.offline.mode){
+//        awaitForCacheLayout.then(function(mainLayout){
+//            var appVersionsLayout = document.getElementById('app-versions');
+//            var appCacheVersion = localStorage.getItem('app-cache-version');
+//            var appVersion = document.body.getAttribute('app-version');
+//            appVersionsLayout.appendChild(html.span({id:'app-cache-version'},'v'+ appVersion).create());
+//            if(appCacheVersion){
+//                appVersionsLayout.appendChild(html.span({id:'app-dm-version'},appCacheVersion).create())
+//            }
+//        })
+//    }
+//})
