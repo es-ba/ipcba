@@ -331,7 +331,10 @@ class AppIpcba extends backendPlus.AppBackend{
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
-            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var {user} = req;
+            if(!user){
+                res.redirect(baseUrl+'/login#w=path&path=/dm')
+            }
             var webManifestPath = 'carga-dm/web-manifest.webmanifest';
             var {useragent, user} = req;
             var parameters = req.query;
