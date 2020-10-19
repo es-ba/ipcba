@@ -5,6 +5,7 @@ module.exports = function(context){
         name:'freccambio_resto',
         dbOrigin:'view',
         fields:[
+            {name:'cluster'                     , typeName: 'integer'},
             {name:'periodonombre'                , typeName: 'text'   },
             {name:'periodo'                      , typeName: 'text'   },
             {name:'grupo'                        , typeName: 'text'   },
@@ -17,8 +18,8 @@ module.exports = function(context){
             {name:'cantobsporgrupo'              , typeName: 'integer'},
             {name:'porcobs'                      , typeName: 'decimal'},
         ],
-        primaryKey:['periodo','grupo','estado'],
-        sortColumns:[{column:'periodo', order:-1}, {column:'grupo'}, {column:'estado'}],
+        primaryKey:['cluster','periodo','grupo','estado'],
+        sortColumns:[{column:'cluster'}, {column:'periodo', order:-1}, {column:'grupo'}, {column:'estado'}],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo.replace(/\d\d\d\d/,function(annio){ return annio-1;})},
         ],            

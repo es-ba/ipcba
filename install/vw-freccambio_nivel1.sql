@@ -4,13 +4,14 @@ SELECT distinct cvp.devolver_mes_anio(periodo) PeriodoNombre,
     substr(x.grupo,1,3) grupo, 
     nombregrupo, 
     estado, 
-    EXP(AVG(LN(promobs)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado)) as promgeoobs,
-    EXP(AVG(LN(promobsant)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado)) as promgeoobsant,
-    ROUND((EXP(AVG(LN(promobs)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado))/
-    EXP(AVG(LN(promobsant)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado))*100-100)::NUMERIC,1) as variacion,
-    COUNT(producto) OVER (PARTITION BY periodo, substr(x.grupo,1,3), estado) AS cantobsporestado, 
-    COUNT(substr(x.grupo,1,3)) OVER (PARTITION BY periodo, substr(x.grupo,1,3)) AS cantobsporgrupo, 
-    ROUND(COUNT(producto) OVER (PARTITION BY periodo, substr(x.grupo,1,3), estado)/COUNT(substr(x.grupo,1,3)) OVER (PARTITION BY periodo, substr(x.grupo,1,3))::decimal*100,2) AS porcobs 
+    EXP(AVG(LN(promobs)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado, x."cluster")) as promgeoobs,
+    EXP(AVG(LN(promobsant)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado, x."cluster")) as promgeoobsant,
+    ROUND((EXP(AVG(LN(promobs)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado, x."cluster"))/
+    EXP(AVG(LN(promobsant)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), nombregrupo, estado, x."cluster"))*100-100)::NUMERIC,1) as variacion,
+    COUNT(producto) OVER (PARTITION BY periodo, substr(x.grupo,1,3), estado, x."cluster") AS cantobsporestado, 
+    COUNT(substr(x.grupo,1,3)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), x."cluster") AS cantobsporgrupo, 
+    ROUND(COUNT(producto) OVER (PARTITION BY periodo, substr(x.grupo,1,3), estado, x."cluster")/COUNT(substr(x.grupo,1,3)) OVER (PARTITION BY periodo, substr(x.grupo,1,3), x."cluster")::decimal*100,2) AS porcobs 
+    , x."cluster"
 FROM (SELECT
         o.periodo, g.grupo, 
         CASE WHEN o.promobs < o1.promobs THEN 'Bajó' 
@@ -18,13 +19,15 @@ FROM (SELECT
             ELSE 'Igual' 
         END as estado,
         o.producto, p.nombreproducto, o.informante, o.observacion, o.division, o.promobs, o.impobs, o1.promobs as promobsant, o1.impobs as impobsant, 
-        COUNT(o.producto) OVER (PARTITION BY o.periodo, o.producto) AS cantobs
+        coalesce(par.solo_cluster, p."cluster") as "cluster",
+        COUNT(o.producto) OVER (PARTITION BY o.periodo, o.producto, coalesce(par.solo_cluster, p."cluster")) AS cantobs
         FROM cvp.calobs o
         LEFT JOIN cvp.calculos c ON o.periodo = c.periodo AND o.calculo = c.calculo
         LEFT JOIN cvp.calobs o1 on o1.periodo = c.periodoanterior AND o1.calculo = c.calculoanterior AND o.producto = o1.producto AND o.informante = o1.informante AND o.observacion = o1.observacion
         LEFT JOIN cvp.gru_grupos gg on o.producto = gg.grupo
         LEFT JOIN cvp.grupos g on gg.grupo_padre = g.grupo AND gg.agrupacion = g.agrupacion
         LEFT JOIN cvp.productos p on o.producto = p.producto
+        LEFT JOIN cvp.parametros par ON unicoregistro
         WHERE o.calculo = 0 AND  g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs = 'R' AND o1.impobs = 'R'
         --A Pedido de Mariana excluimos los siguientes grupos:
         AND g.grupo not in 
@@ -65,7 +68,7 @@ FROM (SELECT
       ) as x
     LEFT JOIN cvp.grupos u ON substr(x.grupo,1,3) = u.grupo
     WHERE cantobs > 6 and periodo >= 'a2017m01'
-    ORDER BY periodo, grupo, nombregrupo, estado;
+    ORDER BY "cluster", periodo, grupo, nombregrupo, estado;
 
 GRANT SELECT ON TABLE frecCambio_Nivel1 TO cvp_administrador;
 
