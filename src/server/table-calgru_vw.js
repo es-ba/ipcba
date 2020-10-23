@@ -41,7 +41,7 @@ module.exports = function(context){
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
-            {column:'calculo', operator:'=' , value:context.be.internalData.filterUltimoCalculo},
+            //{column:'calculo', operator:'=' , value:context.be.internalData.filterUltimoCalculo},
             {column:'agrupacion', operator:'=' , value:context.be.internalData.filterAgrupacion},
         ],
         sortColumns:[{column:'ordenpor'}],        
