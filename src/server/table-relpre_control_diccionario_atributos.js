@@ -26,6 +26,10 @@ module.exports = function(context){
             {name:'esvisiblecomentarioendm'      ,typeName:'boolean' , title:'Ver', allow:{update:puedeEditar}}
         ],
         primaryKey:['periodo','producto','informante','visita','observacion'],
+        foreignKeys:[
+            {references:'productos', fields:['producto']},
+            {references:'informantes', fields:['informante']},
+        ],
         sql:{
             isTable: false,
             from:`(select a.periodo, vis.panel, vis.tarea, a.producto, o.nombreproducto, a.informante, pre.formulario, a.visita, a.observacion, 

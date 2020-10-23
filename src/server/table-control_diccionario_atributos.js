@@ -29,6 +29,7 @@ module.exports = function(context){
         foreignKeys:[
             {references:'productos', fields:['producto']},
             {references:'atributos', fields:['atributo']},
+            {references:'informantes', fields:['informante']},
         ],
         filterColumns:[
             {column:'inconsistente', operator:'=' , value:'S'}
