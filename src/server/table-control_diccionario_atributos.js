@@ -44,7 +44,7 @@ module.exports = function(context){
                     join cvp.relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
                     left join cvp.prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
                     left join cvp.tipopre t on pre.tipoprecio = t.tipoprecio
-                    where pa.validaropciones and t.activo ='S' and t.espositivo = 'S')`,
+                    where coalesce(pa.validaropciones, true) and t.activo ='S' and t.espositivo = 'S')`,
             },
     },context);
 }

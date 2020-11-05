@@ -41,7 +41,7 @@ module.exports = function(context){
                          join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
                          left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
                          left join tipopre t on pre.tipoprecio = t.tipoprecio
-                         where pa.validaropciones and p.valor is null and t.activo ='S' and t.espositivo = 'S'
+                         where coalesce(pa.validaropciones, true) and p.valor is null and t.activo ='S' and t.espositivo = 'S'
                          group by a.periodo, vis.panel, vis.tarea, a.producto, a.informante, pre.formulario, a.visita, a.observacion, 
                          pre.comentariosrelpre, pre.esvisiblecomentarioendm)`,
             },
