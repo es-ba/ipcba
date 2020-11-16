@@ -10,7 +10,6 @@ module.exports = function(context){
             {name:'calculo'                       ,typeName:'integer'},
             {name:'agrupacion'                    ,typeName:'text'   },
             {name:'grupo'                         ,typeName:'text'   },
-            {name:'nombre'                        ,typeName:'text'   },
             {name:'nivel'                         ,typeName:'integer'},
             {name:'variacion'                     ,typeName:'decimal'},
             {name:'incidencia'                    ,typeName:'decimal'},
@@ -26,5 +25,8 @@ module.exports = function(context){
         sql:{
             isTable: false,
         },
+        foreignKeys:[
+            {references:'grupos', fields:['grupo']},
+        ],
     },context);
 }

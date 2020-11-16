@@ -35,6 +35,7 @@ module.exports = function(context){
             {name:'excluir_control_precios_maxmin'  , typeName:'boolean'                             , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'controlar_precios_sin_normalizar', typeName:'boolean'                             , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'prioritario'                 , typeName:'integer'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'cluster'                     , typeName:'integer' , isName:true                   , allow:{update:puedeEditarMigracion} },
         ],
         primaryKey:['producto'],
         foreignKeys:[

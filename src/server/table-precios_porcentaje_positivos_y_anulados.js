@@ -7,6 +7,7 @@ module.exports = function(context){
         dbOrigin:'view',
         fields:[
             {name:'periodo'              ,typeName:'text'   }, 
+            {name:'cluster'              ,typeName:'integer'},
             {name:'informante'           ,typeName:'integer'},
             {name:'rubro'                ,typeName:'text'   },
             {name:'panel'                ,typeName:'integer'},
@@ -23,6 +24,6 @@ module.exports = function(context){
             {name:'atributospositivos'   ,typeName:'integer'},
             {name:'porcatributos'        ,typeName:'text'   },            
         ],
-        primaryKey:['periodo','informante'],
+        primaryKey:['periodo','informante','formulario'],
     });
 }

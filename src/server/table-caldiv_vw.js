@@ -10,7 +10,6 @@ module.exports = function(context){
             {name:'periodo'              , typeName:'text'    },
             {name:'calculo'              , typeName:'integer' },
             {name:'producto'             , typeName:'text'    },
-            {name:'nombreproducto'       , typeName:'text'    },
             {name:'division'             , typeName:'text'    },
             {name:'prompriimpact'        , typeName:'decimal'  },
             {name:'prompriimpant'        , typeName:'decimal'  },
@@ -61,6 +60,9 @@ module.exports = function(context){
             {column:'calculo', operator:'=' ,value:context.be.internalData.filterUltimoCalculo}
         ],        
         primaryKey:['periodo','calculo','producto','division'],
+        foreignKeys:[
+            {references:'productos', fields:['producto']},
+        ],
         sql:{
             isTable: false,
         },

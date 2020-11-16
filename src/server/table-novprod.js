@@ -20,6 +20,7 @@ module.exports = function(context){
             {name:'anterior'                     , typeName:'decimal'  , allow:{update:false}, inTable: false},
             {name:'variacion'                    , typeName:'decimal'  , default:0, allow:{update:puedeEditar}, inTable: true},
             {name:'tipoexterno'                  , typeName:'text'     , allow:{update:puedeEditar}, inTable: true},
+            {name:'responsable'                  , typeName:'text'     , allow:{update:false}, inTable: false},
         ],
         /*
         filterColumns:[
@@ -33,11 +34,13 @@ module.exports = function(context){
             {references:'productos', fields:['producto']},
         ],
         sql:{
-            from:`(SELECT n.periodo, n.calculo, n.producto, n.promedioext, round(c0.promdiv::decimal,2)::decimal as anterior, variacion, n.tipoexterno
+            from:`(SELECT n.periodo, n.calculo, n.producto, n.promedioext, round(c0.promdiv::decimal,2)::decimal as anterior, variacion, n.tipoexterno, gp.responsable
                 FROM novprod n
                 LEFT JOIN calculos l ON n.periodo = l.periodo AND n.calculo = l.calculo 
                 LEFT JOIN caldiv c0 ON c0.periodo = l.periodoanterior and c0.calculo = l.calculoanterior and n.producto = c0.producto and c0.division = '0'
-                 )`,
+                LEFT JOIN (SELECT agrupacion, grupo, grupopadre FROM grupos WHERE agrupacion = 'F' and esproducto ='S') g ON n.producto = g.grupo
+                LEFT JOIN grupos gp ON  g.agrupacion = gp.agrupacion and g.grupopadre = gp.grupo
+                )`,
         isTable: true,
         }
     },context);

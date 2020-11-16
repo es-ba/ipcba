@@ -13,6 +13,7 @@ module.exports = function(context){
             {name:'agrupacion'                        , typeName:'text'   },
             {name:'grupo'                             , typeName:'text'   , sortMethod: 'codigo_ipc'},
             {name:'nombre'                            , typeName:'text'   },
+            {name:'cluster'                           , typeName:'integer'},
             {name:'variacion'                         , typeName:'decimal'},
             {name:'impgru'                            , typeName:'text'   },
             {name:'grupopadre'                        , typeName:'text'   },
@@ -40,11 +41,16 @@ module.exports = function(context){
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
-            {column:'calculo', operator:'=' , value:context.be.internalData.filterUltimoCalculo},
+            //{column:'calculo', operator:'=' , value:context.be.internalData.filterUltimoCalculo},
             {column:'agrupacion', operator:'=' , value:context.be.internalData.filterAgrupacion},
         ],
         sortColumns:[{column:'ordenpor'}],        
         primaryKey:['periodo','calculo','agrupacion','grupo'],
+        //foreignKeys:[
+        //    {references:'productos', fields:[
+        //        {source:'grupo'         , target:'producto'     },
+        //    ]},
+        //],
         sql:{
             isTable: false,
         },

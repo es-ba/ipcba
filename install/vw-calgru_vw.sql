@@ -22,7 +22,7 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo
        , CASE WHEN ca.indiceRedondeado=0 THEN null ELSE round((c.indiceRedondeado/ca.indiceRedondeado*100-100)::numeric,1) END as variacionacumuladaanualredondeada
        , CASE WHEN ca.indice=0 THEN null ELSE c.indice/ca.indice*100-100 END as variacionacumuladaanual,
        c.ponderadorimplicito, 'Z'||substr(c.grupo,2) as ordenpor,
-       CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, pr.responsable
+       CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, pr.responsable, p."cluster"
    from calgru c
      left join calgru cb on  cb.agrupacion=c.agrupacion and cb.grupo=c.grupo and ((c.calculo=0 and cb.calculo=c.calculo) or (c.calculo>0 and cb.calculo=0))  
                          and cb.periodo =periodo_igual_mes_anno_anterior(c.periodo)

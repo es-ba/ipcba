@@ -20,7 +20,7 @@ module.exports = function(context){
                 {name:'grupo_padre_3'      , typeName:'text'      },
                 {name:'nombregrupo_3'      , typeName:'text'      },
                 {name:'producto'           , typeName:'text'      },
-                {name:'nombreproducto'     , typeName:'text'      },
+                //{name:'nombreproducto'     , typeName:'text'      },
                 {name:'observacion'        , typeName:'integer'   },
                 {name:'precionormalizado'  , typeName:'decimal'   },
                 {name:'tipoprecio'         , typeName:'text'      },
@@ -38,6 +38,9 @@ module.exports = function(context){
                 {name:'varia_ambos'        , typeName:'text'      },
         ],
         primaryKey:['periodo','informante','visita','producto','observacion'],
+        foreignKeys:[
+            {references:'productos', fields:['producto']},
+        ],
         sql:{
             isTable: false,
         },
