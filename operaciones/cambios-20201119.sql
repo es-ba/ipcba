@@ -1,4 +1,4 @@
--- UTF8:Sí
+set search_path = cvp;
 CREATE OR REPLACE FUNCTION CalObs_SegImp(pPeriodo Text, pCalculo Integer) RETURNS void
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
