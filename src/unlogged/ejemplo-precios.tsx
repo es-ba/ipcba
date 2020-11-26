@@ -2074,7 +2074,6 @@ function PantallaOpciones(){
 
 export function OpenedTabs(){
     const [tabs, setTabs] = useState(infoOpenedTabs.otherTabsNames);
-    var {customDataMode} = useSelector((state:HojaDeRuta)=>({customDataMode:state.opciones.customDataMode}));
     const updateTabsStatus = function(){
         setTabs(infoOpenedTabs.otherTabsNames);
     }
@@ -2082,7 +2081,7 @@ export function OpenedTabs(){
         window.addEventListener('my-tabs',updateTabsStatus);
         return () => window.removeEventListener('my-tabs',updateTabsStatus);
     },[])
-    return customDataMode?null:(tabs)?
+    return tabs?
         <div className="tab-counter tab-error">¡ATENCIÓN! Hay más de una ventana abierta. Se pueden perder datos: {tabs}</div>
     :
         <div className="tab-counter">✔</div>
