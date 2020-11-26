@@ -311,6 +311,12 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     addSchrödingerServices(mainApp, baseUrl){
         var be=this;
+        mainApp.get(baseUrl+'/rescate',async function(req,res,_next){
+            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+            var {useragent} = req;
+            var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
+            MiniTools.serveText(htmlMain,'html')(req,res);
+        });
         mainApp.get(baseUrl+'/demo',async function(req,res,_next){
             // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
             var {useragent} = req;

@@ -15,32 +15,51 @@ window.addEventListener('load', async function(){
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
     var startApp:()=>Promise<void> = async ()=>{};
     var url = new URL(window.location.href);
-    if(location.pathname.endsWith('/dm')){
-        if(hayHojaDeRuta()){
-            const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
-            history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
-            location.reload();
+    if(location.pathname.endsWith('/rescate')){
+        try{
+            for (let x in localStorage){
+                console.log(localStorage[x]);
+                await myOwn.ajax.dm2_rescatar({localStorageItem:localStorage[x], localStorageItemKey:x})
+                layout.append(
+                    html.p(`item "${x}" de localStogage guardado.`).create()
+                )
+            }
+            layout.append(
+                html.p(`todos los items fueron salvados.`).create()
+            )
+        }catch(err){
+            layout.append(
+                html.p(`se produjo un error al salvar los datos del dm.`).create()
+            )
+        }
+        
+    }else{
+        if(location.pathname.endsWith('/dm')){
+            if(hayHojaDeRuta()){
+                const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
+                history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
+                location.reload();
+            }else{
+                startApp = async ()=>{
+                    //@ts-ignore existe 
+                    dmPantallaInicial();
+                }
+            }
         }else{
+            const periodo = url.searchParams.get("periodo");
+            const panel = url.searchParams.get("panel");
+            const tarea = url.searchParams.get("tarea");
+            document.cookie=`periodo=${periodo}`;
+            document.cookie=`panel=${panel}`;
+            document.cookie=`tarea=${tarea}`;
             startApp = async ()=>{
+                var version = await swa.getSW('version');
+                myOwn.setLocalVar('ipc2.0-app-cache-version', version);
                 //@ts-ignore existe 
-                dmPantallaInicial();
+                dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
             }
         }
-    }else{
-        const periodo = url.searchParams.get("periodo");
-        const panel = url.searchParams.get("panel");
-        const tarea = url.searchParams.get("tarea");
-        document.cookie=`periodo=${periodo}`;
-        document.cookie=`panel=${panel}`;
-        document.cookie=`tarea=${tarea}`;
-        startApp = async ()=>{
-            var version = await swa.getSW('version');
-            myOwn.setLocalVar('ipc2.0-app-cache-version', version);
-            //@ts-ignore existe 
-            dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
-        }
-    }
-    var swa = new ServiceWorkerAdmin();
+        var swa = new ServiceWorkerAdmin();
         var primerArchivo=true;
         swa.installIfIsNotInstalled({
             onEachFile: async (url, error)=>{
@@ -97,6 +116,7 @@ window.addEventListener('load', async function(){
                 install();
             }
         });
+    }
 })
 
 var awaitForCacheLayout = async function prepareLayoutForCache(){

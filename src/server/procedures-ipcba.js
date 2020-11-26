@@ -1951,6 +1951,25 @@ ProceduresIpcba = [
         }
     },
     {
+        action: 'dm2_rescatar',
+        parameters:[
+            {name:'localStorageItem'       , typeName:'jsonb'},
+            {name:'localStorageItemKey'    , typeName:'text'},
+        ],
+        unlogged:true,
+        coreFunction:async function(context, params){
+            var {localStorageItemKey, localStorageItem} = params;
+            try{
+                console.log(localStorageItem);
+                await fs.appendFile('local-rescate.txt', JSON.stringify({now:new Date(),user:context.username, itemKey: localStorageItemKey, itemData: localStorageItem})+'\n\n', 'utf8');
+                return 'ok';
+            }catch(err){
+                console.log('ERROR',err);
+                throw err;
+            }
+        }
+    },
+    {
         action:'paneltarea_buscar',
         parameters:[
             {name:'periodo'    , typeName:'text'   , references:'periodos'   },
