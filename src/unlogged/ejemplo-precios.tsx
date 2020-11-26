@@ -2072,6 +2072,22 @@ function PantallaOpciones(){
     )
 }
 
+export function OpenedTabs(){
+    const [tabs, setTabs] = useState(infoOpenedTabs.otherTabsNames);
+    var {customDataMode} = useSelector((state:HojaDeRuta)=>({customDataMode:state.opciones.customDataMode}));
+    const updateTabsStatus = function(){
+        setTabs(infoOpenedTabs.otherTabsNames);
+    }
+    useEffect(()=>{
+        window.addEventListener('my-tabs',updateTabsStatus);
+        return () => window.removeEventListener('my-tabs',updateTabsStatus);
+    },[])
+    return customDataMode?null:(tabs)?
+        <div className="tab-counter tab-error">¡ATENCIÓN! Hay más de una ventana abierta. Se pueden perder datos: {tabs}</div>
+    :
+        <div className="tab-counter">✔</div>
+}
+
 function AppDmIPCOk(){
     const {relVisPk, letraGrandeFormulario, pantallaOpciones/*, refreshKey*/} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     document.documentElement.setAttribute('pos-productos', letraGrandeFormulario?'arriba':'izquierda');
@@ -2136,6 +2152,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
+            <OpenedTabs/>
             <AppDmIPC/>
         </Provider>,
         document.getElementById('main_layout')
@@ -2161,3 +2178,48 @@ if(typeof window !== 'undefined'){
     // @ts-ignore para hacerlo
     window.dmPantallaInicial = dmPantallaInicial;
 }
+
+//CONTROL DE PESTAÑAS
+var allOpenedTabs:{[x:string]:number}={};
+var infoOpenedTabs={
+    allOpenedTabs,
+    myId:'calculando...',
+    otherTabsNames:''
+}
+
+function loadInstance(){
+    var bc = new BroadcastChannel('contador');
+    var myId=String.fromCodePoint(100+Math.floor(Math.random()*1000))+Math.floor(Math.random()*100)//+'-'+new Date().getTime();
+    allOpenedTabs[myId]=1;
+    infoOpenedTabs.myId=myId;
+    var event = new Event('my-tabs');
+    bc.onmessage=function(ev){
+        if(ev.data.que=='soy'){
+            if(!allOpenedTabs[ev.data.id]){
+                allOpenedTabs[ev.data.id]=0;
+            }
+            allOpenedTabs[ev.data.id]++;
+        }
+        if(ev.data.que=='unload'){
+            delete allOpenedTabs[ev.data.id];
+        }
+        if(ev.data.que=='load'){
+            allOpenedTabs[ev.data.id]=1;
+            bc.postMessage({que:'soy',id:myId});
+        }
+        infoOpenedTabs.otherTabsNames=likeAr(allOpenedTabs).filter((_,id)=>id!=myId).join(',');
+        window.dispatchEvent(event);
+    };
+    bc.postMessage({que:'load',id:myId});
+    window.dispatchEvent(event);
+    window.addEventListener('unload',function(){
+        bc.postMessage({que:'unload',id:myId});
+        window.dispatchEvent(event);
+    })
+    //mostrarQuienesSomos();
+}
+
+window.addEventListener('load', function(){
+    loadInstance()
+})
+//FIN CONTROL PESTAÑAS
