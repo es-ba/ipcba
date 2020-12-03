@@ -22,10 +22,15 @@ module.exports = function(context){
             {name:'visita'                       , typeName:'integer', title:'vis', allow:{update:false}},
             {name:'observacion'                  , typeName:'integer', title:'obs', allow:{update:false}},
             {name:'valor'                        , typeName:'text'   , allow:{update:true}, postInput:'upperSpanish'},
+            {name:'comentariosrelpre'            , typeName:'text', allow:{update:false}},
+            {name:'esvisiblecomentarioendm'      , typeName:'boolean', title:'Ver', allow:{update:false}},
             {name:'inconsistente'                , typeName:'text', allow:{update:false}}
         ],
         primaryKey:['periodo','producto','informante','visita','observacion','atributo'],
         hiddenColumns:['inconsistente'],
+        detailTables:[
+            {table:'relpre', abr:'PRE', label:'precio', fields:['periodo','producto','informante','visita','observacion'], refreshParent: true},
+        ],
         foreignKeys:[
             {references:'productos', fields:['producto']},
             {references:'atributos', fields:['atributo']},
@@ -36,8 +41,8 @@ module.exports = function(context){
         ],
         sql:{
             isTable: false,
-            from:`(select a.periodo,vis.panel, vis.tarea, a.producto, a.atributo , a.informante, pre.formulario, a.visita, a.observacion, a.valor,
-                    case when p.valor is null then 'S' else 'N' end as inconsistente
+            from:`(select a.periodo,vis.panel, vis.tarea, a.producto, a.atributo , a.informante, pre.formulario, a.visita, a.observacion, a.valor, pre.comentariosrelpre,
+                    pre.esvisiblecomentarioendm, case when p.valor is null then 'S' else 'N' end as inconsistente
                     from cvp.relatr a
                     join cvp.prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
                     join cvp.relpre pre on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
