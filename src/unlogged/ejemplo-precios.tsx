@@ -1892,7 +1892,7 @@ function PantallaHojaDeRuta(_props:{}){
                                 <Button
                                     color="inherit"
                                     onClick={()=>{
-                                        history.replaceState(null, '', `${location.origin+location.pathname}/../menu`);
+                                        history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
                                         location.reload();   
                                     }}
                                 >
