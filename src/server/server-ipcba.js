@@ -666,12 +666,12 @@ NETWORK:
             "img/main-loading.gif",
             "client-setup"
         ].concat(especifico);
-        jsonResult.fallback=[
-            {"path":"login", "fallback":"dm"},
-            {"path":"logout", "fallback":"dm"},
-            {"path":"login#i=dm2,sincronizar_dm2", "fallback":"dm"},
-            {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"dm"}
-        ];
+        //jsonResult.fallback=[
+        //    {"path":"login", "fallback":"dm"},
+        //    {"path":"logout", "fallback":"dm"},
+        //    {"path":"login#i=dm2,sincronizar_dm2", "fallback":"dm"},
+        //    {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"dm"}
+        //];
         return jsonResult
     }
     getMenu(context){
