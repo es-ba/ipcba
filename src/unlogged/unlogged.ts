@@ -32,7 +32,19 @@ window.addEventListener('load', async function(){
                 html.p(`se produjo un error al salvar los datos del dm.`).create()
             )
         }
-        
+        try{
+            var registrations = await navigator.serviceWorker.getRegistrations();
+            for(let registration of registrations) {
+                await registration.unregister()
+            }
+            layout.append(
+                html.p(`todos los sw fueron desinstalados.`).create()
+            )
+        }catch(err){
+            layout.append(
+                html.p(`se produjo un error al desinstalar los sw.`).create()
+            )
+        }
     }else{
         if(location.pathname.endsWith('/dm')){
             if(hayHojaDeRuta()){
