@@ -37,7 +37,9 @@ window.addEventListener('load', async function(){
             for(let registration of registrations) {
                 await registration.unregister()
             }
-            html.p(`todos los sw fueron desinstalados.`).create()
+            layout.append(
+                html.p(`todos los sw fueron desinstalados.`).create()
+            )
         }catch(err){
             layout.append(
                 html.p(`se produjo un error al desinstalar los sw.`).create()
