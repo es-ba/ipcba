@@ -52,10 +52,10 @@ window.addEventListener('load', async function(){
                 history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
                 location.reload();
             }else{
-                startApp = async ()=>{
+                //startApp = async ()=>{
                     //@ts-ignore existe 
                     dmPantallaInicial();
-                }
+                //}
             }
         }else{
             const periodo = url.searchParams.get("periodo");
@@ -70,30 +70,43 @@ window.addEventListener('load', async function(){
                 //@ts-ignore existe 
                 dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
             }
-        }
-        var swa = new ServiceWorkerAdmin();
-        var primerArchivo=true;
-        swa.installIfIsNotInstalled({
-            onEachFile: async (url, error)=>{
-                console.log('file: ',url);
-                var layout = await awaitForCacheLayout;
-                if(primerArchivo){
-                    layout.insertBefore(
-                        html.p({id:'cache-status', class:'warning'},[
-                            'buscando actualizaciones, por favor no desconecte el dispositivo',
-                            html.img({src:'img/loading16.gif'}).create()
-                        ]).create(), 
-                        layout.firstChild
-                    );
-                }
-                primerArchivo=false;
-            },
-            onInfoMessage: (m)=>console.log('message: ', m),
-            onError: async (err, context)=>{
-                console.log('error: '+(context?` en (${context})`:''), err);
-                console.log(context, err, 'error-console')
-                console.log('error al descargar cache', err.message)
-                if(context!='initializing service-worker'){
+            var swa = new ServiceWorkerAdmin();
+            var primerArchivo=true;
+            swa.installIfIsNotInstalled({
+                onEachFile: async (url, error)=>{
+                    console.log('file: ',url);
+                    var layout = await awaitForCacheLayout;
+                    if(primerArchivo){
+                        layout.insertBefore(
+                            html.p({id:'cache-status', class:'warning'},[
+                                'buscando actualizaciones, por favor no desconecte el dispositivo',
+                                html.img({src:'img/loading16.gif'}).create()
+                            ]).create(), 
+                            layout.firstChild
+                        );
+                    }
+                    primerArchivo=false;
+                },
+                onInfoMessage: (m)=>console.log('message: ', m),
+                onError: async (err, context)=>{
+                    console.log('error: '+(context?` en (${context})`:''), err);
+                    console.log(context, err, 'error-console')
+                    console.log('error al descargar cache', err.message)
+                    if(context!='initializing service-worker'){
+                        var layout = await awaitForCacheLayout;
+                        var cacheStatusElement = document.getElementById('cache-status');
+                        if(!cacheStatusElement){
+                            cacheStatusElement = html.p({id:'cache-status'}).create();
+                            layout.insertBefore(cacheStatusElement, layout.firstChild);
+                        }
+                        cacheStatusElement.classList.remove('warning')
+                        cacheStatusElement.classList.remove('all-ok')
+                        cacheStatusElement.classList.add('danger')
+                        cacheStatusElement.textContent='error al descargar la aplicación. ' + err.message;
+                    }
+                },
+                onJustInstalled:async (run)=>{
+                    console.log("on just installed")
                     var layout = await awaitForCacheLayout;
                     var cacheStatusElement = document.getElementById('cache-status');
                     if(!cacheStatusElement){
@@ -101,33 +114,20 @@ window.addEventListener('load', async function(){
                         layout.insertBefore(cacheStatusElement, layout.firstChild);
                     }
                     cacheStatusElement.classList.remove('warning')
-                    cacheStatusElement.classList.remove('all-ok')
-                    cacheStatusElement.classList.add('danger')
-                    cacheStatusElement.textContent='error al descargar la aplicación. ' + err.message;
+                    cacheStatusElement.classList.remove('danger')
+                    cacheStatusElement.classList.add('all-ok')
+                    cacheStatusElement.textContent='aplicación actualizada, puede desconectar el dispositivo';
+                    setTimeout(run,2000);
+                },
+                onReadyToStart:()=>{
+                    startApp()
+                },
+                onNewVersionAvailable:(install)=>{
+                    console.log("on new version available")
+                    install();
                 }
-            },
-            onJustInstalled:async (run)=>{
-                console.log("on just installed")
-                var layout = await awaitForCacheLayout;
-                var cacheStatusElement = document.getElementById('cache-status');
-                if(!cacheStatusElement){
-                    cacheStatusElement = html.p({id:'cache-status'}).create();
-                    layout.insertBefore(cacheStatusElement, layout.firstChild);
-                }
-                cacheStatusElement.classList.remove('warning')
-                cacheStatusElement.classList.remove('danger')
-                cacheStatusElement.classList.add('all-ok')
-                cacheStatusElement.textContent='aplicación actualizada, puede desconectar el dispositivo';
-                setTimeout(run,2000);
-            },
-            onReadyToStart:()=>{
-                startApp()
-            },
-            onNewVersionAvailable:(install)=>{
-                console.log("on new version available")
-                install();
-            }
-        });
+            });
+        }
     }
 })
 

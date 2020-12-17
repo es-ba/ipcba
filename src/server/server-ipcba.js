@@ -341,13 +341,13 @@ class AppIpcba extends backendPlus.AppBackend{
             if(!user){
                 res.redirect(baseUrl+'/login#w=path&path=/dm')
             }
-            var webManifestPath = 'carga-dm/web-manifest.webmanifest';
+            //var webManifestPath = 'carga-dm/web-manifest.webmanifest';
             var {useragent, user} = req;
-            var parameters = req.query;
+            //var parameters = req.query;
             var extraFiles = [
                 // { type: 'js', src:'dm-main.js' },
             ];
-            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles, webManifestPath}).toHtmlDoc();
+            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.use(cookieParser());
