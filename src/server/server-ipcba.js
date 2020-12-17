@@ -323,19 +323,19 @@ class AppIpcba extends backendPlus.AppBackend{
             var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
-        mainApp.get(baseUrl+'/hdr',async function(req,res,_next){
-            // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
-            var {useragent, user} = req;
-            var parameters = req.query;
-            var webManifestPath = 'carga-dm/web-manifest.webmanifest';
-            const {estructuraPath} = be.getManifestPaths(parameters);
-            /** @type {{type:'js', src:string}[]} */
-            const extraFiles = [
-                { type: 'js', src:estructuraPath },
-            ];
-            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, extraFiles, webManifestPath}).toHtmlDoc();
-            MiniTools.serveText(htmlMain,'html')(req,res);
-        });
+        //mainApp.get(baseUrl+'/hdr',async function(req,res,_next){
+        //    // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
+        //    var {useragent, user} = req;
+        //    var parameters = req.query;
+        //    var webManifestPath = 'carga-dm/web-manifest.webmanifest';
+        //    const {estructuraPath} = be.getManifestPaths(parameters);
+        //    /** @type {{type:'js', src:string}[]} */
+        //    const extraFiles = [
+        //        { type: 'js', src:estructuraPath },
+        //    ];
+        //    var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, extraFiles, webManifestPath}).toHtmlDoc();
+        //    MiniTools.serveText(htmlMain,'html')(req,res);
+        //});
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
             var {user} = req;
             if(!user){
@@ -366,7 +366,8 @@ class AppIpcba extends backendPlus.AppBackend{
                     .replace("'/*version*/'", JSON.stringify(manifest.version))
                     .replace("'/*appName*/'", JSON.stringify(manifest.appName))
                     .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
-                    .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
+                    .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
+                    .replace("/#CACHE$/", "/(carga-dm\\da2020m02p1t1_estructura.js)|(carga-dm\\da2020m02p1t1_hdr.json)/");
                 MiniTools.serveText(swManifest,'application/javascript')(req,res);
             }catch(err){
                 MiniTools.serveErr(req,res,next)(err);
