@@ -47,42 +47,21 @@ window.addEventListener('load', async function(){
         }
     }else{
         if(location.pathname.endsWith('/dm')){
-            //var layout = await awaitForCacheLayout;
-            //var botonScripts=html.button('scripts especificos').create();
-            //layout.appendChild(botonScripts);
-            //botonScripts.addEventListener('click',async ()=>{
-            //    botonScripts.disabled=true;
-            //    var script = document.createElement('script');
-            //    script.src='carga-dm/a2020m02p1t1_estructura.js';
-            //    document.body.appendChild(script);
-            //    script.onload=()=>{
-            //        console.log("trae carga-dm/a2020m02p1t1_estructura.js")
-            //    };
-            //    var script2 = document.createElement('script');
-            //    script2.src='carga-dm/a2020m02p1t1_hdr.json';
-            //    document.body.appendChild(script2);
-            //    script2.onload=()=>{
-            //        console.log("trae carga-dm/a2020m02p1t1_hdr.json")
-            //    };
-            //    'carga-dm/a2020m02p1t1_hdr.json'
-            //})
             if(hayHojaDeRuta()){
                 const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
                 startApp = async ()=>{
                     var script = document.createElement('script');
-                script.src='carga-dm/a2020m02p1t1_estructura.js';
-                document.body.appendChild(script);
-                script.onload=()=>{
-                    console.log("trae carga-dm/a2020m02p1t1_estructura.js")
-                };
-                    var version = await swa.getSW('version');
-                    myOwn.setLocalVar('ipc2.0-app-cache-version', version);
-                    //@ts-ignore existe 
-                    dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
+                    var src = `carga-dm/${periodo}p${panel}t${tarea}_estructura.js`;
+                    script.src=src;
+                    document.body.appendChild(script);
+                    script.onload=async ()=>{
+                        console.log(`trae ${src}`);
+                        var version = await swa.getSW('version');
+                        myOwn.setLocalVar('ipc2.0-app-cache-version', version);
+                        //@ts-ignore existe 
+                        dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
+                    }
                 }
-                
-                //history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
-                //location.reload();
             }else{
                 startApp = async ()=>{
                     //@ts-ignore existe 

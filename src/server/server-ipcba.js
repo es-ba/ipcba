@@ -323,19 +323,6 @@ class AppIpcba extends backendPlus.AppBackend{
             var htmlMain=be.mainPage({useragent}, false, {skipMenu:true}).toHtmlDoc();
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
-        //mainApp.get(baseUrl+'/hdr',async function(req,res,_next){
-        //    // @ts-ignore sé que voy a recibir useragent por los middlewares de Backend-plus
-        //    var {useragent, user} = req;
-        //    var parameters = req.query;
-        //    var webManifestPath = 'carga-dm/web-manifest.webmanifest';
-        //    const {estructuraPath} = be.getManifestPaths(parameters);
-        //    /** @type {{type:'js', src:string}[]} */
-        //    const extraFiles = [
-        //        { type: 'js', src:estructuraPath },
-        //    ];
-        //    var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, extraFiles, webManifestPath}).toHtmlDoc();
-        //    MiniTools.serveText(htmlMain,'html')(req,res);
-        //});
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
             var {user} = req;
             if(!user){
@@ -354,20 +341,13 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.get(baseUrl+`/sw-manifest.js`, async function(req, res, next){
             try{
                 var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
-                var {periodo, panel, tarea} = req.cookies;
-                var manifest
-                if(periodo && panel && tarea){
-                    manifest= await be.getResourcesForCacheJson({periodo,panel,tarea})
-                }else{
-                    //EVALUAR SI CORRESPONDE
-                    manifest = await be.createResourcesForCacheJson({});
-                }
+                var manifest = await be.createResourcesForCacheJson({});
                 var swManifest = sw
                     .replace("'/*version*/'", JSON.stringify(manifest.version))
                     .replace("'/*appName*/'", JSON.stringify(manifest.appName))
                     .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
                     .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
-                    .replace("/#CACHE$/", "/(carga-dm\\da2020m02p1t1_estructura.js)|(carga-dm\\da2020m02p1t1_hdr.json)/");
+                    .replace("/#CACHE$/", "/(a\\d+m\\d+p\\d+t\\d+_estructura.js)|(a\\d+m\\d+p\\d+t\\d+_hdr.json)/");
                 MiniTools.serveText(swManifest,'application/javascript')(req,res);
             }catch(err){
                 MiniTools.serveErr(req,res,next)(err);
@@ -584,18 +564,13 @@ NETWORK:
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-        const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toYmdHms()}`:uptime;
+        const version="20-12-17";
         jsonResult.version = `#${version}`;
         jsonResult.appName = 'ipcba';
         if(parameters.periodo){
             var {estructuraPath, hdrPath} = be.getManifestPaths(parameters);
         }
         const especifico=[];
-        if(parameters.periodo){
-            especifico.push(`${estructuraPath}`);
-            especifico.push(`${hdrPath}`);
-            especifico.push(`hdr?periodo=${parameters.periodo}&panel=${parameters.panel}&tarea=${parameters.tarea}`);
-        }
         jsonResult.cache=[
             "dm",
             "lib/react.production.min.js",

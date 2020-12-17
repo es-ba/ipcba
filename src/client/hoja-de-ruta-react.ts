@@ -155,21 +155,8 @@ myOwn.wScreens.sincronizar_dm2=async function(){
 };
 
 myOwn.wScreens.hoja_ruta_2=async function(){
-    var mainLayout = document.getElementById('main_layout')!;
-    try{
-        if(hayHojaDeRuta()){
-            var {periodo, panel, tarea} = my.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
-            history.replaceState(null, '', `${location.origin+location.pathname}/../hdr?periodo=${periodo}&panel=${panel}&tarea=${tarea}`);
-            location.reload();
-        }else if(!location.pathname.endsWith('/dm')){
-            history.replaceState(null, '', `./dm`);
-            location.reload();
-        }else{
-            mainLayout.appendChild(html.div([html.p('Dispositivo sin carga'), html.p('Sitio seguro para sacar el ícono'), html.img({src:'img/logo-dm.png'})]).create());        
-        }
-    }catch(err){
-        mainLayout.appendChild(html.p('Error al cargar hoja de ruta. ' + err.message).create());
-    }
+    history.replaceState(null, '', `./dm`);
+    location.reload(); //así fuerza búsqueda de service worker
 };
 
 myOwn.wScreens.vaciar_dm2=async function(){
