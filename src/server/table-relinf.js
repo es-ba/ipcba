@@ -12,7 +12,7 @@ module.exports = function(context){
         fields:[
             {name:'periodo'                , typeName:'text'    , nullable:false, allow:{update:false}, inTable:true},
             {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
-            {name:'visita'                 , typeName:'integer'                 , allow:{update:false}, inTable:false},
+            {name:'visita'                 , typeName:'integer'                 , allow:{update:false}, inTable:true},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},

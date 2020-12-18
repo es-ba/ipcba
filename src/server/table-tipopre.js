@@ -20,6 +20,8 @@ module.exports = function(context){
             {name:'activo'                  , typeName:'text' , nullable:false, default:'S', defaultvalue:'S'       , allow:{update:puedeEditar}},
             {name:'puedecopiar'             , typeName:'text' , default:'N', defaultValue:'N'                       , allow:{update:puedeEditar}},
             {name:'orden'                   , typeName:'integer'                                                    , allow:{update:puedeEditar}},
+            {name:'puedecambiaratributos'   , typeName:'boolean' , default:false, defaultValue:false                , allow:{update:puedeEditar}},
+            {name:'inconsistente'           , typeName:'boolean' , default:false, defaultValue:false                , allow:{update:puedeEditar}},
         ],
         lookupFields:['nombretipoprecio'],
         primaryKey:['tipoprecio']
