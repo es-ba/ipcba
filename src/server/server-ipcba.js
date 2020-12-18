@@ -92,6 +92,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
+                - schema-ipcba.sql
                 - cvp-db-roles.sql
                 post-adapt:
                 - fun-cal_canasta_borrar.sql
