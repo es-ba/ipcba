@@ -23,6 +23,9 @@ module.exports = function(context){
             {name:'comentarios'                  ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','visita','formulario'],
+        sql:{
+            isTable: false,
+        },        
     });
 }
 

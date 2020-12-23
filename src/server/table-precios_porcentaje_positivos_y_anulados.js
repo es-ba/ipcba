@@ -25,5 +25,8 @@ module.exports = function(context){
             {name:'porcatributos'        ,typeName:'text'   },            
         ],
         primaryKey:['periodo','informante','formulario'],
+        sql:{
+            isTable: false,
+        },
     });
 }
