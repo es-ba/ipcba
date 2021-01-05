@@ -13,7 +13,7 @@ window.addEventListener('load', async function(){
     }
     await myOwn.ready;
     layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
-    var startApp:()=>Promise<void> = async ()=>{};
+    var startApp:(installing:boolean)=>Promise<void> = async ()=>{};
     var url = new URL(window.location.href);
     if(location.pathname.endsWith('/rescate')){
         try{
@@ -49,7 +49,8 @@ window.addEventListener('load', async function(){
         if(location.pathname.endsWith('/dm')){
             if(hayHojaDeRuta()){
                 const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
-                startApp = async ()=>{
+                startApp = async (installing)=>{
+                    if(installing) return
                     var script = document.createElement('script');
                     var src = `carga-dm/${periodo}p${panel}t${tarea}_estructura.js`;
                     script.src=src;
@@ -60,23 +61,28 @@ window.addEventListener('load', async function(){
                         myOwn.setLocalVar('ipc2.0-app-cache-version', version);
                         //@ts-ignore existe 
                         dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
+                        if(window.navigator.onLine){
+                            var layout = await awaitForCacheLayout;
+                            var cacheStatusElement = document.getElementById('cache-status');
+                            if(!cacheStatusElement){
+                                cacheStatusElement = html.p({id:'cache-status'}).create();
+                                layout.insertBefore(cacheStatusElement, layout.firstChild);
+                            }
+                            cacheStatusElement.classList.remove('warning')
+                            cacheStatusElement.classList.remove('danger')
+                            cacheStatusElement.classList.add('all-ok')
+                            cacheStatusElement.textContent='ya puede usar el dispositivo sin internet';
+                        }
+                        setTimeout(()=>cacheStatusElement?cacheStatusElement.style.display="none":null,3000)
                     }
                 }
             }else{
-                startApp = async ()=>{
+                startApp = async (installing)=>{
+                    if(installing) return
                     //@ts-ignore existe 
                     dmPantallaInicial();
                 }
             }
-        //}else{
-            //const periodo = url.searchParams.get("periodo");
-            //const panel = url.searchParams.get("panel");
-            //const tarea = url.searchParams.get("tarea");
-            //document.cookie=`periodo=${periodo}`;
-            //document.cookie=`panel=${panel}`;
-            //document.cookie=`tarea=${tarea}`;
-            
-        
             var swa = new ServiceWorkerAdmin();
             var primerArchivo=true;
             swa.installIfIsNotInstalled({
@@ -123,12 +129,10 @@ window.addEventListener('load', async function(){
                     cacheStatusElement.classList.remove('warning')
                     cacheStatusElement.classList.remove('danger')
                     cacheStatusElement.classList.add('all-ok')
-                    cacheStatusElement.textContent='aplicación actualizada, puede desconectar el dispositivo';
-                    setTimeout(run,2000);
+                    cacheStatusElement.textContent='aplicación actualizada, espere a ser redirigido...';
+                    setTimeout(run,2000)
                 },
-                onReadyToStart:()=>{
-                    startApp()
-                },
+                onReadyToStart:startApp,
                 onNewVersionAvailable:(install)=>{
                     console.log("on new version available")
                     install();
