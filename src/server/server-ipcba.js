@@ -566,7 +566,7 @@ NETWORK:
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-        const version="20-01-05";
+        const version="21-01-06";
         jsonResult.version = `#${version}`;
         jsonResult.appName = 'ipcba';
         if(parameters.periodo){
