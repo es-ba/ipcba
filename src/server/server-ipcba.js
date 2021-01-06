@@ -340,17 +340,27 @@ class AppIpcba extends backendPlus.AppBackend{
             MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.use(cookieParser());
+        var createServiceWorker = async function(){
+            var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
+            var manifest = await be.createResourcesForCacheJson({});
+            var swManifest = sw
+                .replace("'/*version*/'", JSON.stringify(manifest.version))
+                .replace("'/*appName*/'", JSON.stringify(manifest.appName))
+                .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
+                .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
+                .replace("/#CACHE$/", "/(a\\d+m\\d+p\\d+t\\d+_estructura.js)|(a\\d+m\\d+p\\d+t\\d+_hdr.json)/");
+            return swManifest
+        }
         mainApp.get(baseUrl+`/sw-manifest.js`, async function(req, res, next){
             try{
-                var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
-                var manifest = await be.createResourcesForCacheJson({});
-                var swManifest = sw
-                    .replace("'/*version*/'", JSON.stringify(manifest.version))
-                    .replace("'/*appName*/'", JSON.stringify(manifest.appName))
-                    .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
-                    .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
-                    .replace("/#CACHE$/", "/(a\\d+m\\d+p\\d+t\\d+_estructura.js)|(a\\d+m\\d+p\\d+t\\d+_hdr.json)/");
-                MiniTools.serveText(swManifest,'application/javascript')(req,res);
+                MiniTools.serveText(await createServiceWorker(),'application/javascript')(req,res);
+            }catch(err){
+                MiniTools.serveErr(req,res,next)(err);
+            }
+        });
+        mainApp.get(baseUrl+`/swa-manifest.js`, async function(req, res, next){
+            try{
+                MiniTools.serveText(await createServiceWorker(),'application/javascript')(req,res);
             }catch(err){
                 MiniTools.serveErr(req,res,next)(err);
             }

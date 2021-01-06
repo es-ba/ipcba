@@ -105,6 +105,19 @@ async function descargarDispositivo2(tokenInstalacion: string){
     waitGif.style.display = 'none';
     if(message=='descarga completa'){
         my.setLocalVar('ipc2.0-descargado',true);
+        try{
+            var registrations = await navigator.serviceWorker.getRegistrations();
+            for(let registration of registrations) {
+                await registration.unregister()
+            }
+            mainLayout.appendChild(
+                html.p(`todos los sw fueron desinstalados.`).create()
+            )
+        }catch(err){
+            mainLayout.appendChild(
+                html.p(`se produjo un error al desinstalar los sw.`).create()
+            )
+        }
     }
     mainLayout.appendChild(html.p(message).create());
 }

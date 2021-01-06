@@ -86,6 +86,7 @@ window.addEventListener('load', async function(){
             var swa = new ServiceWorkerAdmin();
             var primerArchivo=true;
             swa.installIfIsNotInstalled({
+                serviceWorkerFilename: "swa-manifest.js",
                 onEachFile: async (url, error)=>{
                     console.log('file: ',url);
                     var layout = await awaitForCacheLayout;
