@@ -358,13 +358,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req,res,next)(err);
             }
         });
-        mainApp.get(baseUrl+`/swa-manifest.js`, async function(req, res, next){
-            try{
-                MiniTools.serveText(await createServiceWorker(),'application/javascript')(req,res);
-            }catch(err){
-                MiniTools.serveErr(req,res,next)(err);
-            }
-        });
         mainApp.get(baseUrl+`/carga-dm/web-manifest.webmanifest`, async function(req, res, next){
             try{
                 const content = {
