@@ -47,21 +47,6 @@ window.addEventListener('load', async function(){
         }
     }else{
         if(location.pathname.endsWith('/dm')){
-            //provisorio
-            try{
-                var registrations = await navigator.serviceWorker.getRegistrations();
-                for(let registration of registrations) {
-                    await registration.unregister()
-                }
-                layout.append(
-                    html.p(`todos los sw fueron desinstalados.`).create()
-                )
-            }catch(err){
-                layout.append(
-                    html.p(`se produjo un error al desinstalar los sw.`).create()
-                )
-            }
-            //provisorio
             if(hayHojaDeRuta()){
                 const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
                 startApp = async (installing)=>{
