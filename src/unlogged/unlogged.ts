@@ -61,19 +61,19 @@ window.addEventListener('load', async function(){
                         myOwn.setLocalVar('ipc2.0-app-cache-version', version);
                         //@ts-ignore existe 
                         dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
-                        if(window.navigator.onLine){
-                            var layout = await awaitForCacheLayout;
-                            var cacheStatusElement = document.getElementById('cache-status');
-                            if(!cacheStatusElement){
-                                cacheStatusElement = html.p({id:'cache-status'}).create();
-                                layout.insertBefore(cacheStatusElement, layout.firstChild);
-                            }
-                            cacheStatusElement.classList.remove('warning')
-                            cacheStatusElement.classList.remove('danger')
-                            cacheStatusElement.classList.add('all-ok')
-                            cacheStatusElement.textContent='ya puede usar el dispositivo sin internet';
-                        }
-                        setTimeout(()=>cacheStatusElement?cacheStatusElement.style.display="none":null,3000)
+                        //if(window.navigator.onLine){
+                        //    var layout = await awaitForCacheLayout;
+                        //    var cacheStatusElement = document.getElementById('cache-status');
+                        //    if(!cacheStatusElement){
+                        //        cacheStatusElement = html.p({id:'cache-status'}).create();
+                        //        layout.insertBefore(cacheStatusElement, layout.firstChild);
+                        //    }
+                        //    cacheStatusElement.classList.remove('warning')
+                        //    cacheStatusElement.classList.remove('danger')
+                        //    cacheStatusElement.classList.add('all-ok')
+                        //    cacheStatusElement.textContent='ya puede usar el dispositivo sin internet';
+                        //    setTimeout(()=>cacheStatusElement?cacheStatusElement.style.display="none":null,3000)
+                        //}
                     }
                 }
             }else{
@@ -129,13 +129,32 @@ window.addEventListener('load', async function(){
                     cacheStatusElement.classList.remove('warning')
                     cacheStatusElement.classList.remove('danger')
                     cacheStatusElement.classList.add('all-ok')
-                    cacheStatusElement.textContent='aplicación actualizada, espere a ser redirigido...';
-                    setTimeout(run,2000)
+                    cacheStatusElement.textContent='aplicación actualizada, pulse iniciar para arrancar la app...';
+                    //setTimeout(run,2000)
+                    var updateButton = html.button({class:'init-webapp-button'},'iniciar').create();
+                    layout.appendChild(updateButton);
+                    updateButton.onclick = async function(){
+                        run();    
+                    }
                 },
                 onReadyToStart:startApp,
-                onNewVersionAvailable:(install)=>{
+                onNewVersionAvailable:async (install)=>{
                     console.log("on new version available")
-                    install();
+                    var layout = await awaitForCacheLayout;
+                    var cacheStatusElement = document.getElementById('cache-status');
+                    if(!cacheStatusElement){
+                        cacheStatusElement = html.p({id:'cache-status'}).create();
+                        layout.insertBefore(cacheStatusElement, layout.firstChild);
+                    }
+                    cacheStatusElement.classList.remove('all-ok')
+                    cacheStatusElement.classList.remove('danger')
+                    cacheStatusElement.classList.add('warning')
+                    cacheStatusElement.textContent='se encontró una nueva versión';
+                    var updateButton = html.button({class:'update-webapp-button'},'actualizar').create();
+                    layout.appendChild(updateButton);
+                    updateButton.onclick = async function(){
+                        install();    
+                    }
                 }
             });
         }

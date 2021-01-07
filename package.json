@@ -45,6 +45,7 @@
   },
   "scripts": {
     "prepublish": "npm run build",
+    "mixin-patch": "mixin-patch",
     "build": "(tsc -p tsconfig-client.json || echo \"continue w/error\") && (tsc -p tsconfig-test.json || echo \"continue w/error\") && (tsc -p tsconfig-server.json  || echo \"continue w/error\") && (tsc -p tsconfig-unlogged.json || echo \"continue w/error\") && mixin-patch",
     "watch:buildC": "(tsc -p tsconfig-client.json --watch || echo \"continue w/error\")",
     "watch:buildS": "(tsc -p tsconfig-server.json --watch || echo \"continue w/error\")",
