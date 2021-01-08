@@ -173,6 +173,7 @@ $BODY$;
 ------------------------------------------------------
 ----periodoalta
 set search_path = cvp;
+DROP VIEW IF EXISTS hdrexportar;
 CREATE OR REPLACE VIEW hdrexportar AS 
  SELECT c.periodo, c.panel, c.tarea, c.fechasalida, c.informante, i.tipoinformante as ti, c.encuestador, c.nombreencuestador, c.recepcionista, c.nombrerecepcionista,
    c.ingresador, c.nombreingresador, c.supervisor, c.nombresupervisor,

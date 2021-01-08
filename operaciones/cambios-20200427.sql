@@ -1,3 +1,4 @@
+CREATE SCHEMA IF NOT EXISTS mant;
 ALTER TABLE cvp.relinf_temp SET SCHEMA mant;
 
 SET search_path = cvp;
