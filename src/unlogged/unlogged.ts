@@ -2,7 +2,7 @@
 import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 const ServiceWorkerAdmin = require("service-worker-admin");
-//import * as AjaxBestPromise from "ajax-best-promise";
+import * as AjaxBestPromise from "ajax-best-promise";
 
 window.addEventListener('load', async function(){
     var layout = document.getElementById('total-layout')!;
@@ -61,19 +61,6 @@ window.addEventListener('load', async function(){
                         myOwn.setLocalVar('ipc2.0-app-cache-version', version);
                         //@ts-ignore existe 
                         dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
-                        //if(window.navigator.onLine){
-                        //    var layout = await awaitForCacheLayout;
-                        //    var cacheStatusElement = document.getElementById('cache-status');
-                        //    if(!cacheStatusElement){
-                        //        cacheStatusElement = html.p({id:'cache-status'}).create();
-                        //        layout.insertBefore(cacheStatusElement, layout.firstChild);
-                        //    }
-                        //    cacheStatusElement.classList.remove('warning')
-                        //    cacheStatusElement.classList.remove('danger')
-                        //    cacheStatusElement.classList.add('all-ok')
-                        //    cacheStatusElement.textContent='ya puede usar el dispositivo sin internet';
-                        //    setTimeout(()=>cacheStatusElement?cacheStatusElement.style.display="none":null,3000)
-                        //}
                     }
                 }
             }else{
@@ -83,29 +70,49 @@ window.addEventListener('load', async function(){
                     dmPantallaInicial();
                 }
             }
-            var swa = new ServiceWorkerAdmin();
-            var primerArchivo=true;
-            swa.installIfIsNotInstalled({
-                onEachFile: async (url, error)=>{
-                    console.log('file: ',url);
-                    var layout = await awaitForCacheLayout;
-                    if(primerArchivo){
-                        layout.insertBefore(
-                            html.p({id:'cache-status', class:'warning'},[
-                                'buscando actualizaciones, por favor no desconecte el dispositivo',
-                                html.img({src:'img/loading16.gif'}).create()
-                            ]).create(), 
-                            layout.firstChild
-                        );
-                    }
-                    primerArchivo=false;
-                },
-                onInfoMessage: (m)=>console.log('message: ', m),
-                onError: async (err, context)=>{
-                    console.log('error: '+(context?` en (${context})`:''), err);
-                    console.log(context, err, 'error-console')
-                    console.log('error al descargar cache', err.message)
-                    if(context!='initializing service-worker'){
+            try{
+                var swa = new ServiceWorkerAdmin();
+                //CONTROL LOGIN
+                await AjaxBestPromise.get({
+                    url:'keep-alive.json',
+                    data:{}
+                });
+                var primerArchivo=true;
+                swa.installIfIsNotInstalled({
+                    onEachFile: async (url, error)=>{
+                        console.log('file: ',url);
+                        var layout = await awaitForCacheLayout;
+                        if(primerArchivo){
+                            layout.insertBefore(
+                                html.p({id:'cache-status', class:'warning'},[
+                                    'buscando actualizaciones, por favor no desconecte el dispositivo',
+                                    html.img({src:'img/loading16.gif'}).create()
+                                ]).create(), 
+                                layout.firstChild
+                            );
+                        }
+                        primerArchivo=false;
+                    },
+                    onInfoMessage: (m)=>console.log('message: ', m),
+                    onError: async (err, context)=>{
+                        console.log('error: '+(context?` en (${context})`:''), err);
+                        console.log(context, err, 'error-console')
+                        console.log('error al descargar cache', err.message)
+                        if(context!='initializing service-worker'){
+                            var layout = await awaitForCacheLayout;
+                            var cacheStatusElement = document.getElementById('cache-status');
+                            if(!cacheStatusElement){
+                                cacheStatusElement = html.p({id:'cache-status'}).create();
+                                layout.insertBefore(cacheStatusElement, layout.firstChild);
+                            }
+                            cacheStatusElement.classList.remove('warning')
+                            cacheStatusElement.classList.remove('all-ok')
+                            cacheStatusElement.classList.add('danger')
+                            cacheStatusElement.textContent='error al descargar la aplicación. ' + err.message;
+                        }
+                    },
+                    onJustInstalled:async (run)=>{
+                        console.log("on just installed")
                         var layout = await awaitForCacheLayout;
                         var cacheStatusElement = document.getElementById('cache-status');
                         if(!cacheStatusElement){
@@ -113,50 +120,39 @@ window.addEventListener('load', async function(){
                             layout.insertBefore(cacheStatusElement, layout.firstChild);
                         }
                         cacheStatusElement.classList.remove('warning')
+                        cacheStatusElement.classList.remove('danger')
+                        cacheStatusElement.classList.add('all-ok')
+                        cacheStatusElement.textContent='aplicación actualizada, pulse iniciar para arrancar la app...';
+                        //setTimeout(run,2000)
+                        var updateButton = html.button({class:'init-webapp-button'},'iniciar').create();
+                        layout.appendChild(updateButton);
+                        updateButton.onclick = async function(){
+                            run();    
+                        }
+                    },
+                    onReadyToStart:startApp,
+                    onNewVersionAvailable:async (install)=>{
+                        console.log("on new version available")
+                        var layout = await awaitForCacheLayout;
+                        var cacheStatusElement = document.getElementById('cache-status');
+                        if(!cacheStatusElement){
+                            cacheStatusElement = html.p({id:'cache-status'}).create();
+                            layout.insertBefore(cacheStatusElement, layout.firstChild);
+                        }
                         cacheStatusElement.classList.remove('all-ok')
-                        cacheStatusElement.classList.add('danger')
-                        cacheStatusElement.textContent='error al descargar la aplicación. ' + err.message;
+                        cacheStatusElement.classList.remove('danger')
+                        cacheStatusElement.classList.add('warning')
+                        cacheStatusElement.textContent='se encontró una nueva versión';
+                        var updateButton = html.button({class:'update-webapp-button'},'actualizar').create();
+                        layout.appendChild(updateButton);
+                        updateButton.onclick = async function(){
+                            install();    
+                        }
                     }
-                },
-                onJustInstalled:async (run)=>{
-                    console.log("on just installed")
-                    var layout = await awaitForCacheLayout;
-                    var cacheStatusElement = document.getElementById('cache-status');
-                    if(!cacheStatusElement){
-                        cacheStatusElement = html.p({id:'cache-status'}).create();
-                        layout.insertBefore(cacheStatusElement, layout.firstChild);
-                    }
-                    cacheStatusElement.classList.remove('warning')
-                    cacheStatusElement.classList.remove('danger')
-                    cacheStatusElement.classList.add('all-ok')
-                    cacheStatusElement.textContent='aplicación actualizada, pulse iniciar para arrancar la app...';
-                    //setTimeout(run,2000)
-                    var updateButton = html.button({class:'init-webapp-button'},'iniciar').create();
-                    layout.appendChild(updateButton);
-                    updateButton.onclick = async function(){
-                        run();    
-                    }
-                },
-                onReadyToStart:startApp,
-                onNewVersionAvailable:async (install)=>{
-                    console.log("on new version available")
-                    var layout = await awaitForCacheLayout;
-                    var cacheStatusElement = document.getElementById('cache-status');
-                    if(!cacheStatusElement){
-                        cacheStatusElement = html.p({id:'cache-status'}).create();
-                        layout.insertBefore(cacheStatusElement, layout.firstChild);
-                    }
-                    cacheStatusElement.classList.remove('all-ok')
-                    cacheStatusElement.classList.remove('danger')
-                    cacheStatusElement.classList.add('warning')
-                    cacheStatusElement.textContent='se encontró una nueva versión';
-                    var updateButton = html.button({class:'update-webapp-button'},'actualizar').create();
-                    layout.appendChild(updateButton);
-                    updateButton.onclick = async function(){
-                        install();    
-                    }
-                }
-            });
+                });
+            }catch(err){
+                startApp(false);
+            }
         }
     }
 })

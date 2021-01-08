@@ -569,7 +569,7 @@ NETWORK:
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-        const version="21-01-07";
+        const version="21-01-08";
         jsonResult.version = `#${version}`;
         jsonResult.appName = 'ipcba';
         if(parameters.periodo){
@@ -624,26 +624,26 @@ NETWORK:
             "lib/my-skin.js",
             "lib/cliente-en-castellano.js",
             "lib/service-worker-admin.js",
-            "client/imp-formularios.js",
-            "client/client.js",
-            "client/menu.js",
-            "client/hoja-de-ruta.js",
-            "client/hoja-de-ruta-react.js",
-            "dialog-promise/dialog-promise.css",
-            "pikaday/pikaday.css",
-            "css/my-things.css",
-            "css/my-tables.css",
-            "css/my-menu.css",
-            "css/menu.css",
-            "css/offline-mode.css",
-            "css/hoja-de-ruta.css",
-            "default/css/my-things.css",
-            "default/css/my-tables.css",
-            "default/css/my-menu.css",
+            //"client/imp-formularios.js",
+            //"client/client.js",
+            //"client/menu.js",
+            //"client/hoja-de-ruta.js",
+            //"client/hoja-de-ruta-react.js",
+            //"dialog-promise/dialog-promise.css",
+            //"pikaday/pikaday.css",
+            //"css/my-things.css",
+            //"css/my-tables.css",
+            //"css/my-menu.css",
+            //"css/menu.css",
+            //"css/offline-mode.css",
+            //"css/hoja-de-ruta.css",
+            //"default/css/my-things.css",
+            //"default/css/my-tables.css",
+            //"default/css/my-menu.css",
             "css/ejemplo-precios.css",
             "default/css/ejemplo-precios.css",
-            "img/logo.png",
-            "img/logo-dm.png",
+            //"img/logo.png",
+            //"img/logo-dm.png",
             "img/main-loading.gif",
             "client-setup"
         ].concat(especifico);
