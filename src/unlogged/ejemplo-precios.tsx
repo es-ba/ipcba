@@ -60,6 +60,7 @@ export const materialIoIconsSvgPath={
     Search: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
     Settings: "M15.95 10.78c.03-.25.05-.51.05-.78s-.02-.53-.06-.78l1.69-1.32c.15-.12.19-.34.1-.51l-1.6-2.77c-.1-.18-.31-.24-.49-.18l-1.99.8c-.42-.32-.86-.58-1.35-.78L12 2.34c-.03-.2-.2-.34-.4-.34H8.4c-.2 0-.36.14-.39.34l-.3 2.12c-.49.2-.94.47-1.35.78l-1.99-.8c-.18-.07-.39 0-.49.18l-1.6 2.77c-.1.18-.06.39.1.51l1.69 1.32c-.04.25-.07.52-.07.78s.02.53.06.78L2.37 12.1c-.15.12-.19.34-.1.51l1.6 2.77c.1.18.31.24.49.18l1.99-.8c.42.32.86.58 1.35.78l.3 2.12c.04.2.2.34.4.34h3.2c.2 0 .37-.14.39-.34l.3-2.12c.49-.2.94-.47 1.35-.78l1.99.8c.18.07.39 0 .49-.18l1.6-2.77c.1-.18.06-.39-.1-.51l-1.67-1.32zM10 13c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z",
     SyncAlt:"M22 8l-4-4v3H3v2h15v3l4-4zM2 16l4 4v-3h15v-2H6v-3l-4 4z",
+    SystemUpdate:"M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14zm-1-6h-3V8h-2v5H8l4 4 4-4z",
     Warning: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
     /// JULI ICONS:
     Pendientes:"M2.4 15.35 H 104.55 V 35.65 H -104.55 M 2.4 59.35 H 104.55 V 35.65 Z M 2.4 103.35 H 104.55 V 35.65 Z  M145.6,109.35V133H121.95V109.35H145.6m6-6H115.95V139H151.6V103.35h0Z M145.6,65.35V89H121.95V65.35H145.6m6-6H115.95V95H151.6V59.35h0Z M145.6,21.35V45H121.95V21.35H145.6m6-6H115.95V51H151.6V15.35h0Z",
@@ -80,6 +81,7 @@ const ClearIcon = ICON.Clear;
 const SaveIcon = ICON.Save;
 const SettingsIcon = ICON.Settings;
 const SyncAltIcon = ICON.SyncAlt;
+const SystemUpdateIcon = ICON.SystemUpdate;
 const RepreguntaIcon = ICON.Repregunta;
 const ExitToAppIcon = ICON.ExitToApp;
 
@@ -2064,6 +2066,19 @@ function PantallaOpciones(){
                             </DialogActions>
                         </Dialog>
                     </Typography>
+                :
+                    null
+                }
+                {online && !customDataMode?
+                    <Button
+                        color="inherit"
+                        onClick={()=>{
+                            history.replaceState(null, '', `${location.origin+location.pathname}/../login#path=/dm#inst=1`);
+                            location.reload();   
+                    }}
+                    >
+                        <SystemUpdateIcon/>
+                    </Button>
                 :
                     null
                 }
