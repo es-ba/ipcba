@@ -12,9 +12,28 @@ window.addEventListener('load', async function(){
         layout = document.getElementById('total-layout')!;
     }
     await myOwn.ready;
-    layout.innerHTML='<div id=main_layout></div><span id="mini-console"></span>';
-    var startApp:(installing:boolean)=>Promise<void> = async ()=>{};
-    var url = new URL(window.location.href);
+    layout.innerHTML=`
+        <span id="mini-console"></span>
+        <div id=nueva-version-instalada style="display:none">
+            <span>Hay una nueva versión instalada </span><button id=refrescar><span class=rotar>↻</span> refrescar</button>
+        </div>
+        <div id=instalado>
+            <div id=buscar-version-nueva style="display:none">
+                <button id=buscar-version>buscar actualización</button>
+            </div>
+            <div id=main_layout></div>
+        </div>
+        <div id=instalando style="display:none">
+            <div id=archivos>
+                <h2>progreso instalacion</h2>
+            </div>
+            <div id=volver-de-instalacion>
+                <span id=volver-de-instalacion-por-que></span>
+                <button id=volver-de-instalacion-como>volver</button>
+            </div>
+        </div>
+    `;
+    var startApp:()=>Promise<void> = async ()=>{};
     if(location.pathname.endsWith('/rescate')){
         try{
             for (let x in localStorage){
@@ -49,8 +68,7 @@ window.addEventListener('load', async function(){
         if(location.pathname.endsWith('/dm')){
             if(hayHojaDeRuta()){
                 const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
-                startApp = async (installing)=>{
-                    if(installing) return
+                startApp = async ()=>{
                     var script = document.createElement('script');
                     var src = `carga-dm/${periodo}p${panel}t${tarea}_estructura.js`;
                     script.src=src;
@@ -64,12 +82,30 @@ window.addEventListener('load', async function(){
                     }
                 }
             }else{
-                startApp = async (installing)=>{
-                    if(installing) return
+                startApp = async ()=>{
                     //@ts-ignore existe 
                     dmPantallaInicial();
                 }
             }
+            var refrescarStatus=async function(showScreen, newVersionAvaiable, installing){
+                console.log('recibo onStateChange: ');
+                console.log("showScreen: ", showScreen);
+                console.log("newVersionAvaiable: ", newVersionAvaiable);
+                console.log("installing: ", installing);
+                
+                (await awaitForCacheLayout).style.display=installing?'':'none';
+                document.getElementById('nueva-version-instalada')!.style.display=newVersionAvaiable=='yes'?'':'none';
+                document.getElementById('volver-de-instalacion')!.style.display=newVersionAvaiable=='yes'?'none':'';
+                //document.getElementById('nueva-version-instalando').style.display=installing?'':'none';
+                document.getElementById('buscar-version-nueva')!.style.display=installing?'none':'';
+                if(showScreen=='app'){
+                    document.getElementById('instalado')!.style.display='';
+                    document.getElementById('instalando')!.style.display='none';
+                }else{
+                    document.getElementById('instalado')!.style.display='none';
+                    document.getElementById('instalando')!.style.display='';
+                }
+            };
             try{
                 var swa = new ServiceWorkerAdmin();
                 //CONTROL LOGIN
@@ -78,19 +114,22 @@ window.addEventListener('load', async function(){
                     data:{}
                 });
                 var primerArchivo=true;
-                swa.installIfIsNotInstalled({
+                swa.installOrActivate({
                     onEachFile: async (url, error)=>{
                         console.log('file: ',url);
                         var layout = await awaitForCacheLayout;
                         if(primerArchivo){
                             layout.insertBefore(
                                 html.p({id:'cache-status', class:'warning'},[
-                                    'buscando actualizaciones, por favor no desconecte el dispositivo',
+                                    'instalando nueva version, por favor no desconecte el dispositivo',
                                     html.img({src:'img/loading16.gif'}).create()
                                 ]).create(), 
                                 layout.firstChild
                             );
                         }
+                        document.getElementById('archivos')!.append(
+                            html.div(url).create()
+                        )
                         primerArchivo=false;
                     },
                     onInfoMessage: (m)=>console.log('message: ', m),
@@ -111,49 +150,19 @@ window.addEventListener('load', async function(){
                             cacheStatusElement.textContent='error al descargar la aplicación. ' + err.message;
                         }
                     },
-                    onJustInstalled:async (run)=>{
-                        console.log("on just installed")
-                        var layout = await awaitForCacheLayout;
-                        var cacheStatusElement = document.getElementById('cache-status');
-                        if(!cacheStatusElement){
-                            cacheStatusElement = html.p({id:'cache-status'}).create();
-                            layout.insertBefore(cacheStatusElement, layout.firstChild);
-                        }
-                        cacheStatusElement.classList.remove('warning')
-                        cacheStatusElement.classList.remove('danger')
-                        cacheStatusElement.classList.add('all-ok')
-                        cacheStatusElement.textContent='aplicación actualizada, pulse iniciar para arrancar la app...';
-                        //setTimeout(run,2000)
-                        var updateButton = html.button({class:'init-webapp-button'},'iniciar').create();
-                        layout.appendChild(updateButton);
-                        updateButton.onclick = async function(){
-                            run();    
-                        }
-                    },
                     onReadyToStart:startApp,
-                    onNewVersionAvailable:async (install)=>{
-                        console.log("on new version available")
-                        var layout = await awaitForCacheLayout;
-                        var cacheStatusElement = document.getElementById('cache-status');
-                        if(!cacheStatusElement){
-                            cacheStatusElement = html.p({id:'cache-status'}).create();
-                            layout.insertBefore(cacheStatusElement, layout.firstChild);
-                        }
-                        cacheStatusElement.classList.remove('all-ok')
-                        cacheStatusElement.classList.remove('danger')
-                        cacheStatusElement.classList.add('warning')
-                        cacheStatusElement.textContent='se encontró una nueva versión';
-                        var updateButton = html.button({class:'update-webapp-button'},'actualizar').create();
-                        layout.appendChild(updateButton);
-                        updateButton.onclick = async function(){
-                            install();    
-                        }
-                    }
+                    onStateChange:refrescarStatus
                 });
             }catch(err){
-                startApp(false);
+                startApp();
             }
         }
+        document.getElementById('refrescar')!.addEventListener('click',()=>{
+            location.reload()
+        });
+        document.getElementById('volver-de-instalacion-como')!.addEventListener('click',()=>{
+            location.reload()
+        });
     }
 })
 
