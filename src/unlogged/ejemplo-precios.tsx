@@ -2071,12 +2071,14 @@ function PantallaOpciones(){
                 }
                 {online && !customDataMode?
                     <Button
-                        color="inherit"
+                        color="primary"
+                        variant="contained"
                         onClick={()=>{
                             history.replaceState(null, '', `${location.origin+location.pathname}/../login#path=/dm#inst=1`);
                             location.reload();   
                     }}
                     >
+                        Actualizar aplicación
                         <SystemUpdateIcon/>
                     </Button>
                 :

@@ -2,7 +2,6 @@
 import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 const ServiceWorkerAdmin = require("service-worker-admin");
-import * as AjaxBestPromise from "ajax-best-promise";
 
 var reloadWithoutHash = ()=>{
     history.replaceState(null, '', `${location.origin+location.pathname}/../dm`);
@@ -26,12 +25,12 @@ window.addEventListener('load', async function(){
             <div id=main_layout></div>
         </div>
         <div id=instalando style="display:none; margin-top:30px">
-            <div id=archivos>
-                <h2>progreso instalacion</h2>
-            </div>
-            <div id=volver-de-instalacion>
+            <div id=volver-de-instalacion style="position:fixed; top:5px; z-index:9500;">
                 <span id=volver-de-instalacion-por-que></span>
                 <button id=volver-de-instalacion-como>volver</button>
+            </div>
+            <div id=archivos>
+                <h2>progreso instalacion</h2>
             </div>
         </div>
     `;
@@ -91,16 +90,8 @@ window.addEventListener('load', async function(){
             }
             var refrescarStatus=async function(showScreen, newVersionAvaiable, installing){
                 var buscandoActualizacion = location.href.endsWith('#inst=1');
-                console.log('recibo onStateChange: ');
-                console.log("showScreen: ", showScreen);
-                console.log("newVersionAvaiable: ", newVersionAvaiable);
-                console.log("installing: ", installing);
-                
-                (await awaitForCacheLayout).style.display=installing?'':'none';
                 document.getElementById('nueva-version-instalada')!.style.display=newVersionAvaiable=='yes'?'':'none';
                 document.getElementById('volver-de-instalacion')!.style.display=newVersionAvaiable=='yes'?'none':'';
-                //document.getElementById('nueva-version-instalando').style.display=installing?'':'none';
-                //document.getElementById('buscar-version-nueva')!.style.display=installing?'none':'';
                 if(showScreen=='app' && !buscandoActualizacion){
                     document.getElementById('instalado')!.style.display='';
                     document.getElementById('instalando')!.style.display='none';
@@ -110,24 +101,12 @@ window.addEventListener('load', async function(){
                 }
             };
             var swa = new ServiceWorkerAdmin();
-            //var primerArchivo=true;
             swa.installOrActivate({
                 onEachFile: async (url, error)=>{
                     console.log('file: ',url);
-                    //var layout = await awaitForCacheLayout;
-                    //if(primerArchivo){
-                    //    layout.insertBefore(
-                    //        html.p({id:'cache-status', class:'warning'},[
-                    //            'instalando nueva version, por favor no desconecte el dispositivo',
-                    //            html.img({src:'img/loading16.gif'}).create()
-                    //        ]).create(), 
-                    //        layout.firstChild
-                    //    );
-                    //}
                     document.getElementById('archivos')!.append(
                         html.div(url).create()
                     )
-                    //primerArchivo=false;
                 },
                 onInfoMessage: (m)=>console.log('message: ', m),
                 onError: async (err, context)=>{
