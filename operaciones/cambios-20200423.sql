@@ -29,10 +29,10 @@ INSERT INTO cvp.relinf_temp SELECT * FROM cvp.relinf;
 ALTER TABLE cvp.relinf disable trigger relinf_abi_trg;
 
 DELETE FROM cvp.relinf;
-ALTER TABLE cvp.relinf DROP COLUMN panel;
-ALTER TABLE cvp.relinf DROP COLUMN tarea;
+ALTER TABLE cvp.relinf DROP COLUMN IF EXISTS panel;
+ALTER TABLE cvp.relinf DROP COLUMN IF EXISTS tarea;
 
---ALTER TABLE cvp.relinf DROP CONSTRAINT relinf_pkey;
+ALTER TABLE cvp.relinf DROP CONSTRAINT IF EXISTS relinf_pkey;
 ALTER TABLE cvp.relinf ADD PRIMARY KEY (periodo, informante, visita);
 
 CREATE OR REPLACE FUNCTION cvp.hisc_relinf_trg()
@@ -400,8 +400,15 @@ AS $BODY$
      $BODY$;
 -------------------------------------------------------------
 set search_path = cvp;
-set role cvpowner;
+ALTER TABLE informantes ADD COLUMN fraccion_ant integer;
+ALTER TABLE informantes ADD COLUMN comuna integer;
+ALTER TABLE informantes ADD COLUMN depto integer;
+ALTER TABLE informantes ADD COLUMN barrio integer;
+ALTER TABLE informantes ADD COLUMN web text;
+ALTER TABLE informantes ADD COLUMN email text;
 
+set role cvpowner;
+DROP VIEW IF EXISTS hdrexportarteorica;
 CREATE OR REPLACE VIEW hdrexportarteorica AS 
  SELECT c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante as ti, t.encuestador||':'||p.nombre||' '||p.apellido as encuestador,
    COALESCE(string_agg(distinct c.encuestador||':'||c.nombreencuestador, '|'::text),null) as encuestadores, 
