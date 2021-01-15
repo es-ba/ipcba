@@ -192,7 +192,7 @@ export function razonNecesitaConfirmacion(estructura:Estructura, _relVis:RelVis,
 }
 
 export var criterio = (relPre:RelPre, relVis: RelVis, estructura:Estructura, searchString:string, queVer:QueVer) => 
-(searchString?estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase().search(searchString.toLocaleLowerCase())>-1:true)
+(searchString?simplificateText(estructura.productos[relPre.producto].nombreproducto.toLocaleLowerCase()).search(simplificateText(searchString.toLocaleLowerCase()))>-1:true)
 && (queVer !='advertencias' || precioTieneAdvertencia(relPre, relVis, estructura))
 && (queVer !='pendientes' || precioEstaPendiente(relPre, relVis, estructura));
 
