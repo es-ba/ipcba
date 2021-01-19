@@ -942,7 +942,7 @@ my.clientSides.cambiarPanelTareaUnInf = botonClientSideEnGrilla({
 my.wScreens.cambiar_paneltarea=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
-        var controlPeriodoDesde   =html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlPeriodoDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
         var controlPanelDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
         var controlTareaDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
 
@@ -951,6 +951,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
 
         var botonBuscarDesde=html.button("buscar desde").create();
         var botonBuscarHasta=html.button("buscar hasta").create();
+        var botonBuscar=html.button("buscar").create();
         var botonCambiarDesde=html.button("cambiar >").create();
         var botonCambiarHasta=html.button("< cambiar").create();
         var botonIntercambiar=html.button("< intercambiar >").create();
@@ -958,52 +959,65 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         var resultDivHasta=html.div({class:"result-div"}).create();
         var divGrillaDesde=html.div().create();
         var divGrillaHasta=html.div().create();
-        botonBuscarDesde.onclick=function(){
-            var periodoDesde = controlPeriodoDesde.getTypedValue();
-            var panelDesde = controlPanelDesde.getTypedValue();
-            var tareaDesde = controlTareaDesde.getTypedValue();
-            var panelHasta = controlPanelHasta.getTypedValue();
-            var tareaHasta = controlTareaHasta.getTypedValue();
-            my.ajax.paneltarea_buscar({
-                periodo:controlPeriodoDesde.getTypedValue(),
-                panel:controlPanelDesde.getTypedValue(),
-                tarea:controlTareaDesde.getTypedValue(),
-                otropanel:controlPanelHasta.getTypedValue(),
-                otratarea:controlTareaHasta.getTypedValue(),
-            }).then(function(result){
-                resultDivDesde.textContent=result.value;
-                var fixedFields = [];
-                fixedFields.push({fieldName: 'periodo', value: periodoDesde});
-                fixedFields.push({fieldName: 'panel', value: panelDesde});
-                fixedFields.push({fieldName: 'tarea', value: tareaDesde});
-                fixedFields.push({fieldName: 'otropanel', value: panelHasta});
-                fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
-                var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
-                grid.refresh();
-            })
+        var dameManejadorOnClickBotonBuscar=function(ida){
+            return function(){
+                var periodoDesde = controlPeriodoDesde.getTypedValue();
+                var panelDesde = controlPanelDesde.getTypedValue();
+                var tareaDesde = controlTareaDesde.getTypedValue();
+                var panelHasta = controlPanelHasta.getTypedValue();
+                var tareaHasta = controlTareaHasta.getTypedValue();
+                var parametrosBusqueda;
+                if(ida){
+                    parametrosBusqueda={
+                        periodo:controlPeriodoDesde.getTypedValue(),
+                        panel:controlPanelDesde.getTypedValue(),
+                        tarea:controlTareaDesde.getTypedValue(),
+                        otropanel:controlPanelHasta.getTypedValue(),
+                        otratarea:controlTareaHasta.getTypedValue(),
+                    }
+                }else{
+                    parametrosBusqueda={
+                        periodo:controlPeriodoDesde.getTypedValue(),
+                        panel:controlPanelHasta.getTypedValue(),
+                        tarea:controlTareaHasta.getTypedValue(),
+                        otropanel:controlPanelDesde.getTypedValue(),
+                        otratarea:controlTareaDesde.getTypedValue(),
+                    }
+                }
+                return my.ajax.paneltarea_buscar(parametrosBusqueda).then(function(result){
+                    resultDivDesde.textContent=result.value;
+                    var fixedFields = [];
+                    fixedFields.push({fieldName: 'periodo', value: periodoDesde});
+                    if(ida){
+                        fixedFields.push({fieldName: 'panel', value: panelDesde});
+                        fixedFields.push({fieldName: 'tarea', value: tareaDesde});
+                        fixedFields.push({fieldName: 'otropanel', value: panelHasta});
+                        fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                    }else{
+                        fixedFields.push({fieldName: 'panel', value: panelHasta});
+                        fixedFields.push({fieldName: 'tarea', value: tareaHasta});
+                        fixedFields.push({fieldName: 'otropanel', value: panelDesde});
+                        fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
+                    }
+                    var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
+                    return grid.refresh();
+                })
+            }
         }
-        botonBuscarHasta.onclick=function(){
-            var periodoHasta = controlPeriodoDesde.getTypedValue();
-            var panelHasta = controlPanelHasta.getTypedValue();
-            var tareaHasta = controlTareaHasta.getTypedValue();
-            var panelDesde = controlPanelDesde.getTypedValue();
-            var tareaDesde = controlTareaDesde.getTypedValue();
-            my.ajax.paneltarea_buscar({
-                periodo:controlPeriodoDesde.getTypedValue(),
-                panel:controlPanelHasta.getTypedValue(),
-                tarea:controlTareaHasta.getTypedValue(),
-                otropanel:controlPanelDesde.getTypedValue(),
-                otratarea:controlTareaDesde.getTypedValue(),
-            }).then(function(result){
-                resultDivHasta.textContent=result.value;
-                var fixedFields = [];
-                fixedFields.push({fieldName: 'periodo', value: periodoHasta});
-                fixedFields.push({fieldName: 'panel', value: panelHasta});
-                fixedFields.push({fieldName: 'tarea', value: tareaHasta});
-                fixedFields.push({fieldName: 'otropanel', value: panelDesde});
-                fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
-                var grid=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
-                grid.refresh();
+        botonBuscarDesde.onclick=dameManejadorOnClickBotonBuscar(true);
+        botonBuscarHasta.onclick=dameManejadorOnClickBotonBuscar(false);
+        var habilitarBotonesCambio = function(){
+            botonCambiarDesde.disabled=false;
+            botonCambiarHasta.disabled=false;
+            botonIntercambiar.disabled=false;
+        }
+        botonBuscar.onclick=function(){
+            Promise.all([
+                dameManejadorOnClickBotonBuscar(true)(),
+                dameManejadorOnClickBotonBuscar(false)()
+            ]).then(habilitarBotonesCambio).catch(function(err){
+                console.log(err);
+                alertPromise('ERROR '+err.message)
             })
         }
         botonCambiarDesde.onclick=function(){
@@ -1132,7 +1146,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 ]),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td({style:'width:700px'},[html.td([botonBuscarDesde]),]), 
+                        html.td({style:'width:700px'},[html.td([botonBuscarDesde]),html.span(' '),html.td([botonBuscar]),]), 
                         html.td({style:'width:700px'},[html.td([botonBuscarHasta]),]), 
                     ]),
                 ]),
@@ -1155,6 +1169,19 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 ]),
             ]).create()
         );
+        var huboCambio = function(){
+            divGrillaDesde.innerHTML="";
+            divGrillaHasta.innerHTML="";
+            botonCambiarDesde.disabled=true;
+            botonCambiarHasta.disabled=true;
+            botonIntercambiar.disabled=true;
+        }
+        huboCambio();
+        controlPeriodoDesde.onchange=huboCambio;
+        controlPanelDesde.onchange=huboCambio;
+        controlTareaDesde.onchange=huboCambio;
+        controlPanelHasta.onchange=huboCambio;
+        controlTareaHasta.onchange=huboCambio;
     },50);
 }
 
