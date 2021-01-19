@@ -951,7 +951,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
 
         var botonBuscarDesde=html.button("buscar desde").create();
         var botonBuscarHasta=html.button("buscar hasta").create();
-        var botonBuscar=html.button("buscar").create();
+        var botonBuscar=html.button("buscar ambos").create();
         var botonCambiarDesde=html.button("cambiar >").create();
         var botonCambiarHasta=html.button("< cambiar").create();
         var botonIntercambiar=html.button("< intercambiar >").create();
@@ -993,13 +993,14 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                         fixedFields.push({fieldName: 'tarea', value: tareaDesde});
                         fixedFields.push({fieldName: 'otropanel', value: panelHasta});
                         fixedFields.push({fieldName: 'otratarea', value: tareaHasta});
+                        var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
                     }else{
                         fixedFields.push({fieldName: 'panel', value: panelHasta});
                         fixedFields.push({fieldName: 'tarea', value: tareaHasta});
                         fixedFields.push({fieldName: 'otropanel', value: panelDesde});
                         fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
+                        var grid=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
                     }
-                    var grid=my.tableGrid("relvis_pt",divGrillaDesde,{tableDef:{},fixedFields: fixedFields});
                     return grid.refresh();
                 })
             }
@@ -1177,11 +1178,11 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
             botonIntercambiar.disabled=true;
         }
         huboCambio();
-        controlPeriodoDesde.onchange=huboCambio;
-        controlPanelDesde.onchange=huboCambio;
-        controlTareaDesde.onchange=huboCambio;
-        controlPanelHasta.onchange=huboCambio;
-        controlTareaHasta.onchange=huboCambio;
+        controlPeriodoDesde.addEventListener('update', huboCambio);
+        controlPanelDesde.addEventListener('update', huboCambio);
+        controlTareaDesde.addEventListener('update', huboCambio);
+        controlPanelHasta.addEventListener('update', huboCambio);
+        controlTareaHasta.addEventListener('update', huboCambio);
     },50);
 }
 
