@@ -10,6 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
+const APP_DM_VERSION="#21-01-27";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -361,7 +362,7 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.get(baseUrl+`/carga-dm/web-manifest.webmanifest`, async function(req, res, next){
             try{
                 const content = {
-                  "name": "IPCBA Progressive Web App",
+                  "name": `IPCBA Progressive Web App ${APP_DM_VERSION}`,
                   "short_name": "IPCBA PWA",
                   "description": "Progressive Web App for IPCBA.",
                   "icons": [
@@ -569,8 +570,8 @@ NETWORK:
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-        const version="21-01-21";
-        jsonResult.version = `#${version}`;
+        
+        jsonResult.version = APP_DM_VERSION;
         jsonResult.appName = 'ipcba';
         if(parameters.periodo){
             var {estructuraPath, hdrPath} = be.getManifestPaths(parameters);
