@@ -310,6 +310,95 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
     })
 }
 
+myOwn.clientSides.prepararDM={
+    update: false,
+    prepare: function(depot, fieldName){
+        var td = depot.rowControls[fieldName];
+        var boton = html.button({class:'boton-sincronizacion'},'preparar').create();
+        td.appendChild(boton);
+        boton.onclick= async function(){
+            boton.disabled=true;
+            var waitGif=html.img({src:'img/loading16.gif'}).create()
+            td.appendChild(waitGif);
+            try{
+                var result = await my.ajax.dm2_preparar({
+                    periodo: depot.row.periodo,
+                    panel: depot.row.panel,
+                    tarea: depot.row.tarea,
+                    informante: null,
+                    visita: null,
+                    demo: false,
+                })
+                if(result.tieneprecioscargados){
+                    alertPromise('La hoja de ruta que preparó tiene precios cargados')
+                }
+                var grid=depot.manager;
+                grid.retrieveRowAndRefresh(depot)
+            }catch(err){
+                my.alertError(err);
+            }finally{
+                boton.disabled=false;
+                waitGif.style.display = 'none';
+            };
+        }
+    }
+}
+
+myOwn.clientSides.blanquearDM={
+    update: false,
+    prepare: function(depot, fieldName){
+        var td = depot.rowControls[fieldName];
+        var boton = html.button({class:'boton-sincronizacion'},'blanquear').create();
+        td.appendChild(boton);
+        var {periodo, panel, tarea, encuestador} = depot.row;
+        boton.onclick= async function(){
+            var mainDiv = html.div().create()
+            mainDiv.appendChild(
+                html.div({},[
+                    html.div({class:'danger'}, [`Está por blanquear el período ${periodo}, panel ${panel}, tarea ${tarea}, encuestador ${encuestador}
+                        no se podrá descargar el dispositivo.`
+                    ])
+                ]).create()
+            );
+            var inputForzar = html.input({class:'input-forzar'}).create();
+            mainDiv.appendChild(html.div([
+                html.div(['Se puede forzar el blanqueo ',inputForzar])
+            ]).create());
+            var forzar = await confirmPromise(mainDiv, {
+                withCloseButton: false,
+                reject:false,
+                buttonsDef:[
+                    {label:'forzar blanqueo', value:true},
+                    {label:'cancelar blanqueo', value:false}
+                ]
+            });
+            if(forzar){
+                if(inputForzar.value=='forzar'){
+                    try{
+                        boton.disabled=true;
+                        var waitGif=html.img({src:'img/loading16.gif'}).create()
+                        td.appendChild(waitGif);
+                        await my.ajax.dm2_carga_blanquear({
+                            periodo: periodo,
+                            panel: panel,
+                            tarea: tarea,
+                        });
+                        var grid=depot.manager;
+                        grid.retrieveRowAndRefresh(depot)
+                    }catch(err){
+                        my.alertError(err);
+                    }finally{
+                        boton.disabled=false;
+                        waitGif.style.display = 'none';
+                    };
+                }else{
+                    alertPromise('si necesita blanquear escriba forzar.')
+                }
+            }
+        }
+    }
+}
+
 //relevamiento directo
 
 const FILTRO_RELEVAMIENTO = "filtro_relevamiento";

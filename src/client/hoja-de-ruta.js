@@ -1356,40 +1356,6 @@ myOwn.clientSides.habilitarSincronizacion={
     }
 }
 
-myOwn.clientSides.prepararDM={
-    update: false,
-    prepare: function(depot, fieldName){
-        var td = depot.rowControls[fieldName];
-        var boton = html.button({class:'boton-sincronizacion'},'preparar dm').create();
-        td.appendChild(boton);
-        boton.onclick=function(){
-            boton.disabled=true;
-            var waitGif=html.img({src:'img/loading16.gif'}).create()
-            td.appendChild(waitGif);
-            my.ajax.dm2_preparar({
-                periodo: depot.row.periodo,
-                panel: depot.row.panel,
-                tarea: depot.row.tarea,
-                informante: null,
-                visita: null,
-                demo: false,
-            }).then(function(result){
-                boton.disabled=false;
-                waitGif.style.display = 'none';
-                if(result.tieneprecioscargados){
-                    alertPromise('La hoja de ruta que preparó tiene precios cargados')
-                }
-                var grid=depot.manager;
-                grid.retrieveRowAndRefresh(depot)
-            }).catch(function(err){
-                my.alertError(err);
-                boton.disabled=false;
-                waitGif.style.display = 'none';
-            });
-        }
-    }
-}
-
 myOwn.wScreens.preparar_instalacion={
     parameters:[
         {name:'numero_encuestador'       , typeName:'text'   },

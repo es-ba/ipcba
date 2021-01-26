@@ -1970,6 +1970,29 @@ ProceduresIpcba = [
         }
     },
     {
+        action:'dm2_carga_blanquear',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+        ],
+        coreFunction: async function(context, parameters){
+            try{
+                await context.client.query(
+                    `update reltar
+                        set cargado = null, id_instalacion = null, vencimiento_sincronizacion2 = null
+                        where periodo = $1 and panel = $2 and tarea = $3 and cargado is not null and descargado is null
+                        returning true`
+                    ,
+                    [parameters.periodo, parameters.panel, parameters.tarea]
+                ).fetchUniqueRow();
+            }catch(err){
+                throw new Error("Solo se permiten blanquear DMs con fecha de carga y sin fecha de descarga. " + err.message);
+            }
+            return "ok"
+        }
+    },
+    {
         action:'paneltarea_buscar',
         parameters:[
             {name:'periodo'    , typeName:'text'   , references:'periodos'   },
