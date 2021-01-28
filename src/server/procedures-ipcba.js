@@ -2134,6 +2134,24 @@ ProceduresIpcba = [
             });
         }
     },
+    {
+        action: 'requerimiento_agregar',
+        parameters:[
+        ],
+        roles:['programador','coordinador'],
+        coreFunction: async function(context, parameters){
+            try{
+            var result = await context.client.query(
+                `insert into requerimientos values (nextval('cvp.secuencia_requerimientos'), CURRENT_DATE)`,
+                 []).execute();
+            return '';
+            }catch(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            };
+        }
+    },    
 ];
 
 module.exports = ProceduresIpcba;
