@@ -707,6 +707,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
                     {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador]},
+                    {menuType:'agregar_requerimiento', name:'requerimientos', label:'requerimientos', onlyVisibleFor:[programador]},
                     {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
@@ -1223,7 +1224,8 @@ NETWORK:
             {name: 'infreempdir', path: __dirname},
             {name: 'misma_direccion', path: __dirname},
             {name: 'formulario_emergencia', path: __dirname},
-            {name: 'relinf_fechassalida', path: __dirname}
+            {name: 'relinf_fechassalida', path: __dirname},
+            {name: 'requerimientos', path: __dirname}
         ]);
     }
 }

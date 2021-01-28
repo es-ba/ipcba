@@ -1194,3 +1194,32 @@ my.clientSides.altamanualgenerar = botonClientSideEnGrilla({
         });
     }
 });
+
+my.wScreens.agregar_requerimiento=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var resultDiv=html.div({class:"result-div"}).create();
+        var divGrilla=html.div().create();
+        var botonAgregarReq=html.button("agregar").create();
+        var grid=my.tableGrid("requerimientos",divGrilla,{tableDef:{},fixedFields: []});
+        botonAgregarReq.onclick=function(){
+            my.ajax.requerimiento_agregar( 
+            ).then(function(result){
+                resultDiv.textContent=result;
+                grid.refresh();
+                })
+        }
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"Agregar Requerimiento"),
+                html.table({class:'table-selec-screen'},[
+                    html.tr([
+                        html.td(), html.td([botonAgregarReq]), 
+                    ])
+                ]),
+                resultDiv,
+                divGrilla,
+            ]).create()
+        );
+    },50);
+}
