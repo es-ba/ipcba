@@ -10,7 +10,7 @@ BEGIN
     IF (OLD.razon IS DISTINCT FROM NEW.razon OR NEW.preciosgenerados) AND NEW.visita = 1 THEN
        NEW.fechageneracion:= current_timestamp(3);
        dummy:=cvp.generar_formulario(new.periodo,new.informante,new.formulario,new.fechageneracion); 
-	   NEW.preciosgenerados:= true;
+	   NEW.preciosgenerados:= false;
     END IF;
   END IF;
   RETURN NEW;

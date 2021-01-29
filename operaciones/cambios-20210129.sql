@@ -1,3 +1,29 @@
+set search_path = cvp;
+set role cvpowner;
+--no vuelve a generar una vez generado
+
+CREATE OR REPLACE FUNCTION verificar_generar_formulario()
+  RETURNS trigger AS
+$BODY$
+DECLARE
+  -- V080923
+  -- Modif: V100707
+  dummy text;
+BEGIN
+  IF TG_OP='UPDATE' THEN
+    IF (OLD.razon IS DISTINCT FROM NEW.razon OR NEW.preciosgenerados) AND NEW.visita = 1 THEN
+       NEW.fechageneracion:= current_timestamp(3);
+       dummy:=cvp.generar_formulario(new.periodo,new.informante,new.formulario,new.fechageneracion); 
+	   NEW.preciosgenerados:= false;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
+
+---------------------------------------------------
+
 CREATE OR REPLACE FUNCTION validar_recepcion_trg()
     RETURNS trigger AS
 $BODY$
@@ -100,8 +126,3 @@ END;
 $BODY$
   LANGUAGE 'plpgsql' VOLATILE SECURITY INVOKER;
 
-CREATE TRIGGER relvis_controlar_recepcion_trg
-    BEFORE UPDATE
-    ON relvis
-    FOR EACH ROW
-    EXECUTE PROCEDURE validar_recepcion_trg();
