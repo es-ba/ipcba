@@ -2157,6 +2157,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'id_requerimiento', typeName:'integer', references:'requerimientos'},
         ],
+        roles:['programador'],        
         coreFunction:async function(context, parameters){
             try{
                 //activar la tarea, si no está activa
