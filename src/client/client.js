@@ -1223,3 +1223,12 @@ my.wScreens.agregar_requerimiento=function(addrParams){
         );
     },50);
 }
+
+my.clientSides.procederCambioPT = botonClientSideEnGrilla({
+    nombreBoton:'proceder',
+    llamada:function(depot){
+        return my.ajax.cambiopt_proceder({
+            id_requerimiento: depot.row.id_requerimiento
+        });
+    }
+});
