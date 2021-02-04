@@ -1,5 +1,5 @@
 "use strict";
-import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
+import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta, cargarScriptEstructura} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 const ServiceWorkerAdmin = require("service-worker-admin");
 
@@ -68,19 +68,14 @@ window.addEventListener('load', async function(){
     }else{
         if(location.pathname.endsWith('/dm')){
             if(hayHojaDeRuta()){
-                const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
                 startApp = async ()=>{
-                    var script = document.createElement('script');
-                    var src = `carga-dm/${periodo}p${panel}t${tarea}_estructura.js`;
-                    script.src=src;
-                    document.body.appendChild(script);
-                    script.onload=async ()=>{
-                        console.log(`trae ${src}`);
+                    cargarScriptEstructura(async ()=>{
                         var version = await swa.getSW('version');
                         myOwn.setLocalVar('ipc2.0-app-cache-version', version);
+                        const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
                         //@ts-ignore existe 
                         dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
-                    }
+                    })
                 }
             }else{
                 startApp = async ()=>{

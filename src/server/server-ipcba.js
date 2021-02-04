@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#21-01-21";
+const APP_DM_VERSION="#21-02-04";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -929,7 +929,8 @@ NETWORK:
     }
     clientIncludes(req, opts) {
         var be = this;
-        var menuedResources=req && opts && !opts.skipMenu ? [
+        var loggedResources = req && opts && !opts.skipMenu;
+        var menuedResources=loggedResources ? [
             { type:'js' , src: 'client/client.js' },
             { type: 'js', src: 'client/hoja-de-ruta.js' },
             { type: 'js', src: 'client/hoja-de-ruta-react.js' },
@@ -937,6 +938,9 @@ NETWORK:
         ]:[
             {type:'js' , src:'unlogged.js' },
         ];
+        if(loggedResources && this.config.server.policy=='web'){
+            menuedResources.push({ type: 'js', src: 'client/check-estructura.js' });
+        }
         if(opts && opts.extraFiles){
             menuedResources = menuedResources.concat(opts.extraFiles);
         }
