@@ -1,11 +1,26 @@
 "use strict";
-import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta, cargarScriptEstructura} from "../unlogged/dm-react";
+import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 const ServiceWorkerAdmin = require("service-worker-admin");
 
 var reloadWithoutHash = ()=>{
     history.replaceState(null, '', `${location.origin+location.pathname}/../dm`);
     location.reload()
+}
+
+var cargarScriptEstructura = async (callBack?:()=>Promise<void>)=>{
+    const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
+    var script = document.createElement('script');
+    var src = `carga-dm/${periodo}p${panel}t${tarea}_estructura.js`;
+    script.src=src;
+    document.body.appendChild(script);
+    script.onload=async ()=>{
+        console.log(`trae ${src}`);
+        callBack?await callBack():null;
+    }
+    script.onerror=(err)=>{
+        console.log("problema cargando estructura. ", err)
+    }
 }
 
 window.addEventListener('load', async function(){

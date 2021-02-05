@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#21-02-04";
+const APP_DM_VERSION="#21-02-05";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -1231,6 +1231,7 @@ NETWORK:
             {name: 'relinf_fechassalida', path: __dirname},
             {name: 'requerimientos', path: __dirname},
             {name: 'req_cambiospantar', path: __dirname}
+
         ]);
     }
 }
