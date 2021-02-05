@@ -12,6 +12,17 @@ function getVersionSistema(){
     return document.body.getAttribute('app-version');
 }
 
+async function borrarArchivosEstructuraViejosDeCache(){
+    for(let cacheName of await caches.keys()){
+        let cache = await caches.open(cacheName);
+        let keys = await cache.keys();
+        for(var estructuraKey of keys.filter((key)=>key.url.endsWith('_estructura.js'))){
+            console.log('borrando estructura ', estructuraKey.url)
+            await cache.delete(estructuraKey.url);
+        }              
+    }
+}
+
 async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
     var mainLayout = document.getElementById('main_layout')!;
     try{
@@ -50,6 +61,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             panel: panel,
             tarea: tarea
         });
+        await borrarArchivosEstructuraViejosDeCache();
         my.setLocalVar(LOCAL_STORAGE_STATE_NAME, hdr);
         mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
         my.setLocalVar('ipc2.0-descargado',false);
