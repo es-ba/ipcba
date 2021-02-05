@@ -1226,7 +1226,8 @@ NETWORK:
             {name: 'formulario_emergencia', path: __dirname},
             {name: 'relinf_fechassalida', path: __dirname},
             {name: 'requerimientos', path: __dirname},
-            {name: 'req_cambiospantar', path: __dirname}
+            {name: 'req_cambiospantar', path: __dirname},
+            {name: 'tercera_ausencia', path: __dirname}
         ]);
     }
 }

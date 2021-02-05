@@ -659,6 +659,7 @@ my.wScreens.controles_formulario={
             {table:'control_verificar_precio', abr:'CVP', label:'Control para verificar precio', fields:['periodo','informante','visita','formulario']},
             {table:'precios_positivos', abr:'PP', label:'Control precios positivos', fields:['periodo','informante','visita','formulario']},
             {table:'precios_inconsistentes', abr:'PI', label:'Control precios inconsistentes', fields:['periodo','informante','visita','formulario']},
+            {table:'tercera_ausencia', abr:'TA', label:'Control tercer mes ausencia', fields:['periodo','informante','visita','formulario']},
         ];
         return Promise.all(detailTables.map(function(det){
             var divGrilla=html.div().create();
