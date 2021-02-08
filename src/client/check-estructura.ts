@@ -24,7 +24,7 @@ window.addEventListener('load', async function(){
             onEachFile: null,
             onInfoMessage: null,
             onError: null,
-            onReadyToStart: null,
+            onReadyToStart: cargarScriptEstructura,
             //onStateChange: async ()=>cargarScriptEstructura(),
             onStateChange:async(showScreen, newVersionAvaiable, installing, waiting, active, installerState)=>{
                 console.log(showScreen, newVersionAvaiable, installing, waiting, active, installerState);
