@@ -25,11 +25,14 @@ window.addEventListener('load', async function(){
             onInfoMessage: null,
             onError: null,
             onReadyToStart: null,
-            onStateChange: async ()=>cargarScriptEstructura(),
-            //onStateChange:async(showScreen, newVersionAvaiable, installing, waiting, active, installerState)=>{
-            //    console.log(showScreen, newVersionAvaiable, installing, waiting, active, installerState);
-            //    alert("showScreen: " + showScreen + " newVersionAvaiable: " +newVersionAvaiable + " installing: " +installing +" waiting: " + waiting +" active: " + active +" installerState: "+ installerState)
-            //}
+            //onStateChange: async ()=>cargarScriptEstructura(),
+            onStateChange:async(showScreen, newVersionAvaiable, installing, waiting, active, installerState)=>{
+                console.log(showScreen, newVersionAvaiable, installing, waiting, active, installerState);
+                if(installerState == 'activated'){
+                    cargarScriptEstructura()
+                }
+                //alert("showScreen: " + showScreen + " newVersionAvaiable: " +newVersionAvaiable + " installing: " +installing +" waiting: " + waiting +" active: " + active +" installerState: "+ installerState)
+            }
         });
     }
 });
