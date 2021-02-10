@@ -13,7 +13,7 @@ module.exports = function(context){
         fields:[
             {name:'producto'                  , typeName:'text'     },
             {name:'atributo'                  , typeName:'integer'  },
-            {name:'valor'                     , typeName:'text'     },
+            {name:'valor'                     , typeName:'text'     , postInput:'upperSpanish'},
             {name:'orden'                     , typeName:'integer'  },
         ],
         primaryKey:['producto','atributo','valor'],
