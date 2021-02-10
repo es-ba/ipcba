@@ -707,7 +707,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
                     {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador]},
-                    {menuType:'agregar_requerimiento', name:'requerimientos', label:'requerimientos', onlyVisibleFor:[programador]},
+                    {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador]},
                     {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
@@ -1229,8 +1229,8 @@ NETWORK:
             {name: 'misma_direccion', path: __dirname},
             {name: 'formulario_emergencia', path: __dirname},
             {name: 'relinf_fechassalida', path: __dirname},
-            {name: 'requerimientos', path: __dirname},
-            {name: 'req_cambiospantar', path: __dirname},
+            {name: 'cambiopantar_lote', path: __dirname},
+            {name: 'cambiopantar_det', path: __dirname},
             {name: 'tercera_ausencia', path: __dirname}
         ]);
     }

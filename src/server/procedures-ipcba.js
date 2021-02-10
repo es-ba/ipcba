@@ -2135,86 +2135,29 @@ ProceduresIpcba = [
         }
     },
     {
-        action: 'requerimiento_agregar',
+        action:'fechaprocesado_touch',
         parameters:[
+            {name:'id_lote'       , typeName:'integer'  , references:'cambiopantar_lote'}
         ],
-        roles:['programador','coordinador'],
-        coreFunction: async function(context, parameters){
-            try{
-            var result = await context.client.query(
-                `insert into requerimientos values (nextval('cvp.secuencia_requerimientos'), CURRENT_DATE)`,
-                 []).execute();
-            return '';
-            }catch(err){
+        roles:['programador'],
+        coreFunction:function(context, parameters){
+            return context.client.query(
+                `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
+                   WHERE id_lote = $1 and fechaprocesado is null
+                   RETURNING fechaprocesado`,
+                [parameters.id_lote]
+            ).fetchUniqueRow().then(function(result){
+            return 'procesado: ' + result.row.fechaprocesado;
+            }).catch(function(err){
+                if(err.code=='54011!'){
+                    throw new Error('El lote ya ha sido procesado');
+                }
                 console.log(err);
                 console.log(err.code);
                 throw err;
-            };
+            });
         }
     },
-    {
-        action: 'cambiopt_proceder',
-        parameters:[
-            {name:'id_requerimiento', typeName:'integer', references:'requerimientos'},
-        ],
-        roles:['programador'],        
-        coreFunction:async function(context, parameters){
-            try{
-                //activar la tarea, si no está activa
-                await context.client.query(
-                    `UPDATE tareas t SET activa = 'S' 
-                        FROM (SELECT distinct tarea_nueva FROM req_cambiospantar WHERE id_requerimiento = $1 ) r
-                        WHERE t.tarea = r.tarea_nueva AND COALESCE(t.activa, 'N') = 'N'`
-                    ,
-                    [parameters.id_requerimiento]
-                ).execute();
-                //activar la pantar, si no está activa
-                await context.client.query(
-                    `UPDATE pantar pt SET activa = 'S' 
-                        FROM (SELECT distinct panel_nuevo, tarea_nueva FROM req_cambiospantar WHERE id_requerimiento = $1 ) r
-                        WHERE pt.panel = r.panel_nuevo and pt.tarea = r.tarea_nueva AND COALESCE(pt.activa, 'N') = 'N'`
-                    ,
-                    [parameters.id_requerimiento]
-                ).execute();
-                //agregar a pantar como activa, si no está
-                await context.client.query(
-                    `INSERT INTO pantar (panel, tarea, activa) 
-                        (SELECT DISTINCT panel_nuevo, tarea_nueva, 'S' as activa 
-                        FROM req_cambiospantar r 
-                        JOIN tareas t ON r.tarea = t.tarea 
-                        LEFT JOIN pantar pt ON r.panel_nuevo = pt.panel AND r.tarea_nueva = pt.tarea 
-                        WHERE t.activa = 'S' AND pt.panel is null AND id_requerimiento = $1)`
-                    ,
-                    [parameters.id_requerimiento]
-                ).execute();
-                //cambiar el panel, tarea
-                await context.client.query(
-                    `UPDATE relvis r SET panel = panel_nuevo, tarea= tarea_nueva 
-                        FROM req_cambiospantar pt 
-                        WHERE id_requerimiento = $1 AND r.periodo = pt.periodo AND r.informante = pt.informante AND r.panel = pt.panel AND r.tarea = pt.tarea`
-                    ,
-                    [parameters.id_requerimiento]
-                ).execute(); 
-                //agreagar a reltar
-                await context.client.query(
-                    `INSERT INTO reltar (periodo,panel,tarea,encuestador) 
-                       (SELECT DISTINCT v.periodo, v.panel, v.tarea, t.encuestador 
-                       FROM req_cambiospantar cpt
-                       JOIN relvis v ON cpt.periodo = v.periodo AND cpt.informante = v.informante and cpt.panel_nuevo = v.panel and cpt.tarea_nueva = v.tarea
-                       JOIN tareas t ON v.tarea = t.tarea
-                       JOIN pantar pt ON cpt.panel_nuevo = pt.panel AND cpt.tarea = pt.tarea	  
-                       LEFT JOIN reltar rt ON v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea  
-                       WHERE t.activa = 'S' AND pt.activa = 'S' and rt.periodo is null and id_requerimiento = $1)`
-                    ,
-                    [parameters.id_requerimiento]
-                ).execute();
-                return 'listo';                
-            }catch(err){
-                console.log('ERROR',err);
-                throw err;
-            }
-        }
-    },        
 ];
 
 module.exports = ProceduresIpcba;

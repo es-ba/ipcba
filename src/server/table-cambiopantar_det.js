@@ -3,7 +3,7 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador'||context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
-        name:'req_cambiospantar',
+        name:'cambiopantar_det',
         editable:puedeEditar,
         allow:{
             insert:puedeEditar,
@@ -11,7 +11,7 @@ module.exports = function(context){
             update:puedeEditar,
         },
         fields:[
-            {name:'id_requerimiento', typeName:'integer'  , nullable:false, allow:{update:puedeEditar}},
+            {name:'id_lote'         , typeName:'integer'  , nullable:false, allow:{update:puedeEditar}},
             {name:'periodo'         , typeName:'text'     , nullable:false, allow:{update:puedeEditar}},
             {name:'informante'      , typeName:'integer'  , nullable:false, allow:{update:puedeEditar}},
             {name:'panel'           , typeName:'integer'  , nullable:false, allow:{update:puedeEditar}},
@@ -21,12 +21,13 @@ module.exports = function(context){
             {name:'cantorigen'      , typeName:'integer'                  , allow:{update:false}},
             {name:'cantdestino'     , typeName:'integer'                  , allow:{update:false}},
         ],
-        primaryKey:['id_requerimiento','periodo','informante','panel','tarea'],
+        primaryKey:['id_lote','periodo','informante','panel','tarea'],
         foreignKeys:[
-            {references:'requerimientos', fields:['id_requerimiento']},
+            {references:'cambiopantar_lote', fields:['id_lote']},
         ],
         sql:{
-            from:`(select cpt.*, c.cantorigen, c.cantdestino from req_cambiospantar cpt,
+            isTable: true,
+            from:`(select cpt.*, c.cantorigen, c.cantdestino from cambiopantar_det cpt,
                    lateral (select sum(case when cpt.panel = rv.panel and cpt.tarea = rv.tarea then 1 else null end) cantorigen,
                             sum(case when cpt.panel_nuevo = rv.panel and cpt.tarea_nueva = rv.tarea then 1 else null end) cantdestino
                             from relvis rv 
