@@ -21,7 +21,7 @@ module.exports = function(context){
         primaryKey:['id_lote'],
         sortColumns:[{column:'id_lote', order:-1}],
         detailTables:[
-            {table:'cambiopantar_det', abr:'CPT', label:'cambios pantar', fields:['id_lote'], refreshParent: true},
+            {table:'cambiopantar_det', abr:'CPT', label:'cambios pantar', fields:['id_lote'], refreshParent: true, refreshFromParent: true},
         ],
         sql:{
             isTable: true,
