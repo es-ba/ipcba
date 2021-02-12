@@ -1,4 +1,5 @@
 "use strict";
+var bestGlobals = require('best-globals');
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador'||context.user.usu_rol ==='coordinador';
@@ -12,10 +13,10 @@ module.exports = function(context){
         },
         fields:[
             {name:'id_lote'       , typeName:'integer'  , sequence:{name: 'secuencia_cambiopantar_lote', firstValue: 1}, nullable:true, editable:false },
-            {name:'fecha_lote'    , typeName:'date'     , allow:{update:puedeEditar}},
+            {name:'fecha_lote'    , typeName:'date'     , specialDefaultValue:'current_date', nullable:true, editable:false},
             {name:'fechaprocesado', typeName:'timestamp', allow:{update:false}},
-            {name:'cantorigen'    , typeName:'integer'  , allow:{update:false}},
-            {name:'cantdestino'   , typeName:'integer'  , allow:{update:false}},
+            {name:'cantorigen'    , typeName:'integer'  , allow:{update:false}, inTable:false},
+            {name:'cantdestino'   , typeName:'integer'  , allow:{update:false}, inTable:false},
             {name: "proceder"     , typeName: "bigint"  , editable:false, clientSide:'procederCambioPT'},
         ],
         primaryKey:['id_lote'],
