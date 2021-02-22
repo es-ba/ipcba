@@ -25,13 +25,45 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    AppBar, Badge, Button, ButtonGroup, Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, /*Button, */ButtonGroup, Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
+    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
+const Button = (props:{
+    variant?:string,
+    color?:string,
+    className?:string,
+    onClick?:(event)=>void,
+    disabled?:boolean
+    children:any,
+})=><button 
+    className={`btn btn-${props.variant=='contained'?'':props.variant}-primary ${props.className}`}
+    disabled={props.disabled}
+    onClick={props.onClick}
+>{props.children}</button>
+
+const TextField = (props:{
+    disabled?:boolean,
+    className?:string,
+    fullWidth?:boolean
+    inputProps?:any,
+    value?:any,
+    type?:any,
+    onChange?:(event:any)=>void,
+    onFocus?:(event:any)=>void,
+    onBlur?:(event:any)=>void,
+})=><input
+disabled={props.disabled}
+className={props.className}
+value={props.value} 
+type={props.type}
+onChange={props.onChange}
+onFocus={props.onFocus}
+onBlur={props.onBlur}
+/>;
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -681,6 +713,163 @@ var FakeButton = (props:{children:React.ReactChild}) =>
         {props.children}
     </div>
 
+var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, razonPositiva:boolean, onSelection:()=>void})=> {
+    const {inputIdPrecio, relPre, razonPositiva, iRelPre} = props;
+    const dispatch = useDispatch();
+    const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
+    const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
+    return <>
+        <Button disabled={!razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
+            props.onSelection();
+            setDialogoObservaciones(true)
+        }}>
+            {relPre.comentariosrelpre||'obs'}
+        </Button>
+        <Dialog
+            open={dialogoObservaciones}
+            onClose={()=>{
+                setDialogoObservaciones(false)
+                setObservacionAConfirmar(relPre.comentariosrelpre);
+            }}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
+            <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description-obs">
+                    <EditableTd
+                        autoFocus={true}
+                        hasError={false}
+                        inputId={inputIdPrecio+"_comentarios"}
+                        disabled={false}
+                        placeholder={"agregar observaciones"}
+                        className="observaciones"
+                        value={observacionAConfirmar}
+                        onUpdate={value=>{
+                            setObservacionAConfirmar(value);
+                        }} 
+                        dataType="text"
+                    />
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={()=>{
+                    dispatch(dispatchers.SET_COMENTARIO_PRECIO({
+                        forPk:relPre, 
+                        iRelPre: iRelPre,
+                        comentario:observacionAConfirmar,
+                    }));
+                    setDialogoObservaciones(false)
+                }} color="primary" variant="outlined">
+                    Guardar
+                </Button>
+                <Button onClick={()=>{
+                    setObservacionAConfirmar(relPre.comentariosrelpre)
+                    setDialogoObservaciones(false)
+                }} color="secondary" variant="outlined">
+                    Descartar cambio
+                </Button>
+            </DialogActions>
+        </Dialog>
+    </>
+}
+
+var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, razonPositiva:boolean, onSelection:()=>void})=> {
+    const {inputIdPrecio, relPre, razonPositiva, iRelPre} = props;
+    const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
+    const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
+    const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
+    var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+    const classes = useStylesList();
+    const dispatch = useDispatch();
+    return <>
+        <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
+            {relPre.repregunta?
+                <RepreguntaIcon/>
+            :((puedeCopiarTipoPrecio(estructura, relPre))?
+                <Button disabled={!razonPositiva} color="secondary" variant="outlined" onClick={ () => {
+                    props.onSelection();
+                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                        setMenuConfirmarBorradoPrecio(true)
+                    }else{
+                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:iRelPre}));
+                    }
+                }}>
+                    {FLECHATIPOPRECIO}
+                </Button>
+                :'')
+            }
+        </div>
+        <div className="tipo-precio" button-container="yes">
+            <Button disabled={!razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
+                props.onSelection();
+                setMenuTipoPrecio(event.currentTarget)
+            }}>
+                {razonPositiva && relPre.tipoprecio || "\u00a0"}
+            </Button>
+        </div>
+        <Menu id="simple-menu"
+            open={Boolean(menuTipoPrecio)}
+            anchorEl={menuTipoPrecio}
+            onClose={()=>setMenuTipoPrecio(null)}
+        >
+            {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
+                var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
+                return (
+                <MenuItem key={tpDef.tipoprecio} onClick={()=>{
+                    setMenuTipoPrecio(null);
+                    if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
+                        setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
+                        setMenuConfirmarBorradoPrecio(true)
+                    }else{
+                        dispatch(dispatchers.SET_TP({
+                            forPk:relPre, 
+                            iRelPre:props.iRelPre,
+                            tipoprecio:tpDef.tipoprecio
+                        }))
+                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
+                    }
+                }}>
+                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                </MenuItem>
+                )
+            })}
+        </Menu>
+        <Dialog
+            open={menuConfirmarBorradoPrecio}
+            onClose={()=>setMenuConfirmarBorradoPrecio(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
+            <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description-tpn">
+                    Se borrará el precio y los atributos
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={()=>{
+                    setMenuConfirmarBorradoPrecio(false)
+                }} color="primary" variant="outlined">
+                    No borrar
+                </Button>
+                <Button onClick={()=>{
+                    dispatch(dispatchers.SET_TP({
+                        forPk:relPre, 
+                        iRelPre: props.iRelPre,
+                        tipoprecio:tipoDePrecioNegativoAConfirmar
+                    }))
+                    setMenuConfirmarBorradoPrecio(false)
+                }} color="secondary" variant="outlined">
+                    Borrar precio y atributos
+                </Button>
+            </DialogActions>
+        </Dialog>
+    </>
+}
+
 var PreciosRow = React.memo(function PreciosRow(props:{
     style:Styles,
     relPre:RelPre, iRelPre:number,
@@ -699,13 +888,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const dispatch = useDispatch();
     const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
     const productoDef:Producto = estructura.productos[relPre.producto];
-    const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
-    const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
-    const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
-    const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
-    const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
-    var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
-    const classes = useStylesList();
     const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
     const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
     const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
@@ -727,14 +909,13 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const chipTextColor = chipColor=='#FFFFFF'?'#000000':'#FFFFFF';
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null){
+    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null, compactar:boolean, inputIdPrecio:string){
         if(hasSearchString || allForms || compactar){
             dispatch(dispatchers.SET_QUE_VER({queVer: 'todos', informante: relPre.informante, formulario: relPre.formulario, allForms: false, searchString:'', compactar:false}));
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
             dispatch(dispatchers.SET_FOCUS({nextId:inputId || inputIdPrecio}))
         }
     }
-
     return (
         <div style={props.style} className="caja-relpre" es-positivo={relPre.tipoprecio == null ? (relPre.cambio=='C'?'si':'maso'):(estructura.tipoPrecio[relPre.tipoprecio].espositivo?'si':'no')}>
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
@@ -783,63 +964,18 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 <div className="encabezado">
                     <div className="observaciones" button-container="yes">
                         {render4scroll?
-                        <FakeButton>
-                            {relPre.comentariosrelpre||'obs'}
-                        </FakeButton>
-                        :<>
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
-                                handleSelection(relPre, hasSearchString, allForms, null);
-                                setDialogoObservaciones(true)
-                            }}>
+                            <FakeButton>
                                 {relPre.comentariosrelpre||'obs'}
-                            </Button>
-                            <Dialog
-                                open={dialogoObservaciones}
-                                onClose={()=>{
-                                    setDialogoObservaciones(false)
-                                    setObservacionAConfirmar(relPre.comentariosrelpre);
-                                }}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                            >
-                                <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText id="alert-dialog-description-obs">
-                                        <EditableTd
-                                            autoFocus={true}
-                                            hasError={false}
-                                            inputId={inputIdPrecio+"_comentarios"}
-                                            disabled={false}
-                                            placeholder={"agregar observaciones"}
-                                            className="observaciones"
-                                            value={observacionAConfirmar}
-                                            onUpdate={value=>{
-                                                setObservacionAConfirmar(value);
-                                            }} 
-                                            dataType="text"
-                                        />
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={()=>{
-                                        dispatch(dispatchers.SET_COMENTARIO_PRECIO({
-                                            forPk:relPre, 
-                                            iRelPre: props.iRelPre,
-                                            comentario:observacionAConfirmar,
-                                        }));
-                                        setDialogoObservaciones(false)
-                                    }} color="primary" variant="outlined">
-                                        Guardar
-                                    </Button>
-                                    <Button onClick={()=>{
-                                        setObservacionAConfirmar(relPre.comentariosrelpre)
-                                        setDialogoObservaciones(false)
-                                    }} color="secondary" variant="outlined">
-                                        Descartar cambio
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
-                        </>}
+                            </FakeButton>
+                        :
+                            <ObsPrecio 
+                                inputIdPrecio={inputIdPrecio}
+                                relPre={relPre} 
+                                iRelPre={props.iRelPre}
+                                razonPositiva={props.razonPositiva}
+                                onSelection={()=>handleSelection(relPre, hasSearchString, allForms, null, compactar, inputIdPrecio)}
+                            />
+                        }
                     </div>
                     <div className="tipo-precio-anterior">{relPre.tipoprecioanterior}</div>
                     <div className="precio-anterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
@@ -872,90 +1008,13 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         }
                     </div>
                     {!render4scroll?<>
-                        <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
-                            {relPre.repregunta?
-                                <RepreguntaIcon/>
-                            :((puedeCopiarTipoPrecio(estructura, relPre))?
-                                <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
-                                    handleSelection(relPre, hasSearchString, allForms, null);
-                                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                                        setMenuConfirmarBorradoPrecio(true)
-                                    }else{
-                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre}));
-                                    }
-                                }}>
-                                    {FLECHATIPOPRECIO}
-                                </Button>
-                                :'')
-                            }
-                        </div>
-                        <div className="tipo-precio" button-container="yes">
-                            <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
-                                handleSelection(relPre, hasSearchString, allForms, null);
-                                setMenuTipoPrecio(event.currentTarget)
-                            }}>
-                                {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
-                            </Button>
-                        </div>
-                        <Menu id="simple-menu"
-                            open={Boolean(menuTipoPrecio)}
-                            anchorEl={menuTipoPrecio}
-                            onClose={()=>setMenuTipoPrecio(null)}
-                        >
-                            {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
-                                var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
-                                return (
-                                <MenuItem key={tpDef.tipoprecio} onClick={()=>{
-                                    setMenuTipoPrecio(null);
-                                    if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
-                                        setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
-                                        setMenuConfirmarBorradoPrecio(true)
-                                    }else{
-                                        dispatch(dispatchers.SET_TP({
-                                            forPk:relPre, 
-                                            iRelPre:props.iRelPre,
-                                            tipoprecio:tpDef.tipoprecio
-                                        }))
-                                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
-                                    }
-                                }}>
-                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
-                                </MenuItem>
-                                )
-                            })}
-                        </Menu>
-                        <Dialog
-                            open={menuConfirmarBorradoPrecio}
-                            onClose={()=>setMenuConfirmarBorradoPrecio(false)}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
-                            <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText id="alert-dialog-description-tpn">
-                                    Se borrará el precio y los atributos
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={()=>{
-                                    setMenuConfirmarBorradoPrecio(false)
-                                }} color="primary" variant="outlined">
-                                    No borrar
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_TP({
-                                        forPk:relPre, 
-                                        iRelPre: props.iRelPre,
-                                        tipoprecio:tipoDePrecioNegativoAConfirmar
-                                    }))
-                                    setMenuConfirmarBorradoPrecio(false)
-                                }} color="secondary" variant="outlined">
-                                    Borrar precio y atributos
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
+                        <TipoPrecio
+                            inputIdPrecio={inputIdPrecio}
+                            relPre={relPre} 
+                            iRelPre={props.iRelPre}
+                            razonPositiva={props.razonPositiva}
+                            onSelection={()=>handleSelection(relPre, hasSearchString, allForms, null, compactar, inputIdPrecio)}
+                        />
                         <EditableTd 
                             borderBottomColor={PRIMARY_COLOR}
                             borderBottomColorError={colorAdv}
@@ -981,7 +1040,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }} 
                             dataType="number"
                             onFocus={()=>{
-                                handleSelection(relPre, hasSearchString, allForms, inputIdPrecio);
+                                handleSelection(relPre, hasSearchString, allForms, inputIdPrecio, compactar, inputIdPrecio);
                             }}
                         />
                     </>
@@ -1002,7 +1061,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 primerAtributo={index==0}
                                 cantidadAtributos={relPre.atributos.length}
                                 ultimoAtributo={index == relPre.atributos.length-1}
-                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms, inputIdAtributos[index])}
+                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms, inputIdAtributos[index], compactar, inputIdPrecio)}
                                 razonPositiva={props.razonPositiva}
                             />
                         )
@@ -2168,6 +2227,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></link>            
             <OpenedTabs/>
             <AppDmIPC/>
         </Provider>,
