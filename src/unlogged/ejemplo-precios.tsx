@@ -43,7 +43,7 @@ const Button = (props:{
     size?:'lg'|'md'
 })=>{
     props.variant = props.variant || 'contained';
-    props.color = props.color || 'primary';
+    props.color = props.color || 'light';
     return <button 
         className={`
             btn 
@@ -765,20 +765,20 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
             </DialogContent>
             <DialogActions>
                 <Button onClick={()=>{
+                    setObservacionAConfirmar(relPre.comentariosrelpre)
+                    setDialogoObservaciones(false)
+                }} color="danger" variant="outline">
+                    Descartar cambio
+                </Button>
+                <Button onClick={()=>{
                     dispatch(dispatchers.SET_COMENTARIO_PRECIO({
                         forPk:relPre, 
                         iRelPre: iRelPre,
                         comentario:observacionAConfirmar,
                     }));
                     setDialogoObservaciones(false)
-                }} color="primary" variant="outline">
+                }} color="primary" variant="contained">
                     Guardar
-                </Button>
-                <Button onClick={()=>{
-                    setObservacionAConfirmar(relPre.comentariosrelpre)
-                    setDialogoObservaciones(false)
-                }} color="danger" variant="outline">
-                    Descartar cambio
                 </Button>
             </DialogActions>
         </Dialog>
@@ -1525,23 +1525,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             {`inf ${props.relVisPk.informante}`}
                         </Typography>
                         <Grid item>
-                            <ButtonGroup
-                                variant="contained"
-                                color="default"
-                                aria-label="large contained default button group"
-                                style={{margin:'0 5px'}}
-                            >
+                            <div className="btn-group" role="group">
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
                                 }}>
                                     <ICON.FormatLineSpacing />
                                 </Button>
-                            </ButtonGroup>
-                            <ButtonGroup
-                                variant="contained"
-                                color="default"
-                                aria-label="large contained default button group"
-                            >
+                            </div>
+                            <div className="btn-group" role="group">
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
@@ -1557,7 +1548,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
                                     <ICON.Warning />
                                 </Button>
-                            </ButtonGroup>
+                            </div>
                         </Grid>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>

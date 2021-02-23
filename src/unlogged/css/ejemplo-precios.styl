@@ -189,11 +189,15 @@ main
 .menu-informante-visita
   .razon-formulario
     display grid
-    grid-template-columns 12% 40% 48%
+    grid-template-columns 6% 40% 54%
     font-size letra_mediana
     min-height 70px
     div
       align-self center
+    .comentarios-razon
+      width 100%
+      input
+        width 100%
   div
     &[es-repregunta=yes]
       svg
@@ -216,7 +220,6 @@ main
   .MuiButton-root
     text-transform none
   button
-    min-height 60px
     border-top 1px solid #ddd
 
 .zona-degrade
@@ -249,13 +252,13 @@ main
 .boton-hay-mas
   min-width 300px
 
-.boton-seleccionado-todos span svg path
+.boton-seleccionado-todos svg path
   color blue
 
-.boton-seleccionado-pendientes span svg path
+.boton-seleccionado-pendientes svg path
   color red
 
-.boton-seleccionado-advertencias span svg path
+.boton-seleccionado-advertencias svg path
   color orange
 
 .caja-relpre[es-positivo=maso]
