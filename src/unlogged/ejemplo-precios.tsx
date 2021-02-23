@@ -40,29 +40,43 @@ const Button = (props:{
     disabled?:boolean
     children:any,
 })=><button 
-    className={`btn btn-${props.variant=='contained'?'':props.variant}-primary ${props.className}`}
+    className={`btn btn-${props.variant=='contained'?'':props.variant=='outlined'?'outline':props.variant}${props.color?'-'+props.color:''}${props.className || ''}`}
     disabled={props.disabled}
     onClick={props.onClick}
 >{props.children}</button>
 
 const TextField = (props:{
+    id?:string,
+    autoFocus?:boolean,
     disabled?:boolean,
     className?:string,
     fullWidth?:boolean
     inputProps?:any,
     value?:any,
     type?:any,
+    placeholder?:string,
+    multiline?:boolean,
+    rowsMax?:number,
+    onKeyDown?:(event:any)=>void,
     onChange?:(event:any)=>void,
     onFocus?:(event:any)=>void,
     onBlur?:(event:any)=>void,
 })=><input
+id={props.id}
+spellCheck={false}
+autoCapitalize="off"
+autoComplete="off"
+autoCorrect="off"
+autoFocus={props.autoFocus}
 disabled={props.disabled}
 className={props.className}
 value={props.value} 
 type={props.type}
+onKeyDown={props.onKeyDown}
 onChange={props.onChange}
 onFocus={props.onFocus}
 onBlur={props.onBlur}
+placeholder={props.placeholder}
 />;
 
 // https://material-ui.com/components/material-icons/
@@ -394,7 +408,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
         <DialogActions>
             <Button onClick={()=>{
                 props.onCancel()
-            }} color="secondary" variant="text">
+            }} color="danger" variant="text">
                 cancelar
             </Button>
             <Button onClick={()=>{
@@ -766,7 +780,7 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
                 <Button onClick={()=>{
                     setObservacionAConfirmar(relPre.comentariosrelpre)
                     setDialogoObservaciones(false)
-                }} color="secondary" variant="outlined">
+                }} color="danger" variant="outlined">
                     Descartar cambio
                 </Button>
             </DialogActions>
@@ -787,7 +801,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
             {relPre.repregunta?
                 <RepreguntaIcon/>
             :((puedeCopiarTipoPrecio(estructura, relPre))?
-                <Button disabled={!razonPositiva} color="secondary" variant="outlined" onClick={ () => {
+                <Button disabled={!razonPositiva} color="danger" variant="outlined" onClick={ () => {
                     props.onSelection();
                     if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
@@ -802,7 +816,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
             }
         </div>
         <div className="tipo-precio" button-container="yes">
-            <Button disabled={!razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
+            <Button disabled={!razonPositiva} color={esNegativo?"danger":"primary"} variant="outlined" onClick={event=>{
                 props.onSelection();
                 setMenuTipoPrecio(event.currentTarget)
             }}>
@@ -862,7 +876,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
                         tipoprecio:tipoDePrecioNegativoAConfirmar
                     }))
                     setMenuConfirmarBorradoPrecio(false)
-                }} color="secondary" variant="outlined">
+                }} color="danger" variant="outlined">
                     Borrar precio y atributos
                 </Button>
             </DialogActions>
@@ -1275,7 +1289,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
         <div className="razon-formulario">
             <div>
                 <Button onClick={event=>setMenuRazon(event.currentTarget)} 
-                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
+                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} variant="outlined">
                     {relVis.razon}
                 </Button>
             </div>
@@ -1342,7 +1356,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                     <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
                         dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
                         setMenuConfirmarRazon(false)
-                    }} color="secondary" variant="outlined">
+                    }} color="danger" variant="outlined">
                         Proceder borrando
                     </Button>
                 </DialogActions>
@@ -1627,7 +1641,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     />
                 </main>
                 <ScrollTop>
-                    <Fab color="secondary" size="small" aria-label="scroll back to top">
+                    <Fab color="danger" size="small" aria-label="scroll back to top">
                         <KeyboardArrowUpIcon />
                     </Fab>
                 </ScrollTop>
@@ -2067,7 +2081,7 @@ function PantallaOpciones(){
                 {online && customDataMode && isDirtyHDR()?
                     <Typography>
                         <Button
-                            color="secondary"
+                            color="danger"
                             variant="contained"
                             onClick={()=>{
                                 setMensajeBorrar(`Si continua perderá los datos que haya ingresado en el dispositivo 
@@ -2116,7 +2130,7 @@ function PantallaOpciones(){
                                             setMensajeBorrar(message)
                                         }
                                     }} 
-                                    color="secondary" 
+                                    color="danger" 
                                     variant="outlined"
                                     disabled={!habilitarBorrar}
                                 >
