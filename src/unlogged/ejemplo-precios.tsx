@@ -38,12 +38,26 @@ const Button = (props:{
     className?:string,
     onClick?:(event)=>void,
     disabled?:boolean
+    fullwidth?:boolean
     children:any,
-})=><button 
-    className={`btn btn-${props.variant=='contained'?'':props.variant=='outlined'?'outline':props.variant}${props.color?'-'+props.color:''}${props.className || ''}`}
-    disabled={props.disabled}
-    onClick={props.onClick}
->{props.children}</button>
+    size?:'lg'|'md'
+})=>{
+    props.variant = props.variant || 'contained';
+    props.color = props.color || 'primary';
+    return <button 
+        className={`
+            btn 
+            btn${props.variant=='contained'?'':'-'+props.variant}${props.color?'-'+props.color:''} 
+            ${props.className || ''} 
+            ${props.size?`btn-${props.size}`:''}
+        `}
+        disabled={props.disabled}
+        onClick={props.onClick}
+        style={{
+            width:props.fullwidth?'100%':'none'
+        }}
+    >{props.children}</button>
+}
 
 const TextField = (props:{
     id?:string,
@@ -51,7 +65,6 @@ const TextField = (props:{
     disabled?:boolean,
     className?:string,
     fullWidth?:boolean
-    inputProps?:any,
     value?:any,
     type?:any,
     placeholder?:string,
@@ -61,23 +74,35 @@ const TextField = (props:{
     onChange?:(event:any)=>void,
     onFocus?:(event:any)=>void,
     onBlur?:(event:any)=>void,
-})=><input
-id={props.id}
-spellCheck={false}
-autoCapitalize="off"
-autoComplete="off"
-autoCorrect="off"
-autoFocus={props.autoFocus}
-disabled={props.disabled}
-className={props.className}
-value={props.value} 
-type={props.type}
-onKeyDown={props.onKeyDown}
-onChange={props.onChange}
-onFocus={props.onFocus}
-onBlur={props.onBlur}
-placeholder={props.placeholder}
-/>;
+    hasError:boolean,
+    borderBottomColor:string,
+    borderBottomColorError:string,
+    color:string
+})=>{
+    var {hasError, borderBottomColorError, borderBottomColor} = props;
+    return <input
+        id={props.id}
+        spellCheck={false}
+        autoCapitalize="off"
+        autoComplete="off"
+        autoCorrect="off"
+        autoFocus={props.autoFocus}
+        disabled={props.disabled}
+        className={`${props.className||''}`}
+        value={props.value} 
+        type={props.type}
+        onKeyDown={props.onKeyDown}
+        onChange={props.onChange}
+        onFocus={props.onFocus}
+        onBlur={props.onBlur}
+        placeholder={props.placeholder}
+        style={{
+            border: "0px solid white",
+            borderBottom:  `1px solid ${hasError?borderBottomColorError:borderBottomColor}`,
+            color: props.color
+        }}
+    />
+};
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -271,11 +296,6 @@ function TypedInput<T extends string|number|null>(props:{
         // @ts-ignore sé que T es string
         return valueT;
     }
-    const classes = useStylesTextField({
-        borderBottomColor: props.borderBottomColor,
-        borderBottomColorError: props.borderBottomColorError,
-        color: props.color
-    });
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
         if(valueT(value) != props.value && typedInputElement && typedInputElement === document.activeElement){
@@ -336,17 +356,12 @@ function TypedInput<T extends string|number|null>(props:{
             element.selectionEnd = selection;
         }
     }
-    var readOnly = false;
     if(props.dataType=='text'){
         var input = <TextField
             autoFocus={props.autoFocus}
             multiline
             rowsMax="4"
             placeholder={props.placeholder}
-            spellCheck={false}
-            autoCapitalize="off"
-            autoComplete="off"
-            autoCorrect="off"
             id={inputId}
             value={value}
             type={props.dataType} 
@@ -360,14 +375,15 @@ function TypedInput<T extends string|number|null>(props:{
             onBlur={onBlurFun}
             onKeyDown={onKeyDownFun}
             disabled={props.disabled?props.disabled:false}
-            error={props.hasError}
-            InputProps={{ classes: classes, readOnly: readOnly}}
+            hasError={props.hasError}
+            borderBottomColor={props.borderBottomColor}
+            borderBottomColorError={props.borderBottomColorError}
+            color={props.color}
         />
         return input;
     }else{
         var input = <TextField
             autoFocus={props.autoFocus}
-            spellCheck={false}
             placeholder={props.placeholder}
             id={inputId}
             value={value}
@@ -379,8 +395,10 @@ function TypedInput<T extends string|number|null>(props:{
                 props.onFocus?props.onFocus():null;
             }}
             disabled={props.disabled?props.disabled:false}
-            error={props.hasError}
-            InputProps={{ classes: classes, readOnly: readOnly}}
+            hasError={props.hasError}
+            borderBottomColor={props.borderBottomColor}
+            borderBottomColorError={props.borderBottomColorError}
+            color={props.color}
         />
         return input;
     }
@@ -465,7 +483,7 @@ function EditableTd<T extends string|number|null>(props:{
             }
         >
             <div  
-                className={props.className} 
+                className={`${props.className}`} 
                 ref={mostrarMenu} 
                 onClick={(_event)=>{
                     if(!props.disabled){
@@ -594,7 +612,7 @@ const AtributosRow = function(props:{
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
                     {props.razonPositiva?(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ () => {
                                 props.onSelection();
                                 dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                                     forPk:relAtr, 
@@ -605,14 +623,14 @@ const AtributosRow = function(props:{
                                 {FLECHAATRIBUTOS}
                             </Button>
                         :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
                                 props.onSelection();
                                 setMenuCambioAtributos(event.currentTarget)                            
                             }}>
                                 C
                             </Button>
                         :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
                                 props.onSelection();
                                 setMenuCambioAtributos(event.currentTarget)                            
                             }}>
@@ -733,7 +751,7 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
     return <>
-        <Button disabled={!razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
+        <Button disabled={!razonPositiva} color="primary" variant="outline" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
             props.onSelection();
             setDialogoObservaciones(true)
         }}>
@@ -774,13 +792,13 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
                         comentario:observacionAConfirmar,
                     }));
                     setDialogoObservaciones(false)
-                }} color="primary" variant="outlined">
+                }} color="primary" variant="outline">
                     Guardar
                 </Button>
                 <Button onClick={()=>{
                     setObservacionAConfirmar(relPre.comentariosrelpre)
                     setDialogoObservaciones(false)
-                }} color="danger" variant="outlined">
+                }} color="danger" variant="outline">
                     Descartar cambio
                 </Button>
             </DialogActions>
@@ -801,7 +819,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
             {relPre.repregunta?
                 <RepreguntaIcon/>
             :((puedeCopiarTipoPrecio(estructura, relPre))?
-                <Button disabled={!razonPositiva} color="danger" variant="outlined" onClick={ () => {
+                <Button disabled={!razonPositiva} color="danger" variant="outline" onClick={ () => {
                     props.onSelection();
                     if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
                         setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
@@ -816,7 +834,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
             }
         </div>
         <div className="tipo-precio" button-container="yes">
-            <Button disabled={!razonPositiva} color={esNegativo?"danger":"primary"} variant="outlined" onClick={event=>{
+            <Button disabled={!razonPositiva} color={esNegativo?"danger":"primary"} variant="outline" onClick={event=>{
                 props.onSelection();
                 setMenuTipoPrecio(event.currentTarget)
             }}>
@@ -866,7 +884,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
             <DialogActions>
                 <Button onClick={()=>{
                     setMenuConfirmarBorradoPrecio(false)
-                }} color="primary" variant="outlined">
+                }} color="primary" variant="outline">
                     No borrar
                 </Button>
                 <Button onClick={()=>{
@@ -876,7 +894,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
                         tipoprecio:tipoDePrecioNegativoAConfirmar
                     }))
                     setMenuConfirmarBorradoPrecio(false)
-                }} color="danger" variant="outlined">
+                }} color="danger" variant="outline">
                     Borrar precio y atributos
                 </Button>
             </DialogActions>
@@ -1245,7 +1263,7 @@ function RelevamientoPrecios(props:{
         {
             observacionesFiltradasEnOtrosIdx.length>0?
                 <div className="zona-degrade">
-                    <Button className="boton-hay-mas" variant="outlined"
+                    <Button className="boton-hay-mas" variant="outline"
                         onClick={()=>{
                             dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString, compactar: props.compactar}));
                         }}
@@ -1289,7 +1307,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
         <div className="razon-formulario">
             <div>
                 <Button onClick={event=>setMenuRazon(event.currentTarget)} 
-                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} variant="outlined">
+                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} variant="outline">
                     {relVis.razon}
                 </Button>
             </div>
@@ -1350,13 +1368,13 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                 <DialogActions>
                     <Button onClick={()=>{
                         setMenuConfirmarRazon(false)
-                    }} color="primary" variant="outlined">
+                    }} color="primary" variant="outline">
                         No borrar
                     </Button>
                     <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
                         dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
                         setMenuConfirmarRazon(false)
-                    }} color="danger" variant="outlined">
+                    }} color="danger" variant="outline">
                         Proceder borrando
                     </Button>
                 </DialogActions>
@@ -1711,7 +1729,11 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                         </Badge>
                     }
                 >
-                    <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
+                    <Button 
+                        fullwidth 
+                        variant={todoListo?"contained":"outline"} 
+                        color={todoListo?"success":"primary"}
+                        size="lg"
                         className={"boton-ir-formulario"}
                         onClick={()=>{
                             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
@@ -1880,8 +1902,8 @@ function PantallaHojaDeRuta(_props:{}){
                         Hoja de ruta - {appVersion}
                     </Typography>
                     <div className={classesButton.toolbarButtons}>
-                        <Button style={{marginTop:'3px'}}
-                            color="inherit"
+                        <Button 
+                            color="light"
                             onClick={()=>
                                 dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
                             }
@@ -1894,7 +1916,7 @@ function PantallaHojaDeRuta(_props:{}){
                                     {isDirtyHDR()?
                                         <>
                                             <Button
-                                                color="inherit"
+                                                color="light"
                                                 onClick={async ()=>{
                                                     setMensajeDescarga('descargando, por favor espere...');
                                                     setDescargando(true);
@@ -2116,7 +2138,7 @@ function PantallaOpciones(){
                                         setMensajeBorrar(null)
                                     }} 
                                     color="primary" 
-                                    variant="outlined"
+                                    variant="outline"
                                 >
                                     Cancelar
                                 </Button>
@@ -2131,7 +2153,7 @@ function PantallaOpciones(){
                                         }
                                     }} 
                                     color="danger" 
-                                    variant="outlined"
+                                    variant="outline"
                                     disabled={!habilitarBorrar}
                                 >
                                     No guardar
@@ -2194,7 +2216,7 @@ function AppDmIPCOk(){
 function ReseterForm(props:{onTryAgain:()=>void}){
     const dispatch = useDispatch();
     return <>
-        <Button variant="outlined"
+        <Button variant="outline"
             onClick={()=>{
                 dispatch(dispatchers.RESET_OPCIONES({}));
                 props.onTryAgain();
