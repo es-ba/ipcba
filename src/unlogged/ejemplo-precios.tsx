@@ -75,11 +75,12 @@ const TextField = (props:{
     onFocus?:(event:any)=>void,
     onBlur?:(event:any)=>void,
     hasError:boolean,
-    borderBottomColor:string,
+    borderBottomColor?:string,
     borderBottomColorError:string,
     color:string
 })=>{
     var {hasError, borderBottomColorError, borderBottomColor} = props;
+    borderBottomColor=borderBottomColor||PRIMARY_COLOR;
     return <input
         id={props.id}
         spellCheck={false}
@@ -229,28 +230,6 @@ function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
         }
     }
 }
-const useStylesTextField = makeStyles((_theme: Theme) =>
-    createStyles({
-        input: {
-            '&::placeholder': {
-                color: PRIMARY_COLOR,
-            },
-            fontSize: "1.3rem",
-            lineHeight: 1.43,
-            color:(props:{color:string}) => props.color,
-        },
-        underline: {
-            "&:after": {
-                borderBottomColor: (props:{borderBottomColor:string}) => props.borderBottomColor,
-            }
-        },
-        error: {
-            "&$error:after": {
-                borderBottomColor: (props:{borderBottomColorError:string}) => props.borderBottomColorError,
-            },
-        }
-    }),
-);
 
 function TypedInput<T extends string|number|null>(props:{
     autoFocus:boolean,
