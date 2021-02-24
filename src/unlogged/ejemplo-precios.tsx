@@ -100,7 +100,8 @@ const TextField = (props:{
         style={{
             border: "0px solid white",
             borderBottom:  `1px solid ${hasError?borderBottomColorError:borderBottomColor}`,
-            color: props.color
+            color: props.color,
+            outline:'none'
         }}
     />
 };
