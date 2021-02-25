@@ -66,7 +66,7 @@ const TextField = (props:{
     className?:string,
     fullWidth?:boolean
     value?:any,
-    type?:any,
+    type?:InputTypes,
     placeholder?:string,
     multiline?:boolean,
     rowsMax?:number,
@@ -81,29 +81,87 @@ const TextField = (props:{
 })=>{
     var {hasError, borderBottomColorError, borderBottomColor} = props;
     borderBottomColor=borderBottomColor||PRIMARY_COLOR;
-    return <input
+    const styles = {
+        border: "0px solid white",
+        borderBottom:  `1px solid ${hasError?borderBottomColorError:borderBottomColor}`,
+        color: props.color,
+        outline:'none'
+    };
+    //multiline
+    //rowsMax="4"
+    return props.type=='text'?
+    /*<span 
+        className={`${props.className||''}`}
+        role="textbox"
+        contentEditable
         id={props.id}
         spellCheck={false}
-        autoCapitalize="off"
-        autoComplete="off"
+        //autoComplete="off"
         autoCorrect="off"
-        autoFocus={props.autoFocus}
+        //autoFocus={props.autoFocus}
+        autoCapitalize="off"
         disabled={props.disabled}
-        className={`${props.className||''}`}
         value={props.value} 
-        type={props.type}
+        onClick={(event)=>{
+            var element = event.target;
+            var selection = element.outerText.length||0;
+            element.selectionStart = selection;
+            element.selectionEnd = selection;
+        }}
         onKeyDown={props.onKeyDown}
         onChange={props.onChange}
         onFocus={props.onFocus}
         onBlur={props.onBlur}
         placeholder={props.placeholder}
-        style={{
-            border: "0px solid white",
-            borderBottom:  `1px solid ${hasError?borderBottomColorError:borderBottomColor}`,
-            color: props.color,
-            outline:'none'
-        }}
-    />
+        style={{...styles,display:'grid', cursor:'text'}}
+    >
+        {props.value}
+    </span>*/
+        <textarea
+            id={props.id}
+            rows={1}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            autoFocus={props.autoFocus}
+            disabled={props.disabled}
+            className={`${props.className||''}`}
+            value={props.value} 
+            onKeyDown={(event)=>{
+                props.onKeyDown?.(event)
+            }}
+            onClick={(event)=>{
+                var element = event.target as HTMLTextAreaElement;
+                var selection = element.value.length||0;
+                element.selectionStart = selection;
+                element.selectionEnd = selection;
+            }}
+            onChange={props.onChange}
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
+            placeholder={props.placeholder}
+            style={{...styles, overflow:'hidden'}}
+        />
+    :
+        <input
+            id={props.id}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            autoFocus={props.autoFocus}
+            disabled={props.disabled}
+            className={`${props.className||''}`}
+            value={props.value} 
+            type={props.type}
+            onKeyDown={props.onKeyDown}
+            onChange={props.onChange}
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
+            placeholder={props.placeholder}
+            style={styles}
+        />
 };
 
 // https://material-ui.com/components/material-icons/
@@ -336,52 +394,25 @@ function TypedInput<T extends string|number|null>(props:{
             element.selectionEnd = selection;
         }
     }
-    if(props.dataType=='text'){
-        var input = <TextField
-            autoFocus={props.autoFocus}
-            multiline
-            rowsMax="4"
-            placeholder={props.placeholder}
-            id={inputId}
-            value={value}
-            type={props.dataType} 
-            onClick={(event)=>onClickFun(
-                event
-            )}
-            onChange={onChangeFun}
-            onFocus={(_event)=>{
-                props.onFocus?props.onFocus():null;
-            }}
-            onBlur={onBlurFun}
-            onKeyDown={onKeyDownFun}
-            disabled={props.disabled?props.disabled:false}
-            hasError={props.hasError}
-            borderBottomColor={props.borderBottomColor}
-            borderBottomColorError={props.borderBottomColorError}
-            color={props.color}
-        />
-        return input;
-    }else{
-        var input = <TextField
-            autoFocus={props.autoFocus}
-            placeholder={props.placeholder}
-            id={inputId}
-            value={value}
-            type={props.dataType} 
-            onBlur={onBlurFun}
-            onKeyDown={onKeyDownFun}
-            onChange={onChangeFun}
-            onFocus={(_event)=>{
-                props.onFocus?props.onFocus():null;
-            }}
-            disabled={props.disabled?props.disabled:false}
-            hasError={props.hasError}
-            borderBottomColor={props.borderBottomColor}
-            borderBottomColorError={props.borderBottomColorError}
-            color={props.color}
-        />
-        return input;
-    }
+        
+    return <TextField
+        autoFocus={props.autoFocus}
+        placeholder={props.placeholder}
+        id={inputId}
+        value={value}
+        type={props.dataType} 
+        onBlur={onBlurFun}
+        onKeyDown={onKeyDownFun}
+        onChange={onChangeFun}
+        onFocus={(_event)=>{
+            props.onFocus?props.onFocus():null;
+        }}
+        disabled={props.disabled?props.disabled:false}
+        hasError={props.hasError}
+        borderBottomColor={props.borderBottomColor}
+        borderBottomColorError={props.borderBottomColorError}
+        color={props.color}
+    />
 }
 
 function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
