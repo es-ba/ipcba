@@ -25,14 +25,70 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    AppBar, Badge, /*Button, */ButtonGroup, Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, /*Button, ButtonGroup,*/ Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, Typography, Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
+/*
+const Menu = (props:{
+    id:string,
+    open:boolean,
+    anchorEl:HTMLElement|null|undefined,
+    onClose?:()=>void,
+    children:any,
+})=>{
+    const divEl = useRef(null);
+    const checkClick = (e)=>{
+        //if(props.open)
+        //    if (!divEl.current?.contains(e.target)){
+        //        console.log("cierra")
+        //        props.onClose?.()
+        //    }
+    }
+    useEffect(() => {
+        document.body.style.overflow=props.open?'hidden':'unset'
+    },[props.open]);
+    useEffect(() => {
+        window.onclick=checkClick;
+    });
+    function getPosition(element:HTMLElement|null|undefined){
+        var rect = {top:0, left:0};
+        if(element){
+            while( element != null ) {
+                rect.top += element.offsetTop;
+                rect.left += element.offsetLeft;
+                element = element.offsetParent as HTMLElement|null;
+            }
+            rect.top-=window.scrollY;
+            rect.left-=window.scrollX;
+        }
+        return rect;
+    }
+    var position=getPosition(props.anchorEl);
+
+    console.log(position)
+    return <div 
+            id={props.id}
+            ref={divEl}
+            className="dropdown-menu"
+            style={{
+                display:props.open?'unset':'none',
+                top: position?.top,
+                left: 'auto',
+                position:'fixed',
+                zIndex: 99999,
+                overflowY:'auto',
+                maxHeight: 'auto'
+            }}
+        >
+            {props.children}
+        </div>
+}*/
 const Button = (props:{
+    id?:string
     variant?:string,
     color?:string,
     className?:string,
@@ -45,6 +101,7 @@ const Button = (props:{
     props.variant = props.variant || 'contained';
     props.color = props.color || 'light';
     return <button 
+        id={props.id}
         className={`
             btn 
             btn${props.variant=='contained'?'':'-'+props.variant}${props.color?'-'+props.color:''} 
