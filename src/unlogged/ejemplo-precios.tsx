@@ -1721,7 +1721,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                     />
                 </main>
                 <ScrollTop>
-                    <Fab color="danger" size="small" aria-label="scroll back to top">
+                    <Fab color="secondary" size="small" aria-label="scroll back to top">
                         <KeyboardArrowUpIcon />
                     </Fab>
                 </ScrollTop>
