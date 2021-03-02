@@ -25,7 +25,7 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    AppBar, Badge, /*Button, ButtonGroup,*/ Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    AppBar, Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
     Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, Typography, Zoom
 } from "@material-ui/core";
@@ -87,7 +87,13 @@ const Menu = (props:{
             {props.children}
         </div>
 }*/
-const ButtonGroup = (props:{children})=>{
+const Chip = (props:{
+    label:string|JSX.Element|HTMLElement,
+    style:any,
+})=>{
+    return <span className="badge" style={...props.style}>{props.label}</span>
+}
+const ButtonGroup = (props:{children:any})=>{
     return <div className="btn-group" role="group">{props.children}</div>
 }
 const Button = (props:{
@@ -1103,7 +1109,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }
                         >
                             {chipColor?
-                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}/>
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
