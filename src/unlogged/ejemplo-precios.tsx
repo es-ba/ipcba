@@ -26,12 +26,14 @@ var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
     AppBar, Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, Typography, Zoom
+    DialogTitle, Divider, Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
+    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, /*Typography,*/ Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
+import { CSSProperties } from "@material-ui/core/styles/withStyles";
+type CommonAttributes = {className?:string,style?:CSSProperties,id?:string} // CSSProperties
 /*
 const Menu = (props:{
     id:string,
@@ -229,6 +231,39 @@ const TextField = (props:{
             style={styles}
         />
 };
+
+const Typography = ({children, ...others}:{
+    children:any,
+    component?:string
+    variant?:'h1'|'h2'|'h3'|'h4'|'h5'|'h6'
+}&CommonAttributes)=>React.createElement(others.variant||others.component||'div',others,children);
+
+function Grid(props:{
+    container?:boolean,
+    spacing?:number,
+    component?:'span'|'label'
+    item?:boolean,
+    wrap?:'wrap'|'nowrap',
+    direction?:'row'|'column'
+    alignItems?:'stretch' | 'flex-start' | 'flex-end' | 'center' | 'baseline',
+    children:any,
+    xs?:number,
+    sm?:number,
+}&CommonAttributes){
+    var {container, item, wrap, direction, alignItems, children, className, xs, sm, spacing, ...other} = props;
+    return <div
+    {...other}
+    className={`${className||''} ${xs!=null?'grid-xs-'+xs:''} ${sm!=null?'grid-sm-'+sm:''}`}
+    style={container?{
+        display:'flex',
+        flexWrap:wrap,
+        flexDirection:direction,
+        alignItems:alignItems,
+        margin:spacing!=null?spacing*8+'px':undefined
+    }:{
+    }}
+>{children}</div>
+}
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -1619,7 +1654,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant="subtitle1" noWrap>
+                        <Typography variant="h6">
                             {`inf ${props.relVisPk.informante}`}
                         </Typography>
                         <Grid item>
