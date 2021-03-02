@@ -87,6 +87,9 @@ const Menu = (props:{
             {props.children}
         </div>
 }*/
+const ButtonGroup = (props:{children})=>{
+    return <div className="btn-group" role="group">{props.children}</div>
+}
 const Button = (props:{
     id?:string
     variant?:string,
@@ -1614,14 +1617,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             {`inf ${props.relVisPk.informante}`}
                         </Typography>
                         <Grid item>
-                            <div className="btn-group" role="group">
+                            <ButtonGroup>
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
                                 }}>
                                     <ICON.FormatLineSpacing />
                                 </Button>
-                            </div>
-                            <div className="btn-group" role="group">
+                            </ButtonGroup>
+                            <ButtonGroup>
                                 <Button onClick={()=>{
                                     dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                                 }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
@@ -1637,7 +1640,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                                 }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
                                     <ICON.Warning />
                                 </Button>
-                            </div>
+                            </ButtonGroup>
                         </Grid>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>
