@@ -27,14 +27,14 @@ var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 import {
     AppBar, Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, Divider, Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, /*Typography,*/ Zoom
+    /*Menu,*/ MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, /*Typography,*/ Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
 import { CSSProperties } from "@material-ui/core/styles/withStyles";
 type CommonAttributes = {className?:string,style?:CSSProperties,id?:string} // CSSProperties
-/*
+
 const Menu = (props:{
     id:string,
     open:boolean,
@@ -72,23 +72,28 @@ const Menu = (props:{
     var position=getPosition(props.anchorEl);
 
     console.log(position)
-    return <div 
-            id={props.id}
-            ref={divEl}
-            className="dropdown-menu"
-            style={{
-                display:props.open?'unset':'none',
-                top: position?.top,
-                left: 'auto',
-                position:'fixed',
-                zIndex: 99999,
-                overflowY:'auto',
-                maxHeight: 'auto'
-            }}
-        >
-            {props.children}
-        </div>
-}*/
+    return props.open?
+        ReactDOM.createPortal(
+            <div 
+                ref={divEl}
+                className="dropdown-menu"
+                style={{
+                    display:props.open?'unset':'none',
+                    top: position?.top,
+                    left: 'auto',
+                    position:'fixed',
+                    zIndex: 99999,
+                    overflowY:'auto',
+                    maxHeight: 'auto'
+                }}
+            >
+                {props.children}
+            </div>,
+            document.body
+        )
+    :null
+    
+}
 const Chip = (props:{
     label:string|JSX.Element|HTMLElement,
     style:any,
