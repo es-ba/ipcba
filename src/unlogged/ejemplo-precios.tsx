@@ -43,19 +43,9 @@ const Menu = (props:{
     children:any,
 })=>{
     const divEl = useRef(null);
-    const checkClick = (e)=>{
-        //if(props.open)
-        //    if (!divEl.current?.contains(e.target)){
-        //        console.log("cierra")
-        //        props.onClose?.()
-        //    }
-    }
     useEffect(() => {
         document.body.style.overflow=props.open?'hidden':'unset'
     },[props.open]);
-    useEffect(() => {
-        window.onclick=checkClick;
-    });
     function getPosition(element:HTMLElement|null|undefined){
         var rect = {top:0, left:0};
         if(element){
@@ -72,19 +62,31 @@ const Menu = (props:{
     return props.open?
         ReactDOM.createPortal(
             <div 
-                id={props.id}
-                ref={divEl}
-                className="dropdown-menu"
+                className="dropdown-menu-container"
+                onClick={props.onClose}
                 style={{
-                    display:props.open?'unset':'none',
-                    ...getPosition(props.anchorEl),
-                    position:'absolute',
-                    zIndex: 99999,
-                    overflowY:'auto',
-                    maxHeight: 'auto'
-                }}
-            >
-                {props.children}
+                    width:'100%',
+                    height:'100%',
+                    zIndex: 99998,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                }}>
+                <div 
+                    id={props.id}
+                    ref={divEl}
+                    className="dropdown-menu"
+                    style={{
+                        display:props.open?'unset':'none',
+                        ...getPosition(props.anchorEl),
+                        position:'absolute',
+                        zIndex: 99999,
+                        overflowY:'auto',
+                        maxHeight: 'auto'
+                    }}
+                >
+                    {props.children}
+                </div>
             </div>,
             document.body
         )
