@@ -54,8 +54,8 @@ const Menu = (props:{
                 rect.left += element.offsetLeft;
                 element = element.offsetParent as HTMLElement|null;
             }
-            //rect.top-=window.scrollY;
-            //rect.left-=window.scrollX;
+            rect.top-=window.scrollY;
+            rect.left-=window.scrollX;
         }
         return rect;
     }
@@ -68,7 +68,7 @@ const Menu = (props:{
                     width:'100%',
                     height:'100%',
                     zIndex: 99998,
-                    position: 'absolute',
+                    position: 'fixed',
                     top: 0,
                     left: 0,
                 }}>
