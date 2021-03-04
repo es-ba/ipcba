@@ -64,24 +64,21 @@ const Menu = (props:{
                 rect.left += element.offsetLeft;
                 element = element.offsetParent as HTMLElement|null;
             }
-            rect.top-=window.scrollY;
-            rect.left-=window.scrollX;
+            //rect.top-=window.scrollY;
+            //rect.left-=window.scrollX;
         }
         return rect;
     }
-    var position=getPosition(props.anchorEl);
-
-    console.log(position)
     return props.open?
         ReactDOM.createPortal(
             <div 
+                id={props.id}
                 ref={divEl}
                 className="dropdown-menu"
                 style={{
                     display:props.open?'unset':'none',
-                    top: position?.top,
-                    left: 'auto',
-                    position:'fixed',
+                    ...getPosition(props.anchorEl),
+                    position:'absolute',
                     zIndex: 99999,
                     overflowY:'auto',
                     maxHeight: 'auto'
@@ -92,7 +89,6 @@ const Menu = (props:{
             document.body
         )
     :null
-    
 }
 const Chip = (props:{
     label:string|JSX.Element|HTMLElement,
