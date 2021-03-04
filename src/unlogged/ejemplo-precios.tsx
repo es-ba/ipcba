@@ -71,6 +71,7 @@ const Menu = (props:{
                     position: 'fixed',
                     top: 0,
                     left: 0,
+                    backgroundColor: 'rgb(51, 51, 51, 0.3)',
                 }}>
                 <div 
                     id={props.id}
@@ -82,7 +83,7 @@ const Menu = (props:{
                         position:'absolute',
                         zIndex: 99999,
                         overflowY:'auto',
-                        maxHeight: 'auto'
+                        maxHeight: 'auto',
                     }}
                 >
                     {props.children}
