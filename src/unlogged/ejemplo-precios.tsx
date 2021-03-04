@@ -71,7 +71,7 @@ const Menu = (props:{
                     position: 'fixed',
                     top: 0,
                     left: 0,
-                    backgroundColor: 'rgb(51, 51, 51, 0.3)',
+                    backgroundColor: 'rgb(51, 51, 51, 0.5)',
                 }}>
                 <div 
                     id={props.id}
