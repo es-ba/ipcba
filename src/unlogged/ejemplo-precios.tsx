@@ -45,7 +45,7 @@ const Menu = (props:{
     const divEl = useRef(null);
     useEffect(() => {
         document.body.style.overflow=props.open?'hidden':'unset'
-    },[props.open]);
+    });
     function getPosition(element:HTMLElement|null|undefined){
         var rect = {top:0, left:0};
         if(element){
