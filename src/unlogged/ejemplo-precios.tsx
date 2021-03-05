@@ -7,8 +7,8 @@ import {
     controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente,
     precioTieneError, 
     COLOR_ERRORES,
-    simplificateText,
-    precioTieneAtributosCargados
+    precioTieneAtributosCargados,
+    parseString
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
     hdrEstaDescargada, getCacheVersion} from "./dm-react";
@@ -461,9 +461,7 @@ function TypedInput<T extends string|number|null>(props:{
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
         /* CANDIDATO */ 
         // var customValue = event.target.value
-        var customValue = event.target.value.trim();
-        customValue = props.textTransform?props.textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
-        customValue = props.simplificateText?simplificateText(customValue):customValue;
+        var customValue = parseString(event.target.value.trim(),props.textTransform,props.simplificateText);
         setValue(customValue);
         var value = valueT(customValue);
         if(value!==props.value){
@@ -635,7 +633,6 @@ function EditableTd<T extends string|number|null>(props:{
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
-                transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
                 onClose={()=> {
                     setEditando(false);
@@ -648,7 +645,7 @@ function EditableTd<T extends string|number|null>(props:{
                     <MenuItem key='*****current value******' value={stringValue}
                         onClick={()=>{
                             setEditando(false);
-                            props.onUpdate(props.value);
+                            props.onUpdate(parseString(props.value,"uppercase",true));
                         }}
                     >
                         <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
@@ -660,7 +657,7 @@ function EditableTd<T extends string|number|null>(props:{
                         onClick={()=>{
                             setEditando(false);
                             // @ts-ignore TODO: mejorar los componentes tipados #49
-                            props.onUpdate(label);
+                            props.onUpdate(parseString(label,"uppercase",true));
                         }}
                     >
                         <ListItemText style={label == stringValue?{color:'blue'}:{}}>{label}</ListItemText>                    
@@ -690,7 +687,7 @@ function EditableTd<T extends string|number|null>(props:{
                 onUpdate={(value)=>{
                     setEditandoOtro(false);
                     // @ts-ignore TODO: mejorar los componentes tipados #49
-                    props.onUpdate(value || null);
+                    props.onUpdate(value?parseString(value,"uppercase",true):null);
                 }}
             />
         :null}
