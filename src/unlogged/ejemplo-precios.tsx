@@ -47,7 +47,7 @@ const Menu = (props:{
         document.body.style.overflow=props.open?'hidden':'unset'
     });
     function getPosition(element:HTMLElement|null|undefined){
-        var rect = {top:0, left:0};
+        var rect:{top:number, left:number, maxHeight:string|number} = {top:0, left:0, maxHeight:'auto'};
         if(element){
             while( element != null ) {
                 rect.top += element.offsetTop;
@@ -56,6 +56,7 @@ const Menu = (props:{
             }
             rect.top-=window.scrollY;
             rect.left-=window.scrollX;
+            rect.maxHeight=window.innerHeight-rect.top;
         }
         return rect;
     }
@@ -82,7 +83,6 @@ const Menu = (props:{
                         position:'absolute',
                         zIndex: 99999,
                         overflowY:'auto',
-                        maxHeight: 'auto',
                     }}
                 >
                     {props.children}
