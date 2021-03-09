@@ -68,7 +68,9 @@ const Menu = (props:{
                 console.log("poner mas arriba si se puede")
                 console.log("altura disponible para subir", disponibleParaAjuste)
                 console.log("subo", aSubir)
-                setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:'auto'});
+                if(aSubir){
+                    setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:'auto'});
+                }
             }else if(myElement.scrollWidth > myElement.clientWidth){
                 //TODO sacar overflow hidden de MenuList
                 console.log("poner mas a la izquierda si se puede")
