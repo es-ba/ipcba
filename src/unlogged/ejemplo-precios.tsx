@@ -43,11 +43,51 @@ const Menu = (props:{
     children:any,
 })=>{
     const divEl = useRef(null);
+    const [position, setPosition] = useState<
+        {top:number|null, left:number|null, maxHeight:number|string,maxWidth:number|string}
+    >({top:null, left:null, maxHeight:'auto',maxWidth:'auto'});
+    useEffect(() => {
+        if(!props.open){
+            setPosition({top:null, left:null, maxHeight:'auto',maxWidth:'auto'});
+        }
+    },[props.open]);
     useEffect(() => {
         document.body.style.overflow=props.open?'hidden':'unset'
     });
-    function getPosition(element:HTMLElement|null|undefined){
-        var rect:{top:number, left:number, maxHeight:string|number} = {top:0, left:0, maxHeight:'auto'};
+    useEffect(() => {
+        if(divEl && divEl.current){
+            let myElement = divEl.current! as HTMLDivElement;
+            if(myElement.scrollHeight > myElement.clientHeight){
+                let faltante = myElement.scrollHeight - myElement.clientHeight;
+                let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
+                let aSubir = Math.min(faltante, disponibleParaAjuste);
+                console.log("faltan", faltante, 'px')
+                console.log("alto total pantalla", window.innerHeight)
+                console.log("poner mas arriba si se puede")
+                console.log("altura disponible para subir", disponibleParaAjuste)
+                console.log("subo", aSubir)
+                setPosition({top:position.top - aSubir, left:position.left, maxHeight:window.innerHeight+aSubir,maxWidth:'auto'});
+            }else if(myElement.scrollWidth > myElement.clientWidth){
+                //TODO sacar overflow hidden de MenuList
+                console.log("poner mas a la izquierda si se puede")
+            }else if(!position.top && !position.left){
+                updatePosition({element:props.anchorEl, top: null, left:null});
+            }
+        }
+    });
+    function updatePosition(params:{element:HTMLElement|null|undefined, top:number|null, left:number|null}){
+        var {element, top, left} = params;
+        var rect:{
+            top:number,
+            left:number,
+            maxHeight:string|number
+            maxWidth:string|number
+        } = {
+            top:top || 0,
+            left:left || 0,
+            maxHeight:'auto',
+            maxWidth:'auto'
+        };
         if(element){
             while( element != null ) {
                 rect.top += element.offsetTop;
@@ -56,9 +96,10 @@ const Menu = (props:{
             }
             rect.top-=window.scrollY;
             rect.left-=window.scrollX;
-            rect.maxHeight=window.innerHeight-rect.top;
         }
-        return rect;
+        rect.maxHeight=window.innerHeight-rect.top;
+        rect.maxWidth=window.innerWidth-rect.left;
+        setPosition({top:rect.top, left:rect.left, maxHeight:rect.maxHeight,maxWidth:rect.maxWidth});
     }
     return props.open?
         ReactDOM.createPortal(
@@ -79,10 +120,13 @@ const Menu = (props:{
                     className="dropdown-menu"
                     style={{
                         display:props.open?'unset':'none',
-                        ...getPosition(props.anchorEl),
+                        top:position.top==null?'unset':position.top,
+                        left:position.left==null?'unset':position.left,
+                        maxHeight:position.maxHeight,
+                        maxWidth:position.maxWidth,
                         position:'absolute',
                         zIndex: 99999,
-                        overflowY:'auto',
+                        overflow:'auto',
                     }}
                 >
                     {props.children}
