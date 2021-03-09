@@ -57,7 +57,9 @@ const Menu = (props:{
     useEffect(() => {
         if(divEl && divEl.current){
             let myElement = divEl.current! as HTMLDivElement;
-            if(myElement.scrollHeight > myElement.clientHeight){
+            if(position.top == null || position.left==null){
+                updatePosition({element:props.anchorEl, top: null, left:null});
+            }else if(myElement.scrollHeight > myElement.clientHeight){
                 let faltante = myElement.scrollHeight - myElement.clientHeight;
                 let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
                 let aSubir = Math.min(faltante, disponibleParaAjuste);
@@ -66,12 +68,10 @@ const Menu = (props:{
                 console.log("poner mas arriba si se puede")
                 console.log("altura disponible para subir", disponibleParaAjuste)
                 console.log("subo", aSubir)
-                setPosition({top:position.top - aSubir, left:position.left, maxHeight:window.innerHeight+aSubir,maxWidth:'auto'});
+                setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:'auto'});
             }else if(myElement.scrollWidth > myElement.clientWidth){
                 //TODO sacar overflow hidden de MenuList
                 console.log("poner mas a la izquierda si se puede")
-            }else if(!position.top && !position.left){
-                updatePosition({element:props.anchorEl, top: null, left:null});
             }
         }
     });
