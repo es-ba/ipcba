@@ -60,14 +60,14 @@ const Menu = (props:{
             if(position.top == null || position.left==null){
                 updatePosition({element:props.anchorEl, top: null, left:null});
             }else if(myElement.scrollHeight > myElement.clientHeight){
-                let faltante = myElement.scrollHeight - myElement.clientHeight;
+                let faltante = myElement.scrollHeight - myElement.clientHeight + 5;
                 let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
                 let aSubir = Math.min(faltante, disponibleParaAjuste);
                 if(aSubir){
                     setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:position.maxWidth});
                 }
             }else if(myElement.scrollWidth > myElement.clientWidth){
-                let faltante = myElement.scrollWidth - myElement.clientWidth;
+                let faltante = myElement.scrollWidth - myElement.clientWidth + 5;
                 let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
                 let aMover = Math.min(faltante, disponibleParaAjuste);
                 if(aMover){
