@@ -154,7 +154,7 @@ function MenuItem(props:{
     </li>
 }
 function ListItemText(props:{
-    children:any,
+    children?:any,
     primary?:string,
     secondary?:string,
     onClick?:(event)=>void,
@@ -1838,7 +1838,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
                         }>
                             <ListItemIcon><DescriptionIcon/></ListItemIcon>
-                            <ListItemText primary="Volver a hoja de ruta" secondary="prueba de texto secundario"/>
+                            <ListItemText primary="Volver a hoja de ruta"/>
                         </ListItem>
                         {formularios.map((relVis:RelVis) => (
                             <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
