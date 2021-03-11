@@ -26,8 +26,8 @@ var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
     AppBar, Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    /*Menu,*/ MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, /*Typography,*/ Zoom
+    DialogTitle, Divider, Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, /*ListItemText, */Drawer, 
+    /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, /*Typography,*/ Zoom
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
@@ -63,17 +63,16 @@ const Menu = (props:{
                 let faltante = myElement.scrollHeight - myElement.clientHeight;
                 let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
                 let aSubir = Math.min(faltante, disponibleParaAjuste);
-                console.log("faltan", faltante, 'px')
-                console.log("alto total pantalla", window.innerHeight)
-                console.log("poner mas arriba si se puede")
-                console.log("altura disponible para subir", disponibleParaAjuste)
-                console.log("subo", aSubir)
                 if(aSubir){
-                    setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:'auto'});
+                    setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:position.maxWidth});
                 }
             }else if(myElement.scrollWidth > myElement.clientWidth){
-                //TODO sacar overflow hidden de MenuList
-                console.log("poner mas a la izquierda si se puede")
+                let faltante = myElement.scrollWidth - myElement.clientWidth;
+                let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
+                let aMover = Math.min(faltante, disponibleParaAjuste);
+                if(aMover){
+                    setPosition({top:position.top, left:position.left - aMover, maxHeight:position.maxHeight,maxWidth:position.maxWidth+aMover});
+                }
             }
         }
     });
@@ -137,6 +136,51 @@ const Menu = (props:{
             document.body
         )
     :null
+}
+function MenuItem(props:{
+    children:any,
+    disabled?: boolean
+    onClick?:(event)=>void,
+}&CommonAttributes){
+    var {id, className, style, children, ...other} = props;
+    return <li
+        {...other}
+        id={props.id}
+        className={`${className||''} dropdown-item ${props.disabled?'disabled':''}`}
+        style={{ ...{height:'50px', paddingTop:'8px'},...(props.style || {})}}
+        onClick={props.onClick}
+    >
+        {children}
+    </li>
+}
+function ListItemText(props:{
+    children:any,
+    primary?:string,
+    secondary?:string,
+    onClick?:(event)=>void,
+}&CommonAttributes){
+    var {id, className, style, children, primary, secondary,  ...other} = props;
+    return <span
+        {...other}
+        id={props.id}
+        className={`${className||''}`}
+        style={{ ...{verticalAlign:'middle'},...(props.style || {})}}
+        onClick={props.onClick}
+    >
+        {primary?primary:null}
+        {secondary?
+            <p style={{
+                color:"rgba(0, 0, 0, 0.54)",
+                fontSize: "0.875rem",
+                marginBottom:"0px"
+            }}>
+                {secondary}
+            </p>
+        :
+            null
+        }
+        {children}
+    </span>
 }
 const Chip = (props:{
     label:string|JSX.Element|HTMLElement,
@@ -684,11 +728,11 @@ function EditableTd<T extends string|number|null>(props:{
                     setEditando(false);
                 }}
             >
-                <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
-                    <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
+                <MenuItem key='***** title' disabled={true}>
+                    <ListItemText style={{color:'black', fontSize:'80%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
                 </MenuItem>
                 {props.value && (props.opciones||[]).indexOf(stringValue)==-1?
-                    <MenuItem key='*****current value******' value={stringValue}
+                    <MenuItem key='*****current value******'
                         onClick={()=>{
                             setEditando(false);
                             props.onUpdate(parseString(props.value,"uppercase",true));
@@ -699,7 +743,7 @@ function EditableTd<T extends string|number|null>(props:{
                 :null}
                 <Divider />
                 {(props.opciones||[]).map(label=>(
-                    <MenuItem key={label} value={label}
+                    <MenuItem key={label}
                         onClick={()=>{
                             setEditando(false);
                             // @ts-ignore TODO: mejorar los componentes tipados #49
@@ -839,7 +883,7 @@ const AtributosRow = function(props:{
                             }))
                             setMenuCambioAtributos(null)
                         }}>
-                            <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
+                            <ListItemText style={{color:PRIMARY_COLOR}}>
                                 Copiar el resto de los atributos vacíos
                             </ListItemText>
                         </MenuItem>
@@ -850,7 +894,7 @@ const AtributosRow = function(props:{
                             }))
                             setMenuCambioAtributos(null)
                         }}>
-                            <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
+                            <ListItemText style={{color:SECONDARY_COLOR}}>
                                 Anular el cambio pisando los valores distintos
                             </ListItemText>
                         </MenuItem>
@@ -863,7 +907,7 @@ const AtributosRow = function(props:{
                     }))
                     setMenuCambioAtributos(null)
                 }}>
-                    <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
+                    <ListItemText style={{color:SECONDARY_COLOR}}>
                         Blanquear atributos
                     </ListItemText>
                 </MenuItem>
@@ -1021,8 +1065,8 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
                         dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
                     }
                 }}>
-                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                    <ListItemText style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                    <ListItemText style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
                 </MenuItem>
                 )
             })}
@@ -1495,8 +1539,8 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                         }
                         setMenuRazon(null)
                     }}>
-                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
-                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
+                        <ListItemText style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                        <ListItemText style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
                     </MenuItem>
                     )}
                 ).array()}
@@ -1784,7 +1828,7 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
                             dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
                         }>
                             <ListItemIcon><DescriptionIcon/></ListItemIcon>
-                            <ListItemText primary="Volver a hoja de ruta" />
+                            <ListItemText primary="Volver a hoja de ruta" secondary="prueba de texto secundario"/>
                         </ListItem>
                         {formularios.map((relVis:RelVis) => (
                             <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
