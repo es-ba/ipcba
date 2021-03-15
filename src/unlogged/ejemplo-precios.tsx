@@ -25,15 +25,16 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    AppBar, Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
+    /*AppBar,*/ Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
     DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, /*ListItemText, */Drawer, 
-    /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, */Toolbar, /*Typography,*/ Zoom
+    /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, Toolbar, Typography,*/ Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
 import { Store } from "redux";
 
 import { CSSProperties } from "@material-ui/core/styles/withStyles";
 type CommonAttributes = {className?:string,style?:CSSProperties,id?:string} // CSSProperties
+type BootstrapColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark';
 
 const Menu = (props:{
     id:string,
@@ -366,6 +367,31 @@ function Grid(props:{
     }:{
     }}
 >{children}</div>
+}
+const AppBar = (props:{children:any, color?:'dark' | 'light',backgroundColor?:BootstrapColors, position?:'sticky'|'fixed'}&CommonAttributes)=>{
+    const {id, className, position, children, ...other} = props;
+    var {backgroundColor, color} = props;
+    backgroundColor = backgroundColor || 'primary';
+    color = color || 'dark';
+    return <nav 
+        {...other}
+        id={id}
+        className={`${className||''} navbar-expand-lg navbar ${position?position+"-top":""} navbar-${color} ${props.style?.backgroundColor?'':'bg-'+backgroundColor}`}
+        style={{ ...{
+            zIndex:1300,
+            height:"70px",
+        },...(props.style || {})}}
+    >
+        {React.Children.map(children, child => (
+            <span className={"navbar-nav"}>
+                <span className="nav-item active">
+                    <span className="nav-link">
+                        {child}
+                    </span>
+                </span>
+            </span>
+        ))}
+    </nav>
 }
 
 // https://material-ui.com/components/material-icons/
@@ -1737,84 +1763,84 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
             <div className={classes.root}>
                 <AppBar
+                    style={toolbarStyle}
                     position="fixed"
                     className={clsx(classes.appBar, {
                         [classes.appBarShift]: open,
                     })}
                 >
-                    <Toolbar style={toolbarStyle}>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            onClick={handleDrawerOpen}
-                            edge="start"
-                            className={clsx(classes.menuButton, {
-                                [classes.hide]: open,
-                            })}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6">
-                            {`inf ${props.relVisPk.informante}`}
-                        </Typography>
-                        <Grid item>
-                            <ButtonGroup>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
-                                }}>
-                                    <ICON.FormatLineSpacing />
-                                </Button>
-                            </ButtonGroup>
-                            <ButtonGroup>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                                }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
-                                    <ICON.CheckBoxOutlined />
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                                }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
-                                    <ICON.CheckBoxOutlineBlankOutlined />
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                                }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
-                                    <ICON.Warning />
-                                </Button>
-                            </ButtonGroup>
-                        </Grid>
-                        <div className={classes.search}>
-                            <div className={classes.searchIcon}>
-                                <SearchIcon />
-                            </div>
-                            <InputBase 
-                                id="search" 
-                                placeholder="Buscar..." 
-                                value={searchString} 
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput,
-                                }}
-                                inputProps={{ 'aria-label': 'search' }}
-                                onChange={(event)=>{
-                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                    
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={handleDrawerOpen}
+                        edge="start"
+                        className={clsx(classes.menuButton, {
+                            [classes.hide]: open,
+                        })}
+                    >
+                        <MenuIcon/>
+                    </IconButton>
+                                     <Typography variant="h6">
+                        {`inf ${props.relVisPk.informante}`}
+                    </Typography>
+                    <Grid item>
+                        <ButtonGroup>
+                            <Button onClick={()=>{
+                                dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
+                            }}>
+                                <ICON.FormatLineSpacing />
+                            </Button>
+                        </ButtonGroup>
+                        <ButtonGroup>
+                            <Button onClick={()=>{
+                                dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                            }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
+                                <ICON.CheckBoxOutlined />
+                            </Button>
+                            <Button onClick={()=>{
+                                dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                            }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
+                                <ICON.CheckBoxOutlineBlankOutlined />
+                            </Button>
+                            <Button onClick={()=>{
+                                dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                            }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
+                                <ICON.Warning />
+                            </Button>
+                        </ButtonGroup>
+                    </Grid>
+                    <div className={classes.search}>
+                        <div className={classes.searchIcon}>
+                            <SearchIcon />
+                        </div>
+                        <InputBase 
+                            id="search" 
+                            placeholder="Buscar..." 
+                            value={searchString} 
+                            classes={{
+                                root: classes.inputRoot,
+                                input: classes.inputInput,
+                            }}
+                            inputProps={{ 'aria-label': 'search' }}
+                            onChange={(event)=>{
+                                dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                                window.scroll({behavior:'auto', top:0, left:0})
+                            }}
+                        />
+                        {searchString?
+                            <IconButton 
+                                size="small" 
+                                style={{color:'#ffffff'}} 
+                                onClick={()=>{
+                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
                                     window.scroll({behavior:'auto', top:0, left:0})
                                 }}
-                            />
-                            {searchString?
-                                <IconButton 
-                                    size="small" 
-                                    style={{color:'#ffffff'}} 
-                                    onClick={()=>{
-                                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                                        window.scroll({behavior:'auto', top:0, left:0})
-                                    }}
-                                >
-                                    <ClearIcon />
-                                </IconButton>
-                            :null}
-                        </div>
-                    </Toolbar>
+                            >
+                                <ClearIcon />
+                            </IconButton>
+                        :null}
+                    </div>
                 </AppBar>
                 <Drawer
                     variant="permanent"
@@ -2031,11 +2057,9 @@ function PantallaInicial(_props:{}){
     return (
         <>
             <AppBar position="fixed">
-                <Toolbar>
-                    <Typography variant="h6">
-                        IPCBA PWA - Dispositivo sin carga
-                    </Typography>
-                </Toolbar>
+                <Typography variant="h6">
+                    IPCBA PWA - Dispositivo sin carga
+                </Typography>
             </AppBar>
             <main>
                 <Paper className={classes.root} style={{height:'600px', padding:"15px"}}>
@@ -2099,108 +2123,106 @@ function PantallaHojaDeRuta(_props:{}){
     const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return (
         <>
-            <AppBar position="fixed">
-                <Toolbar style={toolbarStyle} >
-                    <Typography variant="h6">
-                        Hoja de ruta - {appVersion}
-                    </Typography>
-                    <div className={classesButton.toolbarButtons}>
-                        <Button 
-                            color="light"
-                            onClick={()=>
-                                dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
-                            }
-                        >
-                            <SettingsIcon/>
-                        </Button>
-                        {online?
-                            customDataMode?
-                                <>
-                                    {isDirtyHDR()?
-                                        <>
-                                            <Button
-                                                color="light"
-                                                onClick={async ()=>{
-                                                    setMensajeDescarga('descargando, por favor espere...');
-                                                    setDescargando(true);
-                                                    var message = await devolverHojaDeRuta(hdr);
-                                                    setDescargando(false);
-                                                    if(message=='descarga completa'){
-                                                        setDescargaCompleta(true);
-                                                        await borrarDatosRelevamientoLocalStorage();
-                                                        message+=', redirigiendo a grilla de relevamiento...';
-                                                        setTimeout(function(){
-                                                            location.reload();       
-                                                        }, 3000)
-                                                    }
-                                                    setMensajeDescarga(message)
-                                                }}
-                                            >
-                                                <SaveIcon/>
-                                            </Button>
-                                        </>
-                                    :
+            <AppBar position="fixed" style={toolbarStyle}>
+                <Typography variant="h6">
+                    Hoja de ruta - {appVersion}
+                </Typography>
+                <div className={classesButton.toolbarButtons}>
+                    <Button 
+                        color="light"
+                        onClick={()=>
+                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
+                        }
+                    >
+                        <SettingsIcon/>
+                    </Button>
+                    {online?
+                        customDataMode?
+                            <>
+                                {isDirtyHDR()?
+                                    <>
                                         <Button
-                                            color="inherit"
+                                            color="light"
                                             onClick={async ()=>{
-                                                var message = await borrarDatosRelevamientoLocalStorage();
-                                                if(message == 'ok'){
-                                                    location.reload();   
-                                                }else{
-                                                    setMensajeDescarga(message)
+                                                setMensajeDescarga('descargando, por favor espere...');
+                                                setDescargando(true);
+                                                var message = await devolverHojaDeRuta(hdr);
+                                                setDescargando(false);
+                                                if(message=='descarga completa'){
+                                                    setDescargaCompleta(true);
+                                                    await borrarDatosRelevamientoLocalStorage();
+                                                    message+=', redirigiendo a grilla de relevamiento...';
+                                                    setTimeout(function(){
+                                                        location.reload();       
+                                                    }, 3000)
                                                 }
+                                                setMensajeDescarga(message)
                                             }}
                                         >
-                                            <ExitToAppIcon/>
+                                            <SaveIcon/>
                                         </Button>
-                                    }
-                                    <Dialog
-                                        open={!!mensajeDescarga}
-                                        //hace que no se cierre el mensaje
-                                        onClose={()=>setMensajeDescarga(mensajeDescarga)}
-                                        aria-labelledby="alert-dialog-title"
-                                        aria-describedby="alert-dialog-description"
-                                    >
-                                        <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
-                                        <DialogContent>
-                                            <DialogContentText id="alert-dialog-description">
-                                                {mensajeDescarga}{descargando?<CircularProgress />:null}
-                                            </DialogContentText>
-                                        </DialogContent>
-                                        <DialogActions>
-                                            {descargando?
-                                                null
-                                            :
-                                                <Button 
-                                                    onClick={()=>{
-                                                        if(descargaCompleta){
-                                                            location.reload()
-                                                        }else{
-                                                            setMensajeDescarga(null)
-                                                        }
-                                                    }} 
-                                                    color="primary" 
-                                                    variant="contained"
-                                                >
-                                                    Cerrar
-                                                </Button>
+                                    </>
+                                :
+                                    <Button
+                                        color="inherit"
+                                        onClick={async ()=>{
+                                            var message = await borrarDatosRelevamientoLocalStorage();
+                                            if(message == 'ok'){
+                                                location.reload();   
+                                            }else{
+                                                setMensajeDescarga(message)
                                             }
-                                        </DialogActions>
-                                    </Dialog>
-                                </>
-                            :
-                                <Button
-                                    color="inherit"
-                                    onClick={()=>{
-                                        history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
-                                        location.reload();   
-                                    }}
+                                        }}
+                                    >
+                                        <ExitToAppIcon/>
+                                    </Button>
+                                }
+                                <Dialog
+                                    open={!!mensajeDescarga}
+                                    //hace que no se cierre el mensaje
+                                    onClose={()=>setMensajeDescarga(mensajeDescarga)}
+                                    aria-labelledby="alert-dialog-title"
+                                    aria-describedby="alert-dialog-description"
                                 >
-                                    <ExitToAppIcon/>
-                                </Button>
-                        :null}
-                    </div>
-                </Toolbar>
+                                    <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
+                                    <DialogContent>
+                                        <DialogContentText id="alert-dialog-description">
+                                            {mensajeDescarga}{descargando?<CircularProgress />:null}
+                                        </DialogContentText>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        {descargando?
+                                            null
+                                        :
+                                            <Button 
+                                                onClick={()=>{
+                                                    if(descargaCompleta){
+                                                        location.reload()
+                                                    }else{
+                                                        setMensajeDescarga(null)
+                                                    }
+                                                }} 
+                                                color="primary" 
+                                                variant="contained"
+                                            >
+                                                Cerrar
+                                            </Button>
+                                        }
+                                    </DialogActions>
+                                </Dialog>
+                            </>
+                        :
+                            <Button
+                                color="inherit"
+                                onClick={()=>{
+                                    history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
+                                    location.reload();   
+                                }}
+                            >
+                                <ExitToAppIcon/>
+                            </Button>
+                    :null}
+                </div>
             </AppBar>
             <main>
                 <Paper className={classes.root}>
@@ -2251,19 +2273,17 @@ function PantallaOpciones(){
     return (
         <>
             <AppBar position="fixed">
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={()=>
-                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
-                        }
-                    >
-                        <ChevronLeftIcon />
-                    </IconButton>
-                    <Typography variant="h6">Opciones del dispositivo móvil</Typography>
-                </Toolbar>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="start"
+                    onClick={()=>
+                        dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
+                    }
+                >
+                    <ChevronLeftIcon />
+                </IconButton>
+                <Typography variant="h6">Opciones del dispositivo móvil</Typography>
             </AppBar>
             <main>
                 <Typography>
@@ -2466,7 +2486,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></link>            
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
             <OpenedTabs/>
             <AppDmIPC/>
         </Provider>,
