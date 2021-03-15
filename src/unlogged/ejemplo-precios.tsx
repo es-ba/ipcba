@@ -1717,8 +1717,143 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
+    const {queVer, searchString, compactar, allForms,} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const dispatch = useDispatch();
+    const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
+    const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
+    const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
+    const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
+    const [open, setOpen] = React.useState<boolean>(false);
+    const classes = useStyles({open:open});
+    const handleDrawerOpen = () => {
+        setOpen(true);
+    };
+    const handleDrawerToggle = () => {
+        setOpen(!open);
+    };
+    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
+    return <>
+        <AppBar
+            style={toolbarStyle}
+            position="fixed"
+            className={clsx(classes.appBar, {
+                [classes.appBarShift]: open,
+            })}
+        >
+                    
+           <IconButton
+               color="inherit"
+               aria-label="open drawer"
+               onClick={handleDrawerOpen}
+               edge="start"
+               className={clsx(classes.menuButton, {
+                   [classes.hide]: open,
+               })}
+           >
+               <MenuIcon/>
+           </IconButton>
+                            <Typography variant="h6">
+               {`inf ${props.relVisPk.informante}`}
+           </Typography>
+           <Grid item>
+               <ButtonGroup>
+                   <Button onClick={()=>{
+                       dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
+                   }}>
+                       <ICON.FormatLineSpacing />
+                   </Button>
+               </ButtonGroup>
+               <ButtonGroup>
+                   <Button onClick={()=>{
+                       dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                   }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
+                       <ICON.CheckBoxOutlined />
+                   </Button>
+                   <Button onClick={()=>{
+                       dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                   }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
+                       <ICON.CheckBoxOutlineBlankOutlined />
+                   </Button>
+                   <Button onClick={()=>{
+                       dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                   }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
+                       <ICON.Warning />
+                   </Button>
+               </ButtonGroup>
+           </Grid>
+           <div className={classes.search}>
+               <div className={classes.searchIcon}>
+                   <SearchIcon />
+               </div>
+               <InputBase 
+                   id="search" 
+                   placeholder="Buscar..." 
+                   value={searchString} 
+                   classes={{
+                       root: classes.inputRoot,
+                       input: classes.inputInput,
+                   }}
+                   inputProps={{ 'aria-label': 'search' }}
+                   onChange={(event)=>{
+                       dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                       window.scroll({behavior:'auto', top:0, left:0})
+                   }}
+               />
+               {searchString?
+                   <IconButton 
+                       size="small" 
+                       style={{color:'#ffffff'}} 
+                       onClick={()=>{
+                           dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                           window.scroll({behavior:'auto', top:0, left:0})
+                       }}
+                   >
+                       <ClearIcon />
+                   </IconButton>
+               :null}
+           </div>
+        </AppBar>
+        <Drawer
+            variant="permanent"
+            className={clsx(classes.drawer, {
+                [classes.drawerOpen]: open,
+                [classes.drawerClose]: !open,
+            })}
+            classes={{
+                paper: clsx({
+                    [classes.drawerOpen]: open,
+                    [classes.drawerClose]: !open,
+                }),
+            }}
+            open={open}
+        >
+            <div className={classes.toolbar}>
+                <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
+            </div>
+            <List>
+                <ListItem button className="flecha-volver-hdr" onClick={()=>
+                    dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
+                }>
+                    <ListItemIcon><DescriptionIcon/></ListItemIcon>
+                    <ListItemText primary="Volver a hoja de ruta"/>
+                </ListItem>
+                {formularios.map((relVis:RelVis) => (
+                    <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
+                        setOpen(false);
+                        dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                    }}>
+                        <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
+                        <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                    </ListItem>
+                ))}
+            </List>
+        </Drawer>
+    </>
+}
+
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, /*posFormularios, */ allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {compactar, /*posFormularios, */ idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     /*useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1745,138 +1880,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             focusToId(idActual, {moveToElement:true});
         }
     }, [idActual]);
-    const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
     const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
-    const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
-    const [open, setOpen] = React.useState<boolean>(false);
-    const classes = useStyles({open:open});
-    const handleDrawerOpen = () => {
-        setOpen(true);
-    };
-    const handleDrawerToggle = () => {
-        setOpen(!open);
-    };
-    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
+    const classes = useStyles({open:false});
     return (
         <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
             <div className={classes.root}>
-                <AppBar
-                    style={toolbarStyle}
-                    position="fixed"
-                    className={clsx(classes.appBar, {
-                        [classes.appBarShift]: open,
-                    })}
-                >
-                    
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        onClick={handleDrawerOpen}
-                        edge="start"
-                        className={clsx(classes.menuButton, {
-                            [classes.hide]: open,
-                        })}
-                    >
-                        <MenuIcon/>
-                    </IconButton>
-                                     <Typography variant="h6">
-                        {`inf ${props.relVisPk.informante}`}
-                    </Typography>
-                    <Grid item>
-                        <ButtonGroup>
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
-                            }}>
-                                <ICON.FormatLineSpacing />
-                            </Button>
-                        </ButtonGroup>
-                        <ButtonGroup>
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                            }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
-                                <ICON.CheckBoxOutlined />
-                            </Button>
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                            }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
-                                <ICON.CheckBoxOutlineBlankOutlined />
-                            </Button>
-                            <Button onClick={()=>{
-                                dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                            }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
-                                <ICON.Warning />
-                            </Button>
-                        </ButtonGroup>
-                    </Grid>
-                    <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
-                        </div>
-                        <InputBase 
-                            id="search" 
-                            placeholder="Buscar..." 
-                            value={searchString} 
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                            onChange={(event)=>{
-                                dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                                window.scroll({behavior:'auto', top:0, left:0})
-                            }}
-                        />
-                        {searchString?
-                            <IconButton 
-                                size="small" 
-                                style={{color:'#ffffff'}} 
-                                onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                                    window.scroll({behavior:'auto', top:0, left:0})
-                                }}
-                            >
-                                <ClearIcon />
-                            </IconButton>
-                        :null}
-                    </div>
-                </AppBar>
-                <Drawer
-                    variant="permanent"
-                    className={clsx(classes.drawer, {
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    })}
-                    classes={{
-                        paper: clsx({
-                            [classes.drawerOpen]: open,
-                            [classes.drawerClose]: !open,
-                        }),
-                    }}
-                    open={open}
-                >
-                    <div className={classes.toolbar}>
-                        <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
-                    </div>
-                    <List>
-                        <ListItem button className="flecha-volver-hdr" onClick={()=>
-                            dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
-                        }>
-                            <ListItemIcon><DescriptionIcon/></ListItemIcon>
-                            <ListItemText primary="Volver a hoja de ruta"/>
-                        </ListItem>
-                        {formularios.map((relVis:RelVis) => (
-                            <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
-                                setOpen(false);
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                            }}>
-                                <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
-                                <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Drawer>
+                <FormularioVisitaWrapper relVisPk={props.relVisPk} />
                 <main className={classes.content}>
                     <DetalleFiltroObservaciones></DetalleFiltroObservaciones>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
