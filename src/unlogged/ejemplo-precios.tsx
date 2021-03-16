@@ -26,7 +26,7 @@ var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
     /*AppBar,*/ Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, /*ListItemText, */Drawer, 
+    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, /*ListItemText, Drawer,*/
     /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, Toolbar, Typography,*/ Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
@@ -368,8 +368,15 @@ function Grid(props:{
     }}
 >{children}</div>
 }
-const AppBar = (props:{children:any, color?:'dark' | 'light',backgroundColor?:BootstrapColors, position?:'sticky'|'fixed'}&CommonAttributes)=>{
-    const {id, className, position, children, ...other} = props;
+const AppBar = (props:{
+        children:any,
+        color?:'dark' | 'light',
+        backgroundColor?:BootstrapColors,
+        position?:'sticky'|'fixed',
+        shift:number,
+        shiftCondition:boolean
+    }&CommonAttributes)=>{
+    const {id, className, position, shift, shiftCondition, children, ...other} = props;
     var {backgroundColor, color} = props;
     backgroundColor = backgroundColor || 'primary';
     color = color || 'dark';
@@ -380,6 +387,9 @@ const AppBar = (props:{children:any, color?:'dark' | 'light',backgroundColor?:Bo
         style={{ ...{
             zIndex:1300,
             height:"70px",
+            width: shift && shiftCondition?`calc(100% - ${shift}px)`:'100%',
+            marginLeft: shift && shiftCondition?`${shift}px`:'0',
+            transition: '0.4s',
         },...(props.style || {})}}
     >
         {React.Children.map(children, child => (
@@ -392,6 +402,68 @@ const AppBar = (props:{children:any, color?:'dark' | 'light',backgroundColor?:Bo
             </span>
         ))}
     </nav>
+}
+
+const Drawer = (props:{children:any, initialWidth?:number, openedWidth?:number, open:boolean}&CommonAttributes)=>{
+    const {id, className, open, initialWidth, openedWidth, children, ...other} = props;
+    return <div style={{ ...{
+        width: open?openedWidth:initialWidth}
+    }}>
+        <div 
+            {...other}
+            id={id}
+            className={`${className||''} sidebar`}
+            style={{ ...{
+                height: '100%',
+                width: open?openedWidth:initialWidth,
+                position: 'fixed',
+                zIndex: 1,
+                top: 0,
+                left: 0,
+                backgroundColor: '#ffffff',
+                overflowX: 'hidden',
+                transition: '0.4s',
+                whiteSpace: 'nowrap';
+                border: "1px solid #ddd",
+            },...(props.style || {})}}
+        >
+            {children}
+        </div>
+    </div>
+}
+
+const SearchInput = (props:{value:string, onChange?:(event:any)=>void, onReset?:()=>void,}&CommonAttributes)=>{
+    const {id, className, value, onChange, onReset, ...other} = props;
+    return <span className="input-group">
+        <span 
+            className="input-group-append bg-white border-right-0 rounded-left">
+            <span className="input-group-text bg-transparent rounded-left">
+                <SearchIcon />
+            </span>
+        </span>
+        <input
+            {...other}
+            id={id}
+            value={value}
+            className={`${className||''} form-control border-right-0 border-left-0`}
+            placeholder="Buscar..."
+            type="search"
+            aria-label="Search"
+            onChange={onChange}
+            style={{ ...{
+                
+            },...(props.style || {})}}
+        />
+        {value && onReset?
+            <span 
+                onClick={onReset}
+                className="input-group-append bg-white border-left-0 rounded-right">
+                <span className="input-group-text bg-default rounded-right">
+                    <ClearIcon />
+                </span>
+            </span>
+        :null}
+    </span>
 }
 
 // https://material-ui.com/components/material-icons/
@@ -1725,107 +1797,77 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
     const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
     const [open, setOpen] = React.useState<boolean>(false);
-    const classes = useStyles({open:open});
     const handleDrawerOpen = () => {
         setOpen(true);
     };
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
+    const initialWidth = 70;
+    const openedWidth = 300;
+    const classes = useStyles();
     const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return <>
         <AppBar
             style={toolbarStyle}
             position="fixed"
-            className={clsx(classes.appBar, {
-                [classes.appBarShift]: open,
-            })}
+            shift={openedWidth}
+            shiftCondition={open}
         >
-                    
-           <IconButton
-               color="inherit"
-               aria-label="open drawer"
-               onClick={handleDrawerOpen}
-               edge="start"
-               className={clsx(classes.menuButton, {
-                   [classes.hide]: open,
-               })}
-           >
-               <MenuIcon/>
-           </IconButton>
-                            <Typography variant="h6">
+            {open?null:        
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={handleDrawerOpen}
+                    edge="start"
+                >
+                    <MenuIcon/>
+                </IconButton>
+            }
+            <Typography variant="h6">
                {`inf ${props.relVisPk.informante}`}
            </Typography>
            <Grid item>
-               <ButtonGroup>
-                   <Button onClick={()=>{
-                       dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
-                   }}>
-                       <ICON.FormatLineSpacing />
-                   </Button>
+                <ButtonGroup>
+                    <Button onClick={()=>{
+                        dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
+                    }}>
+                        <ICON.FormatLineSpacing />
+                    </Button>
                </ButtonGroup>
                <ButtonGroup>
-                   <Button onClick={()=>{
-                       dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                   }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
-                       <ICON.CheckBoxOutlined />
-                   </Button>
-                   <Button onClick={()=>{
-                       dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                   }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
-                       <ICON.CheckBoxOutlineBlankOutlined />
-                   </Button>
-                   <Button onClick={()=>{
-                       dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                   }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
-                       <ICON.Warning />
-                   </Button>
-               </ButtonGroup>
-           </Grid>
-           <div className={classes.search}>
-               <div className={classes.searchIcon}>
-                   <SearchIcon />
-               </div>
-               <InputBase 
-                   id="search" 
-                   placeholder="Buscar..." 
-                   value={searchString} 
-                   classes={{
-                       root: classes.inputRoot,
-                       input: classes.inputInput,
-                   }}
-                   inputProps={{ 'aria-label': 'search' }}
-                   onChange={(event)=>{
-                       dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                       window.scroll({behavior:'auto', top:0, left:0})
-                   }}
-               />
-               {searchString?
-                   <IconButton 
-                       size="small" 
-                       style={{color:'#ffffff'}} 
-                       onClick={()=>{
-                           dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                           window.scroll({behavior:'auto', top:0, left:0})
-                       }}
-                   >
-                       <ClearIcon />
-                   </IconButton>
-               :null}
-           </div>
+                    <Button onClick={()=>{
+                        dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                    }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
+                        <ICON.CheckBoxOutlined />
+                    </Button>
+                    <Button onClick={()=>{
+                        dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                    }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
+                        <ICON.CheckBoxOutlineBlankOutlined />
+                    </Button>
+                    <Button onClick={()=>{
+                        dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                    }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
+                        <ICON.Warning />
+                    </Button>
+                </ButtonGroup>
+            </Grid>
+            <SearchInput
+                value={searchString}
+                onChange={(event)=>{
+                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                    window.scroll({behavior:'auto', top:0, left:0})
+                }}
+                onReset={()=>{
+                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                    window.scroll({behavior:'auto', top:0, left:0})
+                }}
+            />
         </AppBar>
         <Drawer
-            variant="permanent"
-            className={clsx(classes.drawer, {
-                [classes.drawerOpen]: open,
-                [classes.drawerClose]: !open,
-            })}
-            classes={{
-                paper: clsx({
-                    [classes.drawerOpen]: open,
-                    [classes.drawerClose]: !open,
-                }),
-            }}
+            initialWidth={initialWidth}
+            openedWidth={openedWidth}
             open={open}
         >
             <div className={classes.toolbar}>
@@ -1883,12 +1925,11 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
     const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
-    const classes = useStyles({open:false});
     return (
         <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
-            <div className={classes.root}>
+            <div style={{display:'flex'}}>
                 <FormularioVisitaWrapper relVisPk={props.relVisPk} />
-                <main className={classes.content}>
+                <main style={{flexGrow: 1}}>
                     <DetalleFiltroObservaciones></DetalleFiltroObservaciones>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
                     <RelevamientoPrecios 
