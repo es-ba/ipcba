@@ -373,8 +373,8 @@ const AppBar = (props:{
         color?:'dark' | 'light',
         backgroundColor?:BootstrapColors,
         position?:'sticky'|'fixed',
-        shift:number,
-        shiftCondition:boolean
+        shift?:number,
+        shiftCondition?:boolean
     }&CommonAttributes)=>{
     const {id, className, position, shift, shiftCondition, children, ...other} = props;
     var {backgroundColor, color} = props;
@@ -436,8 +436,12 @@ const SearchInput = (props:{value:string, onChange?:(event:any)=>void, onReset?:
     const {id, className, value, onChange, onReset, ...other} = props;
     return <span className="input-group">
         <span 
-            className="input-group-append bg-white border-right-0 rounded-left">
-            <span className="input-group-text bg-transparent rounded-left">
+            className="input-group-append bg-white border-right-0 rounded-left"
+        >
+            <span 
+                className="input-group-text bg-transparent rounded-left"
+                style={{padding:"5px"}}
+            >
                 <SearchIcon />
             </span>
         </span>
@@ -912,7 +916,6 @@ const AtributosRow = function(props:{
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
-    const classes = useStylesList();
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
@@ -1122,7 +1125,6 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
-    const classes = useStylesList();
     const dispatch = useDispatch();
     return <>
         <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
@@ -1606,7 +1608,6 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     var cantObsConPrecio = props.relInf.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario && !!relPre.precio).length;
     const [confirmarCantObs, setConfirmarCantObs] = useState(null);
     const dispatch = useDispatch();
-    const classes = useStylesList();
     const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
         //@ts-ignore en este caso sabemos que etarget es un Element que tiene value.
         var valor = event.target.value;
@@ -1694,101 +1695,6 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     );
 }
 
-const drawerWidth = 300;
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-    },
-    appBar: {
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-    },
-    appBarShift: {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-    menuButton: {
-      marginRight: 36,
-    },
-    hide: {
-      display: 'none',
-    },
-    drawer: {
-      width: drawerWidth,
-      flexShrink: 0,
-      whiteSpace: (props:{open:boolean}) => props.open?'normal':'nowrap',
-    },
-    drawerOpen: {
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-    drawerClose: {
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      overflowX: 'hidden',
-      width: theme.spacing(7) + 1,
-      [theme.breakpoints.up('sm')]: {
-        width: theme.spacing(9) + 1,
-      },
-    },
-    toolbar: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      padding: theme.spacing(0, 1),
-      ...theme.mixins.toolbar,
-    },
-    content: {
-      flexGrow: 1,
-    },
-    search: {
-      position: 'relative',
-      borderRadius: theme.shape.borderRadius,
-      backgroundColor: fade(theme.palette.common.white, 0.15),
-      '&:hover': {
-        backgroundColor: fade(theme.palette.common.white, 0.25),
-      },
-      marginLeft: 0,
-      width: '100%',
-      [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-      },
-    },
-    searchIcon: {
-      width: theme.spacing(7),
-      height: '100%',
-      position: 'absolute',
-      pointerEvents: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    inputRoot: {
-      color: 'inherit',
-    },
-    inputInput: {
-      padding: theme.spacing(1, 1, 1, 7),
-      transition: theme.transitions.create('width'),
-      width: 150,
-    }
-  }),
-);
-
 function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const {queVer, searchString, compactar, allForms,} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
@@ -1805,7 +1711,6 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     };
     const initialWidth = 70;
     const openedWidth = 300;
-    const classes = useStyles();
     const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return <>
         <AppBar
@@ -1870,7 +1775,11 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
             openedWidth={openedWidth}
             open={open}
         >
-            <div className={classes.toolbar}>
+            <div style={{
+                display: "flex",
+                padding: "8px 8px",
+                justifyContent: "flex-end",
+            }}>
                 <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
             </div>
             <List>
