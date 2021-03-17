@@ -26,7 +26,7 @@ var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
     /*AppBar,*/ Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, InputBase, List, ListItem, ListItemIcon, /*ListItemText, Drawer,*/
+    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, /*InputBase, List,*/ ListItem, ListItemIcon, /*ListItemText, Drawer,*/
     /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, Toolbar, Typography,*/ Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
@@ -331,6 +331,20 @@ const Typography = ({children, ...others}:{
     component?:string
     variant?:'h1'|'h2'|'h3'|'h4'|'h5'|'h6'
 }&CommonAttributes)=>React.createElement(others.variant||others.component||'div',others,children);
+
+const List = (props:{
+    children?:any,
+}&CommonAttributes){
+    var {id, className, style, children, ...other} = props;
+    return <ul
+        {...other}
+        id={id}
+        className={`${className||''} dropdown-menu`}
+        style={{ ...{display: 'unset', position:'unset'},...(style || {})}}
+    >
+        {children}
+    </ul>
+}
 
 const Divider = ({children, ...other}:{}&CommonAttributes)=>
     <div 
