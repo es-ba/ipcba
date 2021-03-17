@@ -26,7 +26,7 @@ var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
     /*AppBar,*/ Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, /*InputBase, List,*/ ListItem, ListItemIcon, /*ListItemText, Drawer,*/
+    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, /*InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer,*/
     /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, Toolbar, Typography,*/ Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
@@ -344,6 +344,37 @@ const List = (props:{
     >
         {children}
     </ul>
+}
+
+const ListItem = (props:{
+    children?:any,
+    selected?:boolean,
+    onClick?:(event)=>void,
+}&CommonAttributes){
+    var {id, className, selected, onClick, style, children, ...other} = props;
+    return <li
+        {...other}
+        id={id}
+        onClick={onClick}
+        className={`${className||''} dropdown-item ${selected?'text-light bg-secondary':'text-secondary bg-transparent'}`}
+        style={{ ...{display:'flex', justifyContent:'flex-start', paddingTop:8},...(style || {})}}
+    >
+        {children}
+    </li>
+}
+
+const ListItemIcon = (props:{
+    children?:any,
+}&CommonAttributes){
+    var {id, className, style, children, ...other} = props;
+    return <div
+        {...other}
+        id={id}
+        className={`${className||''}`}
+        style={{ ...{fontSize:'1.4rem', minWidth:56},...(style || {})}}
+    >
+        {children}
+    </div>
 }
 
 const Divider = ({children, ...other}:{}&CommonAttributes)=>
@@ -1797,14 +1828,14 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
                 <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
             </div>
             <List>
-                <ListItem button className="flecha-volver-hdr" onClick={()=>
+                <ListItem className="flecha-volver-hdr" onClick={()=>
                     dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
                 }>
                     <ListItemIcon><DescriptionIcon/></ListItemIcon>
                     <ListItemText primary="Volver a hoja de ruta"/>
                 </ListItem>
                 {formularios.map((relVis:RelVis) => (
-                    <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
+                    <ListItem key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
                         setOpen(false);
                         dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
                     }}>
