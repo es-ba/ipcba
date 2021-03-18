@@ -1,6 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, OptsHdr, FocusOpts} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, 
+    LetraTipoOpciones, OptsHdr, FocusOpts
+} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
@@ -25,21 +27,19 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    /*AppBar,*/ Badge, /*Button, ButtonGroup, Chip,*/ CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, /*Divider,*/ Fab, /*Grid,*/ IconButton, /*InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer,*/
-    /*Menu, MenuItem, */Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, /*TextField, Toolbar, Typography,*/ Zoom,
+    Badge, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, 
+    IconButton, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, Zoom,
 } from "@material-ui/core";
-import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import { Store } from "redux";
 
-import { CSSProperties } from "@material-ui/core/styles/withStyles";
-type CommonAttributes = {className?:string,style?:CSSProperties,id?:string} // CSSProperties
+type CommonAttributes = {className?:string,style?:React.CSSProperties,id?:string} // CSSProperties
 type BootstrapColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark';
 
 const Menu = (props:{
     id:string,
     open:boolean,
-    anchorEl:HTMLElement|null|undefined,
+    anchorEl:Element|null|undefined,
     onClose?:()=>void,
     children:any,
 })=>{
@@ -59,20 +59,20 @@ const Menu = (props:{
         if(divEl && divEl.current){
             let myElement = divEl.current! as HTMLDivElement;
             if(position.top == null || position.left==null){
-                updatePosition({element:props.anchorEl, top: null, left:null});
+                updatePosition({element:props.anchorEl as HTMLElement, top: null, left:null});
             }else if(myElement.scrollHeight > myElement.clientHeight){
                 let faltante = myElement.scrollHeight - myElement.clientHeight + 5;
                 let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
                 let aSubir = Math.min(faltante, disponibleParaAjuste);
                 if(aSubir){
-                    setPosition({top:position.top - aSubir, left:position.left, maxHeight:position.maxHeight+aSubir,maxWidth:position.maxWidth});
+                    setPosition({top:position.top - aSubir, left:position.left, maxHeight:Number(position.maxHeight)+aSubir,maxWidth:position.maxWidth});
                 }
             }else if(myElement.scrollWidth > myElement.clientWidth){
                 let faltante = myElement.scrollWidth - myElement.clientWidth + 5;
                 let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
                 let aMover = Math.min(faltante, disponibleParaAjuste);
                 if(aMover){
-                    setPosition({top:position.top, left:position.left - aMover, maxHeight:position.maxHeight,maxWidth:position.maxWidth+aMover});
+                    setPosition({top:position.top, left:position.left - aMover, maxHeight:position.maxHeight,maxWidth:Number(position.maxWidth)+aMover});
                 }
             }
         }
@@ -141,7 +141,7 @@ const Menu = (props:{
 function MenuItem(props:{
     children:any,
     disabled?: boolean
-    onClick?:(event)=>void,
+    onClick?:(event:React.MouseEvent)=>void,
 }&CommonAttributes){
     var {id, className, style, children, ...other} = props;
     return <li
@@ -158,7 +158,7 @@ function ListItemText(props:{
     children?:any,
     primary?:string,
     secondary?:string,
-    onClick?:(event)=>void,
+    onClick?:(event:React.MouseEvent)=>void,
 }&CommonAttributes){
     var {id, className, style, children, primary, secondary,  ...other} = props;
     return <span
@@ -197,7 +197,7 @@ const Button = (props:{
     variant?:string,
     color?:string,
     className?:string,
-    onClick?:(event)=>void,
+    onClick?:(event:React.MouseEvent)=>void,
     disabled?:boolean
     fullwidth?:boolean
     children:any,
@@ -238,15 +238,15 @@ const TextField = (props:{
     onBlur?:(event:any)=>void,
     hasError:boolean,
     borderBottomColor?:string,
-    borderBottomColorError:string,
-    color:string
+    borderBottomColorError?:string,
+    color?:string
 })=>{
-    var {hasError, borderBottomColorError, borderBottomColor} = props;
+    var {hasError, borderBottomColorError, borderBottomColor, color} = props;
     borderBottomColor=borderBottomColor||PRIMARY_COLOR;
     const styles = {
         border: "0px solid white",
         borderBottom:  `1px solid ${hasError?borderBottomColorError:borderBottomColor}`,
-        color: props.color,
+        color: color,
         outline:'none'
     };
     //multiline
@@ -334,7 +334,7 @@ const Typography = ({children, ...others}:{
 
 const List = (props:{
     children?:any,
-}&CommonAttributes){
+}&CommonAttributes)=>{
     var {id, className, style, children, ...other} = props;
     return <ul
         {...other}
@@ -349,8 +349,8 @@ const List = (props:{
 const ListItem = (props:{
     children?:any,
     selected?:boolean,
-    onClick?:(event)=>void,
-}&CommonAttributes){
+    onClick?:(event:React.MouseEvent)=>void,
+}&CommonAttributes)=>{
     var {id, className, selected, onClick, style, children, ...other} = props;
     return <li
         {...other}
@@ -365,7 +365,7 @@ const ListItem = (props:{
 
 const ListItemIcon = (props:{
     children?:any,
-}&CommonAttributes){
+}&CommonAttributes)=>{
     var {id, className, style, children, ...other} = props;
     return <div
         {...other}
@@ -377,15 +377,13 @@ const ListItemIcon = (props:{
     </div>
 }
 
-const Divider = ({children, ...other}:{}&CommonAttributes)=>
+const Divider = ({...other}:{}&CommonAttributes)=>
     <div 
         {...other}
         id={other.id}
         className={`${other.className||''} dropdown-divider`}
         style={{ ...{},...(other.style || {})}}
-    >
-        {children}
-    </div>
+    />
 
 function Grid(props:{
     container?:boolean,
@@ -468,7 +466,7 @@ const Drawer = (props:{children:any, initialWidth?:number, openedWidth?:number, 
                 backgroundColor: '#ffffff',
                 overflowX: 'hidden',
                 transition: '0.4s',
-                whiteSpace: 'nowrap';
+                whiteSpace: 'nowrap',
                 border: "1px solid #ddd",
             },...(props.style || {})}}
         >
@@ -734,16 +732,7 @@ function TypedInput<T extends string|number|null>(props:{
             event.preventDefault();
         }
     }
-    const onClickFun = function<TE extends React.MouseEvent>(event:TE){
-        var element = event.target;
-        //MEJORAR, puede ser div tambien
-        if(element instanceof HTMLTextAreaElement){
-            var selection = element.value.length||0;
-            element.selectionStart = selection;
-            element.selectionEnd = selection;
-        }
-    }
-        
+
     return <TextField
         autoFocus={props.autoFocus}
         placeholder={props.placeholder}
@@ -775,6 +764,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
         <DialogContent>
             <TextField
                 autoFocus
+                hasError={false}
                 value={valor}
                 type={props.dataType}
                 onChange={(event)=>{
@@ -892,7 +882,7 @@ function EditableTd<T extends string|number|null>(props:{
                     <MenuItem key='*****current value******'
                         onClick={()=>{
                             setEditando(false);
-                            props.onUpdate(parseString(props.value,"uppercase",true));
+                            props.onUpdate(parseString(props.value as string,"uppercase",true) as T);
                         }}
                     >
                         <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
@@ -960,7 +950,7 @@ const AtributosRow = function(props:{
     const dispatch = useDispatch();
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
-    const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
+    const [menuCambioAtributos, setMenuCambioAtributos] = useState<Element|null>(null);
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
@@ -1072,14 +1062,6 @@ const AtributosRow = function(props:{
     )
 };
 
-const useStylesList = makeStyles((_theme: Theme) =>
-    createStyles({
-        listItemText:{
-            fontSize:'1.2rem',
-        }
-    }),
-);
-
 function strNumber(num:number|null):string{
     var str = num==null ? "" : num.toString();
     if(/[.,]\d$/.test(str)){
@@ -1166,7 +1148,7 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
 
 var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, razonPositiva:boolean, onSelection:()=>void})=> {
     const {inputIdPrecio, relPre, razonPositiva, iRelPre} = props;
-    const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
+    const [menuTipoPrecio, setMenuTipoPrecio] = useState<Element|null>(null);
     const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
     const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
     var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
@@ -1647,7 +1629,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     const relVis = props.relVis;
     const razones = estructura.razones;
     const {verRazon} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
-    const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
+    const [menuRazon, setMenuRazon] = useState<Element|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     var cantObsConPrecio = props.relInf.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario && !!relPre.precio).length;
@@ -1716,6 +1698,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                             Confirme la acción ingresando la cantidad de precios que se van a borrar: 
                         </div>
                         <TextField
+                            hasError={false}
                             value={confirmarCantObs}
                             onChange={onChangeFun}
                         />
@@ -2356,6 +2339,7 @@ function PantallaOpciones(){
                                     {mensajeBorrar}
                                 </DialogContentText>
                                 <TextField
+                                    hasError={false}
                                     onChange={(event)=>
                                         setHabilitarBorrar(event.target.value.toLowerCase()==FRASE_BORRADO)
                                     }
