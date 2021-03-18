@@ -1389,7 +1389,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }
                         >
                             {chipColor?
-                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}/>
+                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem", minHeight:25}} label={precioAnteriorAMostrar || "-"}/>
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
