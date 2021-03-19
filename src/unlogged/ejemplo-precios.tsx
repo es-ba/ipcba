@@ -357,7 +357,7 @@ const ListItem = (props:{
         id={id}
         onClick={onClick}
         className={`${className||''} dropdown-item ${selected?'text-light bg-secondary':'text-secondary bg-transparent'}`}
-        style={{ ...{display:'flex', justifyContent:'flex-start', paddingTop:8},...(style || {})}}
+        style={{ ...{display:'flex', justifyContent:'flex-start', paddingTop:8, paddingBottom:8},...(style || {})}}
     >
         {children}
     </li>
@@ -384,6 +384,71 @@ const Divider = ({...other}:{}&CommonAttributes)=>
         className={`${other.className||''} dropdown-divider`}
         style={{ ...{},...(other.style || {})}}
     />
+
+const MyBadge = (props:{
+    children?:any,
+    color?:string,
+    badgeContent:string|null,
+    backgroundColor?:string,
+    anchorOrigin?:{ horizontal: 'left'| 'right', vertical: 'bottom'| 'top' }
+}&CommonAttributes)=>{
+    var {id, className, style, children, color, anchorOrigin, backgroundColor, badgeContent, ...other} = props;
+    anchorOrigin = anchorOrigin || {horizontal:'right', vertical:'top'};
+    var badgePosition = {
+        top:anchorOrigin.vertical=='top'?-2:'unset',
+        left:anchorOrigin.horizontal=='left'?-8:'unset',
+        right:anchorOrigin.horizontal=='right'?-8:'unset',
+        bottom:anchorOrigin.vertical=='bottom'?-2:'unset'
+    }
+    return badgeContent==null?
+        <>{children}</>
+    :
+        <span 
+            {...other}
+            id={props.id}
+            className={`${className||''}`}
+            style={{ ...{
+                //top:0,
+                //transform: 'scale(1) translate(9px, -50%)',
+                //right:0,
+                display: 'inline-flex',
+                position: 'relative',
+                flexShrink: 0,
+                verticalAlign: 'middle',
+                //position:'absolute',
+                //color,
+                //backgroundColor,
+                //borderRadius: 10,
+                //fontSize: '0.85rem',
+                //minWidth: 20
+            },...(style || {})}}
+        >
+            {children}
+            <span style={{
+                ...badgePosition,
+                height: '20px',
+                display: 'flex',
+                padding: '0 6px',
+                zIndex: 1,
+                position: 'absolute',
+                flexWrap: 'wrap',
+                fontSize: '0.75rem',
+                minWidth: '20px',
+                boxSizing: 'border-box',
+                transition: 'transform 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                alignItems: 'center',
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+                fontWeight: 500,
+                lineHeight: 1,
+                alignContent: 'center',
+                borderRadius: '10px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                color,
+                backgroundColor,
+            }}>{badgeContent}</span>
+        </span>
+}
 
 function Grid(props:{
     container?:boolean,
@@ -816,34 +881,25 @@ function EditableTd<T extends string|number|null>(props:{
     const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
     const borderBottomColorError = props.borderBottomColorError || DEFAULT_ERROR_COLOR;
     const color = props.color || '#000000';
-    const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
-        <Badge 
-            badgeContent="!" 
-            anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
-            style={{width:"100%"}} 
-            classes={{ 
-                // @ts-ignore TODO: mejorar tipos STYLE #48
-                badge: classesBadge.badge 
+        <div  
+            className={`${props.className}`} 
+            ref={mostrarMenu} 
+            onClick={(_event)=>{
+                if(!props.disabled){
+                    setEditando(true);
+                    props.onFocus?props.onFocus():null;
+                }
             }}
-            className={
-                // @ts-ignore TODO: mejorar tipos STYLE #48
-                classesBadge.margin
-            }
+            puede-editar={!props.disabled && !editando?"yes":"no"}
         >
-            <div  
-                className={`${props.className}`} 
-                ref={mostrarMenu} 
-                onClick={(_event)=>{
-                    if(!props.disabled){
-                        setEditando(true);
-                        props.onFocus?props.onFocus():null;
-                    }
-                }}
-                puede-editar={!props.disabled && !editando?"yes":"no"}
+            <MyBadge 
+                backgroundColor={borderBottomColorError}
+                anchorOrigin={{vertical:'top', horizontal:'right'}}
+                color="#ffffff"
+                badgeContent={props.hasError?"!":null}
             >
-            
                 <TypedInput
                     autoFocus={props.autoFocus||false}
                     hasError={props.hasError}
@@ -864,9 +920,9 @@ function EditableTd<T extends string|number|null>(props:{
                     opciones={props.opciones}
                     placeholder={props.placeholder}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
-                />
-            </div>
-        </Badge>
+                />            
+            </MyBadge>
+        </div>
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
@@ -1297,7 +1353,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         <div className="especificacion">
                             <ConditionalWrapper
                                 condition={(productoDef.destacado)}
-                                wrapper={children => 
+                                wrapper={children =>
                                     <Badge style={{width:"100%"}} badgeContent=" "
                                         classes={{ 
                                             // @ts-ignore TODO: mejorar tipos STYLE #48
@@ -1737,8 +1793,8 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
-    const initialWidth = 70;
-    const openedWidth = 300;
+    const initialWidth = 80;
+    const openedWidth = 320;
     const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return <>
         <AppBar
@@ -1958,10 +2014,17 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                         }
                     }>
                         <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
-                        <span className="special-right">{relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? <ICON.RemoveShoppingCart /> : (
-                            !cantPendientes && !!relVis.razon?CHECK:null
-                        )}</span>
+                        <span className="special-right">
+                            {relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? 
+                                <ICON.RemoveShoppingCart /> 
+                            :(!cantPendientes && !!relVis.razon?
+                                    CHECK
+                                :
+                                    null
+                            )}
+                        </span>
                     </Button>
+                    {/*mostrarColumnasFaltantesYAdvertencias?null:<MyBadge>{conBadge}</MyBadge>*/}
                 </ConditionalWrapper>
             </TableCell>
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{numberElement(misObservaciones.length)}</TableCell>:null}
