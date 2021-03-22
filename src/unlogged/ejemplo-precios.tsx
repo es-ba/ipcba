@@ -390,15 +390,19 @@ const MyBadge = (props:{
     color?:string,
     badgeContent:string|null,
     backgroundColor?:string,
-    anchorOrigin?:{ horizontal: 'left'| 'right', vertical: 'bottom'| 'top' }
+    anchorOrigin?:{ horizontal: 'left'| 'right', vertical: 'bottom'| 'top' },
+    variant?:'standard'|'dot',
+    fullWidth?:boolean
 }&CommonAttributes)=>{
-    var {id, className, style, children, color, anchorOrigin, backgroundColor, badgeContent, ...other} = props;
+    var {id, className, style, variant, fullWidth, children, color, anchorOrigin, backgroundColor, badgeContent, ...other} = props;
     anchorOrigin = anchorOrigin || {horizontal:'right', vertical:'top'};
+    variant = variant || 'standard';
+    fullWidth = fullWidth==undefined?true:fullWidth;
     var badgePosition = {
-        top:anchorOrigin.vertical=='top'?-2:'unset',
-        left:anchorOrigin.horizontal=='left'?-8:'unset',
-        right:anchorOrigin.horizontal=='right'?-8:'unset',
-        bottom:anchorOrigin.vertical=='bottom'?-2:'unset'
+        top:anchorOrigin.vertical=='top'?-5:'unset',
+        left:anchorOrigin.horizontal=='left'?-5:'unset',
+        right:anchorOrigin.horizontal=='right'?-5:'unset',
+        bottom:anchorOrigin.vertical=='bottom'?-5:'unset'
     }
     return badgeContent==null?
         <>{children}</>
@@ -407,10 +411,11 @@ const MyBadge = (props:{
             {...other}
             id={props.id}
             className={`${className||''}`}
-            style={{ ...{
+            style={{
                 //top:0,
                 //transform: 'scale(1) translate(9px, -50%)',
                 //right:0,
+                width: fullWidth?'100%':'unset',
                 display: 'inline-flex',
                 position: 'relative',
                 flexShrink: 0,
@@ -421,19 +426,20 @@ const MyBadge = (props:{
                 //borderRadius: 10,
                 //fontSize: '0.85rem',
                 //minWidth: 20
-            },...(style || {})}}
+            }}
         >
             {children}
-            <span style={{
+            <span style={{ ...{
                 ...badgePosition,
-                height: '20px',
+                height: variant=='standard'?'20px':'8px',
+                width: variant=='standard'?'unset':'8px',
                 display: 'flex',
-                padding: '0 6px',
+                padding: variant=='standard'?'0 6px':'unset',
                 zIndex: 1,
                 position: 'absolute',
                 flexWrap: 'wrap',
                 fontSize: '0.75rem',
-                minWidth: '20px',
+                minWidth: variant=='standard'?'20px':'8px',
                 boxSizing: 'border-box',
                 transition: 'transform 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
                 alignItems: 'center',
@@ -446,7 +452,8 @@ const MyBadge = (props:{
                 justifyContent: 'center',
                 color,
                 backgroundColor,
-            }}>{badgeContent}</span>
+            },...(style || {})}}
+            >{badgeContent}</span>
         </span>
 }
 
@@ -1315,9 +1322,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const dispatch = useDispatch();
     const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
     const productoDef:Producto = estructura.productos[relPre.producto];
-    const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
-    const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
-    const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
+    const cantidadMesesBadgeStyles = {backgroundColor:'#dddddd', color: "#000000"};
+    const prodDestacadoBadgeStyle = {backgroundColor:'#b8dbed', color: "#000000"};
+    const comentariosAnalistaBadgeStyles = {backgroundColor:COLOR_ADVERTENCIAS};
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const chipColor = (relPre.tipoprecioanterior && estructura.tipoPrecio[relPre.tipoprecioanterior].espositivo?
@@ -1351,36 +1358,26 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 {!compactar?
                     <>
                         <div className="especificacion">
-                            <ConditionalWrapper
-                                condition={(productoDef.destacado)}
-                                wrapper={children =>
-                                    <Badge style={{width:"100%"}} badgeContent=" "
-                                        classes={{ 
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            badge: classesBadgeProdDestacado.badge 
-                                        }} className={
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            classesBadgeProdDestacado.margin
-                                        }>{children}
-                                    </Badge>
-                                }
+                            <MyBadge
+                                badgeContent={productoDef.destacado?"":null}
+                                color={prodDestacadoBadgeStyle.color}
+                                backgroundColor={prodDestacadoBadgeStyle.backgroundColor}
+                                style={{top: 0, right:0, zIndex:-1}}
                             >
                                 <span>{productoDef.especificacioncompleta}</span>
-                            </ConditionalWrapper>
+                            </MyBadge>
                         </div>
                         {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
                             <div className="comentario-analista">
-                                <Badge badgeContent=" " variant="dot"
-                                    classes={{ 
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        badge: classesBadgeComentariosAnalista.badge 
-                                    }} 
-                                    className={
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        classesBadgeComentariosAnalista.margin
-                                    }>
+                                <MyBadge
+                                    badgeContent=""
+                                    fullWidth={false}
+                                    style={{top: 6, right: -10, zIndex:-1}}
+                                    variant="dot"
+                                    backgroundColor={comentariosAnalistaBadgeStyles.backgroundColor}
+                                >
                                     <span>{relPre.comentariosrelpre_1}</span>
-                                </Badge>
+                                </MyBadge>
                             </div>
                             :null
                         }
@@ -1409,29 +1406,17 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
                         :
-                        <ConditionalWrapper
-                            condition={!!badgeCondition}
-                            wrapper={children => 
-                                <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
-                                    classes={{ 
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        badge: classesBadgeCantidadMeses.badge 
-                                    }} 
-                                    className={
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        classesBadgeCantidadMeses.margin
-                                    }
-                                >
-                                    {children}
-                                </Badge>
-                            }
+                        <MyBadge 
+                            backgroundColor={cantidadMesesBadgeStyles.backgroundColor}
+                            color={cantidadMesesBadgeStyles.color}
+                            badgeContent={relPre.cantidadperiodossinprecio?relPre.cantidadperiodossinprecio.toString():null}
                         >
                             {chipColor?
                                 <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem", minHeight:25}} label={precioAnteriorAMostrar || "-"}/>
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
-                        </ConditionalWrapper>
+                        </MyBadge>
                         }
                     </div>
                     {!render4scroll?<>
@@ -1966,9 +1951,9 @@ const ConditionalWrapper = ({condition, wrapper, children}:{ condition:boolean, 
 
 function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
-    const classesErrores = useStylesBadge({backgroundColor: COLOR_ERRORES});
-    const classesAdvertencia = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
-    const classesPendientes = useStylesBadge({backgroundColor: COLOR_PENDIENTES});
+    const errorStyles = {backgroundColor: COLOR_ERRORES, color:"white"};
+    const advStyles = {backgroundColor: COLOR_ADVERTENCIAS, color:"white"};
+    const pendentStyles = {backgroundColor: COLOR_PENDIENTES, color:"white"};
     const dispatch = useDispatch();
     const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
@@ -1982,50 +1967,42 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
         textAlign: 'right',
         paddingRight: '15px'
     }
-    var theClass=cantErrores ? classesErrores : (cantAdvertencias ? classesAdvertencia : classesPendientes);
+    var styles=cantErrores ? errorStyles : (cantAdvertencias ? advStyles : pendentStyles);
     var conBadge=cantErrores || cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)
     return(
         <>
             <TableCell>
-                <ConditionalWrapper
-                    condition={!mostrarColumnasFaltantesYAdvertencias}
-                    wrapper={children => 
-                        <Badge style={{width:"calc(100% - 5px)"}} 
-                            badgeContent={conBadge} 
-                            classes={{
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                badge: theClass.badge
-                            }} 
-                            className={
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                theClass.margin
-                            }>{children}
-                        </Badge>
-                    }
-                >
-                    <Button 
-                        fullwidth 
-                        variant={todoListo?"contained":"outline"} 
-                        color={todoListo?"success":"primary"}
-                        size="lg"
-                        className={"boton-ir-formulario"}
-                        onClick={()=>{
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                        }
-                    }>
-                        <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
-                        <span className="special-right">
-                            {relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? 
-                                <ICON.RemoveShoppingCart /> 
-                            :(!cantPendientes && !!relVis.razon?
-                                    CHECK
-                                :
-                                    null
-                            )}
-                        </span>
-                    </Button>
-                    {/*mostrarColumnasFaltantesYAdvertencias?null:<MyBadge>{conBadge}</MyBadge>*/}
-                </ConditionalWrapper>
+                {mostrarColumnasFaltantesYAdvertencias?
+                    null
+                :
+                    <MyBadge 
+                        backgroundColor={styles.backgroundColor}
+                        color={styles.color}
+                        badgeContent={conBadge?conBadge.toString():null}
+                    >
+                        <Button 
+                            fullwidth 
+                            variant={todoListo?"contained":"outline"} 
+                            color={todoListo?"success":"primary"}
+                            size="lg"
+                            className={"boton-ir-formulario"}
+                            onClick={()=>{
+                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                            }
+                        }>
+                            <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
+                            <span className="special-right">
+                                {relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? 
+                                    <ICON.RemoveShoppingCart /> 
+                                :(!cantPendientes && !!relVis.razon?
+                                        CHECK
+                                    :
+                                        null
+                                )}
+                            </span>
+                        </Button>
+                    </MyBadge>
+                }
             </TableCell>
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{numberElement(misObservaciones.length)}</TableCell>:null}
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={{...numbersStyles, backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?numberElement(cantPendientes):CHECK}</TableCell>:null}
