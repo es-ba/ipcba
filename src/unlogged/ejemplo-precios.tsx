@@ -27,7 +27,7 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    Badge, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, 
+    CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, 
     IconButton, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme} from '@material-ui/core/styles';
@@ -385,7 +385,7 @@ const Divider = ({...other}:{}&CommonAttributes)=>
         style={{ ...{},...(other.style || {})}}
     />
 
-const MyBadge = (props:{
+const Badge = (props:{
     children?:any,
     color?:string,
     badgeContent:string|null,
@@ -901,7 +901,7 @@ function EditableTd<T extends string|number|null>(props:{
             }}
             puede-editar={!props.disabled && !editando?"yes":"no"}
         >
-            <MyBadge 
+            <Badge 
                 backgroundColor={borderBottomColorError}
                 anchorOrigin={{vertical:'top', horizontal:'right'}}
                 color="#ffffff"
@@ -928,7 +928,7 @@ function EditableTd<T extends string|number|null>(props:{
                     placeholder={props.placeholder}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
                 />            
-            </MyBadge>
+            </Badge>
         </div>
         {editaEnLista && editando?
             <Menu id="simple-menu"
@@ -1358,18 +1358,18 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 {!compactar?
                     <>
                         <div className="especificacion">
-                            <MyBadge
+                            <Badge
                                 badgeContent={productoDef.destacado?"":null}
                                 color={prodDestacadoBadgeStyle.color}
                                 backgroundColor={prodDestacadoBadgeStyle.backgroundColor}
                                 style={{top: 0, right:0, zIndex:-1}}
                             >
                                 <span>{productoDef.especificacioncompleta}</span>
-                            </MyBadge>
+                            </Badge>
                         </div>
                         {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
                             <div className="comentario-analista">
-                                <MyBadge
+                                <Badge
                                     badgeContent=""
                                     fullWidth={false}
                                     style={{top: 6, right: -10, zIndex:-1}}
@@ -1377,7 +1377,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                     backgroundColor={comentariosAnalistaBadgeStyles.backgroundColor}
                                 >
                                     <span>{relPre.comentariosrelpre_1}</span>
-                                </MyBadge>
+                                </Badge>
                             </div>
                             :null
                         }
@@ -1406,7 +1406,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                         {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
                         :
-                        <MyBadge 
+                        <Badge 
                             backgroundColor={cantidadMesesBadgeStyles.backgroundColor}
                             color={cantidadMesesBadgeStyles.color}
                             badgeContent={relPre.cantidadperiodossinprecio?relPre.cantidadperiodossinprecio.toString():null}
@@ -1416,7 +1416,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
-                        </MyBadge>
+                        </Badge>
                         }
                     </div>
                     {!render4scroll?<>
@@ -1975,7 +1975,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                 {mostrarColumnasFaltantesYAdvertencias?
                     null
                 :
-                    <MyBadge 
+                    <Badge 
                         backgroundColor={styles.backgroundColor}
                         color={styles.color}
                         badgeContent={conBadge?conBadge.toString():null}
@@ -2001,7 +2001,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
                                 )}
                             </span>
                         </Button>
-                    </MyBadge>
+                    </Badge>
                 }
             </TableCell>
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{numberElement(misObservaciones.length)}</TableCell>:null}
