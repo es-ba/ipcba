@@ -36,6 +36,8 @@ import { Store } from "redux";
 type CommonAttributes = {className?:string,style?:React.CSSProperties,id?:string} // CSSProperties
 type BootstrapColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark';
 
+const TOOLBAR_STYLE=hdrEstaDescargada()?{backgroundColor:'red'}:{backgroundColor:"#3f51b5"};
+
 const Menu = (props:{
     id:string,
     open:boolean,
@@ -1802,10 +1804,9 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     };
     const initialWidth = 80;
     const openedWidth = 320;
-    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return <>
         <AppBar
-            style={toolbarStyle}
+            style={TOOLBAR_STYLE}
             position="fixed"
             shift={openedWidth}
             shiftCondition={open}
@@ -2107,7 +2108,7 @@ function PantallaInicial(_props:{}){
     const paragraphStyles={fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"};
     return (
         <>
-            <AppBar position="fixed">
+            <AppBar position="fixed" style={TOOLBAR_STYLE}>
                 <Typography variant="h6">
                     IPCBA PWA - Dispositivo sin carga
                 </Typography>
@@ -2171,10 +2172,9 @@ function PantallaHojaDeRuta(_props:{}){
     const [descargando, setDescargando] = useState<boolean|null>(false);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return (
         <>
-            <AppBar position="fixed" style={toolbarStyle}>
+            <AppBar position="fixed" style={TOOLBAR_STYLE}>
                 <Typography variant="h6">
                     Hoja de ruta - {appVersion}
                 </Typography>
@@ -2323,7 +2323,7 @@ function PantallaOpciones(){
     const FRASE_BORRADO = "no guardar";
     return (
         <>
-            <AppBar position="fixed">
+            <AppBar position="fixed" style={TOOLBAR_STYLE}>
                 <IconButton
                     color="inherit"
                     aria-label="open drawer"
