@@ -189,20 +189,29 @@ const Chip = (props:{
 })=>{
     return <span className="badge" style={...props.style}>{props.label}</span>
 }
-const ButtonGroup = (props:{children:any})=>{
-    return <div className="btn-group" role="group">{props.children}</div>
+const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
+    return <div 
+        className="btn-group"
+        role="group"
+        style={{ 
+            ...{
+                margin: '0px 3px',
+            }, 
+            ...props.style
+        }}
+    >
+        {props.children}
+    </div>
 }
 const Button = (props:{
-    id?:string
     variant?:string,
     color?:string,
-    className?:string,
     onClick?:(event:React.MouseEvent)=>void,
     disabled?:boolean
     fullwidth?:boolean
     children:any,
     size?:'lg'|'md'
-})=>{
+}&CommonAttributes)=>{
     props.variant = props.variant || 'contained';
     props.color = props.color || 'light';
     return <button 
@@ -215,8 +224,11 @@ const Button = (props:{
         `}
         disabled={props.disabled}
         onClick={props.onClick}
-        style={{
-            width:props.fullwidth?'100%':'none'
+        style={{ 
+            ...{
+                width:props.fullwidth?'100%':'none',
+            }, 
+            ...props.style
         }}
     >{props.children}</button>
 }
@@ -330,7 +342,10 @@ const Typography = ({children, ...others}:{
     children:any,
     component?:string
     variant?:'h1'|'h2'|'h3'|'h4'|'h5'|'h6'
-}&CommonAttributes)=>React.createElement(others.variant||others.component||'div',others,children);
+}&CommonAttributes)=>{
+    others.style = {...others.style, ...{margin:0}};
+    return React.createElement(others.variant||others.component||'div',others,children);
+}
 
 const List = (props:{
     children?:any,
@@ -505,10 +520,13 @@ const AppBar = (props:{
             width: shift && shiftCondition?`calc(100% - ${shift}px)`:'100%',
             marginLeft: shift && shiftCondition?`${shift}px`:'0',
             transition: '0.4s',
+            justifyContent: 'unset',
+            flexWrap:'unset',
+            paddingLeft: 25
         },...(props.style || {})}}
     >
         {React.Children.map(children, child => (
-            <span className={"navbar-nav"}>
+            <span className={"navbar-nav"} style={{margin: '0px 2px', flexWrap:'unset'}}>
                 <span className="nav-item active">
                     <span className="nav-link">
                         {child}
@@ -1685,8 +1703,12 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
         verRazon?
         <div className="razon-formulario">
             <div>
-                <Button onClick={event=>setMenuRazon(event.currentTarget)} 
-                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} variant="outline">
+                <Button 
+                    onClick={event=>setMenuRazon(event.currentTarget)} 
+                    color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} 
+                    variant="outline"
+                    style={{width:'90%'}}
+                >
                     {relVis.razon}
                 </Button>
             </div>
@@ -1802,14 +1824,14 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
                {`inf ${props.relVisPk.informante}`}
            </Typography>
            <Grid item>
-                <ButtonGroup>
+                <ButtonGroup style={{height:38}}>
                     <Button onClick={()=>{
                         dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
                     }}>
                         <ICON.FormatLineSpacing />
                     </Button>
                </ButtonGroup>
-               <ButtonGroup>
+               <ButtonGroup style={{height:38}}>
                     <Button onClick={()=>{
                         dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                     }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
