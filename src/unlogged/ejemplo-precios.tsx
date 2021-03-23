@@ -1707,7 +1707,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                     onClick={event=>setMenuRazon(event.currentTarget)} 
                     color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} 
                     variant="outline"
-                    style={{width:'90%'}}
+                    style={{width:'90%', maxWidth:70}}
                 >
                     {relVis.razon}
                 </Button>
