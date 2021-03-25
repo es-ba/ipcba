@@ -750,7 +750,6 @@ function TypedInput<T extends string|number|null>(props:{
     simplificateText: boolean,
     textTransform?:'lowercase'|'uppercase',
 }){
-    const dispatch = useDispatch();
     function valueT(value:string):T{
         if(value=='' || value==null){
             // @ts-ignore sé que T es null
@@ -804,7 +803,6 @@ function TypedInput<T extends string|number|null>(props:{
         if(value!==props.value){
             props.onUpdate(value);
         }
-        //dispatch(dispatchers.UNSET_FOCUS({unfocusing:props.inputId}));
     };
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
@@ -1949,28 +1947,6 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         </div>
     );
 }
-
-const useStylesBadge = makeStyles((theme: Theme) =>
-  createStyles({
-    margin: {
-      margin: theme.spacing(0),
-    },
-    padding: {
-      padding: theme.spacing(0, 2),
-    },
-    // @ts-ignore TODO: mejorar tipos STYLE #48
-    badge: {
-      backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
-      color: (props:{color:string}) => props.color?props.color:'white',
-      top: (props:{top:number}) => props.top?props.top:0,
-      right: (props:{right:number}) => props.right?props.right:0,
-      zIndex: (props:{zIndex:number}) => props.zIndex?props.zIndex:0,
-    }
-  }),
-);
-
-const ConditionalWrapper = ({condition, wrapper, children}:{ condition:boolean, wrapper:(elements:JSX.Element)=>JSX.Element, children:JSX.Element }) => 
-  condition ? wrapper(children) : children;
 
 function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
