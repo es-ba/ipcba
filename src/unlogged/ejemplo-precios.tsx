@@ -229,6 +229,8 @@ const Button = (props:{
         style={{ 
             ...{
                 width:props.fullwidth?'100%':'none',
+                color: props.disabled?'rgba(0, 0, 0, 0.12)':'',
+                border: props.disabled?'1px solid rgba(0, 0, 0, 0.12)':''
             }, 
             ...props.style
         }}
