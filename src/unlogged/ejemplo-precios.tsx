@@ -27,7 +27,7 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, 
+    CircularProgress, CssBaseline, /*Dialog, */DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, 
     IconButton, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme} from '@material-ui/core/styles';
@@ -56,6 +56,9 @@ const Menu = (props:{
     },[props.open]);
     useEffect(() => {
         document.body.style.overflow=props.open?'hidden':'unset'
+        return () =>{
+            document.body.style.overflow='unset'
+        }
     });
     useEffect(() => {
         if(divEl && divEl.current){
@@ -121,6 +124,7 @@ const Menu = (props:{
                 <div 
                     id={props.id}
                     ref={divEl}
+                    onClick={(event)=>event.stopPropagation()}
                     className="dropdown-menu"
                     style={{
                         display:props.open?'unset':'none',
@@ -606,6 +610,45 @@ const SearchInput = (props:{value:string, onChange?:(event:any)=>void, onReset?:
         :null}
     </span>
 }
+const Dialog = (props:{
+    open:boolean,
+    onClose?:()=>void,
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, open, onClose, ...other} = props;
+    useEffect(() => {
+        document.body.style.overflow=open?'hidden':'unset'
+    });
+    return open?
+        ReactDOM.createPortal(
+            <div 
+                onClick={props.onClose}
+                style={{
+                    width:'100%',
+                    height:'100%',
+                    zIndex: 99998,
+                    position: 'fixed',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    top: 0,
+                    left: 0,
+            }}>
+                <div
+                    onClick={(event)=>event.stopPropagation()}
+                    className="modal-dialog"
+                    role="document"
+                    style={{
+                        zIndex: 99999,
+                    }}
+                >
+                    <div className="modal-content">
+                        {props.children}
+                    </div>
+                </div>
+            </div>,
+            document.body
+        )
+    :null
+}
 
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
@@ -987,6 +1030,7 @@ function EditableTd<T extends string|number|null>(props:{
                 {props.tipoOpciones=='A'?
                     <MenuItem key='*****other value******' 
                         onClick={()=>{
+                            setEditando(false);
                             setEditandoOtro(true)
                         }}
                     >
@@ -1186,8 +1230,6 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
                 setDialogoObservaciones(false)
                 setObservacionAConfirmar(relPre.comentariosrelpre);
             }}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
         >
             <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
             <DialogContent>
