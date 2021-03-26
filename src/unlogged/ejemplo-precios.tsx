@@ -27,7 +27,7 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    CircularProgress, CssBaseline, /*Dialog, */DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, 
+    CircularProgress, CssBaseline, Fab, 
     IconButton, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, Zoom,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme} from '@material-ui/core/styles';
@@ -636,9 +636,9 @@ const Dialog = (props:{
                     onClick={(event)=>event.stopPropagation()}
                     className="modal-dialog"
                     role="document"
-                    style={{
+                    style={{ ...{
                         zIndex: 99999,
-                    }}
+                    },...(style || {})}}
                 >
                     <div className="modal-content">
                         {props.children}
@@ -649,7 +649,59 @@ const Dialog = (props:{
         )
     :null
 }
+const DialogTitle = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <div id={id}
+        style={{ ...{
 
+        },...(style || {})}}
+            className={`${className||''} modal-header`}
+        >
+            <h5 className="modal-title">{children}</h5>
+    </div>
+}
+
+const DialogContent = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <div id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''} modal-body`}
+        >
+            {children}
+    </div>
+}
+const DialogContentText = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <p id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''}`}
+        >
+            {children}
+    </p>
+}
+const DialogActions = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <div id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''} modal-footer`}
+        >
+            {children}
+    </div>
+}
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
     Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
