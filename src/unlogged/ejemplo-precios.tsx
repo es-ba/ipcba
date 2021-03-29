@@ -38,6 +38,13 @@ type BootstrapColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning
 
 const TOOLBAR_STYLE=hdrEstaDescargada()?{backgroundColor:'red'}:{backgroundColor:"#3f51b5"};
 
+type MenuPosition={
+    top:number|null,
+    left:number|null,
+    maxHeight:number|string,
+    maxWidth:number|string, scrollY:number|null
+};
+
 const Menu = (props:{
     id:string,
     open:boolean,
@@ -46,12 +53,16 @@ const Menu = (props:{
     children:any,
 })=>{
     const divEl = useRef(null);
-    const [position, setPosition] = useState<
-        {top:number|null, left:number|null, maxHeight:number|string,maxWidth:number|string}
-    >({top:null, left:null, maxHeight:'auto',maxWidth:'auto'});
+    const [position, setPosition] = useState<MenuPosition>({
+        top:null,
+        left:null,
+        maxHeight:'auto',
+        maxWidth:'auto',
+        scrollY:null
+    });
     useEffect(() => {
         if(!props.open){
-            setPosition({top:null, left:null, maxHeight:'auto',maxWidth:'auto'});
+            setPosition({top:null, left:null, maxHeight:'auto',maxWidth:'auto', scrollY:null});
         }
     },[props.open]);
     useEffect(() => {
@@ -63,25 +74,37 @@ const Menu = (props:{
     useEffect(() => {
         if(divEl && divEl.current){
             let myElement = divEl.current! as HTMLDivElement;
-            if(position.top == null || position.left==null){
+            if(position.top == null || position.left==null || window.scrollY != position.scrollY){
                 updatePosition({element:props.anchorEl as HTMLElement, top: null, left:null});
             }else if(myElement.scrollHeight > myElement.clientHeight){
                 let faltante = myElement.scrollHeight - myElement.clientHeight + 5;
                 let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
                 let aSubir = Math.min(faltante, disponibleParaAjuste);
                 if(aSubir){
-                    setPosition({top:position.top - aSubir, left:position.left, maxHeight:Number(position.maxHeight)+aSubir,maxWidth:position.maxWidth});
+                    setPosition({
+                        top:position.top - aSubir,
+                        left:position.left,
+                        maxHeight:Number(position.maxHeight)+aSubir,
+                        maxWidth:position.maxWidth,
+                        scrollY: window.scrollY
+                    });
                 }
             }else if(myElement.scrollWidth > myElement.clientWidth){
                 let faltante = myElement.scrollWidth - myElement.clientWidth + 5;
                 let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
                 let aMover = Math.min(faltante, disponibleParaAjuste);
                 if(aMover){
-                    setPosition({top:position.top, left:position.left - aMover, maxHeight:position.maxHeight,maxWidth:Number(position.maxWidth)+aMover});
+                    setPosition({
+                        top:position.top,
+                        left:position.left - aMover,
+                        maxHeight:position.maxHeight,
+                        maxWidth:Number(position.maxWidth)+aMover,
+                        scrollY: window.scrollY
+                    });
                 }
             }
         }
-    });
+    },[window.scrollY, props.open]);
     function updatePosition(params:{element:HTMLElement|null|undefined, top:number|null, left:number|null}){
         var {element, top, left} = params;
         var rect:{
@@ -106,7 +129,7 @@ const Menu = (props:{
         }
         rect.maxHeight=window.innerHeight-rect.top;
         rect.maxWidth=window.innerWidth-rect.left;
-        setPosition({top:rect.top, left:rect.left, maxHeight:rect.maxHeight,maxWidth:rect.maxWidth});
+        setPosition({top:rect.top, left:rect.left, maxHeight:rect.maxHeight,maxWidth:rect.maxWidth, scrollY:window.scrollY});
     }
     return props.open?
         ReactDOM.createPortal(
@@ -132,7 +155,7 @@ const Menu = (props:{
                         left:position.left==null?'unset':position.left,
                         maxHeight:position.maxHeight,
                         maxWidth:position.maxWidth,
-                        position:'absolute',
+                        position:'relative',
                         zIndex: 99999,
                         overflow:'auto',
                     }}
@@ -847,6 +870,7 @@ function TypedInput<T extends string|number|null>(props:{
     simplificateText: boolean,
     textTransform?:'lowercase'|'uppercase',
 }){
+    const dispatch = useDispatch();
     function valueT(value:string):T{
         if(value=='' || value==null){
             // @ts-ignore sé que T es null
@@ -900,6 +924,7 @@ function TypedInput<T extends string|number|null>(props:{
         if(value!==props.value){
             props.onUpdate(value);
         }
+        dispatch(dispatchers.UNSET_FOCUS({unfocusing:props.inputId}));
     };
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
@@ -1082,7 +1107,6 @@ function EditableTd<T extends string|number|null>(props:{
                 {props.tipoOpciones=='A'?
                     <MenuItem key='*****other value******' 
                         onClick={()=>{
-                            setEditando(false);
                             setEditandoOtro(true)
                         }}
                     >
@@ -1102,6 +1126,7 @@ function EditableTd<T extends string|number|null>(props:{
                 onCancel={()=>setEditandoOtro(false)}
                 onUpdate={(value)=>{
                     setEditandoOtro(false);
+                    setEditando(false);
                     // @ts-ignore TODO: mejorar los componentes tipados #49
                     props.onUpdate(value?parseString(value,"uppercase",true):null);
                 }}
