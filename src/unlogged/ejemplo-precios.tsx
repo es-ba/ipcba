@@ -42,7 +42,8 @@ type MenuPosition={
     top:number|null,
     left:number|null,
     maxHeight:number|string,
-    maxWidth:number|string, scrollY:number|null
+    maxWidth:number|string, 
+    scrollY:number|null
 };
 
 const Menu = (props:{
@@ -75,62 +76,53 @@ const Menu = (props:{
         if(divEl && divEl.current){
             let myElement = divEl.current! as HTMLDivElement;
             if(position.top == null || position.left==null || window.scrollY != position.scrollY){
-                updatePosition({element:props.anchorEl as HTMLElement, top: null, left:null});
-            }else if(myElement.scrollHeight > myElement.clientHeight){
-                let faltante = myElement.scrollHeight - myElement.clientHeight + 5;
-                let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
-                let aSubir = Math.min(faltante, disponibleParaAjuste);
-                if(aSubir){
+                //posicionamiento inicial
+                var initialPosition:MenuPosition={
+                    top: 0,
+                    left: 0,
+                    maxHeight:'auto',
+                    maxWidth:'auto',
+                    scrollY: window.scrollY
+                };
+                let element = props.anchorEl as HTMLElement|null;
+                if(element){
+                    while(element != null) {
+                        initialPosition.top! += element.offsetTop;
+                        initialPosition.left! += element.offsetLeft;
+                        element = element.offsetParent as HTMLElement|null;
+                    }
+                    initialPosition.top!-=window.scrollY;
+                    initialPosition.left!-=window.scrollX;
+                }
+                initialPosition.maxHeight=window.innerHeight-initialPosition.top!;
+                initialPosition.maxWidth=window.innerWidth-initialPosition.left!;
+                setPosition(initialPosition);
+            }else{
+                //corrección para aprovechar máximo de pantalla posible
+                let aSubir=0;
+                if(myElement.scrollHeight > myElement.clientHeight){
+                    let faltante = myElement.scrollHeight - myElement.clientHeight + 5;
+                    let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
+                    aSubir = Math.min(faltante, disponibleParaAjuste);
+                }
+                let aIzquierda=0;
+                if(myElement.scrollWidth > myElement.clientWidth){
+                    let faltante = myElement.scrollWidth - myElement.clientWidth + 5;
+                    let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
+                    aIzquierda = Math.min(faltante, disponibleParaAjuste);
+                }
+                if(aSubir || aIzquierda){
                     setPosition({
                         top:position.top - aSubir,
-                        left:position.left,
-                        maxHeight:Number(position.maxHeight)+aSubir,
-                        maxWidth:position.maxWidth,
-                        scrollY: window.scrollY
-                    });
-                }
-            }else if(myElement.scrollWidth > myElement.clientWidth){
-                let faltante = myElement.scrollWidth - myElement.clientWidth + 5;
-                let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
-                let aMover = Math.min(faltante, disponibleParaAjuste);
-                if(aMover){
-                    setPosition({
-                        top:position.top,
-                        left:position.left - aMover,
-                        maxHeight:position.maxHeight,
-                        maxWidth:Number(position.maxWidth)+aMover,
+                        left:position.left - aIzquierda,
+                        maxHeight:Number(position.maxHeight) + aSubir,
+                        maxWidth:Number(position.maxWidth) + aIzquierda,
                         scrollY: window.scrollY
                     });
                 }
             }
         }
-    },[window.scrollY, props.open]);
-    function updatePosition(params:{element:HTMLElement|null|undefined, top:number|null, left:number|null}){
-        var {element, top, left} = params;
-        var rect:{
-            top:number,
-            left:number,
-            maxHeight:string|number
-            maxWidth:string|number
-        } = {
-            top:top || 0,
-            left:left || 0,
-            maxHeight:'auto',
-            maxWidth:'auto'
-        };
-        if(element){
-            while( element != null ) {
-                rect.top += element.offsetTop;
-                rect.left += element.offsetLeft;
-                element = element.offsetParent as HTMLElement|null;
-            }
-            rect.top-=window.scrollY;
-            rect.left-=window.scrollX;
-        }
-        rect.maxHeight=window.innerHeight-rect.top;
-        rect.maxWidth=window.innerWidth-rect.left;
-        setPosition({top:rect.top, left:rect.left, maxHeight:rect.maxHeight,maxWidth:rect.maxWidth, scrollY:window.scrollY});
-    }
+    },[window.scrollY, props.open, position]);
     return props.open?
         ReactDOM.createPortal(
             <div 
