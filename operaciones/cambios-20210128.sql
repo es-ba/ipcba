@@ -62,7 +62,7 @@ BEGIN
            FROM cvp.cambiopantar_det cpt
            JOIN cvp.relvis v ON cpt.periodo = v.periodo AND cpt.informante = v.informante and cpt.panel_nuevo = v.panel and cpt.tarea_nueva = v.tarea
            JOIN cvp.tareas t ON v.tarea = t.tarea
-           JOIN cvp.pantar pt ON cpt.panel_nuevo = pt.panel AND cpt.tarea = pt.tarea	  
+           JOIN cvp.pantar pt ON cpt.panel_nuevo = pt.panel AND cpt.tarea_nueva = pt.tarea	  
            LEFT JOIN cvp.reltar rt ON v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea  
            WHERE t.activa = 'S' AND pt.activa = 'S' and rt.periodo is null and id_lote = NEW.id_lote);
     end if;
