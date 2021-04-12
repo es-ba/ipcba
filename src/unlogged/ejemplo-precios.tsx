@@ -45,7 +45,9 @@ function useLockBodyScroll() {
     // Prevent scrolling on mount
     document.body.style.overflow = "hidden";
     // Re-enable scrolling when component unmounts
-    return () => (document.body.style.overflow = originalStyle);
+    return () => {
+        document.body.style.overflow = originalStyle
+    };
   }, []); // Empty array ensures effect is only run on mount and unmount
 }
 
@@ -58,8 +60,17 @@ type MenuPosition={
 };
 
 const Menu = (props:{
+    open:boolean,
     id:string,
-    //open:boolean,
+    anchorEl:Element|null|undefined,
+    onClose?:()=>void,
+    children:any,
+}&CommonAttributes)=>{
+    return props.open?React.createElement(OpenedMenu,props,props.children):null
+}
+
+const OpenedMenu = (props:{
+    id:string,
     anchorEl:Element|null|undefined,
     onClose?:()=>void,
     children:any,
@@ -73,17 +84,6 @@ const Menu = (props:{
         maxWidth:'auto',
         scrollY:null
     });
-    //useEffect(() => {
-    //    if(!props.open){
-    //        setPosition({top:null, left:null, maxHeight:'auto',maxWidth:'auto', scrollY:null});
-    //    }
-    //},[props.open]);
-    //useEffect(() => {
-    //    document.body.style.overflow=props.open?'hidden':'unset'
-    //    return () =>{
-    //        document.body.style.overflow='unset'
-    //    }
-    //});
     useEffect(() => {
         if(divEl && divEl.current){
             let myElement = divEl.current! as HTMLDivElement;
@@ -134,41 +134,40 @@ const Menu = (props:{
                 }
             }
         }
-    },[window.scrollY/*, props.open*/, position]);
+    },[window.scrollY, position]);
     return ReactDOM.createPortal(
+        <div 
+            className="dropdown-menu-container"
+            onClick={props.onClose}
+            style={{
+                width:'100%',
+                height:'100%',
+                zIndex: 99998,
+                position: 'fixed',
+                top: 0,
+                left: 0,
+            }}>
             <div 
-                className="dropdown-menu-container"
-                onClick={props.onClose}
+                id={props.id}
+                ref={divEl}
+                onClick={(event)=>event.stopPropagation()}
+                className="dropdown-menu"
                 style={{
-                    width:'100%',
-                    height:'100%',
-                    zIndex: 99998,
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                }}>
-                <div 
-                    id={props.id}
-                    ref={divEl}
-                    onClick={(event)=>event.stopPropagation()}
-                    className="dropdown-menu"
-                    style={{
-                        display:true||props.open?'unset':'none',
-                        top:position.top==null?'unset':position.top,
-                        left:position.left==null?'unset':position.left,
-                        maxHeight:position.maxHeight,
-                        maxWidth:position.maxWidth,
-                        position:'relative',
-                        zIndex: 99999,
-                        overflow:'auto',
-                    }}
-                >
-                    {props.children}
-                </div>
-            </div>,
-            document.body
-        )
-    //:null
+                    display:true||props.open?'unset':'none',
+                    top:position.top==null?'unset':position.top,
+                    left:position.left==null?'unset':position.left,
+                    maxHeight:position.maxHeight,
+                    maxWidth:position.maxWidth,
+                    position:'relative',
+                    zIndex: 99999,
+                    overflow:'auto',
+                }}
+            >
+                {props.children}
+            </div>
+        </div>,
+        document.body
+    )
 }
 function MenuItem(props:{
     children:any,
@@ -636,7 +635,15 @@ const SearchInput = (props:{value:string, onChange?:(event:any)=>void, onReset?:
         :null}
     </span>
 }
+
 const Dialog = (props:{
+    open:boolean,
+    onClose?:()=>void,
+    children:any,
+}&CommonAttributes)=>{
+    return props.open?React.createElement(OpenedDialog,props,props.children):null
+}
+const OpenedDialog = (props:{
     //open:boolean,
     onClose?:()=>void,
     children:any,
@@ -970,7 +977,7 @@ function TypedInput<T extends string|number|null>(props:{
 function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
     const [valor, setValor] = useState(props.valor);
     return <Dialog
-        //open={true}
+        open={true}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
     >
@@ -1073,8 +1080,8 @@ function EditableTd<T extends string|number|null>(props:{
             </Badge>
         </div>
         {editaEnLista && editando?
-            editando && mostrarMenu.current !== undefined && (<Menu id="simple-menu"
-                //open={editando && mostrarMenu.current !== undefined}
+            <Menu id="simple-menu"
+                open={editando && mostrarMenu.current !== undefined}
                 anchorEl={mostrarMenu.current}
                 onClose={()=> {
                     setEditando(false);
@@ -1116,7 +1123,7 @@ function EditableTd<T extends string|number|null>(props:{
                         <ListItemText style={{textDecoration:'italic'}}>OTRO</ListItemText>
                     </MenuItem>
                 :null}
-            </Menu>)
+            </Menu>
             :null
         }
         {editandoOtro?
@@ -1221,8 +1228,8 @@ const AtributosRow = function(props:{
                     props.onSelection();
                 }}
             />
-            {Boolean(menuCambioAtributos) && (<Menu id="simple-menu-cambio"
-                //open={Boolean(menuCambioAtributos)}
+            <Menu id="simple-menu-cambio"
+                open={Boolean(menuCambioAtributos)}
                 anchorEl={menuCambioAtributos}
                 onClose={()=>setMenuCambioAtributos(null)}
             >
@@ -1263,7 +1270,7 @@ const AtributosRow = function(props:{
                         Blanquear atributos
                     </ListItemText>
                 </MenuItem>
-            </Menu>)}
+            </Menu>
         </>
     )
 };
@@ -1303,8 +1310,8 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
         }}>
             {relPre.comentariosrelpre||'obs'}
         </Button>
-        {dialogoObservaciones && (<Dialog
-            //open={dialogoObservaciones}
+        <Dialog
+            open={dialogoObservaciones}
             onClose={()=>{
                 setDialogoObservaciones(false)
                 setObservacionAConfirmar(relPre.comentariosrelpre);
@@ -1346,7 +1353,7 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
                     Guardar
                 </Button>
             </DialogActions>
-        </Dialog>)}
+        </Dialog>
     </>
 }
 
@@ -1384,8 +1391,8 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
                 {razonPositiva && relPre.tipoprecio || "\u00a0"}
             </Button>
         </div>
-        {Boolean(menuTipoPrecio) && (<Menu id="simple-menu"
-            //open={Boolean(menuTipoPrecio)}
+        <Menu id="simple-menu"
+            open={Boolean(menuTipoPrecio)}
             anchorEl={menuTipoPrecio}
             onClose={()=>setMenuTipoPrecio(null)}
         >
@@ -1411,9 +1418,9 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
                 </MenuItem>
                 )
             })}
-        </Menu>)}
-        {menuConfirmarBorradoPrecio && (<Dialog
-            //open={menuConfirmarBorradoPrecio}
+        </Menu>
+        <Dialog
+            open={menuConfirmarBorradoPrecio}
             onClose={()=>setMenuConfirmarBorradoPrecio(false)}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
@@ -1441,7 +1448,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
                     Borrar precio y atributos
                 </Button>
             </DialogActions>
-        </Dialog>)}
+        </Dialog>
     </>
 }
 
@@ -1848,7 +1855,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                     dispatch(dispatchers.SET_COMENTARIO_RAZON({forPk:relVis, comentarios:value}));
                 }}
             />
-            {Boolean(menuRazon) && (<Menu id="simple-menu-razon" /*open={Boolean(menuRazon)} */anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
+            <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                 {likeAr(estructura.razones).map((razon:Razon,index)=>{
                     var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
                     return(
@@ -1866,9 +1873,9 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                     </MenuItem>
                     )}
                 ).array()}
-            </Menu>)}
-            {menuConfirmarRazon && (<Dialog
-                //open={menuConfirmarRazon}
+            </Menu>
+            <Dialog
+                open={menuConfirmarRazon}
                 onClose={()=>setMenuConfirmarRazon(false)}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
@@ -1903,7 +1910,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                         Proceder borrando
                     </Button>
                 </DialogActions>
-            </Dialog>)}
+            </Dialog>
         </div>
         :null
     );
@@ -2327,8 +2334,8 @@ function PantallaHojaDeRuta(_props:{}){
                                         <ExitToAppIcon/>
                                     </Button>
                                 }
-                                {!!mensajeDescarga && (<Dialog
-                                   // open={!!mensajeDescarga}
+                                <Dialog
+                                    open={!!mensajeDescarga}
                                     //hace que no se cierre el mensaje
                                     onClose={()=>setMensajeDescarga(mensajeDescarga)}
                                     aria-labelledby="alert-dialog-title"
@@ -2359,7 +2366,7 @@ function PantallaHojaDeRuta(_props:{}){
                                             </Button>
                                         }
                                     </DialogActions>
-                                </Dialog>)}
+                                </Dialog>
                             </>
                         :
                             <Button
@@ -2487,8 +2494,8 @@ function PantallaOpciones(){
                         >
                             <DeleteIcon/> Descartar cambios hoja de ruta
                         </Button>
-                        {!!mensajeBorrar && (<Dialog
-                            //open={!!mensajeBorrar}
+                        <Dialog
+                            open={!!mensajeBorrar}
                             //hace que no se cierre el mensaje
                             onClose={()=>setMensajeBorrar(mensajeBorrar)}
                             aria-labelledby="alert-dialog-title"
@@ -2533,7 +2540,7 @@ function PantallaOpciones(){
                                     No guardar
                                 </Button>
                             </DialogActions>
-                        </Dialog>)}
+                        </Dialog>
                     </Typography>
                 :
                     null
