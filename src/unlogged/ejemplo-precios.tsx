@@ -153,7 +153,7 @@ const OpenedMenu = (props:{
                 onClick={(event)=>event.stopPropagation()}
                 className="dropdown-menu"
                 style={{
-                    display:true||props.open?'unset':'none',
+                    display:'unset',
                     top:position.top==null?'unset':position.top,
                     left:position.left==null?'unset':position.left,
                     maxHeight:position.maxHeight,
