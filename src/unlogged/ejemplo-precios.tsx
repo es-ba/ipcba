@@ -266,6 +266,83 @@ const Button = (props:{
     >{props.children}</button>
 }
 
+function ResizableTextarea(props:{
+    value:string
+    autoFocus?:boolean,
+    disabled?:boolean,
+    fullWidth?:boolean
+    placeholder?:string,
+    rowsMax?:number,
+    onKeyDown?:(event:any)=>void,
+    onChange?:(event:any)=>void,
+    onFocus?:(event:any)=>void,
+    onBlur?:(event:any)=>void,
+    color?:string
+}&CommonAttributes){
+    const textareaLineHeight = 30;
+    const [myValue, setMyValue] = useState<string|null>(props.value);
+    const [config, setConfig] = useState({
+		rows: 1,
+		minRows: 1,
+	    maxRows: props.rowsMax?props.rowsMax:100,
+	})
+    const textareaEl = useRef(null);
+    useEffect(() => {
+        setMyValue(props.value || null)
+    }, [props.value]);
+    useEffect(() => {
+        if(textareaEl && textareaEl.current){
+            const {minRows, maxRows} = config;
+            const textareaElement = textareaEl.current!;
+            const previousRows = textareaElement.rows;
+            textareaElement.rows = minRows; // reset number of rows in textarea 
+            const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
+            if (currentRows === previousRows) {
+                textareaElement.rows = currentRows;
+            }
+            if (currentRows >= maxRows) {
+                textareaElement.rows = maxRows;
+                textareaElement.scrollTop = textareaElement.scrollHeight;
+            }
+            setConfig({
+                rows: currentRows < maxRows ? currentRows : maxRows,
+                minRows,
+                maxRows
+            })
+            
+        }
+    }, [myValue]);
+	return <textarea
+        ref={textareaEl}
+		rows={config.rows}
+		value={myValue || ''}
+        spellCheck={false}
+        autoCapitalize="off"
+        autoComplete="off"
+        autoCorrect="off"
+		onChange={(event)=>{
+            setMyValue(event.target.value || null)
+            props.onChange?.(event);
+        }}
+        autoFocus={props.autoFocus}
+        disabled={props.disabled}
+        className={`${props.className||''}`}
+        onKeyDown={(event)=>{
+            props.onKeyDown?.(event)
+        }}
+        onClick={(event)=>{
+            var element = event.target as HTMLTextAreaElement;
+            var selection = element.value.length||0;
+            element.selectionStart = selection;
+            element.selectionEnd = selection;
+        }}
+        onFocus={props.onFocus}
+        onBlur={props.onBlur}
+        placeholder={props.placeholder}
+        style={{...props.style,...{}}}
+	/>
+}
+
 const TextField = (props:{
     id?:string,
     autoFocus?:boolean,
@@ -275,7 +352,6 @@ const TextField = (props:{
     value?:any,
     type?:InputTypes,
     placeholder?:string,
-    multiline?:boolean,
     rowsMax?:number,
     onKeyDown?:(event:any)=>void,
     onChange?:(event:any)=>void,
@@ -294,55 +370,14 @@ const TextField = (props:{
         color: color,
         outline:'none'
     };
-    //multiline
-    //rowsMax="4"
     return props.type=='text'?
-    /*<span 
-        className={`${props.className||''}`}
-        role="textbox"
-        contentEditable
-        id={props.id}
-        spellCheck={false}
-        //autoComplete="off"
-        autoCorrect="off"
-        //autoFocus={props.autoFocus}
-        autoCapitalize="off"
-        disabled={props.disabled}
-        value={props.value} 
-        onClick={(event)=>{
-            var element = event.target;
-            var selection = element.outerText.length||0;
-            element.selectionStart = selection;
-            element.selectionEnd = selection;
-        }}
-        onKeyDown={props.onKeyDown}
-        onChange={props.onChange}
-        onFocus={props.onFocus}
-        onBlur={props.onBlur}
-        placeholder={props.placeholder}
-        style={{...styles,display:'grid', cursor:'text'}}
-    >
-        {props.value}
-    </span>*/
-        <textarea
-            id={props.id}
-            rows={1}
-            spellCheck={false}
-            autoCapitalize="off"
-            autoComplete="off"
-            autoCorrect="off"
+        <ResizableTextarea
             autoFocus={props.autoFocus}
             disabled={props.disabled}
             className={`${props.className||''}`}
             value={props.value} 
             onKeyDown={(event)=>{
                 props.onKeyDown?.(event)
-            }}
-            onClick={(event)=>{
-                var element = event.target as HTMLTextAreaElement;
-                var selection = element.value.length||0;
-                element.selectionStart = selection;
-                element.selectionEnd = selection;
             }}
             onChange={props.onChange}
             onFocus={props.onFocus}
