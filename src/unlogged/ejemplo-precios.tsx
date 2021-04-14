@@ -279,7 +279,6 @@ function ResizableTextarea(props:{
     onBlur?:(event:any)=>void,
     color?:string
 }&CommonAttributes){
-    const textareaLineHeight = 30;
     const [myValue, setMyValue] = useState<string|null>(props.value);
     const [config, setConfig] = useState({
 		rows: 1,
@@ -292,8 +291,9 @@ function ResizableTextarea(props:{
     }, [props.value]);
     useEffect(() => {
         if(textareaEl && textareaEl.current){
+            const textareaLineHeight = 30;
             const {minRows, maxRows} = config;
-            const textareaElement = textareaEl.current!;
+            const textareaElement = textareaEl.current! as HTMLTextAreaElement;
             const previousRows = textareaElement.rows;
             textareaElement.rows = minRows; // reset number of rows in textarea 
             const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
