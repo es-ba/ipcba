@@ -100,10 +100,7 @@ begin
   --raise notice 'pap 4';
     insert into cvp.relatr (periodo , producto  , observacion     , informante , atributo  , valor, visita, validar_con_valvalatr)
       select                rp.periodo, rp.producto, rp.observacion, rp.informante, f.atributo,
-                               CASE WHEN a.es_vigencia THEN 
-                                 --1::text
-                                 date_part('day'::text, ((((substr(cvp.moverperiodos(rp.periodo::text, 1), 2, 4) || '-'::text) || substr(cvp.moverperiodos(rp.periodo::text, 1), 7, 2)) || '-01'::text)::date) - '1 day'::interval)::text
-                                 WHEN r_1.atributo IS NULL THEN a.valorInicial 
+                               CASE WHEN r_1.atributo IS NULL THEN a.valorInicial 
                                  ELSE r_1.valor END ,  rp.visita, vv.validar
       from cvp.prodatr f 
         inner join cvp.relpre rp

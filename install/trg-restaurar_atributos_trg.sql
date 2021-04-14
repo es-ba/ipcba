@@ -23,14 +23,12 @@ BEGIN
       VALUES(NEW.periodo,NEW.informante,NEW.visita,NEW.producto, NEW.observacion);
     FOR vatributos IN 
       SELECT r_1.atributo,r_1.valor_1, r_1.valor
-      FROM cvp.relatr_1 r_1 
-	  JOIN cvp.atributos a ON r_1.atributo = a.atributo 
+      FROM cvp.relatr_1 r_1
             WHERE r_1.periodo=NEW.periodo AND 
                   r_1.producto=NEW.producto AND
                   r_1.observacion=NEW.observacion AND 
                   r_1.informante=NEW.informante AND
-                  r_1.visita=NEW.visita AND
-				  a.es_vigencia is distinct from true -- no restauro los atributos vigencia
+                  r_1.visita=NEW.visita 
    	
     LOOP
       IF vatributos.valor_1 IS DISTINCT FROM vatributos.valor THEN
@@ -56,4 +54,4 @@ CREATE TRIGGER relpre_restaura_atributos_trg
    BEFORE UPDATE 
    ON relpre 
    FOR EACH ROW EXECUTE PROCEDURE restaurar_atributos_trg();
-
+   
