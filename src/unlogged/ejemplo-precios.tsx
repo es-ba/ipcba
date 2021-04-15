@@ -1776,13 +1776,13 @@ function RelevamientoPrecios(props:{
         return props.compactar?
             60 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
         :
-            50+Math.max(
+            60+Math.max(
                 relPre.atributos.reduce(
                     (acum,relAtr)=>Math.ceil((Math.max(
                         (relAtr.valoranterior||'').toString().length,
                         (relAtr.valor||'').toString().length,
                         (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
-                    )+1)/8)*42+acum,0
+                    )+1)/8)*45+acum,0
                 ), 
                 estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
             );
@@ -1968,7 +1968,7 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
-    const initialWidth = letraGrandeFormulario?100:80;
+    const initialWidth = letraGrandeFormulario?90:80;
     const openedWidth = 320;
     const buttonGroupStyle = letraGrandeFormulario?{}:{height:38};
     return <>
@@ -2324,21 +2324,21 @@ function PantallaHojaDeRuta(_props:{}){
                     Hoja de ruta - {appVersion}
                 </Typography>
                 <div className={classesButton.toolbarButtons}>
-                    <Button 
-                        color="light"
+                    <IconButton
+                        color="inherit"
                         onClick={()=>
                             dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
                         }
                     >
                         <SettingsIcon/>
-                    </Button>
+                    </IconButton>
                     {online?
                         customDataMode?
                             <>
                                 {isDirtyHDR()?
                                     <>
-                                        <Button
-                                            color="light"
+                                        <IconButton
+                                            color="inherit"
                                             onClick={async ()=>{
                                                 setMensajeDescarga('descargando, por favor espere...');
                                                 setDescargando(true);
@@ -2356,10 +2356,10 @@ function PantallaHojaDeRuta(_props:{}){
                                             }}
                                         >
                                             <SaveIcon/>
-                                        </Button>
+                                        </IconButton>
                                     </>
                                 :
-                                    <Button
+                                    <IconButton
                                         color="inherit"
                                         onClick={async ()=>{
                                             var message = await borrarDatosRelevamientoLocalStorage();
@@ -2371,7 +2371,7 @@ function PantallaHojaDeRuta(_props:{}){
                                         }}
                                     >
                                         <ExitToAppIcon/>
-                                    </Button>
+                                    </IconButton>
                                 }
                                 <Dialog
                                     open={!!mensajeDescarga}
@@ -2683,6 +2683,13 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
+            <style>
+                {`
+                    #main-top-bar{
+                        display: none
+                    }
+                `}
+            </style>
             <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
             <OpenedTabs/>
             <AppDmIPC/>
