@@ -79,12 +79,13 @@ body
         width 100%
         font-size 1.4rem
       .encabezado
+        padding 5px 0px 0px 0px
         display grid
         grid-template-columns 26% 8% 25% 8% 8% 25%
         .observaciones
           grid-template-columns 1fr 24px
           button
-            width 60px
+            width 75px
             &[tiene-observaciones=si]
               text-align left
               font-size 50%
@@ -115,7 +116,6 @@ body
         .tipo-precio
         .precio
           width 100%
-          padding 5px 0px 0px 0px
           text-align right
           input::placeholder
             text-align right
@@ -127,11 +127,11 @@ body
         display grid
         grid-template-columns 26% 33% 8% 33%
         .nombre-atributo
-          padding-top 6px
+          //padding-top 6px
           font-size letra_mediana
           align-self start
         .atributo-anterior
-          padding-top 6px
+          //padding-top 6px
           align-self start
         .flechaAtributos
           align-self center

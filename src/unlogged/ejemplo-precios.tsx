@@ -1955,7 +1955,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
 }
 
 function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, allForms,} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, compactar, allForms, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
@@ -1968,8 +1968,9 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
-    const initialWidth = 80;
+    const initialWidth = letraGrandeFormulario?100:80;
     const openedWidth = 320;
+    const buttonGroupStyle = letraGrandeFormulario?{}:{height:38};
     return <>
         <AppBar
             style={TOOLBAR_STYLE}
@@ -1991,14 +1992,14 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
                {`inf ${props.relVisPk.informante}`}
            </Typography>
            <Grid item>
-                <ButtonGroup style={{height:38}}>
+                <ButtonGroup style={buttonGroupStyle}>
                     <Button onClick={()=>{
                         dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
                     }}>
                         <ICON.FormatLineSpacing />
                     </Button>
                </ButtonGroup>
-               <ButtonGroup style={{height:38}}>
+               <ButtonGroup style={buttonGroupStyle}>
                     <Button onClick={()=>{
                         dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
                     }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
