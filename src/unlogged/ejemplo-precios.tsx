@@ -972,7 +972,7 @@ function TypedInput<T extends string|number|null>(props:{
         if(value!==props.value){
             props.onUpdate(value);
         }
-        dispatch(dispatchers.UNSET_FOCUS({unfocusing:props.inputId}));
+        //dispatch(dispatchers.UNSET_FOCUS({unfocusing:props.inputId}));
     };
     const onChangeFun = function <TE extends React.ChangeEvent<HTMLInputElement>>(event:TE){
         setValue(event.target.value);
