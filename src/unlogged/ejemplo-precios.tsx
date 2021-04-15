@@ -289,11 +289,11 @@ function ResizableTextarea(props:{
     useEffect(() => {
         setMyValue(props.value || null)
     }, [props.value]);
-    useEffect(() => {
+    useLayoutEffect(() => {
         if(textareaEl && textareaEl.current){
-            const textareaLineHeight = 30;
             const {minRows, maxRows} = config;
             const textareaElement = textareaEl.current! as HTMLTextAreaElement;
+            const textareaLineHeight = parseInt(window.getComputedStyle(textareaElement).lineHeight);
             const previousRows = textareaElement.rows;
             textareaElement.rows = minRows; // reset number of rows in textarea 
             const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
@@ -309,7 +309,6 @@ function ResizableTextarea(props:{
                 minRows,
                 maxRows
             })
-            
         }
     }, [myValue]);
 	return <textarea
@@ -339,7 +338,7 @@ function ResizableTextarea(props:{
         onFocus={props.onFocus}
         onBlur={props.onBlur}
         placeholder={props.placeholder}
-        style={{...props.style,...{}}}
+        style={{...props.style,...{width:props.fullWidth?'100%':'unset'}}}
 	/>
 }
 
@@ -373,6 +372,7 @@ const TextField = (props:{
     return props.type=='text'?
         <ResizableTextarea
             autoFocus={props.autoFocus}
+            fullWidth={props.fullWidth}
             disabled={props.disabled}
             className={`${props.className||''}`}
             value={props.value} 
@@ -383,7 +383,7 @@ const TextField = (props:{
             onFocus={props.onFocus}
             onBlur={props.onBlur}
             placeholder={props.placeholder}
-            style={{...styles, overflow:'hidden'}}
+            style={{...styles}}
         />
     :
         <input
@@ -1001,6 +1001,7 @@ function TypedInput<T extends string|number|null>(props:{
         onFocus={(_event)=>{
             props.onFocus?props.onFocus():null;
         }}
+        fullWidth={true}
         disabled={props.disabled?props.disabled:false}
         hasError={props.hasError}
         borderBottomColor={props.borderBottomColor}
@@ -1771,9 +1772,9 @@ function RelevamientoPrecios(props:{
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
         return props.compactar?
-            50 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
+            60 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
         :
-            50+Math.max(
+            55+Math.max(
                 relPre.atributos.reduce(
                     (acum,relAtr)=>Math.ceil((Math.max(
                         (relAtr.valoranterior||'').toString().length,
