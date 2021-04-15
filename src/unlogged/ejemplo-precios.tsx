@@ -314,6 +314,7 @@ function ResizableTextarea(props:{
         },500)
     }, [myValue]);
 	return <textarea
+        id={props.id}
         ref={textareaEl}
 		rows={config.rows}
 		value={myValue || ''}
@@ -373,6 +374,7 @@ const TextField = (props:{
     };
     return props.type=='text'?
         <ResizableTextarea
+            id={props.id}
             autoFocus={props.autoFocus}
             fullWidth={props.fullWidth}
             disabled={props.disabled}
@@ -1767,24 +1769,24 @@ function RelevamientoPrecios(props:{
     razonPositiva:boolean,
     compactar: boolean,
 }){
-    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
     const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
         return props.compactar?
-            60 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
+            (letraGrandeFormulario?75:60) + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
         :
-            60+Math.max(
+        (letraGrandeFormulario?75:60)+Math.max(
                 relPre.atributos.reduce(
                     (acum,relAtr)=>Math.ceil((Math.max(
                         (relAtr.valoranterior||'').toString().length,
                         (relAtr.valor||'').toString().length,
                         (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
-                    )+1)/8)*45+acum,0
+                    )+1)/8)*(letraGrandeFormulario?60:45)+acum,0
                 ), 
-                estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
+                estructura.productos[relPre.producto].especificacioncompleta?.length*(letraGrandeFormulario?2:1.5)
             );
     } 
        
