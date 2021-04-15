@@ -290,26 +290,28 @@ function ResizableTextarea(props:{
         setMyValue(props.value || null)
     }, [props.value]);
     useLayoutEffect(() => {
-        if(textareaEl && textareaEl.current){
-            const {minRows, maxRows} = config;
-            const textareaElement = textareaEl.current! as HTMLTextAreaElement;
-            const textareaLineHeight = parseInt(window.getComputedStyle(textareaElement).lineHeight);
-            const previousRows = textareaElement.rows;
-            textareaElement.rows = minRows; // reset number of rows in textarea 
-            const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
-            if (currentRows === previousRows) {
-                textareaElement.rows = currentRows;
+        setTimeout(()=>{ //TODO evaluar como quitarlo (probablemente descargando el estilo de bootstrap que tarda en renderizar se corrija)
+            if(textareaEl && textareaEl.current){
+                const {minRows, maxRows} = config;
+                const textareaElement = textareaEl.current! as HTMLTextAreaElement;
+                const textareaLineHeight = parseInt(window.getComputedStyle(textareaElement).lineHeight);
+                const previousRows = textareaElement.rows;
+                textareaElement.rows = minRows; // reset number of rows in textarea 
+                const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
+                if (currentRows === previousRows) {
+                    textareaElement.rows = currentRows;
+                }
+                if (currentRows >= maxRows) {
+                    textareaElement.rows = maxRows;
+                    textareaElement.scrollTop = textareaElement.scrollHeight;
+                }
+                setConfig({
+                    rows: currentRows < maxRows ? currentRows : maxRows,
+                    minRows,
+                    maxRows
+                })
             }
-            if (currentRows >= maxRows) {
-                textareaElement.rows = maxRows;
-                textareaElement.scrollTop = textareaElement.scrollHeight;
-            }
-            setConfig({
-                rows: currentRows < maxRows ? currentRows : maxRows,
-                minRows,
-                maxRows
-            })
-        }
+        },500)
     }, [myValue]);
 	return <textarea
         ref={textareaEl}
@@ -1774,13 +1776,13 @@ function RelevamientoPrecios(props:{
         return props.compactar?
             60 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
         :
-            55+Math.max(
+            50+Math.max(
                 relPre.atributos.reduce(
                     (acum,relAtr)=>Math.ceil((Math.max(
                         (relAtr.valoranterior||'').toString().length,
                         (relAtr.valor||'').toString().length,
                         (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
-                    )+1)/8)*40+acum,0
+                    )+1)/8)*42+acum,0
                 ), 
                 estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
             );
