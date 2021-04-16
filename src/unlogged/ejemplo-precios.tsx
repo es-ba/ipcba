@@ -1106,7 +1106,7 @@ function EditableTd<T extends string|number|null>(props:{
                     color={color}
                     inputId={props.inputId}
                     value={props.value}
-                    disabled={props.disabled}
+                    disabled={props.disabled || editaEnLista}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
                     simplificateText={!!props.simplificateText}
