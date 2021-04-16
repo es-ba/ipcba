@@ -382,8 +382,8 @@ const TextField = (props:{
             id={props.id}
             autoFocus={props.autoFocus}
             fullWidth={props.fullWidth}
-            disabled={props.disabled}
-            readOnly={props.readOnly}
+            disabled={props.disabled || false}
+            readOnly={props.readOnly || false}
             className={`${props.className||''}`}
             value={props.value} 
             onKeyDown={(event)=>{

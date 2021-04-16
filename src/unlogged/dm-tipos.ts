@@ -203,7 +203,7 @@ export function getDefaultOptions(customDataMode:boolean):OpcionesHojaDeRuta{
 
 export type FocusOpts={
     moveToElement: boolean,
-    behavior: ScrollBehavior
+    behavior?: ScrollBehavior
 }
 
 export type HojaDeRuta={
