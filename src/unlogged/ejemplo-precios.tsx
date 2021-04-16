@@ -2139,39 +2139,38 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     }
     var styles=cantErrores ? errorStyles : (cantAdvertencias ? advStyles : pendentStyles);
     var conBadge=cantErrores || cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)
+    var formButton = <Button 
+        fullwidth 
+        variant={todoListo?"contained":"outline"} 
+        color={todoListo?"success":"primary"}
+        size="lg"
+        className={"boton-ir-formulario"}
+        onClick={()=>{
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+        }
+    }>
+        <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
+        <span className="special-right">
+            {relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? 
+                <ICON.RemoveShoppingCart /> 
+            :(!cantPendientes && !!relVis.razon?
+                    CHECK
+                :
+                    null
+            )}
+        </span>
+    </Button>
     return(
         <>
             <TableCell>
                 {mostrarColumnasFaltantesYAdvertencias?
-                    null
+                    formButton
                 :
                     <Badge 
                         backgroundColor={styles.backgroundColor}
                         color={styles.color}
                         badgeContent={conBadge?conBadge.toString():null}
-                    >
-                        <Button 
-                            fullwidth 
-                            variant={todoListo?"contained":"outline"} 
-                            color={todoListo?"success":"primary"}
-                            size="lg"
-                            className={"boton-ir-formulario"}
-                            onClick={()=>{
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                            }
-                        }>
-                            <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
-                            <span className="special-right">
-                                {relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? 
-                                    <ICON.RemoveShoppingCart /> 
-                                :(!cantPendientes && !!relVis.razon?
-                                        CHECK
-                                    :
-                                        null
-                                )}
-                            </span>
-                        </Button>
-                    </Badge>
+                    >{formButton}</Badge>
                 }
             </TableCell>
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{numberElement(misObservaciones.length)}</TableCell>:null}
