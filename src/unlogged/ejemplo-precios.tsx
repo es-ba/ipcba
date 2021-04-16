@@ -271,7 +271,8 @@ const Button = (props:{
 function ResizableTextarea(props:{
     value:string
     autoFocus?:boolean,
-    disabled?:boolean,
+    disabled:boolean,
+    readOnly:boolean,
     fullWidth?:boolean
     placeholder?:string,
     rowsMax?:number,
@@ -330,6 +331,7 @@ function ResizableTextarea(props:{
         }}
         autoFocus={props.autoFocus}
         disabled={props.disabled}
+        readOnly={props.readOnly}
         className={`${props.className||''}`}
         onKeyDown={(event)=>{
             props.onKeyDown?.(event)
@@ -351,6 +353,7 @@ const TextField = (props:{
     id?:string,
     autoFocus?:boolean,
     disabled?:boolean,
+    readOnly?:boolean,
     className?:string,
     fullWidth?:boolean
     value?:any,
@@ -380,6 +383,7 @@ const TextField = (props:{
             autoFocus={props.autoFocus}
             fullWidth={props.fullWidth}
             disabled={props.disabled}
+            readOnly={props.readOnly}
             className={`${props.className||''}`}
             value={props.value} 
             onKeyDown={(event)=>{
@@ -400,6 +404,7 @@ const TextField = (props:{
             autoCorrect="off"
             autoFocus={props.autoFocus}
             disabled={props.disabled}
+            readOnly={props.readOnly}
             className={`${props.className||''}`}
             value={props.value} 
             type={props.type}
@@ -916,6 +921,7 @@ function TypedInput<T extends string|number|null>(props:{
     opciones?:string[]|null
     onFocus?:()=>void
     disabled?:boolean,
+    readOnly?:boolean,
     placeholder?:string,
     simplificateText: boolean,
     textTransform?:'lowercase'|'uppercase',
@@ -1009,6 +1015,7 @@ function TypedInput<T extends string|number|null>(props:{
         }}
         fullWidth={true}
         disabled={props.disabled?props.disabled:false}
+        readOnly={props.readOnly?props.readOnly:false}
         hasError={props.hasError}
         borderBottomColor={props.borderBottomColor}
         borderBottomColorError={props.borderBottomColorError}
@@ -1106,7 +1113,8 @@ function EditableTd<T extends string|number|null>(props:{
                     color={color}
                     inputId={props.inputId}
                     value={props.value}
-                    disabled={props.disabled || editaEnLista}
+                    disabled={props.disabled}
+                    readOnly={editaEnLista}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
                     simplificateText={!!props.simplificateText}
