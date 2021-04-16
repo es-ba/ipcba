@@ -245,7 +245,9 @@ const Button = (props:{
 }&CommonAttributes)=>{
     props.variant = props.variant || 'contained';
     props.color = props.color || 'light';
+    const {...other} = props;
     return <button 
+        {...other}
         id={props.id}
         className={`
             btn 
