@@ -2308,7 +2308,7 @@ function PantallaHojaDeRuta(_props:{}){
     const classesButton = useStylesButton();
     const dispatch = useDispatch();
     const appVersion = getCacheVersion();
-    const stylesTableHeader = {fontSize: "1.3rem"}
+    const stylesTableHeader:React.CSSProperties = {fontSize: "1.2rem", padding:"15px 0", textAlign:"center"};
     const updateOnlineStatus = function(){
         setOnline(window.navigator.onLine);
     }
@@ -2429,15 +2429,15 @@ function PantallaHojaDeRuta(_props:{}){
                     <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
                             {letraGrandeFormulario?null:<col style={{width:"33%"}}/>}
-                            <col style={{width:letraGrandeFormulario?"79%":"46%"}}/>
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
+                            <col style={{width:letraGrandeFormulario?"70%":"42%"}}/>
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:letraGrandeFormulario?"10%":"8%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:letraGrandeFormulario?"10%":"9%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:letraGrandeFormulario?"10%":"8%"}}/>:null}
                         </colgroup>      
                         <TableHead style={{fontSize: "1.2rem"}}>
                             <TableRow className="hdr-tr-informante">
-                                {letraGrandeFormulario || !mostrarColumnasFaltantesYAdvertencias?null:<TableCell style={stylesTableHeader}>informante</TableCell>}
-                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>formulario</TableCell>:null}
+                                {letraGrandeFormulario || !mostrarColumnasFaltantesYAdvertencias?null:<TableCell style={{...stylesTableHeader,...{textAlign:'left', paddingLeft:"10px"}}}>informante</TableCell>}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={{...stylesTableHeader,...{textAlign:'left', paddingLeft:"10px"}}}>formulario</TableCell>:null}
                                 {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>prod</TableCell>:null}
                                 {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>faltan</TableCell>:null}
                                 {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>adv</TableCell>:null}
