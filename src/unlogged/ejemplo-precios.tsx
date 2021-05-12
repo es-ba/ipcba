@@ -262,7 +262,8 @@ const Button = (props:{
                 width:props.fullwidth?'100%':'none',
                 color: props.disabled?'rgba(0, 0, 0, 0.12)':'',
                 border: props.disabled?'1px solid rgba(0, 0, 0, 0.12)':'',
-                padding: 8
+                padding: 8,
+                whiteSpace: 'unset'
             }, 
             ...props.style
         }}
@@ -2442,11 +2443,31 @@ function PantallaHojaDeRuta(_props:{}){
                     </Typography>
                     <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
-                            {letraGrandeFormulario?null:<col style={{width:"33%"}}/>}
-                            <col style={{width:letraGrandeFormulario?"70%":"42%"}}/>
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:letraGrandeFormulario?"10%":"8%"}}/>:null}
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:letraGrandeFormulario?"10%":"9%"}}/>:null}
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:letraGrandeFormulario?"10%":"8%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?
+                                letraGrandeFormulario?
+                                    <>
+                                        <col style={{width:"64%"}}/>
+                                        <col style={{width:"12%"}}/>
+                                        <col style={{width:"12%"}}/>
+                                        <col style={{width:"12%"}}/>
+                                    </>
+                                :
+                                    <>
+                                        <col style={{width:"25%"}}/>
+                                        <col style={{width:"42%"}}/>
+                                        <col style={{width:"11%"}}/>
+                                        <col style={{width:"11%"}}/>
+                                        <col style={{width:"11%"}}/>
+                                    </>
+                            :
+                                letraGrandeFormulario?
+                                    <col style={{width:"100%"}}/>
+                                :
+                                    <>
+                                        <col style={{width:"34%"}}/>
+                                        <col style={{width:"66%"}}/>
+                                    </>
+                            }
                         </colgroup>      
                         <TableHead style={{fontSize: "1.2rem"}}>
                             <TableRow className="hdr-tr-informante">
