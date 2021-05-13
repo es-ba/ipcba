@@ -84,7 +84,7 @@ const OpenedMenu = (props:{
         maxWidth:'auto',
         scrollY:null
     });
-    useEffect(() => {
+    useLayoutEffect(() => {
         if(divEl && divEl.current){
             let myElement = divEl.current! as HTMLDivElement;
             if(position.top == null || position.left==null || window.scrollY != position.scrollY){
