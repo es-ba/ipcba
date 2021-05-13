@@ -343,7 +343,7 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.use(cookieParser());
         var createServiceWorker = async function(){
             var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
-            var manifest = await be.createResourcesForCacheJson({});
+            var manifest = be.createResourcesForCacheJson({});
             var swManifest = sw
                 .replace("'/*version*/'", JSON.stringify(manifest.version))
                 .replace("'/*appName*/'", JSON.stringify(manifest.appName))
@@ -642,6 +642,7 @@ NETWORK:
             //"default/css/my-tables.css",
             //"default/css/my-menu.css",
             "css/ejemplo-precios.css",
+            "css/bootstrap.min.css",
             "default/css/ejemplo-precios.css",
             //"img/logo.png",
             //"img/logo-dm.png",
