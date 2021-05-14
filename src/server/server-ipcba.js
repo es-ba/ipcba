@@ -966,7 +966,6 @@ NETWORK:
             { type: 'css', file: 'ejemplo-precios.css' },
             { type: 'css', file: 'hoja-de-ruta.css' },
             { type: 'css', file: 'imp-formularios.css' },
-            //{ type: 'css', file: 'bootstrap.min.css' },
             { type: 'css', file: 'menu.css' },
             ... menuedResources
         ];

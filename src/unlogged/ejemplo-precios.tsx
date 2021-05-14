@@ -158,7 +158,6 @@ const OpenedMenu = (props:{
                     left:position.left==null?'unset':position.left,
                     maxHeight:position.maxHeight,
                     maxWidth:position.maxWidth,
-                    position:'relative',
                     zIndex: 99999,
                     overflow:'auto',
                 }}
@@ -262,7 +261,6 @@ const Button = (props:{
                 width:props.fullwidth?'100%':'none',
                 color: props.disabled?'rgba(0, 0, 0, 0.12)':'',
                 border: props.disabled?'1px solid rgba(0, 0, 0, 0.12)':'',
-                padding: 8,
                 whiteSpace: 'unset'
             }, 
             ...props.style
@@ -434,7 +432,7 @@ const List = (props:{
         {...other}
         id={id}
         className={`${className||''} dropdown-menu`}
-        style={{ ...{display: 'unset', position:'unset'},...(style || {})}}
+        style={{ ...{display: 'unset'},...(style || {})}}
     >
         {children}
     </ul>
@@ -451,7 +449,7 @@ const ListItem = (props:{
         id={id}
         onClick={onClick}
         className={`${className||''} dropdown-item ${selected?'text-light bg-secondary':'text-secondary bg-transparent'}`}
-        style={{ ...{display:'flex', justifyContent:'flex-start', paddingTop:8, paddingBottom:8},...(style || {})}}
+        style={{ ...{display:'flex', justifyContent:'flex-start', paddingTop:8, paddingBottom:8, paddingLeft:15},...(style || {})}}
     >
         {children}
     </li>
@@ -465,7 +463,7 @@ const ListItemIcon = (props:{
         {...other}
         id={id}
         className={`${className||''}`}
-        style={{ ...{fontSize:'1.4rem', minWidth:56},...(style || {})}}
+        style={{ ...{fontSize:'1.4rem', minWidth:65},...(style || {})}}
     >
         {children}
     </div>
@@ -606,8 +604,8 @@ const AppBar = (props:{
     >
         {React.Children.map(children, child => (
             <span className={"navbar-nav"} style={{margin: '0px 2px', flexWrap:'unset'}}>
-                <span className="nav-item active">
-                    <span className="nav-link">
+                <span className="nav-item">
+                    <span className="nav-link active">
                         {child}
                     </span>
                 </span>
@@ -1844,7 +1842,7 @@ function RelevamientoPrecios(props:{
         {
             observacionesFiltradasEnOtrosIdx.length>0?
                 <div className="zona-degrade">
-                    <Button className="boton-hay-mas" variant="outline"
+                    <Button className="boton-hay-mas" color="secondary" variant="outline"
                         onClick={()=>{
                             dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString, compactar: props.compactar}));
                         }}
@@ -1983,8 +1981,8 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const handleDrawerToggle = () => {
         setOpen(!open);
     };
-    const initialWidth = letraGrandeFormulario?90:80;
-    const openedWidth = 320;
+    const initialWidth = letraGrandeFormulario?80:70;
+    const openedWidth = letraGrandeFormulario?350:320;
     const buttonGroupStyle = letraGrandeFormulario?{}:{height:38};
     return <>
         <AppBar
@@ -2749,7 +2747,7 @@ function loadCSS(cssURL:string):Promise<void>{
 
 export async function dmHojaDeRuta(optsHdr:OptsHdr){
     const {store, estructura} = await dmTraerDatosHdr(optsHdr);
-    var src = 'css/bootstrap.min.css';
+    var src = 'css/bootstrap.min.css'; //bootstrap 5.0.1
     try{
         await loadCSS(src);
     }catch(err){
