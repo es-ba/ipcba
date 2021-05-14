@@ -295,28 +295,26 @@ function ResizableTextarea(props:{
         setMyValue(props.value || null)
     }, [props.value]);
     useLayoutEffect(() => {
-        setTimeout(()=>{ //TODO evaluar como quitarlo (probablemente descargando el estilo de bootstrap que tarda en renderizar se corrija)
-            if(textareaEl && textareaEl.current){
-                const {minRows, maxRows} = config;
-                const textareaElement = textareaEl.current! as HTMLTextAreaElement;
-                const textareaLineHeight = parseInt(window.getComputedStyle(textareaElement).lineHeight);
-                const previousRows = textareaElement.rows;
-                textareaElement.rows = minRows; // reset number of rows in textarea 
-                const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
-                if (currentRows === previousRows) {
-                    textareaElement.rows = currentRows;
-                }
-                if (currentRows >= maxRows) {
-                    textareaElement.rows = maxRows;
-                    textareaElement.scrollTop = textareaElement.scrollHeight;
-                }
-                setConfig({
-                    rows: currentRows < maxRows ? currentRows : maxRows,
-                    minRows,
-                    maxRows
-                })
+        if(textareaEl && textareaEl.current){
+            const {minRows, maxRows} = config;
+            const textareaElement = textareaEl.current! as HTMLTextAreaElement;
+            const textareaLineHeight = parseInt(window.getComputedStyle(textareaElement).lineHeight);
+            const previousRows = textareaElement.rows;
+            textareaElement.rows = minRows; // reset number of rows in textarea 
+            const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
+            if (currentRows === previousRows) {
+                textareaElement.rows = currentRows;
             }
-        },500)
+            if (currentRows >= maxRows) {
+                textareaElement.rows = maxRows;
+                textareaElement.scrollTop = textareaElement.scrollHeight;
+            }
+            setConfig({
+                rows: currentRows < maxRows ? currentRows : maxRows,
+                minRows,
+                maxRows
+            })
+        }
     }, [myValue]);
 	return <textarea
         id={props.id}
@@ -2726,7 +2724,6 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
                     }
                 `}
             </style>
-            <link rel="stylesheet" href="css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
             <OpenedTabs/>
             <AppDmIPC/>
         </Provider>,
@@ -2734,9 +2731,30 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     )
 }
 
+function loadCSS(cssURL:string):Promise<void>{
+    return new Promise(( resolve, reject )=>{
+        var link = document.createElement( 'link' );
+        link.rel  = 'stylesheet';
+        link.href = cssURL;
+        document.head.appendChild( link );
+        link.onload = ()=>{ 
+            resolve(); 
+            console.log(`trae ${cssURL}`);
+        };
+        link.onerror=(err)=>{
+            reject(new Error(`problema cargando estilo ${cssURL}`))
+        }
+    });
+}
 
 export async function dmHojaDeRuta(optsHdr:OptsHdr){
     const {store, estructura} = await dmTraerDatosHdr(optsHdr);
+    var src = 'css/bootstrap.min.css';
+    try{
+        await loadCSS(src);
+    }catch(err){
+        throw(err)
+    }
     mostrarHdr(store, estructura);
 }
 
