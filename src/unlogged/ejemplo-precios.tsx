@@ -897,8 +897,16 @@ function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
         }else{
             element.focus();
             if(opts.moveToElement){
-                element.scrollIntoView();
-                window.scroll({behavior:opts.behavior||'auto', top:window.scrollY-120, left:0})
+                let headerOffset = 120; //ajuste
+                let elementPosition = 0
+                while(element != null) {
+                    elementPosition += element.offsetTop;
+                    element = element.offsetParent as HTMLElement|null;
+                }
+                window.scrollTo({
+                    top: elementPosition - headerOffset,
+                    behavior: opts.behavior||'auto'
+                });
             }
         }
     }
@@ -992,8 +1000,9 @@ function TypedInput<T extends string|number|null>(props:{
                 event.target.blur();
             }
             if(props.idProximo!=null){
+                var moveToElement = props.idProximo.split('-').length == 2;
                 focusToId(props.idProximo,{
-                    moveToElement:!props.idProximo.startsWith(inputId.split('-')[0]),
+                    moveToElement,
                     behavior: 'smooth'
                 })
             }
