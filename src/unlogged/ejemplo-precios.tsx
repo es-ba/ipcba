@@ -1754,7 +1754,7 @@ function VariableSizeList(props:{
                 width:'100%',
                 position:'absolute',
             },
-            isScrolling:heightSum-window.scrollY>1500 || top+height<window.scrollY
+            isScrolling:heightSum-window.scrollY>2000 || top+height<window.scrollY
         }
     });
     var [ultimoTop, setUltimoTop]=useState(-99999);
