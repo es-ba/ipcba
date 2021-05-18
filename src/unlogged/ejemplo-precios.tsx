@@ -420,7 +420,7 @@ const Typography = ({children, ...others}:{
     component?:string
     variant?:'h1'|'h2'|'h3'|'h4'|'h5'|'h6'
 }&CommonAttributes)=>{
-    others.style = {...others.style, ...{margin:0}};
+    others.style = {...{margin:0},...others.style};
     return React.createElement(others.variant||others.component||'div',others,children);
 }
 
@@ -599,20 +599,23 @@ const AppBar = (props:{
             transition: '0.4s',
             justifyContent: 'unset',
             flexWrap:'unset',
-            paddingLeft: 25
         },...(props.style || {})}}
     >
-        {React.Children.map(children, child => (
-            <span className={"navbar-nav"} style={{margin: '0px 2px', flexWrap:'unset'}}>
-                <span className="nav-item">
-                    <span className="nav-link active">
-                        {child}
-                    </span>
+        <div className="container-fluid">
+            {children}
+        </div>
+    </nav>
+}
+const AppBarGroup = (props:{children:any})=>
+    <span className={"navbar-nav"} style={{flexWrap:'unset', alignItems:'center', flexDirection:'row'}}>
+        {React.Children.map(props.children, child => (
+            <span className="nav-item">
+                <span className="nav-link active">
+                    {child}
                 </span>
             </span>
         ))}
-    </nav>
-}
+    </span>
 
 const Drawer = (props:{children:any, initialWidth?:number, openedWidth?:number, open:boolean}&CommonAttributes)=>{
     const {id, className, open, initialWidth, openedWidth, children, ...other} = props;
@@ -2000,56 +2003,57 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
             shift={openedWidth}
             shiftCondition={open}
         >
-            {open?null:        
-                <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={handleDrawerOpen}
-                    edge="start"
-                >
-                    <MenuIcon/>
-                </IconButton>
-            }
-            <Typography variant="h6">
-               {`inf ${props.relVisPk.informante}`}
-           </Typography>
-           <Grid item>
-                <ButtonGroup style={buttonGroupStyle}>
-                    <Button onClick={()=>{
-                        dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
-                    }}>
-                        <ICON.FormatLineSpacing />
-                    </Button>
-               </ButtonGroup>
-               <ButtonGroup style={buttonGroupStyle}>
-                    <Button onClick={()=>{
-                        dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                    }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
-                        <ICON.CheckBoxOutlined />
-                    </Button>
-                    <Button onClick={()=>{
-                        dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                    }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
-                        <ICON.CheckBoxOutlineBlankOutlined />
-                    </Button>
-                    <Button onClick={()=>{
-                        dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                    }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
-                        <ICON.Warning />
-                    </Button>
-                </ButtonGroup>
-            </Grid>
-            <SearchInput
-                value={searchString}
-                onChange={(event)=>{
-                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                    window.scroll({behavior:'auto', top:0, left:0})
-                }}
-                onReset={()=>{
-                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                    window.scroll({behavior:'auto', top:0, left:0})
-                }}
-            />
+            <AppBarGroup>
+                {open?null:        
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={handleDrawerOpen}
+                    >
+                        <MenuIcon/>
+                    </IconButton>
+                }
+                <Typography variant="h6" style={{margin:'0px 10px'}}>
+                  {`inf ${props.relVisPk.informante}`}
+                </Typography>
+                <Grid item>
+                    <ButtonGroup style={buttonGroupStyle}>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
+                        }}>
+                            <ICON.FormatLineSpacing />
+                        </Button>
+                    </ButtonGroup>
+                    <ButtonGroup style={buttonGroupStyle}>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                        }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
+                            <ICON.CheckBoxOutlined />
+                        </Button>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                        }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
+                            <ICON.CheckBoxOutlineBlankOutlined />
+                        </Button>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                        }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
+                            <ICON.Warning />
+                        </Button>
+                    </ButtonGroup>
+                </Grid>
+                <SearchInput
+                    value={searchString}
+                    onChange={(event)=>{
+                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                        window.scroll({behavior:'auto', top:0, left:0})
+                    }}
+                    onReset={()=>{
+                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                        window.scroll({behavior:'auto', top:0, left:0})
+                    }}
+                />
+            </AppBarGroup>
         </AppBar>
         <Drawer
             initialWidth={initialWidth}
@@ -2275,9 +2279,11 @@ function PantallaInicial(_props:{}){
     return (
         <>
             <AppBar position="fixed" style={TOOLBAR_STYLE}>
-                <Typography variant="h6">
-                    IPCBA PWA - Dispositivo sin carga
-                </Typography>
+                <AppBarGroup>
+                    <Typography variant="h6">
+                        IPCBA PWA - Dispositivo sin carga
+                    </Typography>
+                </AppBarGroup>
             </AppBar>
             <main>
                 <Paper className={classes.root} style={{height:'600px', padding:"15px"}}>
@@ -2341,105 +2347,109 @@ function PantallaHojaDeRuta(_props:{}){
     return (
         <>
             <AppBar position="fixed" style={TOOLBAR_STYLE}>
-                <Typography variant="h6">
-                    Hoja de ruta - {appVersion}
-                </Typography>
-                <div className={classesButton.toolbarButtons}>
-                    <IconButton
-                        color="inherit"
-                        onClick={()=>
-                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
-                        }
-                    >
-                        <SettingsIcon/>
-                    </IconButton>
-                    {online?
-                        customDataMode?
-                            <>
-                                {isDirtyHDR()?
-                                    <>
+                <AppBarGroup>
+                    <Typography variant="h6">
+                        Hoja de ruta - {appVersion}
+                    </Typography>
+                </AppBarGroup>
+                <AppBarGroup>
+                    <div className={classesButton.toolbarButtons}>
+                        <IconButton
+                            color="inherit"
+                            onClick={()=>
+                                dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
+                            }
+                        >
+                            <SettingsIcon/>
+                        </IconButton>
+                        {online?
+                            customDataMode?
+                                <>
+                                    {isDirtyHDR()?
+                                        <>
+                                            <IconButton
+                                                color="inherit"
+                                                onClick={async ()=>{
+                                                    setMensajeDescarga('descargando, por favor espere...');
+                                                    setDescargando(true);
+                                                    var message = await devolverHojaDeRuta(hdr);
+                                                    setDescargando(false);
+                                                    if(message=='descarga completa'){
+                                                        setDescargaCompleta(true);
+                                                        await borrarDatosRelevamientoLocalStorage();
+                                                        message+=', redirigiendo a grilla de relevamiento...';
+                                                        setTimeout(function(){
+                                                            location.reload();       
+                                                        }, 3000)
+                                                    }
+                                                    setMensajeDescarga(message)
+                                                }}
+                                            >
+                                                <SaveIcon/>
+                                            </IconButton>
+                                        </>
+                                    :
                                         <IconButton
                                             color="inherit"
                                             onClick={async ()=>{
-                                                setMensajeDescarga('descargando, por favor espere...');
-                                                setDescargando(true);
-                                                var message = await devolverHojaDeRuta(hdr);
-                                                setDescargando(false);
-                                                if(message=='descarga completa'){
-                                                    setDescargaCompleta(true);
-                                                    await borrarDatosRelevamientoLocalStorage();
-                                                    message+=', redirigiendo a grilla de relevamiento...';
-                                                    setTimeout(function(){
-                                                        location.reload();       
-                                                    }, 3000)
+                                                var message = await borrarDatosRelevamientoLocalStorage();
+                                                if(message == 'ok'){
+                                                    location.reload();   
+                                                }else{
+                                                    setMensajeDescarga(message)
                                                 }
-                                                setMensajeDescarga(message)
                                             }}
                                         >
-                                            <SaveIcon/>
+                                            <ExitToAppIcon/>
                                         </IconButton>
-                                    </>
-                                :
-                                    <IconButton
-                                        color="inherit"
-                                        onClick={async ()=>{
-                                            var message = await borrarDatosRelevamientoLocalStorage();
-                                            if(message == 'ok'){
-                                                location.reload();   
-                                            }else{
-                                                setMensajeDescarga(message)
-                                            }
-                                        }}
+                                    }
+                                    <Dialog
+                                        open={!!mensajeDescarga}
+                                        //hace que no se cierre el mensaje
+                                        onClose={()=>setMensajeDescarga(mensajeDescarga)}
+                                        aria-labelledby="alert-dialog-title"
+                                        aria-describedby="alert-dialog-description"
                                     >
-                                        <ExitToAppIcon/>
-                                    </IconButton>
-                                }
-                                <Dialog
-                                    open={!!mensajeDescarga}
-                                    //hace que no se cierre el mensaje
-                                    onClose={()=>setMensajeDescarga(mensajeDescarga)}
-                                    aria-labelledby="alert-dialog-title"
-                                    aria-describedby="alert-dialog-description"
+                                        <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
+                                        <DialogContent>
+                                            <DialogContentText id="alert-dialog-description">
+                                                {mensajeDescarga}{descargando?<CircularProgress />:null}
+                                            </DialogContentText>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            {descargando?
+                                                null
+                                            :
+                                                <Button 
+                                                    onClick={()=>{
+                                                        if(descargaCompleta){
+                                                            location.reload()
+                                                        }else{
+                                                            setMensajeDescarga(null)
+                                                        }
+                                                    }} 
+                                                    color="primary" 
+                                                    variant="contained"
+                                                >
+                                                    Cerrar
+                                                </Button>
+                                            }
+                                        </DialogActions>
+                                    </Dialog>
+                                </>
+                            :
+                                <Button
+                                    color="inherit"
+                                    onClick={()=>{
+                                        history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
+                                        location.reload();   
+                                    }}
                                 >
-                                    <DialogTitle id="alert-dialog-title">Información de descarga</DialogTitle>
-                                    <DialogContent>
-                                        <DialogContentText id="alert-dialog-description">
-                                            {mensajeDescarga}{descargando?<CircularProgress />:null}
-                                        </DialogContentText>
-                                    </DialogContent>
-                                    <DialogActions>
-                                        {descargando?
-                                            null
-                                        :
-                                            <Button 
-                                                onClick={()=>{
-                                                    if(descargaCompleta){
-                                                        location.reload()
-                                                    }else{
-                                                        setMensajeDescarga(null)
-                                                    }
-                                                }} 
-                                                color="primary" 
-                                                variant="contained"
-                                            >
-                                                Cerrar
-                                            </Button>
-                                        }
-                                    </DialogActions>
-                                </Dialog>
-                            </>
-                        :
-                            <Button
-                                color="inherit"
-                                onClick={()=>{
-                                    history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
-                                    location.reload();   
-                                }}
-                            >
-                                <ExitToAppIcon/>
-                            </Button>
-                    :null}
-                </div>
+                                    <ExitToAppIcon/>
+                                </Button>
+                        :null}
+                    </div>
+                </AppBarGroup>
             </AppBar>
             <main>
                 <Paper className={classes.root}>
@@ -2510,17 +2520,19 @@ function PantallaOpciones(){
     return (
         <>
             <AppBar position="fixed" style={TOOLBAR_STYLE}>
-                <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    edge="start"
-                    onClick={()=>
-                        dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
-                    }
-                >
-                    <ChevronLeftIcon />
-                </IconButton>
-                <Typography variant="h6">Opciones del dispositivo móvil</Typography>
+                <AppBarGroup>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={()=>
+                            dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:false}))
+                        }
+                    >
+                        <ChevronLeftIcon />
+                    </IconButton>
+                    <Typography variant="h6">Opciones del dispositivo móvil</Typography>
+                </AppBarGroup>
             </AppBar>
             <main>
                 <Typography>
