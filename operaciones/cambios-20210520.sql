@@ -1,3 +1,5 @@
+set search_path = cvp; 
+
 CREATE OR REPLACE FUNCTION validar_ingresando_trg()
     RETURNS trigger AS
 $BODY$
@@ -108,9 +110,3 @@ RETURN NEW;
 END;
 $BODY$
   LANGUAGE 'plpgsql' VOLATILE SECURITY INVOKER;
-
-CREATE TRIGGER periodos_controlar_ingresando_trg
-    BEFORE UPDATE
-    ON periodos
-    FOR EACH ROW
-    EXECUTE PROCEDURE validar_ingresando_trg();
