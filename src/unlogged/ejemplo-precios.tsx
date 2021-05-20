@@ -653,7 +653,7 @@ const SearchInput = (props:{value:string, onChange?:(event:any)=>void, onReset?:
         >
             <span 
                 className="input-group-text bg-transparent rounded-left"
-                style={{padding:"5px"}}
+                style={{padding:"6px"}}
             >
                 <SearchIcon />
             </span>
