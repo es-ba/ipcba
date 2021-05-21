@@ -2139,7 +2139,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'id_lote'       , typeName:'integer'  , references:'cambiopantar_lote'}
         ],
-        roles:['programador'],
+        roles:['programador','coordinador'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 

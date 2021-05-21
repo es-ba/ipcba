@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#21-02-08";
+const APP_DM_VERSION="#21-02-23";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -708,7 +708,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
                     {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador]},
-                    {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador]},
+                    {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador,coordinador]},
                     {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[

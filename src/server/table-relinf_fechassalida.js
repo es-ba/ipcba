@@ -18,6 +18,8 @@ module.exports = function(context){
             {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}      },
             {name:'visita'                 , typeName:'integer' , nullable:false, allow:{update:false}      },
             {name:'direccion'              , typeName:'text'                    , allow:{update:false}      },
+            {name:'rubro'                  , typeName:'integer'                 , allow:{update:false}      },
+            {name:'nombrerubro'            , typeName:'text'                    , allow:{update:false}      },
             {name:'otropaneltarea'         , typeName:'text'                    , allow:{update:false}      },
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}},
@@ -31,15 +33,16 @@ module.exports = function(context){
             from:`(select r.periodo, max(CASE WHEN v.pos = 1 THEN v.panel END) AS panel , max(CASE WHEN v.pos = 1 THEN v.tarea END) AS tarea, r.informante, r.visita, 
                           CASE WHEN min(v.pos) <> max(v.pos) THEN 
                             string_agg (CASE WHEN v.pos> 1 then 'Panel '||v.panel||' , '||'Tarea '||v.tarea end, chr(10) ORDER BY 'Panel '||v.panel||' , '||'Tarea '||v.tarea) 
-                          END as otropaneltarea, i.direccion, r.fechasalidadesde, r.fechasalidahasta 
+                          END as otropaneltarea, i.direccion, r.fechasalidadesde, r.fechasalidahasta, i.rubro, ru.nombrerubro 
                     from relinf r
                     left join informantes i on r.informante = i.informante
+                    left join rubros ru on i.rubro = ru.rubro
                     left join (select periodo, informante, visita, panel, tarea, row_number() OVER (PARTITION BY periodo, informante, visita) as pos 
                                from relvis
                                group by periodo, informante, visita, panel, tarea
                                order by periodo, informante, visita, panel, tarea) v 
                                on r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita
-                    group by r.periodo, r.informante, r.visita, i.direccion, r.fechasalidadesde, r.fechasalidahasta
+                    group by r.periodo, r.informante, r.visita, i.direccion, i.rubro, ru.nombrerubro, r.fechasalidadesde, r.fechasalidahasta
                 )`,
             },
     },context);

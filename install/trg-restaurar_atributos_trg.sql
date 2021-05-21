@@ -54,3 +54,4 @@ CREATE TRIGGER relpre_restaura_atributos_trg
    BEFORE UPDATE 
    ON relpre 
    FOR EACH ROW EXECUTE PROCEDURE restaurar_atributos_trg();
+   

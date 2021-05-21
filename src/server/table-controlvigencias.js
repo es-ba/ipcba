@@ -18,6 +18,7 @@ module.exports = function(context){
             {name:'visitas'                      ,typeName:'integer'},
             {name:'vigencias'                    ,typeName:'integer'},
             {name:'comentarios'                  ,typeName:'text'   },
+            {name:'tipoprecio'                   ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','producto','observacion'],
         sql:{

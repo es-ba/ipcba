@@ -3,6 +3,7 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='supervisor';
     var puedeEditarRecep = context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='supervisor';
+    var puedeAgregarVisita = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='recepcionista';
     //console.log('Hola Mundo! ',puedeEditar);
     //console.log('Hola Mundo! ',context.user);
     return context.be.tableDefAdapt({
@@ -43,7 +44,7 @@ module.exports = function(context){
             {name:'fueraderango'                 , typeName:'text'                                 , visible:false          , inTable: false},
             {name:'sinpreciohace4meses'          , typeName:'text'                                 , visible:false          , inTable: false},
             {name:'orden'                        , typeName:'integer'                              , visible:false          , inTable: false},
-            {name:'agregarvisita'                , typeName:'boolean'                              , allow:{update:puedeEditar}, serverSide:true, inTable:false, clientSide:'agregar_visita'},
+            {name:'agregarvisita'                , typeName:'boolean'                              , allow:{select:puedeAgregarVisita, update:puedeAgregarVisita}, serverSide:true, inTable:false, clientSide:'agregar_visita'},
             {name:'modi_fec'                     , typeName:'timestamp'                            , visible:false, inTable: true                         },
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
@@ -86,6 +87,6 @@ module.exports = function(context){
                     )`,
             isTable: true,
         },
-        hiddenColumns:['agregarvisita','ultima_visita']
+        hiddenColumns:['ultima_visita']
     },context);
 }
