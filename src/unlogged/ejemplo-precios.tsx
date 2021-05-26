@@ -2438,7 +2438,7 @@ function PantallaHojaDeRuta(_props:{}){
                                     </Dialog>
                                 </>
                             :
-                                <Button
+                                <IconButton
                                     color="inherit"
                                     onClick={()=>{
                                         history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
@@ -2446,7 +2446,7 @@ function PantallaHojaDeRuta(_props:{}){
                                     }}
                                 >
                                     <ExitToAppIcon/>
-                                </Button>
+                                </IconButton>
                         :null}
                     </div>
                 </AppBarGroup>
