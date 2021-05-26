@@ -2766,11 +2766,12 @@ function loadCSS(cssURL:string):Promise<void>{
     });
 }
 
+const BOOTSTRAP_5_0_1_SRC = 'css/bootstrap.min.css';
+
 export async function dmHojaDeRuta(optsHdr:OptsHdr){
     const {store, estructura} = await dmTraerDatosHdr(optsHdr);
-    var src = 'css/bootstrap.min.css'; //bootstrap 5.0.1
     try{
-        await loadCSS(src);
+        await loadCSS(BOOTSTRAP_5_0_1_SRC);
     }catch(err){
         throw(err)
     }
@@ -2778,6 +2779,11 @@ export async function dmHojaDeRuta(optsHdr:OptsHdr){
 }
 
 export async function dmPantallaInicial(){
+    try{
+        await loadCSS(BOOTSTRAP_5_0_1_SRC);
+    }catch(err){
+        throw(err)
+    }
     ReactDOM.render(
         <PantallaInicial/>,
         document.getElementById('main_layout')
