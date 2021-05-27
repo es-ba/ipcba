@@ -17,7 +17,7 @@ var cargarScriptEstructura = async (callBack?:()=>Promise<void>)=>{
     }
 }
 
-window.addEventListener('load', async function(){
+myOwn.autoSetupFunctions.push(async function checkEstructura(){
     if(hayHojaDeRuta()){
         var swa = new ServiceWorkerAdmin();
         swa.installOrActivate({
@@ -25,14 +25,15 @@ window.addEventListener('load', async function(){
             onInfoMessage: null,
             onError: null,
             onReadyToStart: cargarScriptEstructura,
+            onStateChange: ()=>null,
             //onStateChange: async ()=>cargarScriptEstructura(),
-            onStateChange:async(showScreen, newVersionAvaiable, installing, waiting, active, installerState)=>{
-                console.log(showScreen, newVersionAvaiable, installing, waiting, active, installerState);
-                if(installerState == 'activated'){
-                    cargarScriptEstructura()
-                }
-                //alert("showScreen: " + showScreen + " newVersionAvaiable: " +newVersionAvaiable + " installing: " +installing +" waiting: " + waiting +" active: " + active +" installerState: "+ installerState)
-            }
+            //onStateChange:async(showScreen, newVersionAvaiable, installing, waiting, active, installerState)=>{
+            //    console.log(showScreen, newVersionAvaiable, installing, waiting, active, installerState);
+            //    if(installerState == 'activated'){
+            //        cargarScriptEstructura()
+            //    }
+            //    //alert("showScreen: " + showScreen + " newVersionAvaiable: " +newVersionAvaiable + " installing: " +installing +" waiting: " + waiting +" active: " + active +" installerState: "+ installerState)
+            //}
         });
     }
 });
