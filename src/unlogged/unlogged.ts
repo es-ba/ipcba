@@ -19,6 +19,7 @@ var cargarScriptEstructura = async (callBack?:()=>Promise<void>)=>{
         callBack?await callBack():null;
     }
     script.onerror=(err)=>{
+        document.body.appendChild(html.div('no se pudo cargar la estructura').create());
         console.log("problema cargando estructura. ", err)
     }
 }
