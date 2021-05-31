@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#26-05-21";
+const APP_DM_VERSION="#26-05-31";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -939,9 +939,6 @@ NETWORK:
         ]:[
             {type:'js' , src:'unlogged.js' },
         ];
-        if(loggedResources && this.config.server.policy=='web'){
-            menuedResources.push({ type: 'js', src: 'client/check-estructura.js' });
-        }
         if(opts && opts.extraFiles){
             menuedResources = menuedResources.concat(opts.extraFiles);
         }
