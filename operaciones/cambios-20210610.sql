@@ -1,3 +1,9 @@
+set search_path = cvp;
+
+--se testea la consistencia de vigencias cuando hay una única visita, sólo si el tipoprecio es positivo
+--cuando hay más de una visita, se testea con por lo menos un tipoprecio positivo
+--detecta días de la semana mal escritos
+
 CREATE OR REPLACE VIEW controlvigencias as
  SELECT *
    FROM (SELECT a.periodo,
@@ -33,7 +39,3 @@ CREATE OR REPLACE VIEW controlvigencias as
   WHERE NOT ((f.visitas = 1 AND ((cantnegativos = 0 AND cantpositivos = 0) OR cantnegativos > 0 OR f.ultimodiadelmes = f.vigencias OR (f.cantdias > 0 and f.vigencias = f.cantdias))) OR 
 			 (f.visitas > 1 AND (f.visitas = cantpositivos AND (f.ultimodiadelmes = f.vigencias OR f.cantdias = f.vigencias)))
 			);
-  
-GRANT SELECT ON TABLE controlvigencias TO cvp_usuarios;
-GRANT SELECT ON TABLE controlvigencias TO cvp_administrador;
-
