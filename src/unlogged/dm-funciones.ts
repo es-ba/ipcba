@@ -280,3 +280,10 @@ export function simplificateText(text:string):string{
     };
     return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return simplificatedChars[a]||a}).replace(/ {2,}/g, ' ');
 }
+
+export function parseString(value:string, textTransform:'lowercase'|'uppercase'|undefined,simplificateString:boolean){
+    var customValue = value;
+    customValue = textTransform?textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
+    customValue = simplificateString?simplificateText(customValue):customValue;
+    return customValue;
+}
