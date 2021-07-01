@@ -2115,7 +2115,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'informante', typeName:'integer', references:'informantes'},
         ],
-        roles:['programador'],
+        roles:['programador','analista','coordinador'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE informantes SET altamanualconfirmar = current_timestamp 

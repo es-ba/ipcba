@@ -708,7 +708,7 @@ NETWORK:
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
                     {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador]},
                     {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador,coordinador]},
-                    {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador]},
+                    {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
@@ -750,7 +750,13 @@ NETWORK:
                 */
             ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
             {menuType:'menu', name:'informantes', menuContent:[
-                {menuType:'table', name:'informantes_altamanual'                , label:'alta manual', onlyVisibleFor:[programador]},
+
+                {menuType:'menu', name:'alta manual', menuContent:[
+                   {menuType:'table', name:'informantes_altamanual'                , label:'informantes', onlyVisibleFor:[programador,coordinador, analista]},
+                   {menuType:'table', name:'forinf'                                , label:'formularios', onlyVisibleFor:[programador,coordinador, analista]},
+                ]},
+
+
                 {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                 {menuType:'menu', name:'hoja de ruta', menuContent:[
                     {menuType:'table', name:'periodos_hdrexportarteorica'       , label:'teórica'             , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},

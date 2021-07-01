@@ -7,24 +7,37 @@ module.exports = function(context){
         tableName:'informantes',
         editable:puedeEditar,
         allow:{
-            insert:false,
+            insert:puedeEditar,
             delete:false,
             update:puedeEditar,
         },
+        //nombrecalle	altura	distrito	fraccion	radio	manzana
 
         fields:[
-            {name:'informante'                , typeName:'integer' , editable:false},
-            {name:'nombreinformante'          , typeName:'text'    , editable:false},
+            {name: "generar"                  , typeName: "bigint" , editable:false, clientSide:'altamanualgenerar'},
+            {name:'informante'                , typeName:'integer' , allow:{update:puedeEditar}},
+            {name:'nombreinformante'          , typeName:'text'    , allow:{update:puedeEditar}, postInput:'upperSpanish'},
+            {name:'altamanualperiodo'         , typeName:'text'    , allow:{update:puedeEditar}, title:'AltaEnPeriodo'},
+            {name:'altamanualpanel'           , typeName:'integer' , allow:{update:puedeEditar}, title:'AltaEnPanel'},
+            {name:'altamanualtarea'           , typeName:'integer' , allow:{update:puedeEditar}, title:'AltaEnTarea'},
             {name:'estado'                    , typeName:'text'    , editable:false},
-            {name:'tipoinformante'            , typeName:'text'    , editable:false, title:'TI'},
-            {name:'direccion'                 , typeName:'text'    , editable:false},
-            {name:'rubro'                     , typeName:'integer' , editable:false},
-            {name:'altamanualperiodo'         , typeName:'text'     , allow:{update:puedeEditar}},
-            {name:'altamanualpanel'           , typeName:'integer'  , allow:{update:puedeEditar}},
-            {name:'altamanualtarea'           , typeName:'integer'  , allow:{update:puedeEditar}},
-            {name:'altamanualconfirmar'       , typeName:'timestamp', allow:{update:puedeEditar}},
+            {name:'tipoinformante'            , typeName:'text'    , allow:{update:puedeEditar}, title:'TI', postInput:'upperSpanish'},
+            {name:'rubro'                     , typeName:'integer' , allow:{update:puedeEditar}},
+
             {name:'periodo'                   , typeName:'text'     , editable:false, title:'ultimoPeriodo'},
-            {name: "generar"                  , typeName: "bigint"  , editable:false, clientSide:'altamanualgenerar'},
+            {name:'direccion'                 , typeName:'text'    , editable:false},           
+            {name:'nombrecalle'               , typeName:'text'    , allow:{update:puedeEditar}, postInput:'upperSpanish'},
+            {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'distrito'                  , typeName:'integer' , allow:{update:puedeEditar}},
+            {name:'fraccion'                  , typeName:'integer' , allow:{update:puedeEditar}},
+            {name:'radio'                     , typeName:'integer' , allow:{update:puedeEditar}},
+            {name:'manzana'                   , typeName:'integer' , allow:{update:puedeEditar}},
+            {name:'contacto'                  , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'telcontacto'               , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'web'                       , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'email'                     , typeName:'text'    , allow:{update:puedeEditar}},
+
+            {name:'altamanualconfirmar'       , typeName:'timestamp', allow:{update:puedeEditar}},
         ],
         primaryKey:['informante'],
         hiddenColumns:['altamanualconfirmar'],
@@ -37,12 +50,12 @@ module.exports = function(context){
             {references:'tipoinf'         , fields:['tipoinformante']  }
         ],
         sql:{
-            from:`(select i.informante, nombreinformante, estado, tipoinformante, direccion, rubro, altamanualperiodo, altamanualpanel, altamanualtarea, 
-                   altamanualconfirmar, r.periodo
+            from:`(select i.informante, nombreinformante, estado, tipoinformante, direccion, rubro, altamanualperiodo, altamanualpanel, altamanualtarea,
+                   nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, telcontacto, web, email,  altamanualconfirmar, r.periodo
                      from informantes i 
                      left join (select distinct periodo, informante, dense_rank() OVER (PARTITION BY informante ORDER BY periodo desc) as orden
                                   from cvp.relvis) r on i.informante = r.informante 
-                    where orden = 1)`
+                    where coalesce(orden, 0) <= 1)`
         }
 
     },context);
