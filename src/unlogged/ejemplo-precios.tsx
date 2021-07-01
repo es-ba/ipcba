@@ -1,18 +1,20 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, LetraTipoOpciones, OptsHdr, FocusOpts} from "./dm-tipos";
+import {Producto, RelPre, RelAtr, AtributoDataTypes, HojaDeRuta, Razon, Estructura, RelInf, RelVis, RelVisPk, 
+    LetraTipoOpciones, OptsHdr, FocusOpts
+} from "./dm-tipos";
 import {
     puedeCopiarTipoPrecio, puedeCopiarAtributos, muestraFlechaCopiarAtributos, 
     puedeCambiarPrecioYAtributos, tpNecesitaConfirmacion, razonNecesitaConfirmacion, 
     controlarPrecio, controlarAtributo, precioTieneAdvertencia, precioEstaPendiente,
     precioTieneError, 
     COLOR_ERRORES,
-    simplificateText,
-    precioTieneAtributosCargados
+    precioTieneAtributosCargados,
+    parseString
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
     hdrEstaDescargada, getCacheVersion} from "./dm-react";
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect, useRef, useLayoutEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
 import * as memoizeBadTyped from "memoize-one";
@@ -25,14 +27,760 @@ var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
 import {
-    AppBar, Badge, Button, ButtonGroup, Chip, CircularProgress, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, 
-    DialogTitle, Divider, Fab, Grid, IconButton, InputBase, List, ListItem, ListItemIcon, ListItemText, Drawer, 
-    Menu, MenuItem, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, TextField, Toolbar, Typography, Zoom
+    CircularProgress, CssBaseline, Fab, 
+    IconButton, Paper, useScrollTrigger, SvgIcon, Switch, Table, TableBody, TableCell, TableHead, TableRow, Zoom,
 } from "@material-ui/core";
-import { createStyles, makeStyles, Theme, fade} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import { Store } from "redux";
 
+type CommonAttributes = {className?:string,style?:React.CSSProperties,id?:string} // CSSProperties
+type BootstrapColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark';
 
+const TOOLBAR_STYLE=hdrEstaDescargada()?{backgroundColor:'red'}:{backgroundColor:"#3f51b5"};
+
+function useLockBodyScroll() {
+  useLayoutEffect(() => {
+    // Get original body overflow
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    // Prevent scrolling on mount
+    document.body.style.overflow = "hidden";
+    // Re-enable scrolling when component unmounts
+    return () => {
+        document.body.style.overflow = originalStyle
+    };
+  }, []); // Empty array ensures effect is only run on mount and unmount
+}
+
+type MenuPosition={
+    top:number|null,
+    left:number|null,
+    maxHeight:number|string,
+    maxWidth:number|string, 
+    scrollY:number|null
+};
+
+const Menu = (props:{
+    open:boolean,
+    id:string,
+    anchorEl:Element|null|undefined,
+    onClose?:()=>void,
+    children:any,
+}&CommonAttributes)=>{
+    return props.open?React.createElement(OpenedMenu,props,props.children):null
+}
+
+const OpenedMenu = (props:{
+    id:string,
+    anchorEl:Element|null|undefined,
+    onClose?:()=>void,
+    children:any,
+})=>{
+    useLockBodyScroll();
+    const divEl = useRef(null);
+    const [position, setPosition] = useState<MenuPosition>({
+        top:null,
+        left:null,
+        maxHeight:'auto',
+        maxWidth:'auto',
+        scrollY:null
+    });
+    useLayoutEffect(() => {
+        if(divEl && divEl.current){
+            let myElement = divEl.current! as HTMLDivElement;
+            if(position.top == null || position.left==null || window.scrollY != position.scrollY){
+                //posicionamiento inicial
+                var initialPosition:MenuPosition={
+                    top: 0,
+                    left: 0,
+                    maxHeight:'auto',
+                    maxWidth:'auto',
+                    scrollY: window.scrollY
+                };
+                let element = props.anchorEl as HTMLElement|null;
+                if(element){
+                    while(element != null) {
+                        initialPosition.top! += element.offsetTop;
+                        initialPosition.left! += element.offsetLeft;
+                        element = element.offsetParent as HTMLElement|null;
+                    }
+                    initialPosition.top!-=window.scrollY;
+                    initialPosition.left!-=window.scrollX;
+                }
+                initialPosition.maxHeight=window.innerHeight-initialPosition.top!;
+                initialPosition.maxWidth=window.innerWidth-initialPosition.left!;
+                setPosition(initialPosition);
+            }else{
+                //corrección para aprovechar máximo de pantalla posible
+                let aSubir=0;
+                if(myElement.scrollHeight > myElement.clientHeight){
+                    let faltante = myElement.scrollHeight - myElement.clientHeight + 5;
+                    let disponibleParaAjuste = window.innerHeight - myElement.offsetHeight;
+                    aSubir = Math.min(faltante, disponibleParaAjuste);
+                }
+                let aIzquierda=0;
+                if(myElement.scrollWidth > myElement.clientWidth){
+                    let faltante = myElement.scrollWidth - myElement.clientWidth + 5;
+                    let disponibleParaAjuste = window.innerWidth - myElement.offsetWidth;
+                    aIzquierda = Math.min(faltante, disponibleParaAjuste);
+                }
+                if(aSubir || aIzquierda){
+                    setPosition({
+                        top:position.top - aSubir,
+                        left:position.left - aIzquierda,
+                        maxHeight:Number(position.maxHeight) + aSubir,
+                        maxWidth:Number(position.maxWidth) + aIzquierda,
+                        scrollY: window.scrollY
+                    });
+                }
+            }
+        }
+    },[window.scrollY, position]);
+    return ReactDOM.createPortal(
+        <div 
+            className="dropdown-menu-container"
+            onClick={props.onClose}
+            style={{
+                width:'100%',
+                height:'100%',
+                zIndex: 99998,
+                position: 'fixed',
+                top: 0,
+                left: 0,
+            }}>
+            <div 
+                id={props.id}
+                ref={divEl}
+                onClick={(event)=>event.stopPropagation()}
+                className="dropdown-menu"
+                style={{
+                    display:'unset',
+                    top:position.top==null?'unset':position.top,
+                    left:position.left==null?'unset':position.left,
+                    maxHeight:position.maxHeight,
+                    maxWidth:position.maxWidth,
+                    zIndex: 99999,
+                    overflow:'auto',
+                }}
+            >
+                {props.children}
+            </div>
+        </div>,
+        document.body
+    )
+}
+function MenuItem(props:{
+    children:any,
+    disabled?: boolean
+    onClick?:(event:React.MouseEvent)=>void,
+}&CommonAttributes){
+    var {id, className, style, children, ...other} = props;
+    return <li
+        {...other}
+        id={props.id}
+        className={`${className||''} dropdown-item ${props.disabled?'disabled':''}`}
+        style={{ ...{height:'50px', paddingTop:'8px'},...(props.style || {})}}
+        onClick={props.onClick}
+    >
+        {children}
+    </li>
+}
+function ListItemText(props:{
+    children?:any,
+    primary?:string,
+    secondary?:string,
+    onClick?:(event:React.MouseEvent)=>void,
+}&CommonAttributes){
+    var {id, className, style, children, primary, secondary,  ...other} = props;
+    return <span
+        {...other}
+        id={props.id}
+        className={`${className||''}`}
+        style={{ ...{verticalAlign:'middle'},...(props.style || {})}}
+        onClick={props.onClick}
+    >
+        {primary?primary:null}
+        {secondary?
+            <p style={{
+                color:"rgba(0, 0, 0, 0.54)",
+                fontSize: "0.875rem",
+                marginBottom:"0px"
+            }}>
+                {secondary}
+            </p>
+        :
+            null
+        }
+        {children}
+    </span>
+}
+const Chip = (props:{
+    label:string|JSX.Element|HTMLElement,
+    style:any,
+})=>{
+    return <span className="badge" style={...props.style}>{props.label}</span>
+}
+const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
+    return <div 
+        className="btn-group"
+        role="group"
+        style={{ 
+            ...{
+                margin: '0px 3px',
+            }, 
+            ...props.style
+        }}
+    >
+        {props.children}
+    </div>
+}
+const Button = (props:{
+    variant?:string,
+    color?:string,
+    onClick?:(event:React.MouseEvent)=>void,
+    disabled?:boolean
+    fullwidth?:boolean
+    children:any,
+    size?:'lg'|'md'
+}&CommonAttributes)=>{
+    props.variant = props.variant || 'contained';
+    props.color = props.color || 'light';
+    const {...other} = props;
+    return <button 
+        {...other}
+        id={props.id}
+        className={`
+            btn 
+            btn${props.variant=='contained'?'':'-'+props.variant}${props.color?'-'+props.color:''} 
+            ${props.className || ''} 
+            ${props.size?`btn-${props.size}`:''}
+        `}
+        disabled={props.disabled}
+        onClick={props.onClick}
+        style={{ 
+            ...{
+                width:props.fullwidth?'100%':'none',
+                color: props.disabled?'rgba(0, 0, 0, 0.12)':'',
+                border: props.disabled?'1px solid rgba(0, 0, 0, 0.12)':'',
+                whiteSpace: 'unset'
+            }, 
+            ...props.style
+        }}
+    >{props.children}</button>
+}
+
+function ResizableTextarea(props:{
+    value:string
+    autoFocus?:boolean,
+    disabled:boolean,
+    readOnly:boolean,
+    fullWidth?:boolean
+    placeholder?:string,
+    rowsMax?:number,
+    onKeyDown?:(event:any)=>void,
+    onChange?:(event:any)=>void,
+    onFocus?:(event:any)=>void,
+    onBlur?:(event:any)=>void,
+    color?:string
+}&CommonAttributes){
+    const [myValue, setMyValue] = useState<string|null>(props.value);
+    const [config, setConfig] = useState({
+		rows: 1,
+		minRows: 1,
+	    maxRows: props.rowsMax?props.rowsMax:100,
+	})
+    const textareaEl = useRef(null);
+    useEffect(() => {
+        setMyValue(props.value || null)
+    }, [props.value]);
+    useLayoutEffect(() => {
+        if(textareaEl && textareaEl.current){
+            const {minRows, maxRows} = config;
+            const textareaElement = textareaEl.current! as HTMLTextAreaElement;
+            const textareaLineHeight = parseInt(window.getComputedStyle(textareaElement).lineHeight);
+            const previousRows = textareaElement.rows;
+            textareaElement.rows = minRows; // reset number of rows in textarea 
+            const currentRows = ~~(textareaElement.scrollHeight / textareaLineHeight);
+            if (currentRows === previousRows) {
+                textareaElement.rows = currentRows;
+            }
+            if (currentRows >= maxRows) {
+                textareaElement.rows = maxRows;
+                textareaElement.scrollTop = textareaElement.scrollHeight;
+            }
+            setConfig({
+                rows: currentRows < maxRows ? currentRows : maxRows,
+                minRows,
+                maxRows
+            })
+        }
+    }, [myValue]);
+	return <textarea
+        id={props.id}
+        ref={textareaEl}
+		rows={config.rows}
+		value={myValue || ''}
+        spellCheck={false}
+        autoCapitalize="off"
+        autoComplete="off"
+        autoCorrect="off"
+		onChange={(event)=>{
+            setMyValue(event.target.value || null)
+            props.onChange?.(event);
+        }}
+        autoFocus={props.autoFocus}
+        disabled={props.disabled}
+        readOnly={props.readOnly}
+        className={`${props.className||''}`}
+        onKeyDown={(event)=>{
+            props.onKeyDown?.(event)
+        }}
+        onClick={(event)=>{
+            var element = event.target as HTMLTextAreaElement;
+            var selection = element.value.length||0;
+            element.selectionStart = selection;
+            element.selectionEnd = selection;
+        }}
+        onFocus={props.onFocus}
+        onBlur={props.onBlur}
+        placeholder={props.placeholder}
+        style={{...props.style,...{width:props.fullWidth?'100%':'unset'}}}
+	/>
+}
+
+const TextField = (props:{
+    id?:string,
+    autoFocus?:boolean,
+    disabled?:boolean,
+    readOnly?:boolean,
+    className?:string,
+    fullWidth?:boolean
+    value?:any,
+    type?:InputTypes,
+    placeholder?:string,
+    rowsMax?:number,
+    onKeyDown?:(event:any)=>void,
+    onChange?:(event:any)=>void,
+    onFocus?:(event:any)=>void,
+    onBlur?:(event:any)=>void,
+    hasError:boolean,
+    borderBottomColor?:string,
+    borderBottomColorError?:string,
+    color?:string
+})=>{
+    var {hasError, borderBottomColorError, borderBottomColor, color} = props;
+    borderBottomColor=borderBottomColor||PRIMARY_COLOR;
+    const styles = {
+        border: "0px solid white",
+        borderBottom:  `1px solid ${hasError?borderBottomColorError:borderBottomColor}`,
+        color: color,
+        outline:'none'
+    };
+    return props.type=='text'?
+        <ResizableTextarea
+            id={props.id}
+            autoFocus={props.autoFocus}
+            fullWidth={props.fullWidth}
+            disabled={props.disabled || false}
+            readOnly={props.readOnly || false}
+            className={`${props.className||''}`}
+            value={props.value} 
+            onKeyDown={(event)=>{
+                props.onKeyDown?.(event)
+            }}
+            onChange={props.onChange}
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
+            placeholder={props.placeholder}
+            style={{...styles}}
+        />
+    :
+        <input
+            id={props.id}
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            autoFocus={props.autoFocus}
+            disabled={props.disabled}
+            readOnly={props.readOnly}
+            className={`${props.className||''}`}
+            value={props.value} 
+            type={props.type}
+            onKeyDown={props.onKeyDown}
+            onChange={props.onChange}
+            onFocus={props.onFocus}
+            onBlur={props.onBlur}
+            placeholder={props.placeholder}
+            style={styles}
+        />
+};
+
+const Typography = ({children, ...others}:{
+    children:any,
+    component?:string
+    variant?:'h1'|'h2'|'h3'|'h4'|'h5'|'h6'
+}&CommonAttributes)=>{
+    others.style = {...{margin:0},...others.style};
+    return React.createElement(others.variant||others.component||'div',others,children);
+}
+
+const List = (props:{
+    children?:any,
+}&CommonAttributes)=>{
+    var {id, className, style, children, ...other} = props;
+    return <ul
+        {...other}
+        id={id}
+        className={`${className||''} dropdown-menu`}
+        style={{ ...{display: 'unset'},...(style || {})}}
+    >
+        {children}
+    </ul>
+}
+
+const ListItem = (props:{
+    children?:any,
+    selected?:boolean,
+    onClick?:(event:React.MouseEvent)=>void,
+}&CommonAttributes)=>{
+    var {id, className, selected, onClick, style, children, ...other} = props;
+    return <li
+        {...other}
+        id={id}
+        onClick={onClick}
+        className={`${className||''} dropdown-item ${selected?'text-light bg-secondary':'text-secondary bg-transparent'}`}
+        style={{ ...{display:'flex', justifyContent:'flex-start', paddingTop:8, paddingBottom:8, paddingLeft:15},...(style || {})}}
+    >
+        {children}
+    </li>
+}
+
+const ListItemIcon = (props:{
+    children?:any,
+}&CommonAttributes)=>{
+    var {id, className, style, children, ...other} = props;
+    return <div
+        {...other}
+        id={id}
+        className={`${className||''}`}
+        style={{ ...{fontSize:'1.4rem', minWidth:65},...(style || {})}}
+    >
+        {children}
+    </div>
+}
+
+const Divider = ({...other}:{}&CommonAttributes)=>
+    <div 
+        {...other}
+        id={other.id}
+        className={`${other.className||''} dropdown-divider`}
+        style={{ ...{},...(other.style || {})}}
+    />
+
+const Badge = (props:{
+    children?:any,
+    color?:string,
+    badgeContent:string|null,
+    backgroundColor?:string,
+    anchorOrigin?:{ horizontal: 'left'| 'right', vertical: 'bottom'| 'top' },
+    variant?:'standard'|'dot',
+    fullWidth?:boolean
+}&CommonAttributes)=>{
+    var {id, className, style, variant, fullWidth, children, color, anchorOrigin, backgroundColor, badgeContent, ...other} = props;
+    anchorOrigin = anchorOrigin || {horizontal:'right', vertical:'top'};
+    variant = variant || 'standard';
+    fullWidth = fullWidth==undefined?true:fullWidth;
+    var badgePosition = {
+        top:anchorOrigin.vertical=='top'?-5:'unset',
+        left:anchorOrigin.horizontal=='left'?-5:'unset',
+        right:anchorOrigin.horizontal=='right'?-5:'unset',
+        bottom:anchorOrigin.vertical=='bottom'?-5:'unset'
+    }
+    return badgeContent==null?
+        <>{children}</>
+    :
+        <span 
+            {...other}
+            id={props.id}
+            className={`${className||''}`}
+            style={{
+                //top:0,
+                //transform: 'scale(1) translate(9px, -50%)',
+                //right:0,
+                width: fullWidth?'100%':'unset',
+                display: 'inline-flex',
+                position: 'relative',
+                flexShrink: 0,
+                verticalAlign: 'middle',
+                //position:'absolute',
+                //color,
+                //backgroundColor,
+                //borderRadius: 10,
+                //fontSize: '0.85rem',
+                //minWidth: 20
+            }}
+        >
+            {children}
+            <span style={{ ...{
+                ...badgePosition,
+                height: variant=='standard'?'20px':'8px',
+                width: variant=='standard'?'unset':'8px',
+                display: 'flex',
+                padding: variant=='standard'?'0 6px':'unset',
+                zIndex: 1,
+                position: 'absolute',
+                flexWrap: 'wrap',
+                fontSize: '0.75rem',
+                minWidth: variant=='standard'?'20px':'8px',
+                boxSizing: 'border-box',
+                transition: 'transform 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                alignItems: 'center',
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+                fontWeight: 500,
+                lineHeight: 1,
+                alignContent: 'center',
+                borderRadius: '10px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                color,
+                backgroundColor,
+            },...(style || {})}}
+            >{badgeContent}</span>
+        </span>
+}
+
+function Grid(props:{
+    container?:boolean,
+    spacing?:number,
+    component?:'span'|'label'
+    item?:boolean,
+    wrap?:'wrap'|'nowrap',
+    direction?:'row'|'column'
+    alignItems?:'stretch' | 'flex-start' | 'flex-end' | 'center' | 'baseline',
+    children:any,
+    xs?:number,
+    sm?:number,
+}&CommonAttributes){
+    var {container, item, wrap, direction, alignItems, children, className, xs, sm, spacing, ...other} = props;
+    return <div
+    {...other}
+    className={`${className||''} ${xs!=null?'grid-xs-'+xs:''} ${sm!=null?'grid-sm-'+sm:''}`}
+    style={container?{
+        display:'flex',
+        flexWrap:wrap,
+        flexDirection:direction,
+        alignItems:alignItems,
+        margin:spacing!=null?spacing*8+'px':undefined
+    }:{
+    }}
+>{children}</div>
+}
+const AppBar = (props:{
+        children:any,
+        color?:'dark' | 'light',
+        backgroundColor?:BootstrapColors,
+        position?:'sticky'|'fixed',
+        shift?:number,
+        shiftCondition?:boolean
+    }&CommonAttributes)=>{
+    const {id, className, position, shift, shiftCondition, children, ...other} = props;
+    var {backgroundColor, color} = props;
+    backgroundColor = backgroundColor || 'primary';
+    color = color || 'dark';
+    return <nav 
+        {...other}
+        id={id}
+        className={`${className||''} navbar-expand-lg navbar ${position?position+"-top":""} navbar-${color} ${props.style?.backgroundColor?'':'bg-'+backgroundColor}`}
+        style={{ ...{
+            zIndex:1300,
+            height:"70px",
+            width: shift && shiftCondition?`calc(100% - ${shift}px)`:'100%',
+            marginLeft: shift && shiftCondition?`${shift}px`:'0',
+            transition: '0.4s',
+            justifyContent: 'unset',
+            flexWrap:'unset',
+        },...(props.style || {})}}
+    >
+        <div className="container-fluid">
+            {children}
+        </div>
+    </nav>
+}
+const AppBarGroup = (props:{children:any})=>
+    <span className={"navbar-nav"} style={{flexWrap:'unset', alignItems:'center', flexDirection:'row'}}>
+        {React.Children.map(props.children, child => (
+            <span className="nav-item">
+                <span className="nav-link active">
+                    {child}
+                </span>
+            </span>
+        ))}
+    </span>
+
+const Drawer = (props:{children:any, initialWidth?:number, openedWidth?:number, open:boolean}&CommonAttributes)=>{
+    const {id, className, open, initialWidth, openedWidth, children, ...other} = props;
+    return <div style={{ ...{
+        width: open?openedWidth:initialWidth}
+    }}>
+        <div 
+            {...other}
+            id={id}
+            className={`${className||''} sidebar`}
+            style={{ ...{
+                height: '100%',
+                width: open?openedWidth:initialWidth,
+                position: 'fixed',
+                zIndex: 1,
+                top: 0,
+                left: 0,
+                backgroundColor: '#ffffff',
+                overflowX: 'hidden',
+                transition: '0.4s',
+                whiteSpace: 'nowrap',
+                border: "1px solid #ddd",
+            },...(props.style || {})}}
+        >
+            {children}
+        </div>
+    </div>
+}
+
+const SearchInput = (props:{value:string, onChange?:(event:any)=>void, onReset?:()=>void,}&CommonAttributes)=>{
+    const {id, className, value, onChange, onReset, ...other} = props;
+    return <span className="input-group">
+        <span 
+            className="input-group-append bg-white border-right-0 rounded-left"
+        >
+            <span 
+                className="input-group-text bg-transparent rounded-left"
+                style={{padding:"6px"}}
+            >
+                <SearchIcon />
+            </span>
+        </span>
+        <input
+            {...other}
+            id={id}
+            value={value}
+            className={`${className||''} form-control border-right-0 border-left-0`}
+            placeholder="Buscar..."
+            type="search"
+            aria-label="Search"
+            onChange={onChange}
+            style={{ ...{
+                
+            },...(props.style || {})}}
+        />
+        {value && onReset?
+            <span 
+                onClick={onReset}
+                className="input-group-append bg-white border-left-0 rounded-right">
+                <span className="input-group-text bg-default rounded-right">
+                    <ClearIcon />
+                </span>
+            </span>
+        :null}
+    </span>
+}
+
+const Dialog = (props:{
+    open:boolean,
+    onClose?:()=>void,
+    children:any,
+}&CommonAttributes)=>{
+    return props.open?React.createElement(OpenedDialog,props,props.children):null
+}
+const OpenedDialog = (props:{
+    //open:boolean,
+    onClose?:()=>void,
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, /*open,*/ onClose, ...other} = props;
+    useLockBodyScroll();
+    //useEffect(() => {
+    //    document.body.style.overflow=open?'hidden':'unset'
+    //});
+    return ReactDOM.createPortal(
+            <div 
+                onClick={props.onClose}
+                style={{
+                    width:'100%',
+                    height:'100%',
+                    zIndex: 99998,
+                    position: 'fixed',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    top: 0,
+                    left: 0,
+            }}>
+                <div
+                    onClick={(event)=>event.stopPropagation()}
+                    className="modal-dialog"
+                    role="document"
+                    style={{ ...{
+                        zIndex: 99999,
+                    },...(style || {})}}
+                >
+                    <div className="modal-content">
+                        {props.children}
+                    </div>
+                </div>
+            </div>,
+            document.body
+        )
+}
+const DialogTitle = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <div id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''} modal-header`}
+        >
+            <h5 className="modal-title">{children}</h5>
+    </div>
+}
+
+const DialogContent = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <div id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''} modal-body`}
+        >
+            {children}
+    </div>
+}
+const DialogContentText = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <p id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''}`}
+        >
+            {children}
+    </p>
+}
+const DialogActions = (props:{
+    children:any,
+}&CommonAttributes)=>{
+    const {id, className, style, children, ...other} = props;
+    return <div id={id}
+        style={{ ...{
+
+        },...(style || {})}}
+            className={`${className||''} modal-footer`}
+        >
+            {children}
+    </div>
+}
 // https://material-ui.com/components/material-icons/
 export const materialIoIconsSvgPath={
     Assignment: "M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z",
@@ -152,34 +900,20 @@ function focusToId(id:string, opts:FocusOpts, cb?:(e:HTMLElement)=>void){
         }else{
             element.focus();
             if(opts.moveToElement){
-                element.scrollIntoView();
-                window.scroll({behavior:'auto', top:window.scrollY-120, left:0})
+                let headerOffset = 120; //ajuste
+                let elementPosition = 0
+                while(element != null) {
+                    elementPosition += element.offsetTop;
+                    element = element.offsetParent as HTMLElement|null;
+                }
+                window.scrollTo({
+                    top: elementPosition - headerOffset,
+                    behavior: opts.behavior||'auto'
+                });
             }
         }
     }
 }
-const useStylesTextField = makeStyles((_theme: Theme) =>
-    createStyles({
-        input: {
-            '&::placeholder': {
-                color: PRIMARY_COLOR,
-            },
-            fontSize: "1.3rem",
-            lineHeight: 1.43,
-            color:(props:{color:string}) => props.color,
-        },
-        underline: {
-            "&:after": {
-                borderBottomColor: (props:{borderBottomColor:string}) => props.borderBottomColor,
-            }
-        },
-        error: {
-            "&$error:after": {
-                borderBottomColor: (props:{borderBottomColorError:string}) => props.borderBottomColorError,
-            },
-        }
-    }),
-);
 
 function TypedInput<T extends string|number|null>(props:{
     autoFocus:boolean,
@@ -196,6 +930,7 @@ function TypedInput<T extends string|number|null>(props:{
     opciones?:string[]|null
     onFocus?:()=>void
     disabled?:boolean,
+    readOnly?:boolean,
     placeholder?:string,
     simplificateText: boolean,
     textTransform?:'lowercase'|'uppercase',
@@ -225,11 +960,6 @@ function TypedInput<T extends string|number|null>(props:{
         // @ts-ignore sé que T es string
         return valueT;
     }
-    const classes = useStylesTextField({
-        borderBottomColor: props.borderBottomColor,
-        borderBottomColorError: props.borderBottomColorError,
-        color: props.color
-    });
     useEffect(() => {
         var typedInputElement = document.getElementById(inputId)
         if(valueT(value) != props.value && typedInputElement && typedInputElement === document.activeElement){
@@ -253,9 +983,7 @@ function TypedInput<T extends string|number|null>(props:{
     const onBlurFun = function <TE extends React.FocusEvent<HTMLInputElement>>(event:TE){
         /* CANDIDATO */ 
         // var customValue = event.target.value
-        var customValue = event.target.value.trim();
-        customValue = props.textTransform?props.textTransform=='uppercase'?customValue.toUpperCase():customValue.toLowerCase():customValue;
-        customValue = props.simplificateText?simplificateText(customValue):customValue;
+        var customValue = parseString(event.target.value.trim(),props.textTransform,props.simplificateText);
         setValue(customValue);
         var value = valueT(customValue);
         if(value!==props.value){
@@ -275,69 +1003,37 @@ function TypedInput<T extends string|number|null>(props:{
                 event.target.blur();
             }
             if(props.idProximo!=null){
-                focusToId(props.idProximo,{moveToElement:false})
+                var moveToElement = props.idProximo.split('-').length == 2;
+                focusToId(props.idProximo,{
+                    moveToElement,
+                    behavior: 'smooth'
+                })
             }
             props.onFocus?props.onFocus():null;
             event.preventDefault();
         }
     }
-    const onClickFun = function<TE extends React.MouseEvent>(event:TE){
-        var element = event.target;
-        //MEJORAR, puede ser div tambien
-        if(element instanceof HTMLTextAreaElement){
-            var selection = element.value.length||0;
-            element.selectionStart = selection;
-            element.selectionEnd = selection;
-        }
-    }
-    var readOnly = false;
-    if(props.dataType=='text'){
-        var input = <TextField
-            autoFocus={props.autoFocus}
-            multiline
-            rowsMax="4"
-            placeholder={props.placeholder}
-            spellCheck={false}
-            autoCapitalize="off"
-            autoComplete="off"
-            autoCorrect="off"
-            id={inputId}
-            value={value}
-            type={props.dataType} 
-            onClick={(event)=>onClickFun(
-                event
-            )}
-            onChange={onChangeFun}
-            onFocus={(_event)=>{
-                props.onFocus?props.onFocus():null;
-            }}
-            onBlur={onBlurFun}
-            onKeyDown={onKeyDownFun}
-            disabled={props.disabled?props.disabled:false}
-            error={props.hasError}
-            InputProps={{ classes: classes, readOnly: readOnly}}
-        />
-        return input;
-    }else{
-        var input = <TextField
-            autoFocus={props.autoFocus}
-            spellCheck={false}
-            placeholder={props.placeholder}
-            id={inputId}
-            value={value}
-            type={props.dataType} 
-            onBlur={onBlurFun}
-            onKeyDown={onKeyDownFun}
-            onChange={onChangeFun}
-            onFocus={(_event)=>{
-                props.onFocus?props.onFocus():null;
-            }}
-            disabled={props.disabled?props.disabled:false}
-            error={props.hasError}
-            InputProps={{ classes: classes, readOnly: readOnly}}
-        />
-        return input;
-    }
+
+    return <TextField
+        autoFocus={props.autoFocus}
+        placeholder={props.placeholder}
+        id={inputId}
+        value={value}
+        type={props.dataType} 
+        onBlur={onBlurFun}
+        onKeyDown={onKeyDownFun}
+        onChange={onChangeFun}
+        onFocus={(_event)=>{
+            props.onFocus?props.onFocus():null;
+        }}
+        fullWidth={true}
+        disabled={props.disabled?props.disabled:false}
+        readOnly={props.readOnly?props.readOnly:false}
+        hasError={props.hasError}
+        borderBottomColor={props.borderBottomColor}
+        borderBottomColorError={props.borderBottomColorError}
+        color={props.color}
+    />
 }
 
 function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes, inputId:string, onCancel:()=>void, onUpdate:(valor:string)=>void}){
@@ -351,6 +1047,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
         <DialogContent>
             <TextField
                 autoFocus
+                hasError={false}
                 value={valor}
                 type={props.dataType}
                 onChange={(event)=>{
@@ -362,7 +1059,7 @@ function DialogoSimple(props:{titulo?:string, valor:string, dataType:InputTypes,
         <DialogActions>
             <Button onClick={()=>{
                 props.onCancel()
-            }} color="secondary" variant="text">
+            }} color="danger" variant="text">
                 cancelar
             </Button>
             <Button onClick={()=>{
@@ -402,34 +1099,25 @@ function EditableTd<T extends string|number|null>(props:{
     const borderBottomColor = props.borderBottomColor || PRIMARY_COLOR;
     const borderBottomColorError = props.borderBottomColorError || DEFAULT_ERROR_COLOR;
     const color = props.color || '#000000';
-    const classesBadge = useStylesBadge({backgroundColor: props.hasError?borderBottomColorError:null});
     var stringValue:string = props.value == null ? '' : props.value.toString();
     return <>
-        <Badge 
-            badgeContent="!" 
-            anchorOrigin={{vertical: 'bottom',horizontal: 'right'}} 
-            style={{width:"100%"}} 
-            classes={{ 
-                // @ts-ignore TODO: mejorar tipos STYLE #48
-                badge: classesBadge.badge 
+        <div  
+            className={`${props.className}`} 
+            ref={mostrarMenu} 
+            onClick={(_event)=>{
+                if(!props.disabled){
+                    setEditando(true);
+                    props.onFocus?props.onFocus():null;
+                }
             }}
-            className={
-                // @ts-ignore TODO: mejorar tipos STYLE #48
-                classesBadge.margin
-            }
+            puede-editar={!props.disabled && !editando?"yes":"no"}
         >
-            <div  
-                className={props.className} 
-                ref={mostrarMenu} 
-                onClick={(_event)=>{
-                    if(!props.disabled){
-                        setEditando(true);
-                        props.onFocus?props.onFocus():null;
-                    }
-                }}
-                puede-editar={!props.disabled && !editando?"yes":"no"}
+            <Badge 
+                backgroundColor={borderBottomColorError}
+                anchorOrigin={{vertical:'top', horizontal:'right'}}
+                color="#ffffff"
+                badgeContent={props.hasError?"!":null}
             >
-            
                 <TypedInput
                     autoFocus={props.autoFocus||false}
                     hasError={props.hasError}
@@ -439,6 +1127,7 @@ function EditableTd<T extends string|number|null>(props:{
                     inputId={props.inputId}
                     value={props.value}
                     disabled={props.disabled}
+                    readOnly={editaEnLista}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
                     simplificateText={!!props.simplificateText}
@@ -450,26 +1139,25 @@ function EditableTd<T extends string|number|null>(props:{
                     opciones={props.opciones}
                     placeholder={props.placeholder}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
-                />
-            </div>
-        </Badge>
+                />            
+            </Badge>
+        </div>
         {editaEnLista && editando?
             <Menu id="simple-menu"
                 open={editando && mostrarMenu.current !== undefined}
-                transformOrigin={{ vertical: "top", horizontal: "center" }}
                 anchorEl={mostrarMenu.current}
                 onClose={()=> {
                     setEditando(false);
                 }}
             >
-                <MenuItem key='***** title' disabled={true} style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>
-                    <ListItemText style={{color:'black', fontSize:'50%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
+                <MenuItem key='***** title' disabled={true}>
+                    <ListItemText style={{color:'black', fontSize:'80%', fontWeight:'bold'}}>{props.titulo}</ListItemText>
                 </MenuItem>
                 {props.value && (props.opciones||[]).indexOf(stringValue)==-1?
-                    <MenuItem key='*****current value******' value={stringValue}
+                    <MenuItem key='*****current value******'
                         onClick={()=>{
                             setEditando(false);
-                            props.onUpdate(props.value);
+                            props.onUpdate(parseString(props.value as string,"uppercase",true) as T);
                         }}
                     >
                         <ListItemText style={{color:'blue'}}>{props.value}</ListItemText>
@@ -477,11 +1165,11 @@ function EditableTd<T extends string|number|null>(props:{
                 :null}
                 <Divider />
                 {(props.opciones||[]).map(label=>(
-                    <MenuItem key={label} value={label}
+                    <MenuItem key={label}
                         onClick={()=>{
                             setEditando(false);
                             // @ts-ignore TODO: mejorar los componentes tipados #49
-                            props.onUpdate(label);
+                            props.onUpdate(parseString(label,"uppercase",true));
                         }}
                     >
                         <ListItemText style={label == stringValue?{color:'blue'}:{}}>{label}</ListItemText>                    
@@ -491,6 +1179,7 @@ function EditableTd<T extends string|number|null>(props:{
                 {props.tipoOpciones=='A'?
                     <MenuItem key='*****other value******' 
                         onClick={()=>{
+                            setEditando(false);
                             setEditandoOtro(true)
                         }}
                     >
@@ -511,7 +1200,7 @@ function EditableTd<T extends string|number|null>(props:{
                 onUpdate={(value)=>{
                     setEditandoOtro(false);
                     // @ts-ignore TODO: mejorar los componentes tipados #49
-                    props.onUpdate(value || null);
+                    props.onUpdate(value?parseString(value,"uppercase",true):null);
                 }}
             />
         :null}
@@ -537,8 +1226,7 @@ const AtributosRow = function(props:{
     const dispatch = useDispatch();
     const atributo = estructura.atributos[relAtr.atributo];
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
-    const [menuCambioAtributos, setMenuCambioAtributos] = useState<HTMLElement|null>(null);
-    const classes = useStylesList();
+    const [menuCambioAtributos, setMenuCambioAtributos] = useState<Element|null>(null);
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
@@ -548,7 +1236,7 @@ const AtributosRow = function(props:{
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
                     {props.razonPositiva?(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ () => {
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ () => {
                                 props.onSelection();
                                 dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                                     forPk:relAtr, 
@@ -559,14 +1247,14 @@ const AtributosRow = function(props:{
                                 {FLECHAATRIBUTOS}
                             </Button>
                         :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
                                 props.onSelection();
                                 setMenuCambioAtributos(event.currentTarget)                            
                             }}>
                                 C
                             </Button>
                         :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" onClick={ (event) => {
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
                                 props.onSelection();
                                 setMenuCambioAtributos(event.currentTarget)                            
                             }}>
@@ -617,7 +1305,7 @@ const AtributosRow = function(props:{
                             }))
                             setMenuCambioAtributos(null)
                         }}>
-                            <ListItemText style={{color:PRIMARY_COLOR}}  classes={{primary: classes.listItemText}}>
+                            <ListItemText style={{color:PRIMARY_COLOR}}>
                                 Copiar el resto de los atributos vacíos
                             </ListItemText>
                         </MenuItem>
@@ -628,7 +1316,7 @@ const AtributosRow = function(props:{
                             }))
                             setMenuCambioAtributos(null)
                         }}>
-                            <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
+                            <ListItemText style={{color:SECONDARY_COLOR}}>
                                 Anular el cambio pisando los valores distintos
                             </ListItemText>
                         </MenuItem>
@@ -641,7 +1329,7 @@ const AtributosRow = function(props:{
                     }))
                     setMenuCambioAtributos(null)
                 }}>
-                    <ListItemText style={{color:SECONDARY_COLOR}} classes={{primary: classes.listItemText}}>
+                    <ListItemText style={{color:SECONDARY_COLOR}}>
                         Blanquear atributos
                     </ListItemText>
                 </MenuItem>
@@ -649,14 +1337,6 @@ const AtributosRow = function(props:{
         </>
     )
 };
-
-const useStylesList = makeStyles((_theme: Theme) =>
-    createStyles({
-        listItemText:{
-            fontSize:'1.2rem',
-        }
-    }),
-);
 
 function strNumber(num:number|null):string{
     var str = num==null ? "" : num.toString();
@@ -681,6 +1361,160 @@ var FakeButton = (props:{children:React.ReactChild}) =>
         {props.children}
     </div>
 
+var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, razonPositiva:boolean, onSelection:()=>void})=> {
+    const {inputIdPrecio, relPre, razonPositiva, iRelPre} = props;
+    const dispatch = useDispatch();
+    const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
+    const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
+    return <>
+        <Button disabled={!razonPositiva} color="primary" variant="outline" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
+            props.onSelection();
+            setDialogoObservaciones(true)
+        }}>
+            {relPre.comentariosrelpre||'obs'}
+        </Button>
+        <Dialog
+            open={dialogoObservaciones}
+            onClose={()=>{
+                setDialogoObservaciones(false)
+                setObservacionAConfirmar(relPre.comentariosrelpre);
+            }}
+        >
+            <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description-obs">
+                    <EditableTd
+                        autoFocus={true}
+                        hasError={false}
+                        inputId={inputIdPrecio+"_comentarios"}
+                        disabled={false}
+                        placeholder={"agregar observaciones"}
+                        className="observaciones"
+                        value={observacionAConfirmar}
+                        onUpdate={value=>{
+                            setObservacionAConfirmar(value);
+                        }} 
+                        dataType="text"
+                    />
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={()=>{
+                    setObservacionAConfirmar(relPre.comentariosrelpre)
+                    setDialogoObservaciones(false)
+                }} color="danger" variant="outline">
+                    Descartar cambio
+                </Button>
+                <Button onClick={()=>{
+                    dispatch(dispatchers.SET_COMENTARIO_PRECIO({
+                        forPk:relPre, 
+                        iRelPre: iRelPre,
+                        comentario:observacionAConfirmar,
+                    }));
+                    setDialogoObservaciones(false)
+                }} color="primary" variant="contained">
+                    Guardar
+                </Button>
+            </DialogActions>
+        </Dialog>
+    </>
+}
+
+var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, razonPositiva:boolean, onSelection:()=>void})=> {
+    const {inputIdPrecio, relPre, razonPositiva, iRelPre} = props;
+    const [menuTipoPrecio, setMenuTipoPrecio] = useState<Element|null>(null);
+    const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
+    const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
+    var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
+    const dispatch = useDispatch();
+    return <>
+        <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
+            {relPre.repregunta?
+                <RepreguntaIcon/>
+            :((puedeCopiarTipoPrecio(estructura, relPre))?
+                <Button disabled={!razonPositiva} color="danger" variant="outline" onClick={ () => {
+                    props.onSelection();
+                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
+                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
+                        setMenuConfirmarBorradoPrecio(true)
+                    }else{
+                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:iRelPre}));
+                    }
+                }}>
+                    {FLECHATIPOPRECIO}
+                </Button>
+                :'')
+            }
+        </div>
+        <div className="tipo-precio" button-container="yes">
+            <Button disabled={!razonPositiva} color={esNegativo?"danger":"primary"} variant="outline" onClick={event=>{
+                props.onSelection();
+                setMenuTipoPrecio(event.currentTarget)
+            }}>
+                {razonPositiva && relPre.tipoprecio || "\u00a0"}
+            </Button>
+        </div>
+        <Menu id="simple-menu"
+            open={Boolean(menuTipoPrecio)}
+            anchorEl={menuTipoPrecio}
+            onClose={()=>setMenuTipoPrecio(null)}
+        >
+            {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
+                var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
+                return (
+                <MenuItem key={tpDef.tipoprecio} onClick={()=>{
+                    setMenuTipoPrecio(null);
+                    if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
+                        setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
+                        setMenuConfirmarBorradoPrecio(true)
+                    }else{
+                        dispatch(dispatchers.SET_TP({
+                            forPk:relPre, 
+                            iRelPre:props.iRelPre,
+                            tipoprecio:tpDef.tipoprecio
+                        }))
+                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
+                    }
+                }}>
+                    <ListItemText style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
+                    <ListItemText style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
+                </MenuItem>
+                )
+            })}
+        </Menu>
+        <Dialog
+            open={menuConfirmarBorradoPrecio}
+            onClose={()=>setMenuConfirmarBorradoPrecio(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
+            <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description-tpn">
+                    Se borrará el precio y los atributos
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={()=>{
+                    setMenuConfirmarBorradoPrecio(false)
+                }} color="primary" variant="outline">
+                    No borrar
+                </Button>
+                <Button onClick={()=>{
+                    dispatch(dispatchers.SET_TP({
+                        forPk:relPre, 
+                        iRelPre: props.iRelPre,
+                        tipoprecio:tipoDePrecioNegativoAConfirmar
+                    }))
+                    setMenuConfirmarBorradoPrecio(false)
+                }} color="danger" variant="outline">
+                    Borrar precio y atributos
+                </Button>
+            </DialogActions>
+        </Dialog>
+    </>
+}
+
 var PreciosRow = React.memo(function PreciosRow(props:{
     style:Styles,
     relPre:RelPre, iRelPre:number,
@@ -699,16 +1533,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const dispatch = useDispatch();
     const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
     const productoDef:Producto = estructura.productos[relPre.producto];
-    const [menuTipoPrecio, setMenuTipoPrecio] = useState<HTMLElement|null>(null);
-    const [menuConfirmarBorradoPrecio, setMenuConfirmarBorradoPrecio] = useState<boolean>(false);
-    const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
-    const [tipoDePrecioNegativoAConfirmar, setTipoDePrecioNegativoAConfirmar] = useState<string|null>(null);
-    const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
-    var esNegativo = relPre.tipoprecio && !estructura.tipoPrecio[relPre.tipoprecio].espositivo;
-    const classes = useStylesList();
-    const classesBadgeCantidadMeses = useStylesBadge({backgroundColor:'#dddddd', color: "#000000"});
-    const classesBadgeProdDestacado = useStylesBadge({backgroundColor:'#b8dbed', color: "#000000", top: 10, right:10, zIndex:-1});
-    const classesBadgeComentariosAnalista = useStylesBadge({backgroundColor:COLOR_ADVERTENCIAS, top: 10, zIndex:-1});
+    const cantidadMesesBadgeStyles = {backgroundColor:'#dddddd', color: "#000000"};
+    const prodDestacadoBadgeStyle = {backgroundColor:'#b8dbed', color: "#000000"};
+    const comentariosAnalistaBadgeStyles = {backgroundColor:COLOR_ADVERTENCIAS};
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const chipColor = (relPre.tipoprecioanterior && estructura.tipoPrecio[relPre.tipoprecioanterior].espositivo?
@@ -727,14 +1554,13 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const chipTextColor = chipColor=='#FFFFFF'?'#000000':'#FFFFFF';
     const badgeCondition = !relPre.precioanterior && relPre.ultimoprecioinformado;
     var compactar = props.compactar;
-    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null){
+    var handleSelection = function handleSelection(relPre:RelPre, hasSearchString:boolean, allForms:boolean, inputId: string | null, compactar:boolean, inputIdPrecio:string){
         if(hasSearchString || allForms || compactar){
             dispatch(dispatchers.SET_QUE_VER({queVer: 'todos', informante: relPre.informante, formulario: relPre.formulario, allForms: false, searchString:'', compactar:false}));
             dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relPre.informante, formulario:relPre.formulario}));
             dispatch(dispatchers.SET_FOCUS({nextId:inputId || inputIdPrecio}))
         }
     }
-
     return (
         <div style={props.style} className="caja-relpre" es-positivo={relPre.tipoprecio == null ? (relPre.cambio=='C'?'si':'maso'):(estructura.tipoPrecio[relPre.tipoprecio].espositivo?'si':'no')}>
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
@@ -743,34 +1569,24 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 {!compactar?
                     <>
                         <div className="especificacion">
-                            <ConditionalWrapper
-                                condition={(productoDef.destacado)}
-                                wrapper={children => 
-                                    <Badge style={{width:"100%"}} badgeContent=" "
-                                        classes={{ 
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            badge: classesBadgeProdDestacado.badge 
-                                        }} className={
-                                            // @ts-ignore TODO: mejorar tipos STYLE #48
-                                            classesBadgeProdDestacado.margin
-                                        }>{children}
-                                    </Badge>
-                                }
+                            <Badge
+                                badgeContent={productoDef.destacado?"":null}
+                                color={prodDestacadoBadgeStyle.color}
+                                backgroundColor={prodDestacadoBadgeStyle.backgroundColor}
+                                style={{top: 0, right:0, zIndex:-1}}
                             >
                                 <span>{productoDef.especificacioncompleta}</span>
-                            </ConditionalWrapper>
+                            </Badge>
                         </div>
                         {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
                             <div className="comentario-analista">
-                                <Badge badgeContent=" " variant="dot"
-                                    classes={{ 
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        badge: classesBadgeComentariosAnalista.badge 
-                                    }} 
-                                    className={
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        classesBadgeComentariosAnalista.margin
-                                    }>
+                                <Badge
+                                    badgeContent=""
+                                    fullWidth={false}
+                                    style={{top: 6, right: -10, zIndex:-1}}
+                                    variant="dot"
+                                    backgroundColor={comentariosAnalistaBadgeStyles.backgroundColor}
+                                >
                                     <span>{relPre.comentariosrelpre_1}</span>
                                 </Badge>
                             </div>
@@ -783,179 +1599,45 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 <div className="encabezado">
                     <div className="observaciones" button-container="yes">
                         {render4scroll?
-                        <FakeButton>
-                            {relPre.comentariosrelpre||'obs'}
-                        </FakeButton>
-                        :<>
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outlined" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
-                                handleSelection(relPre, hasSearchString, allForms, null);
-                                setDialogoObservaciones(true)
-                            }}>
+                            <FakeButton>
                                 {relPre.comentariosrelpre||'obs'}
-                            </Button>
-                            <Dialog
-                                open={dialogoObservaciones}
-                                onClose={()=>{
-                                    setDialogoObservaciones(false)
-                                    setObservacionAConfirmar(relPre.comentariosrelpre);
-                                }}
-                                aria-labelledby="alert-dialog-title"
-                                aria-describedby="alert-dialog-description"
-                            >
-                                <DialogTitle id="alert-dialog-title-obs">{"Observaciones del precio"}</DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText id="alert-dialog-description-obs">
-                                        <EditableTd
-                                            autoFocus={true}
-                                            hasError={false}
-                                            inputId={inputIdPrecio+"_comentarios"}
-                                            disabled={false}
-                                            placeholder={"agregar observaciones"}
-                                            className="observaciones"
-                                            value={observacionAConfirmar}
-                                            onUpdate={value=>{
-                                                setObservacionAConfirmar(value);
-                                            }} 
-                                            dataType="text"
-                                        />
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={()=>{
-                                        dispatch(dispatchers.SET_COMENTARIO_PRECIO({
-                                            forPk:relPre, 
-                                            iRelPre: props.iRelPre,
-                                            comentario:observacionAConfirmar,
-                                        }));
-                                        setDialogoObservaciones(false)
-                                    }} color="primary" variant="outlined">
-                                        Guardar
-                                    </Button>
-                                    <Button onClick={()=>{
-                                        setObservacionAConfirmar(relPre.comentariosrelpre)
-                                        setDialogoObservaciones(false)
-                                    }} color="secondary" variant="outlined">
-                                        Descartar cambio
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
-                        </>}
+                            </FakeButton>
+                        :
+                            <ObsPrecio 
+                                inputIdPrecio={inputIdPrecio}
+                                relPre={relPre} 
+                                iRelPre={props.iRelPre}
+                                razonPositiva={props.razonPositiva}
+                                onSelection={()=>handleSelection(relPre, hasSearchString, allForms, null, compactar, inputIdPrecio)}
+                            />
+                        }
                     </div>
                     <div className="tipo-precio-anterior">{relPre.tipoprecioanterior}</div>
                     <div className="precio-anterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
                         {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
                         :
-                        <ConditionalWrapper
-                            condition={!!badgeCondition}
-                            wrapper={children => 
-                                <Badge style={{width:"calc(100% - 5px)", display:'unset'}} badgeContent={relPre.cantidadperiodossinprecio} 
-                                    classes={{ 
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        badge: classesBadgeCantidadMeses.badge 
-                                    }} 
-                                    className={
-                                        // @ts-ignore TODO: mejorar tipos STYLE #48
-                                        classesBadgeCantidadMeses.margin
-                                    }
-                                >
-                                    {children}
-                                </Badge>
-                            }
+                        <Badge 
+                            backgroundColor={cantidadMesesBadgeStyles.backgroundColor}
+                            color={cantidadMesesBadgeStyles.color}
+                            badgeContent={relPre.cantidadperiodossinprecio?relPre.cantidadperiodossinprecio.toString():null}
                         >
                             {chipColor?
-                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem"}} label={precioAnteriorAMostrar || "-"}></Chip>
+                                <Chip style={{backgroundColor:chipColor, color:chipTextColor, width:"100%", fontSize: "1rem", minHeight:25}} label={precioAnteriorAMostrar || "-"}/>
                             :
                                 <span>{precioAnteriorAMostrar}</span>
                             }
-                        </ConditionalWrapper>
+                        </Badge>
                         }
                     </div>
                     {!render4scroll?<>
-                        <div className="flechaTP" button-container="yes" es-repregunta={relPre.repregunta?"yes":"no"}>
-                            {relPre.repregunta?
-                                <RepreguntaIcon/>
-                            :((puedeCopiarTipoPrecio(estructura, relPre))?
-                                <Button disabled={!props.razonPositiva} color="secondary" variant="outlined" onClick={ () => {
-                                    handleSelection(relPre, hasSearchString, allForms, null);
-                                    if(tpNecesitaConfirmacion(estructura, relPre,relPre.tipoprecioanterior!)){
-                                        setTipoDePrecioNegativoAConfirmar(relPre.tipoprecioanterior);
-                                        setMenuConfirmarBorradoPrecio(true)
-                                    }else{
-                                        dispatch(dispatchers.COPIAR_TP({forPk:relPre, iRelPre:props.iRelPre}));
-                                    }
-                                }}>
-                                    {FLECHATIPOPRECIO}
-                                </Button>
-                                :'')
-                            }
-                        </div>
-                        <div className="tipo-precio" button-container="yes">
-                            <Button disabled={!props.razonPositiva} color={esNegativo?"secondary":"primary"} variant="outlined" onClick={event=>{
-                                handleSelection(relPre, hasSearchString, allForms, null);
-                                setMenuTipoPrecio(event.currentTarget)
-                            }}>
-                                {props.razonPositiva && relPre.tipoprecio || "\u00a0"}
-                            </Button>
-                        </div>
-                        <Menu id="simple-menu"
-                            open={Boolean(menuTipoPrecio)}
-                            anchorEl={menuTipoPrecio}
-                            onClose={()=>setMenuTipoPrecio(null)}
-                        >
-                            {estructura.tiposPrecioDef.filter(tpDef=>tpDef.visibleparaencuestador).map(tpDef=>{
-                                var color=estructura.tipoPrecio[tpDef.tipoprecio].espositivo?PRIMARY_COLOR:SECONDARY_COLOR;
-                                return (
-                                <MenuItem key={tpDef.tipoprecio} onClick={()=>{
-                                    setMenuTipoPrecio(null);
-                                    if(tpNecesitaConfirmacion(estructura, relPre,tpDef.tipoprecio)){
-                                        setTipoDePrecioNegativoAConfirmar(tpDef.tipoprecio);
-                                        setMenuConfirmarBorradoPrecio(true)
-                                    }else{
-                                        dispatch(dispatchers.SET_TP({
-                                            forPk:relPre, 
-                                            iRelPre:props.iRelPre,
-                                            tipoprecio:tpDef.tipoprecio
-                                        }))
-                                        dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio && estructura.tipoPrecio[tpDef.tipoprecio].espositivo?inputIdPrecio:false}))
-                                    }
-                                }}>
-                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>{tpDef.tipoprecio}&nbsp;</ListItemText>
-                                    <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{tpDef.nombretipoprecio}</ListItemText>
-                                </MenuItem>
-                                )
-                            })}
-                        </Menu>
-                        <Dialog
-                            open={menuConfirmarBorradoPrecio}
-                            onClose={()=>setMenuConfirmarBorradoPrecio(false)}
-                            aria-labelledby="alert-dialog-title"
-                            aria-describedby="alert-dialog-description"
-                        >
-                            <DialogTitle id="alert-dialog-title-tpm">{"Eligió un tipo de precio negativo pero había precios o atributos cargados"}</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText id="alert-dialog-description-tpn">
-                                    Se borrará el precio y los atributos
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={()=>{
-                                    setMenuConfirmarBorradoPrecio(false)
-                                }} color="primary" variant="outlined">
-                                    No borrar
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_TP({
-                                        forPk:relPre, 
-                                        iRelPre: props.iRelPre,
-                                        tipoprecio:tipoDePrecioNegativoAConfirmar
-                                    }))
-                                    setMenuConfirmarBorradoPrecio(false)
-                                }} color="secondary" variant="outlined">
-                                    Borrar precio y atributos
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
+                        <TipoPrecio
+                            inputIdPrecio={inputIdPrecio}
+                            relPre={relPre} 
+                            iRelPre={props.iRelPre}
+                            razonPositiva={props.razonPositiva}
+                            onSelection={()=>handleSelection(relPre, hasSearchString, allForms, null, compactar, inputIdPrecio)}
+                        />
                         <EditableTd 
                             borderBottomColor={PRIMARY_COLOR}
                             borderBottomColorError={colorAdv}
@@ -981,7 +1663,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             }} 
                             dataType="number"
                             onFocus={()=>{
-                                handleSelection(relPre, hasSearchString, allForms, inputIdPrecio);
+                                handleSelection(relPre, hasSearchString, allForms, inputIdPrecio, compactar, inputIdPrecio);
                             }}
                         />
                     </>
@@ -1002,7 +1684,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                                 primerAtributo={index==0}
                                 cantidadAtributos={relPre.atributos.length}
                                 ultimoAtributo={index == relPre.atributos.length-1}
-                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms, inputIdAtributos[index])}
+                                onSelection={()=>handleSelection(relPre,hasSearchString,allForms, inputIdAtributos[index], compactar, inputIdPrecio)}
                                 razonPositiva={props.razonPositiva}
                             />
                         )
@@ -1075,7 +1757,7 @@ function VariableSizeList(props:{
                 width:'100%',
                 position:'absolute',
             },
-            isScrolling:heightSum-window.scrollY>1500 || top+height<window.scrollY
+            isScrolling:heightSum-window.scrollY>2000 || top+height<window.scrollY
         }
     });
     var [ultimoTop, setUltimoTop]=useState(-99999);
@@ -1110,24 +1792,24 @@ function RelevamientoPrecios(props:{
     razonPositiva:boolean,
     compactar: boolean,
 }){
-    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {queVer, searchString, allForms, idActual, observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     var cantidadResultados = observacionesFiltradasIdx.length;
     const getItemSize = (index:number) => {
         var iRelPre = observacionesFiltradasIdx[index].iRelPre;
         var relPre = props.observaciones[iRelPre];
         return props.compactar?
-            50 + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
+            (letraGrandeFormulario?75:60) + 25 * Math.floor(estructura.productos[relPre.producto].nombreproducto.length / 19)
         :
-            50+Math.max(
+        (letraGrandeFormulario?75:60)+Math.max(
                 relPre.atributos.reduce(
                     (acum,relAtr)=>Math.ceil((Math.max(
                         (relAtr.valoranterior||'').toString().length,
                         (relAtr.valor||'').toString().length,
                         (estructura.atributos[relAtr.atributo].nombreatributo?.length*8/16)
-                    )+1)/8)*40+acum,0
+                    )+1)/8)*(letraGrandeFormulario?60:45)+acum,0
                 ), 
-                estructura.productos[relPre.producto].especificacioncompleta?.length*1.5
+                estructura.productos[relPre.producto].especificacioncompleta?.length*(letraGrandeFormulario?2:1.5)
             );
     } 
        
@@ -1172,7 +1854,7 @@ function RelevamientoPrecios(props:{
         {
             observacionesFiltradasEnOtrosIdx.length>0?
                 <div className="zona-degrade">
-                    <Button className="boton-hay-mas" variant="outlined"
+                    <Button className="boton-hay-mas" color="secondary" variant="outline"
                         onClick={()=>{
                             dispatch(dispatchers.SET_QUE_VER({queVer, informante: props.relVis.informante, formulario: props.relVis.formulario, allForms: true, searchString, compactar: props.compactar}));
                         }}
@@ -1199,13 +1881,12 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     const relVis = props.relVis;
     const razones = estructura.razones;
     const {verRazon} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
-    const [menuRazon, setMenuRazon] = useState<HTMLElement|null>(null);
+    const [menuRazon, setMenuRazon] = useState<Element|null>(null);
     const [razonAConfirmar, setRazonAConfirmar] = useState<{razon:number|null}>({razon:null});
     const [menuConfirmarRazon, setMenuConfirmarRazon] = useState<boolean>(false);
     var cantObsConPrecio = props.relInf.observaciones.filter((relPre:RelPre)=>relPre.formulario == relVis.formulario && !!relPre.precio).length;
     const [confirmarCantObs, setConfirmarCantObs] = useState(null);
     const dispatch = useDispatch();
-    const classes = useStylesList();
     const onChangeFun = function <TE extends React.ChangeEvent>(event:TE){
         //@ts-ignore en este caso sabemos que etarget es un Element que tiene value.
         var valor = event.target.value;
@@ -1215,8 +1896,12 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
         verRazon?
         <div className="razon-formulario">
             <div>
-                <Button onClick={event=>setMenuRazon(event.currentTarget)} 
-                color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"secondary":"primary"} variant="outlined">
+                <Button 
+                    onClick={event=>setMenuRazon(event.currentTarget)} 
+                    color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} 
+                    variant="outline"
+                    style={{width:'90%', maxWidth:70}}
+                >
                     {relVis.razon}
                 </Button>
             </div>
@@ -1246,8 +1931,8 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                         }
                         setMenuRazon(null)
                     }}>
-                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
-                        <ListItemText classes={{primary: classes.listItemText}} style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
+                        <ListItemText style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
+                        <ListItemText style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>
                     </MenuItem>
                     )}
                 ).array()}
@@ -1269,6 +1954,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                             Confirme la acción ingresando la cantidad de precios que se van a borrar: 
                         </div>
                         <TextField
+                            hasError={false}
                             value={confirmarCantObs}
                             onChange={onChangeFun}
                         />
@@ -1277,13 +1963,13 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                 <DialogActions>
                     <Button onClick={()=>{
                         setMenuConfirmarRazon(false)
-                    }} color="primary" variant="outlined">
+                    }} color="primary" variant="outline">
                         No borrar
                     </Button>
                     <Button disabled={confirmarCantObs!=cantObsConPrecio} onClick={()=>{
                         dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:razonAConfirmar.razon}));
                         setMenuConfirmarRazon(false)
-                    }} color="secondary" variant="outlined">
+                    }} color="danger" variant="outline">
                         Proceder borrando
                     </Button>
                 </DialogActions>
@@ -1293,103 +1979,117 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
     );
 }
 
-const drawerWidth = 300;
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      display: 'flex',
-    },
-    appBar: {
-      zIndex: theme.zIndex.drawer + 1,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-    },
-    appBarShift: {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-    menuButton: {
-      marginRight: 36,
-    },
-    hide: {
-      display: 'none',
-    },
-    drawer: {
-      width: drawerWidth,
-      flexShrink: 0,
-      whiteSpace: (props:{open:boolean}) => props.open?'normal':'nowrap',
-    },
-    drawerOpen: {
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    },
-    drawerClose: {
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      overflowX: 'hidden',
-      width: theme.spacing(7) + 1,
-      [theme.breakpoints.up('sm')]: {
-        width: theme.spacing(9) + 1,
-      },
-    },
-    toolbar: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      padding: theme.spacing(0, 1),
-      ...theme.mixins.toolbar,
-    },
-    content: {
-      flexGrow: 1,
-    },
-    search: {
-      position: 'relative',
-      borderRadius: theme.shape.borderRadius,
-      backgroundColor: fade(theme.palette.common.white, 0.15),
-      '&:hover': {
-        backgroundColor: fade(theme.palette.common.white, 0.25),
-      },
-      marginLeft: 0,
-      width: '100%',
-      [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-      },
-    },
-    searchIcon: {
-      width: theme.spacing(7),
-      height: '100%',
-      position: 'absolute',
-      pointerEvents: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    inputRoot: {
-      color: 'inherit',
-    },
-    inputInput: {
-      padding: theme.spacing(1, 1, 1, 7),
-      transition: theme.transitions.create('width'),
-      width: 150,
-    }
-  }),
-);
+function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
+    const {queVer, searchString, compactar, allForms, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const dispatch = useDispatch();
+    const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
+    const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
+    const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
+    const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
+    const [open, setOpen] = React.useState<boolean>(false);
+    const handleDrawerOpen = () => {
+        setOpen(true);
+    };
+    const handleDrawerToggle = () => {
+        setOpen(!open);
+    };
+    const initialWidth = letraGrandeFormulario?80:70;
+    const openedWidth = letraGrandeFormulario?350:320;
+    const buttonGroupStyle = letraGrandeFormulario?{}:{height:38};
+    return <>
+        <AppBar
+            style={TOOLBAR_STYLE}
+            position="fixed"
+            shift={openedWidth}
+            shiftCondition={open}
+        >
+            <AppBarGroup>
+                {open?null:        
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={handleDrawerOpen}
+                    >
+                        <MenuIcon/>
+                    </IconButton>
+                }
+                <Typography variant="h6" style={{margin:'0px 10px'}}>
+                  {`inf ${props.relVisPk.informante}`}
+                </Typography>
+                <Grid item>
+                    <ButtonGroup style={buttonGroupStyle}>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
+                        }}>
+                            <ICON.FormatLineSpacing />
+                        </Button>
+                    </ButtonGroup>
+                    <ButtonGroup style={buttonGroupStyle}>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                        }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
+                            <ICON.CheckBoxOutlined />
+                        </Button>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                        }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
+                            <ICON.CheckBoxOutlineBlankOutlined />
+                        </Button>
+                        <Button onClick={()=>{
+                            dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
+                        }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
+                            <ICON.Warning />
+                        </Button>
+                    </ButtonGroup>
+                </Grid>
+                <SearchInput
+                    value={searchString}
+                    onChange={(event)=>{
+                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                        window.scroll({behavior:'auto', top:0, left:0})
+                    }}
+                    onReset={()=>{
+                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
+                        window.scroll({behavior:'auto', top:0, left:0})
+                    }}
+                />
+            </AppBarGroup>
+        </AppBar>
+        <Drawer
+            initialWidth={initialWidth}
+            openedWidth={openedWidth}
+            open={open}
+        >
+            <div style={{
+                display: "flex",
+                padding: "8px 8px",
+                justifyContent: "flex-end",
+            }}>
+                <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
+            </div>
+            <List>
+                <ListItem className="flecha-volver-hdr" onClick={()=>
+                    dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
+                }>
+                    <ListItemIcon><DescriptionIcon/></ListItemIcon>
+                    <ListItemText primary="Volver a hoja de ruta"/>
+                </ListItem>
+                {formularios.map((relVis:RelVis) => (
+                    <ListItem key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
+                        setOpen(false);
+                        dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+                    }}>
+                        <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
+                        <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
+                    </ListItem>
+                ))}
+            </List>
+        </Drawer>
+    </>
+}
 
 function FormularioVisita(props:{relVisPk: RelVisPk}){
-    const {queVer, searchString, compactar, /*posFormularios, */ allForms, idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
+    const {compactar, /*posFormularios, */ idActual} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     /*useEffect(() => {
         const pos = posFormularios.find((postision)=>postision.formulario==props.relVisPk.formulario);
         const prevScrollY = pos?pos.position:0;
@@ -1416,148 +2116,14 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
             focusToId(idActual, {moveToElement:true});
         }
     }, [idActual]);
-    const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
     const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
     const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
-    const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
-    const [open, setOpen] = React.useState<boolean>(false);
-    const classes = useStyles({open:open});
-    const handleDrawerOpen = () => {
-        setOpen(true);
-    };
-    const handleDrawerToggle = () => {
-        setOpen(!open);
-    };
-    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return (
         <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
-            <div className={classes.root}>
-                <AppBar
-                    position="fixed"
-                    className={clsx(classes.appBar, {
-                        [classes.appBarShift]: open,
-                    })}
-                >
-                    <Toolbar style={toolbarStyle}>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            onClick={handleDrawerOpen}
-                            edge="start"
-                            className={clsx(classes.menuButton, {
-                                [classes.hide]: open,
-                            })}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="subtitle1" noWrap>
-                            {`inf ${props.relVisPk.informante}`}
-                        </Typography>
-                        <Grid item>
-                            <ButtonGroup
-                                variant="contained"
-                                color="default"
-                                aria-label="large contained default button group"
-                                style={{margin:'0 5px'}}
-                            >
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_OPCION({variable:'compactar',valor:!compactar}))
-                                }}>
-                                    <ICON.FormatLineSpacing />
-                                </Button>
-                            </ButtonGroup>
-                            <ButtonGroup
-                                variant="contained"
-                                color="default"
-                                aria-label="large contained default button group"
-                            >
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'todos', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                                }} className={queVer=='todos'?'boton-seleccionado-todos':'boton-selecionable'}>
-                                    <ICON.CheckBoxOutlined />
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'pendientes', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                                }} className={queVer=='pendientes'?'boton-seleccionado-pendientes':'boton-selecionable'}>
-                                    <ICON.CheckBoxOutlineBlankOutlined />
-                                </Button>
-                                <Button onClick={()=>{
-                                    dispatch(dispatchers.SET_QUE_VER({queVer:'advertencias', informante: relVis.informante, formulario: relVis.formulario, allForms, searchString, compactar}));
-                                }} className={queVer=='advertencias'?'boton-seleccionado-advertencias':'boton-selecionable'}>
-                                    <ICON.Warning />
-                                </Button>
-                            </ButtonGroup>
-                        </Grid>
-                        <div className={classes.search}>
-                            <div className={classes.searchIcon}>
-                                <SearchIcon />
-                            </div>
-                            <InputBase 
-                                id="search" 
-                                placeholder="Buscar..." 
-                                value={searchString} 
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput,
-                                }}
-                                inputProps={{ 'aria-label': 'search' }}
-                                onChange={(event)=>{
-                                    dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:event.target.value, informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                                    window.scroll({behavior:'auto', top:0, left:0})
-                                }}
-                            />
-                            {searchString?
-                                <IconButton 
-                                    size="small" 
-                                    style={{color:'#ffffff'}} 
-                                    onClick={()=>{
-                                        dispatch(dispatchers.SET_QUE_VER({allForms, queVer, searchString:'', informante: relVis.informante, formulario:relVis.formulario, compactar}))
-                                        window.scroll({behavior:'auto', top:0, left:0})
-                                    }}
-                                >
-                                    <ClearIcon />
-                                </IconButton>
-                            :null}
-                        </div>
-                    </Toolbar>
-                </AppBar>
-                <Drawer
-                    variant="permanent"
-                    className={clsx(classes.drawer, {
-                        [classes.drawerOpen]: open,
-                        [classes.drawerClose]: !open,
-                    })}
-                    classes={{
-                        paper: clsx({
-                            [classes.drawerOpen]: open,
-                            [classes.drawerClose]: !open,
-                        }),
-                    }}
-                    open={open}
-                >
-                    <div className={classes.toolbar}>
-                        <IconButton onClick={handleDrawerToggle}><MenuIcon /></IconButton>
-                    </div>
-                    <List>
-                        <ListItem button className="flecha-volver-hdr" onClick={()=>
-                            dispatch(dispatchers.UNSET_FORMULARIO_ACTUAL({}))
-                        }>
-                            <ListItemIcon><DescriptionIcon/></ListItemIcon>
-                            <ListItemText primary="Volver a hoja de ruta" />
-                        </ListItem>
-                        {formularios.map((relVis:RelVis) => (
-                            <ListItem button key={relVis.formulario} selected={relVis.formulario==props.relVisPk.formulario && !allForms} onClick={()=>{
-                                setOpen(false);
-                                dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                            }}>
-                                <ListItemIcon>{numberElement(relVis.formulario)}</ListItemIcon>
-                                <ListItemText primary={estructura.formularios[relVis.formulario].nombreformulario} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Drawer>
-                <main className={classes.content}>
+            <div style={{display:'flex'}}>
+                <FormularioVisitaWrapper relVisPk={props.relVisPk} />
+                <main style={{flexGrow: 1}}>
                     <DetalleFiltroObservaciones></DetalleFiltroObservaciones>
                     <RazonFormulario relVis={relVis} relInf={relInf}/>
                     <RelevamientoPrecios 
@@ -1577,33 +2143,11 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
     );
 }
 
-const useStylesBadge = makeStyles((theme: Theme) =>
-  createStyles({
-    margin: {
-      margin: theme.spacing(0),
-    },
-    padding: {
-      padding: theme.spacing(0, 2),
-    },
-    // @ts-ignore TODO: mejorar tipos STYLE #48
-    badge: {
-      backgroundColor: (props:{backgroundColor:string}) => props.backgroundColor?props.backgroundColor:'unset',
-      color: (props:{color:string}) => props.color?props.color:'white',
-      top: (props:{top:number}) => props.top?props.top:0,
-      right: (props:{right:number}) => props.right?props.right:0,
-      zIndex: (props:{zIndex:number}) => props.zIndex?props.zIndex:0,
-    }
-  }),
-);
-
-const ConditionalWrapper = ({condition, wrapper, children}:{ condition:boolean, wrapper:(elements:JSX.Element)=>JSX.Element, children:JSX.Element }) => 
-  condition ? wrapper(children) : children;
-
 function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
-    const classesErrores = useStylesBadge({backgroundColor: COLOR_ERRORES});
-    const classesAdvertencia = useStylesBadge({backgroundColor: COLOR_ADVERTENCIAS});
-    const classesPendientes = useStylesBadge({backgroundColor: COLOR_PENDIENTES});
+    const errorStyles = {backgroundColor: COLOR_ERRORES, color:"white"};
+    const advStyles = {backgroundColor: COLOR_ADVERTENCIAS, color:"white"};
+    const pendentStyles = {backgroundColor: COLOR_PENDIENTES, color:"white"};
     const dispatch = useDispatch();
     const {mostrarColumnasFaltantesYAdvertencias} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
@@ -1617,39 +2161,41 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
         textAlign: 'right',
         paddingRight: '15px'
     }
-    var theClass=cantErrores ? classesErrores : (cantAdvertencias ? classesAdvertencia : classesPendientes);
+    var styles=cantErrores ? errorStyles : (cantAdvertencias ? advStyles : pendentStyles);
     var conBadge=cantErrores || cantAdvertencias || (cantPendientes < misObservaciones.length?cantPendientes:null)
+    var formButton = <Button 
+        fullwidth 
+        variant={todoListo?"contained":"outline"} 
+        color={todoListo?"success":"primary"}
+        size="lg"
+        className={"boton-ir-formulario"}
+        onClick={()=>{
+            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
+        }
+    }>
+        <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
+        <span className="special-right">
+            {relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? 
+                <ICON.RemoveShoppingCart /> 
+            :(!cantPendientes && !!relVis.razon?
+                    CHECK
+                :
+                    null
+            )}
+        </span>
+    </Button>
     return(
         <>
             <TableCell>
-                <ConditionalWrapper
-                    condition={!mostrarColumnasFaltantesYAdvertencias}
-                    wrapper={children => 
-                        <Badge style={{width:"calc(100% - 5px)"}} 
-                            badgeContent={conBadge} 
-                            classes={{
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                badge: theClass.badge
-                            }} 
-                            className={
-                                // @ts-ignore TODO: mejorar tipos STYLE #48
-                                theClass.margin
-                            }>{children}
-                        </Badge>
-                    }
-                >
-                    <Button style={{width:'100%', backgroundColor: todoListo?"#5CB85C":"none", color: todoListo?"#ffffff":"none"}} size="large" variant="outlined" color="primary" 
-                        className={"boton-ir-formulario"}
-                        onClick={()=>{
-                            dispatch(dispatchers.SET_FORMULARIO_ACTUAL({informante:relVis.informante, formulario:relVis.formulario}));
-                        }
-                    }>
-                        <span>{relVis.formulario} {estructura.formularios[relVis.formulario].nombreformulario} </span>
-                        <span className="special-right">{relVis.razon && !estructura.razones[relVis.razon].espositivoformulario ? <ICON.RemoveShoppingCart /> : (
-                            !cantPendientes && !!relVis.razon?CHECK:null
-                        )}</span>
-                    </Button>
-                </ConditionalWrapper>
+                {mostrarColumnasFaltantesYAdvertencias?
+                    formButton
+                :
+                    <Badge 
+                        backgroundColor={styles.backgroundColor}
+                        color={styles.color}
+                        badgeContent={conBadge?conBadge.toString():null}
+                    >{formButton}</Badge>
+                }
             </TableCell>
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={numbersStyles}>{numberElement(misObservaciones.length)}</TableCell>:null}
             {mostrarColumnasFaltantesYAdvertencias?<TableCell style={{...numbersStyles, backgroundColor:cantPendientes?'#DDAAAA':'#AADDAA'}}>{cantPendientes?numberElement(cantPendientes):CHECK}</TableCell>:null}
@@ -1732,12 +2278,12 @@ function PantallaInicial(_props:{}){
     const paragraphStyles={fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"};
     return (
         <>
-            <AppBar position="fixed">
-                <Toolbar>
+            <AppBar position="fixed" style={TOOLBAR_STYLE}>
+                <AppBarGroup>
                     <Typography variant="h6">
                         IPCBA PWA - Dispositivo sin carga
                     </Typography>
-                </Toolbar>
+                </AppBarGroup>
             </AppBar>
             <main>
                 <Paper className={classes.root} style={{height:'600px', padding:"15px"}}>
@@ -1788,7 +2334,7 @@ function PantallaHojaDeRuta(_props:{}){
     const classesButton = useStylesButton();
     const dispatch = useDispatch();
     const appVersion = getCacheVersion();
-    const stylesTableHeader = {fontSize: "1.3rem"}
+    const stylesTableHeader:React.CSSProperties = {fontSize: "1.2rem", padding:"15px 0", textAlign:"center"};
     const updateOnlineStatus = function(){
         setOnline(window.navigator.onLine);
     }
@@ -1798,29 +2344,30 @@ function PantallaHojaDeRuta(_props:{}){
     const [descargando, setDescargando] = useState<boolean|null>(false);
     window.addEventListener('online',  updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    const toolbarStyle=hdrEstaDescargada()?{backgroundColor:'red'}:{};
     return (
         <>
-            <AppBar position="fixed">
-                <Toolbar style={toolbarStyle} >
+            <AppBar position="fixed" style={TOOLBAR_STYLE}>
+                <AppBarGroup>
                     <Typography variant="h6">
                         Hoja de ruta - {appVersion}
                     </Typography>
+                </AppBarGroup>
+                <AppBarGroup>
                     <div className={classesButton.toolbarButtons}>
-                        <Button style={{marginTop:'3px'}}
+                        <IconButton
                             color="inherit"
                             onClick={()=>
                                 dispatch(dispatchers.SET_OPCION({variable:'pantallaOpciones',valor:true}))
                             }
                         >
                             <SettingsIcon/>
-                        </Button>
+                        </IconButton>
                         {online?
                             customDataMode?
                                 <>
                                     {isDirtyHDR()?
                                         <>
-                                            <Button
+                                            <IconButton
                                                 color="inherit"
                                                 onClick={async ()=>{
                                                     setMensajeDescarga('descargando, por favor espere...');
@@ -1839,10 +2386,10 @@ function PantallaHojaDeRuta(_props:{}){
                                                 }}
                                             >
                                                 <SaveIcon/>
-                                            </Button>
+                                            </IconButton>
                                         </>
                                     :
-                                        <Button
+                                        <IconButton
                                             color="inherit"
                                             onClick={async ()=>{
                                                 var message = await borrarDatosRelevamientoLocalStorage();
@@ -1854,7 +2401,7 @@ function PantallaHojaDeRuta(_props:{}){
                                             }}
                                         >
                                             <ExitToAppIcon/>
-                                        </Button>
+                                        </IconButton>
                                     }
                                     <Dialog
                                         open={!!mensajeDescarga}
@@ -1891,7 +2438,7 @@ function PantallaHojaDeRuta(_props:{}){
                                     </Dialog>
                                 </>
                             :
-                                <Button
+                                <IconButton
                                     color="inherit"
                                     onClick={()=>{
                                         history.replaceState(null, '', `${location.origin+location.pathname}/../menu#i=dm2,sincronizar_dm2`);
@@ -1899,10 +2446,10 @@ function PantallaHojaDeRuta(_props:{}){
                                     }}
                                 >
                                     <ExitToAppIcon/>
-                                </Button>
+                                </IconButton>
                         :null}
                     </div>
-                </Toolbar>
+                </AppBarGroup>
             </AppBar>
             <main>
                 <Paper className={classes.root}>
@@ -1911,16 +2458,36 @@ function PantallaHojaDeRuta(_props:{}){
                     </Typography>
                     <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
-                            {letraGrandeFormulario?null:<col style={{width:"33%"}}/>}
-                            <col style={{width:letraGrandeFormulario?"79%":"46%"}}/>
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
-                            {mostrarColumnasFaltantesYAdvertencias?<col style={{width:"7%"}}/>:null}
+                            {mostrarColumnasFaltantesYAdvertencias?
+                                letraGrandeFormulario?
+                                    <>
+                                        <col style={{width:"64%"}}/>
+                                        <col style={{width:"12%"}}/>
+                                        <col style={{width:"12%"}}/>
+                                        <col style={{width:"12%"}}/>
+                                    </>
+                                :
+                                    <>
+                                        <col style={{width:"25%"}}/>
+                                        <col style={{width:"42%"}}/>
+                                        <col style={{width:"11%"}}/>
+                                        <col style={{width:"11%"}}/>
+                                        <col style={{width:"11%"}}/>
+                                    </>
+                            :
+                                letraGrandeFormulario?
+                                    <col style={{width:"100%"}}/>
+                                :
+                                    <>
+                                        <col style={{width:"34%"}}/>
+                                        <col style={{width:"66%"}}/>
+                                    </>
+                            }
                         </colgroup>      
                         <TableHead style={{fontSize: "1.2rem"}}>
                             <TableRow className="hdr-tr-informante">
-                                {letraGrandeFormulario || !mostrarColumnasFaltantesYAdvertencias?null:<TableCell style={stylesTableHeader}>informante</TableCell>}
-                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>formulario</TableCell>:null}
+                                {letraGrandeFormulario || !mostrarColumnasFaltantesYAdvertencias?null:<TableCell style={{...stylesTableHeader,...{textAlign:'left', paddingLeft:"10px"}}}>informante</TableCell>}
+                                {mostrarColumnasFaltantesYAdvertencias?<TableCell style={{...stylesTableHeader,...{textAlign:'left', paddingLeft:"10px"}}}>formulario</TableCell>:null}
                                 {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>prod</TableCell>:null}
                                 {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>faltan</TableCell>:null}
                                 {mostrarColumnasFaltantesYAdvertencias?<TableCell style={stylesTableHeader}>adv</TableCell>:null}
@@ -1952,8 +2519,8 @@ function PantallaOpciones(){
     const FRASE_BORRADO = "no guardar";
     return (
         <>
-            <AppBar position="fixed">
-                <Toolbar>
+            <AppBar position="fixed" style={TOOLBAR_STYLE}>
+                <AppBarGroup>
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
@@ -1965,7 +2532,7 @@ function PantallaOpciones(){
                         <ChevronLeftIcon />
                     </IconButton>
                     <Typography variant="h6">Opciones del dispositivo móvil</Typography>
-                </Toolbar>
+                </AppBarGroup>
             </AppBar>
             <main>
                 <Typography>
@@ -2008,7 +2575,7 @@ function PantallaOpciones(){
                 {online && customDataMode && isDirtyHDR()?
                     <Typography>
                         <Button
-                            color="secondary"
+                            color="danger"
                             variant="contained"
                             onClick={()=>{
                                 setMensajeBorrar(`Si continua perderá los datos que haya ingresado en el dispositivo 
@@ -2032,6 +2599,7 @@ function PantallaOpciones(){
                                     {mensajeBorrar}
                                 </DialogContentText>
                                 <TextField
+                                    hasError={false}
                                     onChange={(event)=>
                                         setHabilitarBorrar(event.target.value.toLowerCase()==FRASE_BORRADO)
                                     }
@@ -2043,7 +2611,7 @@ function PantallaOpciones(){
                                         setMensajeBorrar(null)
                                     }} 
                                     color="primary" 
-                                    variant="outlined"
+                                    variant="outline"
                                 >
                                     Cancelar
                                 </Button>
@@ -2057,8 +2625,8 @@ function PantallaOpciones(){
                                             setMensajeBorrar(message)
                                         }
                                     }} 
-                                    color="secondary" 
-                                    variant="outlined"
+                                    color="danger" 
+                                    variant="outline"
                                     disabled={!habilitarBorrar}
                                 >
                                     No guardar
@@ -2121,7 +2689,7 @@ function AppDmIPCOk(){
 function ReseterForm(props:{onTryAgain:()=>void}){
     const dispatch = useDispatch();
     return <>
-        <Button variant="outlined"
+        <Button variant="outline"
             onClick={()=>{
                 dispatch(dispatchers.RESET_OPCIONES({}));
                 props.onTryAgain();
@@ -2168,6 +2736,13 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     estructura=miEstructura;
     ReactDOM.render(
         <Provider store={store}>
+            <style>
+                {`
+                    #main-top-bar{
+                        display: none
+                    }
+                `}
+            </style>
             <OpenedTabs/>
             <AppDmIPC/>
         </Provider>,
@@ -2175,13 +2750,40 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
     )
 }
 
+function loadCSS(cssURL:string):Promise<void>{
+    return new Promise(( resolve, reject )=>{
+        var link = document.createElement( 'link' );
+        link.rel  = 'stylesheet';
+        link.href = cssURL;
+        document.head.appendChild( link );
+        link.onload = ()=>{ 
+            resolve(); 
+            console.log(`trae ${cssURL}`);
+        };
+        link.onerror=(err)=>{
+            reject(new Error(`problema cargando estilo ${cssURL}`))
+        }
+    });
+}
+
+const BOOTSTRAP_5_0_1_SRC = 'css/bootstrap.min.css';
 
 export async function dmHojaDeRuta(optsHdr:OptsHdr){
     const {store, estructura} = await dmTraerDatosHdr(optsHdr);
+    try{
+        await loadCSS(BOOTSTRAP_5_0_1_SRC);
+    }catch(err){
+        throw(err)
+    }
     mostrarHdr(store, estructura);
 }
 
 export async function dmPantallaInicial(){
+    try{
+        await loadCSS(BOOTSTRAP_5_0_1_SRC);
+    }catch(err){
+        throw(err)
+    }
     ReactDOM.render(
         <PantallaInicial/>,
         document.getElementById('main_layout')

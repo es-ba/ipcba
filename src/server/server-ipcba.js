@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#21-02-23";
+const APP_DM_VERSION="#21-06-30";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -343,7 +343,7 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.use(cookieParser());
         var createServiceWorker = async function(){
             var sw = await fs.readFile('node_modules/service-worker-admin/dist/service-worker-wo-manifest.js', 'utf8');
-            var manifest = await be.createResourcesForCacheJson({});
+            var manifest = be.createResourcesForCacheJson({});
             var swManifest = sw
                 .replace("'/*version*/'", JSON.stringify(manifest.version))
                 .replace("'/*appName*/'", JSON.stringify(manifest.appName))
@@ -642,6 +642,7 @@ NETWORK:
             //"default/css/my-tables.css",
             //"default/css/my-menu.css",
             "css/ejemplo-precios.css",
+            "css/bootstrap.min.css",
             "default/css/ejemplo-precios.css",
             //"img/logo.png",
             //"img/logo-dm.png",
@@ -944,9 +945,6 @@ NETWORK:
         ]:[
             {type:'js' , src:'unlogged.js' },
         ];
-        if(loggedResources && this.config.server.policy=='web'){
-            menuedResources.push({ type: 'js', src: 'client/check-estructura.js' });
-        }
         if(opts && opts.extraFiles){
             menuedResources = menuedResources.concat(opts.extraFiles);
         }

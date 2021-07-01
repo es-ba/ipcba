@@ -2,6 +2,8 @@ html
   font-size 16px
   &[pos-productos=arriba]
     font-size 20px
+  scroll-behavior auto !important //desactiva el de bootstrap 5 (por defecto en smooth)
+
 
 letra_grande = 1.4rem
 letra_mediana = 1.2rem
@@ -23,8 +25,9 @@ ancho_tipo_precio = 8%
 body
   overscroll-behavior contain
   margin 0px
+  input::placeholder, textarea::placeholder
+    color #3f51b5
 .informante-visita
-  // display grid
   padding 0px
   margin 0px
   width 100%
@@ -77,14 +80,14 @@ body
         padding-left 2px 
         width 100%
         font-size 1.4rem
-        border 0px solid white
       .encabezado
+        padding 5px 0px 0px 0px
         display grid
-        grid-template-columns 26% 8% 25% 8% 8% 25%
+        grid-template-columns 24% 9% 24% 10% 9% 24%
         .observaciones
           grid-template-columns 1fr 24px
           button
-            width 60px
+            width 75px
             &[tiene-observaciones=si]
               text-align left
               font-size 50%
@@ -105,33 +108,32 @@ body
               line-height normal
               justify-content flex-start
         .tipo-precio-anterior
-          padding-top 3px
+          padding 5px 0px
         .precio-anterior
-          padding-top 3px
+          padding 5px
           text-align right
         .flechaTP
-          .MuiButton-root
-            width 85%
+          button
+            width 90%
         .tipo-precio
         .precio
           width 100%
-          padding 0px
           text-align right
           input::placeholder
             text-align right
             padding-right 10px
       .atributos
         word-break break-all
-        .MuiButton-root
+        button
           width 90%
         display grid
-        grid-template-columns 26% 33% 8% 33%
+        grid-template-columns 24% 33% 10% 33%
         .nombre-atributo
-          padding-top 6px
+          //padding-top 6px
           font-size letra_mediana
           align-self start
         .atributo-anterior
-          padding-top 6px
+          //padding-top 6px
           align-self start
         .flechaAtributos
           align-self center
@@ -148,13 +150,11 @@ body
           width 100%
           font-size letra_grande
           font-family Roboto, Arial, Helvetica, sans-serif
-      .MuiButton-root
+      button
         min-width 16px
         font-size letra_grande 
         min-height 42px
         width 100%
-      button
-        padding 0px
         margin 0px
         text-align center
       [button-container]
@@ -171,6 +171,7 @@ body
     .direccion-informante
       font-size letra_mediana
   .boton-ir-formulario
+    text-align left;
     span.MuiButton-label
       text-transform none
       justify-content space-between
@@ -184,10 +185,7 @@ body
   width 60px
 
 main
-  padding 60px 0
-
-.placeholder
-  color #3f51b5
+  padding 75px 0
 
 .menu-informante-visita
   .razon-formulario
@@ -197,6 +195,10 @@ main
     min-height 70px
     div
       align-self center
+    .comentarios-razon
+      width 100%
+      input
+        width 100%
   div
     &[es-repregunta=yes]
       svg
@@ -218,10 +220,6 @@ main
     font-size letra_grande
   .MuiButton-root
     text-transform none
-  .MuiList-root
-    .MuiButtonBase-root
-      min-height 60px
-      border-top 1px solid #ddd
 
 .zona-degrade
   border-top 0.5px solid #ddd
@@ -253,13 +251,13 @@ main
 .boton-hay-mas
   min-width 300px
 
-.boton-seleccionado-todos span svg path
+.boton-seleccionado-todos svg path
   color blue
 
-.boton-seleccionado-pendientes span svg path
+.boton-seleccionado-pendientes svg path
   color red
 
-.boton-seleccionado-advertencias span svg path
+.boton-seleccionado-advertencias svg path
   color orange
 
 .caja-relpre[es-positivo=maso]
