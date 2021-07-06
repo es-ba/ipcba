@@ -33,9 +33,11 @@ module.exports = function(context){
             {name:'radio'                     , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'manzana'                   , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'contacto'                  , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'conjuntomuestral'          , typeName:'integer' , allow:{update:puedeEditar}, title:'CM'},
             {name:'telcontacto'               , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'web'                       , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'email'                     , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'cluster'                   , typeName:'integer' , allow:{update:puedeEditar}},
 
             {name:'altamanualconfirmar'       , typeName:'timestamp', allow:{update:puedeEditar}},
         ],
@@ -51,7 +53,7 @@ module.exports = function(context){
         ],
         sql:{
             from:`(select i.informante, nombreinformante, estado, tipoinformante, direccion, rubro, altamanualperiodo, altamanualpanel, altamanualtarea,
-                   nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, telcontacto, web, email,  altamanualconfirmar, r.periodo
+                   nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, telcontacto, web, email,  altamanualconfirmar, r.periodo, "cluster", conjuntomuestral
                      from informantes i 
                      left join (select distinct periodo, informante, dense_rank() OVER (PARTITION BY informante ORDER BY periodo desc) as orden
                                   from cvp.relvis) r on i.informante = r.informante 

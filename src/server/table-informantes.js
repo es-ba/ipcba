@@ -61,6 +61,7 @@ module.exports = function(context){
             {name:'depto'                     , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'pc_anio'                   , typeName:'integer'                 , allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
             {name:'grupo_prioridad'           , typeName:'integer'                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'cluster'                   , typeName:'integer' , isName:true   , allow:{update:puedeEditarMigracion}},
         ],
         primaryKey:['informante'],
         detailTables:[

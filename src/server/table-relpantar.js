@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'sobrecargado'          , typeName:'integer'    , allow:{update:false}},
             {name:'fechasalidadesde'      , typeName:'date'       , allow:{update:puedeEditar}},
             {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:puedeEditar}},
+            {name:'modalidad'             , typeName:'text'       , allow:{update:false}},
         ],
         primaryKey:['periodo','panel','tarea'],
         detailTables:[
@@ -37,16 +38,17 @@ module.exports = function(context){
                           t.encuestador encuestador_titular, te.nombre||' '||te.apellido as titular, rt.encuestador, 
                           case when rt.encuestador=t.encuestador then null else nullif(concat_ws(' ', tre.nombre, tre.apellido),'') end as suplente,
                           nullif(nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1),0) as sobrecargado,
-                          rt.fechasalidadesde, rt.fechasalidahasta
+                          rt.fechasalidadesde, rt.fechasalidahasta, pt.modalidad
                      from reltar rt
                        left join tareas t on rt.tarea = t.tarea
+                       left join pantar pt on rt.panel = pt.panel and rt.tarea = pt.tarea
                        left join personal te on t.encuestador = te.persona
                        left join personal tre on rt.encuestador = tre.persona,
                        lateral (SELECT string_agg (verificado_rec,'') verif
                                        FROM cvp.relvis v
                                        WHERE rt.periodo = v.periodo and rt.panel = v.panel and rt.tarea = v.tarea
                                        GROUP BY periodo, panel, tarea) vis
-                     where t.activa = 'S'
+                     where t.activa = 'S' and pt.activa = 'S'
                 )`
         }            
     },context);
