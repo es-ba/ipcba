@@ -34,7 +34,7 @@ module.exports = function(context){
             {name:'comentariosrelpre'            , typeName:'text'                                 , allow:{update:puedeEditar}        , inTable: true    },
             {name:'esvisiblecomentarioendm'      , typeName:'boolean'                              , allow:{update:puedeEditarRecep}, title:'Ver', visible:puedeEditarRecep, inTable: true},
             {name:'comentariosanterior'          , typeName:'text'                                 , allow:{import:false, update:false}, inTable: false   },
-            {name:'precionormalizado'            , typeName:'decimal'                              , allow:{import:false, update:false}, visible:false, inTable: true},
+            {name:'precionormalizado'            , typeName:'decimal'                              , allow:{import:false, update:false}, inTable: true},
             {name:'especificacion'               , typeName:'integer'                              , visible:false, inTable: true                         },
             {name:'ultima_visita'                , typeName:'boolean'                              , inTable: true                          },
             {name:'observaciones'                , typeName:'text'                                 , visible:false, inTable: true                         },
@@ -87,6 +87,6 @@ module.exports = function(context){
                     )`,
             isTable: true,
         },
-        hiddenColumns:['ultima_visita']
+        hiddenColumns:['ultima_visita', 'precionormalizado']
     },context);
 }
