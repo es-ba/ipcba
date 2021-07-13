@@ -584,7 +584,7 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             try{
                 var result = await context.client.query(
-                    `UPDATE relpre SET precio = precioblanqueado, tipoprecio = tipoprecioblanqueado, cambio = cambioblanqueado,
+                    `UPDATE relpre SET precio = precioblanqueado, tipoprecio = tipoprecioblanqueado,
                        comentariosrelpre = comentariosrelpreblanqueado
                        FROM (SELECT precio precioblanqueado, tipoprecio tipoprecioblanqueado, cambio cambioblanqueado,
                             comentariosrelpre comentariosrelpreblanqueado
