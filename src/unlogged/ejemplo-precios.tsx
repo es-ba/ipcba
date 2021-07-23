@@ -217,7 +217,8 @@ const Chip = (props:{
     label:string|JSX.Element|HTMLElement,
     style:any,
 })=>{
-    return <span className="badge" style={...props.style}>{props.label}</span>
+    var {...other} = props;
+    return <span {...other} className="badge" style={...props.style}>{props.label}</span>
 }
 const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     return <div 
@@ -1230,7 +1231,23 @@ const AtributosRow = function(props:{
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
-            <div className="nombre-atributo">{atributo.nombreatributo}</div>
+            <div className="nombre-atributo">
+                {/*<Badge 
+                    backgroundColor="transparent"
+                    color="#8a2be2"
+                    badgeContent={"CAMPERA LISA CON RELLENO, MANGA LARGA, SUPER ABRIGADA. PUÑOS CON ELASTICO INTERNO, BOLSILLOS LATERALES Y RUEDO AJUSTABLE. DETALLE DE AVIOS EN DORADO Y PIEL DE CAPUCHA DESMONTABLE."}
+                    anchorOrigin={{horizontal:'right', vertical:'bottom'}}
+                    atributo-a-m='si'
+                >
+                    {atributo.nombreatributo}
+                </Badge>*/}
+                {atributo.nombreatributo}
+                <Chip 
+                    atributo-a-m='si' 
+                    style={{}}
+                    label={"CAMPERA LISA CON RELLENO, MANGA LARGA, SUPER ABRIGADA. PUÑOS CON ELASTICO INTERNO, BOLSILLOS LATERALES Y RUEDO AJUSTABLE. DETALLE DE AVIOS EN DORADO Y PIEL DE CAPUCHA DESMONTABLE."}
+                />
+            </div>
             <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
@@ -1612,7 +1629,17 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             />
                         }
                     </div>
-                    <div className="tipo-precio-anterior">{relPre.tipoprecioanterior}</div>
+                    <div className="tipo-precio-anterior">
+                        <Badge 
+                            backgroundColor="transparent"
+                            color="#8a2be2"
+                            badgeContent={"450.00"}
+                            anchorOrigin={{horizontal:'right', vertical:'bottom'}}
+                            precio-a-m='si'
+                        >
+                            {relPre.tipoprecioanterior}
+                        </Badge>
+                    </div>
                     <div className="precio-anterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
                         {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
