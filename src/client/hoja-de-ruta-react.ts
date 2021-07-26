@@ -1,5 +1,5 @@
 import {html}  from 'js-to-html';
-import {HDR_OPENED_LOCALSTORAGE_NAME, LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME,
+import {HDR_OPENED_LOCALSTORAGE_NAME, LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME, LOCAL_STORAGE_ESTRUCTURA_NAME,
        registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage,
        hayHdrRelevando, rescatarLocalStorage, hayHojaDeRuta } from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
@@ -12,14 +12,19 @@ function getVersionSistema(){
     return document.body.getAttribute('app-version');
 }
 
-async function borrarArchivosEstructuraViejosDeCache(){
-    for(let cacheName of await caches.keys()){
-        let cache = await caches.open(cacheName);
-        let keys = await cache.keys();
-        for(var estructuraKey of keys.filter((key)=>key.url.endsWith('_estructura.js'))){
-            console.log('borrando estructura ', estructuraKey.url)
-            await cache.delete(estructuraKey.url);
-        }              
+var cargarScriptEstructura = async (callBack?:()=>Promise<void>)=>{
+    const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
+    var script = document.createElement('script');
+    var src = `carga-dm/${periodo}p${panel}t${tarea}_estructura.js`;
+    script.src=src;
+    document.body.appendChild(script);
+    script.onload=async ()=>{
+        console.log(`trae ${src}`);
+        callBack?await callBack():null;
+    }
+    script.onerror=(err)=>{
+        document.body.appendChild(html.div('no se pudo cargar la estructura').create());
+        console.log("problema cargando estructura. ", err)
     }
 }
 
@@ -61,13 +66,17 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             panel: panel,
             tarea: tarea
         });
-        await borrarArchivosEstructuraViejosDeCache();
         my.setLocalVar(LOCAL_STORAGE_STATE_NAME, hdr);
-        mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
-        my.setLocalVar('ipc2.0-descargado',false);
-        my.setLocalVar('ipc2.0-vaciado',false);
-        // @ts-ignore sabemos que hoja_ruta_2 es función
-        myOwn.wScreens.hoja_ruta_2({});
+        cargarScriptEstructura(async()=>{
+            //@ts-ignore structFromManifest existe en el script
+            let estructura=structFromManifest;
+            my.setLocalVar(LOCAL_STORAGE_ESTRUCTURA_NAME, estructura);
+            my.setLocalVar('ipc2.0-descargado',false);
+            my.setLocalVar('ipc2.0-vaciado',false);
+            mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
+            // @ts-ignore sabemos que hoja_ruta_2 es función
+            myOwn.wScreens.hoja_ruta_2({}); 
+        })
     }
     if(hojaDeRutaEnOtroDispositivo){
         mainLayout.appendChild(html.div({},[

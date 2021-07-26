@@ -12,6 +12,7 @@ var my=myOwn;
 
 export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
 export const LOCAL_STORAGE_DIRTY_NAME = LOCAL_STORAGE_STATE_NAME + '_dirty';
+export const LOCAL_STORAGE_ESTRUCTURA_NAME = 'ipc2.0-estructura';
 
 export function hayHojaDeRuta(){
     var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
@@ -395,10 +396,10 @@ async function obtenerEstructuraFromAddrParams(addrParams:AddrParamsHdr){
     var hdr:HojaDeRuta;
     if(addrParams.periodo && addrParams.panel && addrParams.tarea){
         var content = my.getLocalVar(LOCAL_STORAGE_STATE_NAME);
-        if(content){
+        var struct = my.getLocalVar(LOCAL_STORAGE_ESTRUCTURA_NAME);
+        if(content && struct){
             hdr = content;
-            //@ts-ignore structFromManifest existe gracias al manifiesto
-            estructura=structFromManifest;
+            estructura=struct;
         }else{
             throw Error('no se cargó correctamente la hoja de ruta')
         }

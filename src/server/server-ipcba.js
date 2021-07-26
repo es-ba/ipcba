@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#21-06-30";
+const APP_DM_VERSION="#21-07-26";
 class AppIpcba extends backendPlus.AppBackend{
     constructor(){
         super();
@@ -348,8 +348,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 .replace("'/*version*/'", JSON.stringify(manifest.version))
                 .replace("'/*appName*/'", JSON.stringify(manifest.appName))
                 .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
-                .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
-                .replace("/#CACHE$/", "/(a\\d+m\\d+p\\d+t\\d+_estructura.js)|(a\\d+m\\d+p\\d+t\\d+_hdr.json)/");
+                .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
+                //.replace("/#CACHE$/", "/(a\\d+m\\d+p\\d+t\\d+_estructura.js)|(a\\d+m\\d+p\\d+t\\d+_hdr.json)/");
             return swManifest
         }
         mainApp.get(baseUrl+`/sw-manifest.js`, async function(req, res, next){
