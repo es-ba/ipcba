@@ -2328,7 +2328,7 @@ function PantallaHojaDeRuta(_props:{}){
         }
     });
     const hdr = useSelector((hdr:HojaDeRuta)=>(hdr));
-    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador} = useSelector((hdr:HojaDeRuta)=>(hdr));
+    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador, modalidad} = useSelector((hdr:HojaDeRuta)=>(hdr));
     const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, posHdr, customDataMode} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const classesButton = useStylesButton();
@@ -2454,7 +2454,7 @@ function PantallaHojaDeRuta(_props:{}){
             <main>
                 <Paper className={classes.root}>
                     <Typography component="p" style={{fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"}}>
-                        Panel: {panel} Tarea: {tarea} Encuestador/a: {apellidoencuestador}, {nombreencuestador} ({encuestador})
+                        Panel: {panel} Tarea: {tarea} Enc: {apellidoencuestador}, {nombreencuestador} ({encuestador}) Modalidad: {modalidad ||'-'}
                     </Typography>
                     <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>

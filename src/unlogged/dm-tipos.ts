@@ -216,6 +216,7 @@ export type HojaDeRuta={
     tarea: number,
     dispositivo:string,
     fecha_carga:Date,
+    modalidad: string | null,
     informantes:RelInf[]
     opciones: OpcionesHojaDeRuta
 }
