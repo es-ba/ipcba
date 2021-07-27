@@ -108,8 +108,9 @@ export type RelAtr={
     producto: string
     observacion: number
     atributo: number
-    valoranterior:string|number
     valor:string|number|null
+    valoranterior:string|number
+    valoranteriorblanqueado:string|number
 }
 
 export type Cambio = 'C'|'='
@@ -121,6 +122,7 @@ export type RelPre={
     observacion: number
     precio:number | null
     precioanterior:number | null
+    precioanteriorblanqueado:number | null
     tipoprecio:string | null
     tipoprecioanterior:string | null
     atributos: RelAtr[]

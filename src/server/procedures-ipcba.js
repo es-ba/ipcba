@@ -400,20 +400,22 @@ function dm2CrearQueries(parameters){
         WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
     `;
     var sqlAtributos=`
-        SELECT ra.periodo, ra.visita, ra.informante, formulario, ra.producto, ra.observacion, ra.atributo, 
-                ra.valor, ra.valor_1 as valoranterior, pa.orden
+        SELECT ra.periodo, ra.visita, ra.informante, rp.formulario, ra.producto, ra.observacion, ra.atributo, 
+                ra.valor, ra.valor_1 as valoranterior, pa.orden, ba.valor as valoranteriorblanqueado
             FROM relatr_1 ra
                 INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
+                left join blaatr ba on ra.periodo_1 = ba.periodo and ra.informante = ba.informante and ra.visita = ba.visita and
+                  ra.producto = ba.producto and ra.observacion = ba.observacion and ra.atributo = ba.atributo
             WHERE ra.periodo=rp.periodo 
                 AND ra.visita=rp.visita 
                 AND ra.informante=rp.informante 
                 AND ra.producto=rp.producto
                 AND ra.observacion=rp.observacion`
     var sqlObservaciones=`                
-        SELECT rp.periodo, visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, 
+        SELECT rp.periodo, rp.visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, 
                 case when rp.tipoprecio='L' then null else rp.tipoprecio end as tipoprecio, 
                 tipoprecio_1 as tipoprecioanterior,
-                cambio, comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, precionormalizado, rp.precionormalizado_1, 
+                rp.cambio, rp.comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, rp.precionormalizado, rp.precionormalizado_1, 
                 f.orden as orden_formulario,
                 fp.orden as orden_producto,
                 p.periodo is not null as repregunta,
@@ -423,11 +425,14 @@ function dm2CrearQueries(parameters){
                 distanciaperiodos(rp.periodo,ultimoperiodoconprecio) cantidadperiodossinprecio,
                 split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
                 split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
-                r_his.sinpreciohace4meses = 'S' sinpreciohace4meses
+                r_his.sinpreciohace4meses = 'S' sinpreciohace4meses,
+                bp.precio as precioanteriorblanqueado
             FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
                 left join tipopre tp using(tipoprecio) 
                 inner join forprod fp using(formulario, producto)
                 inner join formularios f using (formulario)
+                left join blapre bp on rp.periodo_1 = bp.periodo and rp.informante = bp.informante and rp.visita = bp.visita and
+                    rp.producto = bp.producto and rp.observacion = bp.observacion
                 left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
                     and c.informante = rp.informante and c.producto = rp.producto
                     and c.observacion = rp.observacion
