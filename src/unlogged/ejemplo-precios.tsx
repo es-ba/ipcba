@@ -1515,6 +1515,21 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
     </>
 }
 
+function TpAnterior(props:{relPre:RelPre, razonPositiva: boolean}){
+    const {relPre, razonPositiva} = props;
+    return <>
+        {relPre.precioanteriorblanqueado?
+            <Button disabled={!razonPositiva} color={"primary"} variant="outline" onClick={event=>{
+                //setMenuTipoPrecio(event.currentTarget)
+            }}>
+                {relPre.tipoprecioanterior}    
+            </Button>
+        :
+            relPre.tipoprecioanterior
+        }
+    </>
+}
+
 var PreciosRow = React.memo(function PreciosRow(props:{
     style:Styles,
     relPre:RelPre, iRelPre:number,
@@ -1612,7 +1627,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             />
                         }
                     </div>
-                    <div className="tipo-precio-anterior">{relPre.tipoprecioanterior}</div>
+                    <div className="tipo-precio-anterior">
+                        <TpAnterior relPre={relPre} razonPositiva={props.razonPositiva}/>
+                    </div>
                     <div className="precio-anterior" precio-anterior style={{width: "100%", overflow: badgeCondition?'unset':'hidden'}}>
                         {render4scroll?                                
                             <span>{precioAnteriorAMostrar}</span>
