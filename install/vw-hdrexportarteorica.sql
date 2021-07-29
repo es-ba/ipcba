@@ -13,7 +13,7 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
    c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|') AS formularios, 
    i.contacto::text contacto, 
    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
-   pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta
+   pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta, pta.modalidad
    FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.tareas t on c.tarea = t.tarea
    LEFT JOIN cvp.personal p on p.persona = t.encuestador 
@@ -27,10 +27,11 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
    LEFT JOIN (SELECT informante, visita, string_agg(distinct panel::text,',' order by panel::text) as panelreferencia, string_agg(distinct tarea::text,',' order by tarea::text) as tareareferencia
                 FROM cvp.relvis v 
                 JOIN cvp.parametros par ON unicoregistro AND v.periodo = par.periodoReferenciaParaPanelTarea
-                GROUP BY informante, visita) pt ON c.informante = pt.informante AND c.visita = pt.visita 
+                GROUP BY informante, visita) pt ON c.informante = pt.informante AND c.visita = pt.visita
+    LEFT JOIN cvp.pantar pta on c.panel = pta.panel and c.tarea = pta.tarea  
   GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
     i.contacto, c.conjuntomuestral, 
     c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
-    pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta;
+    pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta, pta.modalidad;
 
 GRANT SELECT ON TABLE hdrexportarteorica TO cvp_usuarios;

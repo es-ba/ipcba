@@ -38,6 +38,7 @@ module.exports = function(context){
             {name:'maxperiodoinformado'          , typeName: 'text'   },
             {name:'minperiodoinformado'          , typeName: 'text'   },
             {name:'periodoalta'                  , typeName: 'text'   },
+            {name:'modalidad'                    , typeName: 'text'   },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
         sql:{
