@@ -426,7 +426,8 @@ function dm2CrearQueries(parameters){
                 split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
                 split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
                 r_his.sinpreciohace4meses = 'S' sinpreciohace4meses,
-                bp.precio as precioanteriorblanqueado
+                bp.precio as precioanteriorblanqueado,
+                bp.tipoprecio as tipoprecioanteriorblanqueado
             FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
                 left join tipopre tp using(tipoprecio) 
                 inner join forprod fp using(formulario, producto)

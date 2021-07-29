@@ -125,6 +125,7 @@ export type RelPre={
     precioanteriorblanqueado:number | null
     tipoprecio:string | null
     tipoprecioanterior:string | null
+    tipoprecioanteriorblanqueado:number | null
     atributos: RelAtr[]
     cambio: Cambio | null
     comentariosrelpre: string | null

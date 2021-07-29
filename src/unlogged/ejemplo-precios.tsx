@@ -217,7 +217,8 @@ const Chip = (props:{
     label:string|JSX.Element|HTMLElement,
     style:any,
 })=>{
-    return <span className="badge" style={...props.style}>{props.label}</span>
+    var {...other} = props;
+    return <span {...other} className="badge" style={...props.style}>{props.label}</span>
 }
 const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     return <div 
@@ -1230,7 +1231,15 @@ const AtributosRow = function(props:{
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
-            <div className="nombre-atributo">{atributo.nombreatributo}</div>
+            <div className="nombre-atributo">
+                <Badge 
+                    badgeContent={relAtr.valoranteriorblanqueado?.toString()||null}
+                    anchorOrigin={{horizontal:'left', vertical:'bottom'}}
+                    atributo-a-m="si"
+                >
+                    {atributo.nombreatributo}
+                </Badge>
+            </div>
             <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
@@ -1517,15 +1526,91 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
 
 function TpAnterior(props:{relPre:RelPre, razonPositiva: boolean}){
     const {relPre, razonPositiva} = props;
-    return <>
-        {relPre.precioanteriorblanqueado?
+    const [dialogoTipoPrecioAnteriorBlanqueado, setDialogoTipoPrecioAnteriorBlanqueado] = useState<boolean>(false);
+    return <Badge 
+        badgeContent={relPre.precioanteriorblanqueado?.toString() || null}
+        anchorOrigin={{horizontal:'right', vertical:'bottom'}}
+        precio-a-m="si"
+    >
+        {relPre.tipoprecioanteriorblanqueado?
             <Button disabled={!razonPositiva} color={"primary"} variant="outline" onClick={event=>{
-                //setMenuTipoPrecio(event.currentTarget)
+                setDialogoTipoPrecioAnteriorBlanqueado(true)
             }}>
                 {relPre.tipoprecioanterior}    
             </Button>
         :
-            relPre.tipoprecioanterior
+            <div className="valor-sin-boton">{relPre.tipoprecioanterior}</div>
+        }
+        <Dialog
+            open={dialogoTipoPrecioAnteriorBlanqueado}
+            onClose={()=>{
+                setDialogoTipoPrecioAnteriorBlanqueado(false)
+            }}
+        >
+            <DialogTitle className="alert-dialog-blanqueos">
+                {estructura.productos[relPre.producto].nombreproducto + " " + (relPre.observacion==1?"":relPre.observacion.toString())}
+            </DialogTitle>
+            <DialogContent>
+                <EspecificacionCompletaRelpre relPre={relPre}/>
+            </DialogContent>
+            <DialogContent>
+                <div className="caja-precio-anterior-blanqueado">
+                    <div className="detalle-blanqueo">
+                        <div>TP</div>
+                        <div className="tipo-precio-anterior-blanqueado" precio-a-m="si">{relPre.tipoprecioanteriorblanqueado}</div>
+                        <div>Precio</div>
+                        <div className="precio-anterior-blanqueado" precio-a-m="si">{relPre.precioanteriorblanqueado}</div>
+                    </div>
+                    <div className="detalle-blanqueo">
+                        {relPre.atributos.map((atributo:RelAtr)=>
+                            <>
+                                <div className="nombre-atributo-blanqueado">{estructura.atributos[atributo.atributo].nombreatributo}</div>
+                                <div className="atributo-anterior-blanqueado" atributo-a-m="si">{atributo.valoranteriorblanqueado}</div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={()=>{
+                    setDialogoTipoPrecioAnteriorBlanqueado(false)
+                }} color="primary" variant="contained">
+                    Cerrar
+                </Button>
+            </DialogActions>
+        </Dialog>
+    </Badge>
+}
+
+function EspecificacionCompletaRelpre(props:{relPre:RelPre}){
+    const {relPre} = props;
+    const productoDef:Producto = estructura.productos[relPre.producto];
+    const prodDestacadoBadgeStyle = {backgroundColor:'#b8dbed', color: "#000000"};
+    const comentariosAnalistaBadgeStyles = {backgroundColor:COLOR_ADVERTENCIAS};
+    return <>
+        <div className="especificacion">
+            <Badge
+                badgeContent={productoDef.destacado?"":null}
+                color={prodDestacadoBadgeStyle.color}
+                backgroundColor={prodDestacadoBadgeStyle.backgroundColor}
+                style={{top: -5, right:-5}}
+            >
+                <span>{productoDef.especificacioncompleta}</span>
+            </Badge>
+        </div>
+        {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
+            <div className="comentario-analista">
+                <Badge
+                    badgeContent=""
+                    fullWidth={false}
+                    style={{top: 6, right: -10}}
+                    variant="dot"
+                    backgroundColor={comentariosAnalistaBadgeStyles.backgroundColor}
+                >
+                    <span>{relPre.comentariosrelpre_1}</span>
+                </Badge>
+            </div>
+            :null
         }
     </>
 }
@@ -1549,8 +1634,6 @@ var PreciosRow = React.memo(function PreciosRow(props:{
     const inputIdAtributos = relPre.atributos.map((relAtr)=>inputIdPrecio+'-'+relAtr.atributo);
     const productoDef:Producto = estructura.productos[relPre.producto];
     const cantidadMesesBadgeStyles = {backgroundColor:'#dddddd', color: "#000000"};
-    const prodDestacadoBadgeStyle = {backgroundColor:'#b8dbed', color: "#000000"};
-    const comentariosAnalistaBadgeStyles = {backgroundColor:COLOR_ADVERTENCIAS};
     const {color: colorAdv, tieneAdv} = controlarPrecio(relPre, estructura, esPrecioActual);
     const precioAnteriorAMostrar = numberElement(relPre.precioanterior || relPre.ultimoprecioinformado);
     const chipColor = (relPre.tipoprecioanterior && estructura.tipoPrecio[relPre.tipoprecioanterior].espositivo?
@@ -1581,34 +1664,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
             <div className="caja-producto" id={'caja-producto-'+inputIdPrecio}>
                 <div className="producto">{productoDef.nombreproducto}</div>
                 <div className="observacion">{relPre.observacion==1?"":relPre.observacion.toString()}</div>
-                {!compactar?
-                    <>
-                        <div className="especificacion">
-                            <Badge
-                                badgeContent={productoDef.destacado?"":null}
-                                color={prodDestacadoBadgeStyle.color}
-                                backgroundColor={prodDestacadoBadgeStyle.backgroundColor}
-                                style={{top: 0, right:0, zIndex:-1}}
-                            >
-                                <span>{productoDef.especificacioncompleta}</span>
-                            </Badge>
-                        </div>
-                        {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
-                            <div className="comentario-analista">
-                                <Badge
-                                    badgeContent=""
-                                    fullWidth={false}
-                                    style={{top: 6, right: -10, zIndex:-1}}
-                                    variant="dot"
-                                    backgroundColor={comentariosAnalistaBadgeStyles.backgroundColor}
-                                >
-                                    <span>{relPre.comentariosrelpre_1}</span>
-                                </Badge>
-                            </div>
-                            :null
-                        }
-                    </>
-                    :null}
+                {compactar?null:<EspecificacionCompletaRelpre relPre={relPre}/>}
             </div>
             <div className="caja-precios">
                 <div className="encabezado">
