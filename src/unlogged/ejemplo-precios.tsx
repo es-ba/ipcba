@@ -1231,15 +1231,7 @@ const AtributosRow = function(props:{
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     return (
         <>
-            <div className="nombre-atributo">
-                <Badge 
-                    badgeContent={relAtr.valoranteriorblanqueado?.toString()||null}
-                    anchorOrigin={{horizontal:'left', vertical:'bottom'}}
-                    atributo-a-m="si"
-                >
-                    {atributo.nombreatributo}
-                </Badge>
-            </div>
+            <div className="nombre-atributo">{atributo.nombreatributo}</div>
             <div className="atributo-anterior" >{relAtr.valoranterior}</div>
             {props.primerAtributo?
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
@@ -1527,15 +1519,17 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
 function TpAnterior(props:{relPre:RelPre, razonPositiva: boolean}){
     const {relPre, razonPositiva} = props;
     const [dialogoTipoPrecioAnteriorBlanqueado, setDialogoTipoPrecioAnteriorBlanqueado] = useState<boolean>(false);
-    return <Badge 
-        badgeContent={relPre.precioanteriorblanqueado?.toString() || null}
-        anchorOrigin={{horizontal:'right', vertical:'bottom'}}
-        precio-a-m="si"
-    >
+    return <>
         {relPre.tipoprecioanteriorblanqueado?
-            <Button disabled={!razonPositiva} color={"primary"} variant="outline" onClick={event=>{
-                setDialogoTipoPrecioAnteriorBlanqueado(true)
-            }}>
+            <Button 
+                disabled={!razonPositiva} 
+                color={"primary"} 
+                variant="contained" 
+                style={{backgroundColor: "#8a2be2", borderColor: "#8a2be2"}} 
+                onClick={(_event)=>{
+                    setDialogoTipoPrecioAnteriorBlanqueado(true)
+                }}
+            >
                 {relPre.tipoprecioanterior}    
             </Button>
         :
@@ -1555,13 +1549,12 @@ function TpAnterior(props:{relPre:RelPre, razonPositiva: boolean}){
             </DialogContent>
             <DialogContent>
                 <div className="caja-precio-anterior-blanqueado">
-                    <div className="detalle-blanqueo">
-                        <div>TP</div>
+                    <div className="detalle-blanqueo-precio">
+                        <div></div>
                         <div className="tipo-precio-anterior-blanqueado" precio-a-m="si">{relPre.tipoprecioanteriorblanqueado}</div>
-                        <div>Precio</div>
                         <div className="precio-anterior-blanqueado" precio-a-m="si">{relPre.precioanteriorblanqueado}</div>
                     </div>
-                    <div className="detalle-blanqueo">
+                    <div className="detalle-blanqueo-atributos">
                         {relPre.atributos.map((atributo:RelAtr)=>
                             <>
                                 <div className="nombre-atributo-blanqueado">{estructura.atributos[atributo.atributo].nombreatributo}</div>
@@ -1579,7 +1572,7 @@ function TpAnterior(props:{relPre:RelPre, razonPositiva: boolean}){
                 </Button>
             </DialogActions>
         </Dialog>
-    </Badge>
+    </>
 }
 
 function EspecificacionCompletaRelpre(props:{relPre:RelPre}){
