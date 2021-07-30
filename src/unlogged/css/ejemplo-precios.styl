@@ -279,33 +279,18 @@ main
   display grid
   grid-template-columns 100%
   font-size 1.2rem
-  .detalle-blanqueo
+  .detalle-blanqueo-precio
+    display grid
+    grid-template-columns 25% 10% 60%
+  .detalle-blanqueo-atributos
     display grid
     grid-template-columns 25% 75%
 
-[atributo-a-m=si] span, .detalle-blanqueo [atributo-a-m=si]
+[atributo-a-m=si], [precio-a-m=si]
   text-decoration-line line-through
   text-transform uppercase
   font-weight 400 !important
   color #8a2be2 !important
-
-[atributo-a-m=si] span
-  background-color transparent
-  text-align left !important
-  padding 0px 5px !important
-  height 12px !important
-  overflow hidden
-  width 110% !important
-  display block !important
-
-[precio-a-m=si] span, .detalle-blanqueo [precio-a-m=si]
-  color #8a2be2 !important
-  text-decoration-line line-through
-  text-transform uppercase
-
-[precio-a-m=si] span
-  right -15px !important
-  background-color #eeeeee
 
 .tab-counter  
   display inline-block
