@@ -1,3 +1,4 @@
+set search_path = cvp;
 CREATE OR REPLACE VIEW control_generacion_formularios AS 
  SELECT p.periodo, r_1.panel, r_1.tarea, r_1.informante, r_1.formulario, r_1.visita, r_1.razon AS razonant, r.razon,
    CASE WHEN r.periodo IS NULL AND z.escierredefinitivoinf = 'N' AND z.escierredefinitivofor = 'N' THEN 'Falta generar'
@@ -36,5 +37,3 @@ UNION
   LEFT JOIN relvis r_ant on pp.periodoanterior = r_ant.periodo and rv.informante = r_ant.informante and rv.formulario = r_ant.formulario and rv.visita = r_ant.visita 
   WHERE rv.razon is null and r_ant.periodo is null
 ORDER BY periodo, panel, tarea, informante, formulario, visita;
-
-GRANT SELECT ON TABLE control_generacion_formularios TO cvp_usuarios;
