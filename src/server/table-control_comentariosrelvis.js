@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'nombrerubro'                  ,typeName:'text'   , allow:{update:false}      },
             {name:'formulario'                   ,typeName:'integer', allow:{update:false}, title:'for'},
             {name:'nombreformulario'             ,typeName:'text'   , allow:{update:false}      },
+            {name:'modalidad'                    ,typeName:'text'   , allow:{update:false}      },
             {name:'comentarios'                  ,typeName:'text'   , allow:{update:puedeEditar}, width:500},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
@@ -33,13 +34,14 @@ module.exports = function(context){
             from:`(SELECT r.periodo, r.informante, r.visita, r.panel, r.tarea, r.encuestador,
             (pe.nombre::text || ' '::text) || pe.apellido::text AS nombreencuestador,
             r.recepcionista, (pr.nombre::text || ' '::text) || pr.apellido::text AS nombrerecepcionista,
-            i.rubro, u.nombrerubro, r.formulario, f.nombreformulario, r.comentarios
+            i.rubro, u.nombrerubro, r.formulario, f.nombreformulario, r.comentarios, pt.modalidad
              FROM cvp.relvis r
              LEFT JOIN cvp.informantes i ON r.informante = i.informante
              LEFT JOIN cvp.personal pe ON r.encuestador::text = pe.persona::text
              LEFT JOIN cvp.personal pr ON r.recepcionista::text = pr.persona::text
              LEFT JOIN cvp.rubros u ON i.rubro = u.rubro
              LEFT JOIN cvp.formularios f ON r.formulario = f.formulario
+             LEFT JOIN cvp.pantar pt on r.panel = pt.panel and r.tarea = pt.tarea
             WHERE r.comentarios IS NOT NULL)`
         }
     },context);
