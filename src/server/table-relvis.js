@@ -26,6 +26,7 @@ module.exports = function(context){
             {name:'recepcionista'             , typeName:'text'                                , allow:{update:puedeEditar}, title:'rec'    },
             {name:'razon'                     , typeName:'integer'                             , allow:{update:puedeEditar}, clientSide:'control_razones', serverSide:true, inTable:true},
             {name:'ultimavisita'              , typeName:'integer' , nullable:false , default:1, allow:{update:false}, visible:false},
+            {name:'codcomentarios'            , typeName:'text'                                , allow:{update:puedeEditar}, title:'cod'  },
             {name:'comentarios'               , typeName:'text'                                , allow:{update:puedeEditar}                 },
             {name:'supervisor'                , typeName:'text'                                , allow:{update:false}, visible:false},
             {name:'informantereemplazante'    , typeName:'integer'                             , allow:{update:false}, visible:false},
@@ -75,7 +76,7 @@ module.exports = function(context){
                   v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento,
                   CASE WHEN rec.labor = 'R' THEN rec.persona 
                        WHEN per.labor = 'R' THEN per.persona 
-                       ELSE rec.persona END operadorrec                 
+                       ELSE rec.persona END operadorrec, v.codcomentarios
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario
