@@ -26,7 +26,7 @@ module.exports = function(context){
             {name:'formulario'                   ,typeName:'integer', allow:{update:false}, title:'for'},
             {name:'nombreformulario'             ,typeName:'text'   , allow:{update:false}      },
             {name:'modalidad'                    ,typeName:'text'   , allow:{update:false}      },
-            {name:'codcomentarios'               ,typeName:'text'   , allow:{update:puedeEditar}, title:'cod'},
+            {name:'codcomentarios'               ,typeName:'text'   , allow:{update:puedeEditar}, title:'cod', postInput:'upperSpanish'},
             {name:'comentarios'                  ,typeName:'text'   , allow:{update:puedeEditar}, width:500},
         ],
         primaryKey:['periodo','informante','visita','formulario'],

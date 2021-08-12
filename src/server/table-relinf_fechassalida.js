@@ -17,6 +17,7 @@ module.exports = function(context){
             {name:'tarea'                  , typeName:'integer' , nullable:false, allow:{update:false}      },
             {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}      },
             {name:'visita'                 , typeName:'integer' , nullable:false, allow:{update:false}      },
+            {name:'razones'                , typeName:'text'                    , allow:{update:false}      },
             {name:'direccion'              , typeName:'text'                    , allow:{update:false}      },
             {name:'rubro'                  , typeName:'integer'                 , allow:{update:false}      },
             {name:'nombrerubro'            , typeName:'text'                    , allow:{update:false}      },
@@ -34,14 +35,18 @@ module.exports = function(context){
             {references:'informantes', fields:['informante']},
         ],
         sql:{
-            from:`(select r.periodo, max(CASE WHEN v.pos = 1 THEN v.panel END) AS panel , max(CASE WHEN v.pos = 1 THEN v.tarea END) AS tarea, r.informante, r.visita, 
+            from:`(select r.periodo, max(CASE WHEN v.pos = 1 THEN v.panel END) AS panel , max(CASE WHEN v.pos = 1 THEN v.tarea END) AS tarea, r.informante, r.visita,
+                          max(CASE WHEN v.pos = 1 THEN v.razon END) AS razones, 
                           CASE WHEN min(v.pos) <> max(v.pos) THEN 
-                            string_agg (CASE WHEN v.pos> 1 then 'Panel '||v.panel||' , '||'Tarea '||v.tarea end, chr(10) ORDER BY 'Panel '||v.panel||' , '||'Tarea '||v.tarea) 
+                            string_agg (CASE WHEN v.pos> 1 then 'Panel '||v.panel||' , '||'Tarea '||v.tarea||coalesce(' Raz. '||v.razon,'') end, chr(10) ORDER BY 'Panel '||v.panel||' , '||'Tarea '||v.tarea||coalesce(' Raz. '||v.razon,''))  
                           END as otropaneltarea, i.direccion, r.fechasalidadesde, r.fechasalidahasta, i.rubro, ru.nombrerubro, i.contacto, i.telcontacto, i.web, i.email 
                     from relinf r
                     left join informantes i on r.informante = i.informante
                     left join rubros ru on i.rubro = ru.rubro
-                    left join (select periodo, informante, visita, panel, tarea, row_number() OVER (PARTITION BY periodo, informante, visita) as pos
+                    left join (select periodo, informante, visita, panel, tarea, row_number() OVER (PARTITION BY periodo, informante, visita) as pos,
+                                      CASE WHEN min(razon) <> max(razon) THEN (min(razon) || '~'::text) || max(razon)
+                                           ELSE COALESCE(min(razon) || ''::text, NULL::text)
+                                      END AS razon
                                from relvis
                                group by periodo, informante, visita, panel, tarea
                                order by periodo, informante, visita, panel, tarea) v 
