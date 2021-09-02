@@ -42,19 +42,19 @@ begin
   vEmpezo1:=clock_timestamp(); 
   analyze cvp.CalObs;
   vTermino1:=clock_timestamp();  
-  Raise Notice '%', 'analyze CalObs: comenzo '||cast(vEmpezo1 as text)||' finalizo '||cast(vTermino1 as text)||' demoro '||(vTermino1 - vEmpezo1);  
+  Raise Notice '%', 'analyze CalObs: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);  
   vEmpezo1:=clock_timestamp(); 
   analyze cvp.CalProd;
   vTermino1:=clock_timestamp();  
-  Raise Notice '%', 'analyze CalProd: comenzo '||cast(vEmpezo1 as text)||' finalizo '||cast(vTermino1 as text)||' demoro '||(vTermino1 - vEmpezo1);  
+  Raise Notice '%', 'analyze CalProd: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);  
   vEmpezo1:=clock_timestamp(); 
   analyze cvp.CalDiv;
   vTermino1:=clock_timestamp();  
-  Raise Notice '%', 'analyze CalDiv: comenzo '||cast(vEmpezo1 as text)||' finalizo '||cast(vTermino1 as text)||' demoro '||(vTermino1 - vEmpezo1);  
+  Raise Notice '%', 'analyze CalDiv: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);  
   vEmpezo1:=clock_timestamp(); 
   analyze cvp.CalGru;
   vTermino1:=clock_timestamp();  
-  Raise Notice '%', 'analyze CalGru: comenzo '||cast(vEmpezo1 as text)||' finalizo '||cast(vTermino1 as text)||' demoro '||(vTermino1 - vEmpezo1);  
+  Raise Notice '%', 'analyze CalGru: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);  
   --end if;
   if v_para_rellenado_de_base or pPeriodo=vPeriodo_1 then
       vEmpezo1:=clock_timestamp(); 
@@ -64,7 +64,7 @@ begin
           , SinDatosEstacional=CASE WHEN PromObs IS NULL THEN 100 ELSE NULL END
         where periodo=pPeriodo and calculo=pCalculo;
       vTermino1:=clock_timestamp();  
-      --Raise Notice '%', 'update: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);  
+      Raise Notice '%', 'update: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);  
   else
       execute CalObs_AltasyBajas(pPeriodo, pCalculo);
   end if;  
@@ -114,5 +114,5 @@ begin
   Raise Notice '%', 'CALCULO COMPLETO: EMPEZO '||cast(vEmpezo as text)||' TERMINO '||cast(vTermino as text)||' DEMORO '||(vTermino - vEmpezo);  
   return 'Calculo completo en '||(vTermino - vEmpezo);
 end;
-$BODY$
+$BODY$;
   language plpgsql security definer;
