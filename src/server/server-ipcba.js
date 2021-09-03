@@ -155,6 +155,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-periodo_maximas_variaciones.sql
                 - fun-periodo_minimos_precios.sql
                 - fun-periodo_maximos_precios.sql
+                - fun-periodobase.sql
                 - fun-testpanelesgenerados.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
@@ -211,6 +212,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - trg-verificar_lanzamiento_calculo.sql
                 - trg-verificar_sincronizacion.sql
                 - trg-verificar_valor_pesos_trg.sql
+                - trg-hisc_parametros_trg.sql
                 - vw-bienvenida.sql
                 - vw-gru_grupos.sql
                 - vw-caldiv_vw.sql
