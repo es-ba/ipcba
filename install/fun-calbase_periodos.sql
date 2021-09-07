@@ -4,7 +4,8 @@ $BODY$
 DECLARE
 vSql text;
 vreglas RECORD;
-agrega text;  
+agrega text;
+vhayreglas boolean := false;  
 BEGIN   
   --EXECUTE Cal_Mensajes(null, pCalculo, 'CalBase_Periodos', pTipo:='comenzo');
 
@@ -45,13 +46,20 @@ BEGIN
     WHERE c.calculo=pCalculo
       AND r.tipo_regla='meses baja';
 
-vSql := $$INSERT INTO calbase_obs (calculo, producto, informante, observacion, periodo_aparicion, periodo_anterior_baja, incluido) 
+vSql := $$INSERT INTO calbase_obs (calculo, producto, informante, observacion, periodo_aparicion, periodo_anterior_baja$$;
+if vhayreglas then
+  vSql := vSql|| $$, incluido$$; 
+end if;
+vSql := vSql||$$) 
             SELECT calculo, producto, informante, observacion, periodo_aparicion, 
-                   case when max_periodo_anterior <= ultimo_mes_anterior_bajas then max_periodo_anterior else null end, incluido
-              FROM
+                   case when max_periodo_anterior <= ultimo_mes_anterior_bajas then max_periodo_anterior else null end$$;
+if vhayreglas then
+  vSql := vSql|| $$, incluido$$; 
+end if;
+vSql := vSql||$$ FROM
                 (SELECT $$||pCalculo||$$ as calculo, r.producto, r.informante, r.observacion, ultimo_mes_anterior_bajas, 
                        min(case when Precionormalizado is null then null when n.producto is not null and r.periodo <= n.hasta_periodo then null else periodo end) as periodo_aparicion,
-                       max(case when PrecioNormalizado is null then null when n.producto is not null and r.periodo <= n.hasta_periodo then null else periodo end) as max_periodo_anterior,                     
+                       max(case when PrecioNormalizado is null then null when n.producto is not null and r.periodo <= n.hasta_periodo then null else periodo end) as max_periodo_anterior                     
                    $$;
 
 for vreglas in
@@ -60,15 +68,19 @@ for vreglas in
      WHERE calculo = Pcalculo AND tipo_regla = 'inclusion'
      ORDER BY num_regla     
 Loop
+   vhayreglas := true;
    if vreglas.num_regla = 1 then
-      agrega := '';
+      agrega := ', ';
    else
       agrega := ' OR';
    end if;
    vSql := vSql ||agrega||$$ COUNT( CASE WHEN (n.producto IS null OR (n.producto IS NOT null AND r.periodo > n.hasta_periodo))  AND periodo BETWEEN '$$||vreglas.desde||$$' AND '$$||vreglas.hasta||$$' THEN precionormalizado ELSE NULL END) >= $$ ||vreglas.valor; 
 end loop;
 
-vsql := vSql||$$ as incluido 
+if vhayreglas then
+  vsql := vSql||$$ as incluido $$;
+end if;
+vsql := vSql||$$
         FROM RelPre r 
           INNER JOIN Informantes i ON r.informante=i.informante -- PK verificada
           INNER JOIN ProdDiv pd ON pd.producto=r.producto AND (pd.TipoInformante=i.TipoInformante OR pd.sinDividir) -- UK verificada

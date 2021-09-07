@@ -788,7 +788,7 @@ NETWORK:
                     {menuType:'table'        , name:'calculos_novprod'  , label:'administración de externos', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table'        , name:'proddivestimac'    , label:'umbrales para estimaciones', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'copia_calculo', name:'copias'            , label:'copias', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'proc'         , name:'periodobase_correr', label:'periodobase', onlyVisibleFor:[programador,migracion]},
+                    {menuType:'proc'         , name:'periodobase_correr', label:'periodobase', onlyVisibleFor:[programador,migracion,coordinador,analista]},
                 ]},
                 {menuType:'table', name:'calculos_novobs', label:'altas y bajas manuales del cálculo', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_novpre', label:'anulación de precios', onlyVisibleFor:[programador,coordinador,analista]},
