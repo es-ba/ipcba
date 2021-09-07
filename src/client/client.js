@@ -235,7 +235,7 @@ my.clientSides.navegar_cambio = {
             var cambio = depot.rowControls[fieldName].getTypedValue();
             if(cambio=='C'){
                 var detailDef=depot.detailControls.relatr;
-                if(!detailDef.show){
+                if(detailDef && !detailDef.show){
                     var gridReady = detailDef.displayDetailGrid({fixedFields:detailDef.calculateFixedFields(), detailing:{}},{});
                     gridReady.then(function(grid){
                         if(grid.depots.length){
@@ -814,7 +814,7 @@ my.setPlaceHolder = function setPlaceHolderWithDefault(typedControl, valueOrCond
 my.clientSides.ingreso_tipoprecio = {
     update:function(depot, fieldName){
         var detailDef=depot.detailControls.relatr;
-        if(detailDef.show && depot.row.cambio == null && depot.rowControls.cambio.getTypedValue() == 'C'){
+        if(detailDef && detailDef.show && depot.row.cambio == null && depot.rowControls.cambio.getTypedValue() == 'C'){
             detailDef.forceDisplayDetailGrid({fixedFields:detailDef.calculateFixedFields(), detailing:{}},{});
         }
     },
