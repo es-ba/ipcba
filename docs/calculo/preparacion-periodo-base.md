@@ -28,6 +28,8 @@ select *
 
 ```sql
 CREATE OR REPLACE FUNCTION cvp.periodobase(
+    pPeriodoHasta text, 
+    pCalculo numeric, 
     psolopreparar_nocalcular boolean DEFAULT false)
     RETURNS text
     LANGUAGE 'plpgsql'
@@ -40,125 +42,59 @@ declare
   vPeriodoLimiteInfBase text       /*:='a2011m07'*/;
   vPeriodoLimiteSupBase text       /*:='a2012m06'*/;
   vPeriodoLimiteSupNormal text     /*:='a2012m08'*/;
+  vCalculoRetrocede integer;
   vCorridoProp boolean:=false;
   vMaxPasos integer:=99;
   vPeriodo text;
-  vPrimerPeriodo text:=(select min(periodo) from periodos);
-  vpbCalculo integer:=(select pb_calculo from parametros where unicoregistro);
-  vCalculo integer;
-  vPeriodo_1 text;
-  vCalculo_1 integer;
   vDummy text;
   vMaxLoop integer;
-  vParaBorrarCalculo record;
-  cParaBorrarCalculo cursor for
+  vParaRecorrerCalculo record;
+  cParaRecorrerCalculo cursor for
     select * 
       from Calculos, parametros 
-      where unicoregistro and calculo in (0,vpbCalculo) and periodo between ph_desde and pb_supnormal
-      order by case when calculo=0 then periodo else null end,
-               case when calculo=vpbCalculo then periodo else null end desc;      
+      where unicoregistro and calculo in (pCalculo,vCalculoRetrocede) 
+        and periodo between vPeriodoLimiteInfPrehistoria and vPeriodoLimiteSupNormal
+      order by case when calculo=pCalculo then null else periodo end desc null last, -- primero los del retroceso
+               case when calculo=pCalculo then periodo else null end desc;      
 begin
   vEmpezo:=clock_timestamp(); 
-  set search_path = cvp, comun, public;
-  select ph_desde, pb_desde, pb_hasta, pb_supnormal
-    into vPeriodoLimiteInfPrehistoria, vPeriodoLimiteInfBase, vPeriodoLimiteSupBase, vPeriodoLimiteSupNormal 
-    from parametros
-    where unicoregistro;
-  for vParaBorrarCalculo in cParaBorrarCalculo loop
-    execute Calculo_Borrar(vParaBorrarCalculo.periodo,vParaBorrarCalculo.calculo);
-    DELETE FROM calprodresp      WHERE periodo = vParaBorrarCalculo.periodo and calculo = vParaBorrarCalculo.calculo;
-    --DELETE FROM calhoggru        WHERE periodo = vParaBorrarCalculo.periodo and calculo = vParaBorrarCalculo.calculo;
-    --DELETE FROM calhogsubtotales WHERE periodo = vParaBorrarCalculo.periodo and calculo = vParaBorrarCalculo.calculo;
+  -- esto tiene que estar: set search_path = cvp, comun, public;
+  select calculoAnterior strict into vCalculoRetrocede
+    from periodos
+    where calculo = pCalculo and calculoAnterior <> pCalculo;
+  select 
+      min(periodo) filter (where calculo = pCalculo),
+      min(periodo) filter (where calculo = pCalculo and calculoAnterior = vCalculoRetrocede),
+      max(periodo) filter (where calculo = vCalculoRetrocede),
+      max(periodo) filter (where calculo = pCalculo)
+    into 
+      vPeriodoLimiteInfPrehistoria,
+      vPeriodoLimiteInfBase,
+      vPeriodoLimiteSupBase,
+      vPeriodoLimiteSupNormal
+    from periodos
+    where calculo in (pCalculo, vCalculoRetrocede)
+      and (periodo <= pPeriodoHasta or calculo = vCalculoRetrocede);
+  for vParaRecorrerCalculo in cParaRecorrerCalculo loop
+    execute Calculo_Borrar(vParaRecorrerCalculo.periodo,vParaRecorrerCalculo.calculo);
+    DELETE FROM calprodresp      WHERE periodo = vParaRecorrerCalculo.periodo and calculo = vParaRecorrerCalculo.calculo;
+    DELETE FROM calhoggru        WHERE periodo = vParaRecorrerCalculo.periodo and calculo = vParaRecorrerCalculo.calculo;
+    DELETE FROM calhogsubtotales WHERE periodo = vParaRecorrerCalculo.periodo and calculo = vParaRecorrerCalculo.calculo;
   end loop;
-  /* usamos los registros de la tabla calculo sin borrarlos:{
-  update Calculos set periodoAnterior=null, calculoAnterior=null
-    where (calculo in (0,vpbCalculo) or calculo > 0) and periodo >= vPeriodoLimiteInfPrehistoria;
-  delete from Calculos where calculo in (0,vpbCalculo) and periodo >= vPeriodoLimiteInfPrehistoria;
-  }*/
-  delete from calculos 
-    where calculo in (select pb_calculo from parametros where unicoregistro);
-
-  if true then
-    DELETE FROM pb_calculos_reglas;
-    /* Por ahora, sin reglas {
-    INSERT INTO pb_calculos_reglas (
-    calculo,tipo_regla,num_regla,desde,hasta,valor
-    ) VALUES (
-    '0','mes inicio','1',null,'a2011m07','estricta'
-    ),(
-    '0','mes inicio','2',null,'a2010m01','ultima'
-    ),(
-    '0','inclusion','1','a2012m06','a2012m07','2'
-    ),(
-    '0','inclusion','2','a2012m05','a2012m06','2'
-    ),(
-    '0','inclusion','3','a2012m01','a2012m05','3'
-    ),(
-    '0','inclusion','4','a2010m01','a2012m05','6'
-    ),(
-    '0','meses baja','1',null,'a2012m07','3'
-    );
-    }*/
-  end if;
-  execute CalBase_Periodos(0);
-  vPeriodo:=vPeriodoLimiteSupBase;
-  vCalculo:=vpbCalculo;
-  vPeriodo_1:=vPeriodo;
-  vCalculo_1:=vCalculo;
-  loop
+  execute CalBase_Periodos(vCalculo); 
+  for vParaRecorrerCalculo in cParaRecorrerCalculo loop
+    vPeriodo:=vParaRecorrerCalculo.periodo;
+    vCalculo:=vParaRecorrerCalculo.calculo;
+    vPeriodo_1:=vParaRecorrerCalculo.periodoAnterior;
+    vCalculo_1:=vParaRecorrerCalculo.calculoAnterior;
     if (vPeriodo>vPeriodoLimiteSupBase or vPeriodo is null) and not vCorridoProp then
       execute Cal_PerBase_Prop(0,vPeriodoLimiteInfBase,vPeriodoLimiteSupBase);
       vCorridoProp:=true;
     end if;
-  exit when vmaxPasos=0 or vCalculo=0 and vPeriodo>vPeriodoLimiteSupNormal;
-     /* updateamos en lugar de borrar e insertar en calculos: {
-     insert into Calculos (periodo , calculo , periodoAnterior, calculoAnterior, abierto, 
-                          esPeriodoBase, pb_calculobase
-                          )
-      values             (vPeriodo, vCalculo, vPeriodo_1     , vCalculo_1     ,  'S'   , 
-                          case when vPeriodo>vPeriodoLimiteSupBase then 'N' else 'S' end, 
-                          case when vPeriodo<=vPeriodoLimiteSupBase and vCalculo=0 then -1 else null end
-                          );
-    }*/
     raise notice 'vPeriodo: %    vcalculo: %     vPeriodo_1: %       vcalculo_1: %', vPeriodo, vcalculo, vperiodo_1, vcalculo_1;
-    if vCalculo = vpbCalculo then
-        insert into Calculos (periodo , calculo , periodoAnterior, calculoAnterior, abierto, 
-                             esPeriodoBase, pb_calculobase
-                             )
-         values             (vPeriodo, vCalculo, vPeriodo_1     , vCalculo_1     ,  'S'   , 
-                             case when vPeriodo>vPeriodoLimiteSupBase then 'N' else 'S' end, 
-                             case when vPeriodo<=vPeriodoLimiteSupBase and vCalculo=0 then -1 else null end
-                             );
-    else
-       UPDATE calculos set periodoAnterior = vPeriodo_1, 
-                            calculoAnterior = vCalculo_1, 
-                                 abierto = 'S', 
-                                 esPeriodoBase = case when vPeriodo>vPeriodoLimiteSupBase then 'N' else 'S' end, 
-                                 pb_calculobase = case when vPeriodo<=vPeriodoLimiteSupBase and vCalculo=0 then -1 else null end
-          WHERE periodo = vPeriodo AND  calculo = vCalculo;
-     end if;
-     if not pSoloPreparar_NoCalcular then
+    if not pSoloPreparar_NoCalcular then
       select CalcularUnPeriodo(vPeriodo, vCalculo)
         into vDummy;
-    end if;
-    vMaxPasos:=vMaxPasos-1;
-    vPeriodo_1:=vPeriodo;
-    vCalculo_1:=vCalculo;
-    if vCalculo=vpbCalculo then
-      select periodoAnterior into vPeriodo
-        from Periodos
-        where periodo=vPeriodo;
-      if vPeriodo is null or vPeriodo<vPeriodoLimiteInfPrehistoria then
-        vPeriodo:=vPeriodo_1;
-        vCalculo:=0;
-      end if;
-    else
-      select periodo into vPeriodo 
-        from Periodos
-        where periodoAnterior=vPeriodo;
-      if vPeriodo is null then
-        vMaxPasos:=0; -- Fin
-      end if;
     end if;
   end loop;
   vTermino:=clock_timestamp();  
