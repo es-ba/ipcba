@@ -59,7 +59,7 @@ declare
       where unicoregistro and calculo in (pCalculo,vCalculoRetrocede) 
         and periodo between vPeriodoLimiteInfPrehistoria and vPeriodoLimiteSupNormal
       order by case when calculo=pCalculo then null else periodo end desc nulls last, -- primero los del retroceso
-               case when calculo=pCalculo then periodo else null end desc;      
+               case when calculo=pCalculo then periodo else null end;      
 begin
   vEmpezo:=clock_timestamp(); 
   -- esto tiene que estar: 
