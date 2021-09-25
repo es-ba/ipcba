@@ -56,12 +56,6 @@ IF v_operacion='I' THEN
          VALUES ('cvp','parametros','periodoreferenciaparapreciospositivos','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.periodoreferenciaparapreciospositivos),new.periodoreferenciaparapreciospositivos);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_number)
          VALUES ('cvp','parametros','solo_cluster','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.solo_cluster),new.solo_cluster);
-    INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
-         VALUES ('cvp','parametros','pb_supnormal','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_supnormal),new.pb_supnormal);     
-    INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_bool)
-         VALUES ('cvp','parametros','pb_habilitado','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_habilitado),new.pb_habilitado);
-    INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_number)
-         VALUES ('cvp','parametros','pb_calculo','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_calculo),new.pb_calculo);
 END IF;
 IF v_operacion='U' THEN    
     IF new.unicoregistro IS DISTINCT FROM old.unicoregistro THEN
@@ -160,18 +154,6 @@ IF v_operacion='U' THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','solo_cluster','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.solo_cluster)||'->'||comun.a_texto(new.solo_cluster),old.solo_cluster,new.solo_cluster);
     END IF;    
-    IF new.pb_supnormal IS DISTINCT FROM old.pb_supnormal THEN
-        INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
-             VALUES ('cvp','parametros','pb_supnormal','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.pb_supnormal)||'->'||comun.a_texto(new.pb_supnormal),old.pb_supnormal,new.pb_supnormal);
-    END IF;
-    IF new.pb_habilitado IS DISTINCT FROM old.pb_habilitado THEN
-        INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_bool,new_bool)
-             VALUES ('cvp','parametros','pb_habilitado','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.pb_habilitado)||'->'||comun.a_texto(new.pb_habilitado),old.pb_habilitado,new.pb_habilitado);
-    END IF;    
-    IF new.pb_calculo IS DISTINCT FROM old.pb_calculo THEN
-        INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
-             VALUES ('cvp','parametros','pb_calculo','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.pb_calculo)||'->'||comun.a_texto(new.pb_calculo),old.pb_calculo,new.pb_calculo);
-    END IF;    
 END IF;
 IF v_operacion='D' THEN  
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_bool)
@@ -222,12 +204,6 @@ IF v_operacion='D' THEN
          VALUES ('cvp','parametros','periodoreferenciaparapreciospositivos','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.periodoreferenciaparapreciospositivos),old.periodoreferenciaparapreciospositivos);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number)
          VALUES ('cvp','parametros','solo_cluster','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.solo_cluster),old.solo_cluster);
-    INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text)
-         VALUES ('cvp','parametros','pb_supnormal','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_supnormal),old.pb_supnormal);          
-    INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_bool)
-         VALUES ('cvp','parametros','pb_habilitado','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_habilitado),old.pb_habilitado);
-    INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number)
-         VALUES ('cvp','parametros','pb_calculo','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_calculo),old.pb_calculo);
 END IF;
 
   IF v_operacion<>'D' THEN
