@@ -1453,22 +1453,15 @@ ProceduresIpcba = [
     {
         action:'periodobase_correr',
         parameters:[
-            {name:'ejecutar', typeName:'boolean'},
+            {name:'periodo' , typeName:'text'   , references:'periodos'},
+            {name:'calculo' , typeName:'integer', defaultValue:20      },
+            {name:'ejecutar', typeName:'boolean'                       },
         ],
         roles:['programador','migracion','analista','coordinador'],
         coreFunction:async function(context, parameters){
-            try{
-                await context.client.query(
-                    `update Calculos c set periodoAnterior=null, calculoAnterior=null from 
-                           (select periodo, calculo , periodoAnterior, calculoAnterior 
-                           from calculos, parametros 
-                           where unicoregistro and pb_habilitado and 
-                           (calculo in (0,pb_calculo) or calculo > 0) and periodo between ph_desde and pb_supnormal) d
-                     where c.calculo = d.calculo and c.periodo = d.periodo`,
-                ).execute();
-                await context.client.query(
-                    `SELECT periodobase() from parametros where $1 and pb_habilitado`,
-                    [parameters.ejecutar]
+            try{await context.client.query(
+                    `SELECT periodobase($1, $2) where $3;`,
+                    [parameters.periodo, parameters.calculo, parameters.ejecutar]
                 ).onNotice((progressInfo)=>{
                    progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
                    context.informProgress(progressInfo);
