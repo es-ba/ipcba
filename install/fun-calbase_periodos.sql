@@ -5,7 +5,7 @@ DECLARE
 vSql text;
 vreglas RECORD;
 agrega text;
-vhayreglas boolean := false;  
+vhayreglas boolean := (select count(*) > 0 from cvp.pb_calculos_reglas where calculo = pcalculo);  
 BEGIN   
   --EXECUTE Cal_Mensajes(null, pCalculo, 'CalBase_Periodos', pTipo:='comenzo');
 
@@ -43,7 +43,7 @@ BEGIN
         ) 
     FROM pb_calculos_reglas r, 
          ProdDiv pd inner join CalBase_Prod c on c.producto=pd.producto
-    WHERE c.calculo=pCalculo
+    WHERE c.calculo=pCalculo AND r.calculo = c.calculo
       AND r.tipo_regla='meses baja';
 
 vSql := $$INSERT INTO calbase_obs (calculo, producto, informante, observacion, periodo_aparicion, periodo_anterior_baja$$;
@@ -87,7 +87,7 @@ vsql := vSql||$$
           LEFT JOIN CalBase_Div d ON d.calculo = $$||pCalculo||$$ AND r.producto = d.producto AND d.Division=pd.Division -- PK verificada
           INNER JOIN Calculos_def cd ON cd.calculo=d.calculo  --PK verificada
           INNER JOIN Gru_Prod gp ON cd.grupo_raiz = gp.grupo_padre AND r.producto = gp.producto  --PK verificada
-          LEFT JOIN Novobs_Base n ON r.producto=n.producto AND r.informante=n.informante AND r.observacion=n.observacion  --PK verificada de Novobs_base
+          LEFT JOIN Novobs_Base n ON d.calculo = n.calculo and r.producto=n.producto AND r.informante=n.informante AND r.observacion=n.observacion  --PK verificada de Novobs_base
         GROUP BY r.producto, r.informante, r.observacion, ultimo_mes_anterior_bajas) as CBO;$$; 
 EXECUTE vSql;
 
