@@ -38,7 +38,7 @@ module.exports = function(context){
                           t.encuestador encuestador_titular, te.nombre||' '||te.apellido as titular, rt.encuestador, 
                           case when rt.encuestador=t.encuestador then null else nullif(concat_ws(' ', tre.nombre, tre.apellido),'') end as suplente,
                           nullif(nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1),0) as sobrecargado,
-                          rt.fechasalidadesde, rt.fechasalidahasta, pt.modalidad
+                          rt.fechasalidadesde, rt.fechasalidahasta, rt.modalidad
                      from reltar rt
                        left join tareas t on rt.tarea = t.tarea
                        left join pantar pt on rt.panel = pt.panel and rt.tarea = pt.tarea

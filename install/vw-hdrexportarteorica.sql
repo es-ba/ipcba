@@ -28,7 +28,7 @@ CREATE OR REPLACE VIEW hdrexportarteorica AS
                 FROM cvp.relvis v 
                 JOIN cvp.parametros par ON unicoregistro AND v.periodo = par.periodoReferenciaParaPanelTarea
                 GROUP BY informante, visita) pt ON c.informante = pt.informante AND c.visita = pt.visita
-    LEFT JOIN cvp.pantar pta on c.panel = pta.panel and c.tarea = pta.tarea  
+    LEFT JOIN cvp.reltar pta on c.periodo = pta.periodo and c.panel = pta.panel and c.tarea = pta.tarea  
   GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
     i.contacto, c.conjuntomuestral, 
     c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,

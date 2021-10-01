@@ -18,7 +18,6 @@ module.exports = function(context){
             {name:'grupozonal'             , typeName:'text'                    , allow:{update:puedeEditar}},
             {name:'panel2009'              , typeName:'integer'                 , allow:{update:puedeEditar}},
             {name:'tamannosupervision'     , typeName:'integer'                 , allow:{update:puedeEditar}},
-            {name:'modalidad'              , typeName:'text'                    , allow:{update:puedeEditar}},
         ],
         primaryKey:['panel','tarea'],
         hiddenColumns:['grupozonal','panel2009','tamannosupervision'],

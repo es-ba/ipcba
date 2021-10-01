@@ -483,10 +483,9 @@ function dm2CrearQueries(parameters){
                 (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                 current_date as fecha_carga,
                 rt.panel, rt.tarea, rt.periodo,
-                pt.modalidad,
+                rt.modalidad,
                 ${json(sqlInformantes,'direccion, informante')} as informantes
             FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
-                inner join pantar pt on rt.panel = pt.panel and rt.tarea = pt.tarea
             WHERE rt.periodo=$1 
                 AND rt.panel=$2 
                 AND rt.tarea=$3
