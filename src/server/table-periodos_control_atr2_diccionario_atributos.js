@@ -6,7 +6,7 @@ var definnerPeriodo = require('../server/table-periodos.js');
 module.exports = function(context){
     var defNewElement = definnerPeriodo(context);
     defNewElement=changing(defNewElement,{
-        name:'periodos_control_diccionario_atributos',
+        name:'periodos_control_atr2_diccionario_atributos',
         tableName:'periodos',
         editable:false,
         allow:{
@@ -19,7 +19,7 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'    , nullable:false},
         ],
         detailTables:[
-            {table: 'relpre_control_diccionario_atributos' , fields:['periodo'], abr:'DA' , label: 'Control diccionario de atributos'},
+            {table: 'relpre_control_atr2_diccionario_atributos' , fields:['periodo'], abr:'DA' , label: 'Control (atr2) diccionario de atributos'},
         ],
     });
     defNewElement.sql={
