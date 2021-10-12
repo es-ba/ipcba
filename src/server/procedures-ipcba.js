@@ -2010,7 +2010,7 @@ ProceduresIpcba = [
             {name:'otropanel'  , typeName:'integer'                          },
             {name:'otratarea'  , typeName:'integer'                          },
         ],
-        roles:['programador', 'coordinador'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `SELECT rv.periodo, rv.informante, rv.visita, rv.formulario, rv.panel, rv.tarea, rt.panel otropanel, rt.tarea otratarea
@@ -2036,7 +2036,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
-        roles:['programador', 'coordinador'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE relvis SET panel = $4, tarea = $5 
@@ -2064,7 +2064,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
-        roles:['programador','coordinador'],
+        roles:['programador','coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE relvis r set panel = otropanel, tarea = otratarea
@@ -2100,7 +2100,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer'                          },
         ],
-        roles:['programador','coordinador'],
+        roles:['programador','coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE relvis SET panel = $5, tarea = $6 
@@ -2148,7 +2148,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'id_lote'       , typeName:'integer'  , references:'cambiopantar_lote'}
         ],
-        roles:['programador','coordinador'],
+        roles:['programador','coordinador','analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
