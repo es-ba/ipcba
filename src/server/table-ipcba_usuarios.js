@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var admin=context.user.rol==='programador';
+    var admin=context.user.usu_rol==='programador';
     return context.be.tableDefAdapt({
         name: "usuarios",
         title:'usuarios del sistema',
@@ -15,5 +15,11 @@ module.exports = function(context){
             {name:'usu_mail'        , typeName:'text'      },
         ],
         primaryKey: ['usu_usu'],
+        sql:{
+            policies:{
+                select: {using:"true" },
+                update: {using:"usu_usu = current_user", check:"usu_usu = current_user"}
+            }
+        }
     });
 }
