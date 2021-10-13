@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador'|| context.user.usu_rol ==='analista';
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
     return context.be.tableDefAdapt({
         name:'productos',
@@ -27,7 +27,7 @@ module.exports = function(context){
             {name:'porc_adv_inf'                , typeName:'decimal'                                 , allow:{update:puedeEditar||puedeEditarMigracion} },
             {name:'porc_adv_sup'                , typeName:'decimal'                                 , allow:{update:puedeEditar||puedeEditarMigracion} },
             {name:'tipoexterno'                 , typeName:'text'                                    , allow:{update:puedeEditar||puedeEditarMigracion} },
-            {name:'nombreparaformulario'        , typeName:'text'                                    , allow:{select:puedeEditarMigracion}},
+            {name:'nombreparaformulario'        , typeName:'text'                                    , allow:{select:puedeEditar||puedeEditarMigracion}},
             {name:'serepregunta'                , typeName:'boolean'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'nombreparapublicar'          , typeName:'text'                                    , allow:{update:puedeEditarMigracion}},
             {name:'calculo_desvios'             , typeName:'text', default:'N', defaultValue:'N'     , allow:{update:puedeEditarMigracion}},
