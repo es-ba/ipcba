@@ -44,6 +44,7 @@ class AppIpcba extends backendPlus.AppBackend{
               default:
                 local-path: node_modules/backend-skins/dist/
             session-store: memory-saved
+            keep-alive: true
           db:
             motor: postgresql
             host: localhost
