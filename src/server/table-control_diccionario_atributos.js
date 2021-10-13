@@ -24,35 +24,32 @@ module.exports = function(context){
             {name:'valor'                        , typeName:'text'   , allow:{update:true}, postInput:'upperSpanish'},
             {name:'comentariosrelpre'            , typeName:'text', allow:{update:false}},
             {name:'esvisiblecomentarioendm'      , typeName:'boolean', title:'Ver', allow:{update:false}},
-            {name:'otroatributo'                 , typeName:'integer', allow:{update:false}},
-            {name:'otrovalor'                    , typeName:'text', title:'novalido', allow:{update:false}},
-            {name:'otrovalorvalidar'             , typeName:'text', title:'validos', allow:{update:false}}
+            {name:'inconsistente'                , typeName:'text', allow:{update:false}}
         ],
         primaryKey:['periodo','producto','informante','visita','observacion','atributo'],
+        hiddenColumns:['inconsistente'],
         detailTables:[
             {table:'relpre', abr:'PRE', label:'precio', fields:['periodo','producto','informante','visita','observacion'], refreshParent: true},
-            {table:'relatr', abr:'ATR', label:'atributo', fields:['periodo','producto','informante','visita','observacion',{source:'otroatributo', target:'atributo'}], refreshParent: true},
         ],
         foreignKeys:[
             {references:'productos', fields:['producto']},
             {references:'atributos', fields:['atributo']},
-            {references:'atributos', fields:[{source:'otroatributo', target:'atributo'}], alias:'atr'},
             {references:'informantes', fields:['informante']},
+        ],
+        filterColumns:[
+            {column:'inconsistente', operator:'=' , value:'S'}
         ],
         sql:{
             isTable: false,
-            from:`(select a.periodo, vis.panel, vis.tarea, a.producto, a.informante, pre.formulario, a.visita, a.observacion, a.atributo, a.valor, pre.comentariosrelpre, 
-                      pre.esvisiblecomentarioendm, p.valor vvalido, p.atributo_2 otroatributo, p.valor_2 otrovalorvalidar, aa.valor otrovalor
-                      from cvp.relatr a
-                      join cvp.prodatr pa on a.producto =  pa.producto and a.atributo = pa.atributo and coalesce(pa.validaropciones, true) 
-                      join cvp.relpre pre on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
-                      join cvp.relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
-                      left join cvp.tipopre t on pre.tipoprecio = t.tipoprecio
-                      left join cvp.prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
-                      left join cvp.relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and 
-                      a.producto = aa.producto and a.visita = aa.visita and a.observacion = aa.observacion
-                      and p.atributo_2 = aa.atributo
-                      where (p.valor is null or (p.atributo_2 is not null and regexp_match(p.valor_2, aa.valor) is null)) and t.activo ='S' and t.espositivo = 'S')`,
+            from:`(select a.periodo,vis.panel, vis.tarea, a.producto, a.atributo , a.informante, pre.formulario, a.visita, a.observacion, a.valor, pre.comentariosrelpre,
+                    pre.esvisiblecomentarioendm, case when p.valor is null then 'S' else 'N' end as inconsistente
+                    from cvp.relatr a
+                    join cvp.prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                    join cvp.relpre pre on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
+                    join cvp.relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
+                    left join cvp.prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
+                    left join cvp.tipopre t on pre.tipoprecio = t.tipoprecio
+                    where coalesce(pa.validaropciones, true) and t.activo ='S' and t.espositivo = 'S')`,
             },
     },context);
 }

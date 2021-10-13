@@ -34,6 +34,7 @@ module.exports = function(context){
             {name:'archivo_hdr'                , typeName:'text'     , allow:{select:false}                                        },
             {name:'fechasalidadesde'           , typeName:'date'     , allow:{update:puedeEditar}                                  },
             {name:'fechasalidahasta'           , typeName:'date'     , allow:{update:puedeEditar}                                  },
+            {name:'modalidad'                  , typeName:'text'     , postInput:'upperSpanish', allow:{update:puedeEditar}        },
         ],
         primaryKey:['periodo','panel','tarea'],
         foreignKeys:[

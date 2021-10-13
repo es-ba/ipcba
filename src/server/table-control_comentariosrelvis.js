@@ -42,7 +42,7 @@ module.exports = function(context){
              LEFT JOIN cvp.personal pr ON r.recepcionista::text = pr.persona::text
              LEFT JOIN cvp.rubros u ON i.rubro = u.rubro
              LEFT JOIN cvp.formularios f ON r.formulario = f.formulario
-             LEFT JOIN cvp.pantar pt on r.panel = pt.panel and r.tarea = pt.tarea
+             LEFT JOIN cvp.reltar pt on r.periodo = pt.periodo and r.panel = pt.panel and r.tarea = pt.tarea
             WHERE r.comentarios IS NOT NULL)`
         }
     },context);

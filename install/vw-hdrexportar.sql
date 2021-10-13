@@ -17,7 +17,7 @@ CREATE OR REPLACE VIEW hdrexportar AS
                 FROM cvp.control_hojas_ruta cr 
                 LEFT JOIN cvp.razones z using(razon)
                 GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
-      LEFT JOIN cvp.pantar pta on c.panel = pta.panel and c.tarea = pta.tarea
+      LEFT JOIN cvp.reltar pta on c.periodo = pta.periodo and c.panel = pta.panel and c.tarea = pta.tarea
   GROUP BY c.periodo, c.panel, c.tarea, c.fechasalida, c.informante, i.tipoinformante, c.encuestador, c.nombreencuestador, c.recepcionista, c.nombrerecepcionista, 
     c.ingresador, c.nombreingresador, c.supervisor, c.nombresupervisor, c.visita, c.nombreinformante, c.direccion, 
     (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text, c.conjuntomuestral, 

@@ -483,10 +483,9 @@ function dm2CrearQueries(parameters){
                 (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                 current_date as fecha_carga,
                 rt.panel, rt.tarea, rt.periodo,
-                pt.modalidad,
+                rt.modalidad,
                 ${json(sqlInformantes,'direccion, informante')} as informantes
             FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
-                inner join pantar pt on rt.panel = pt.panel and rt.tarea = pt.tarea
             WHERE rt.periodo=$1 
                 AND rt.panel=$2 
                 AND rt.tarea=$3
@@ -2011,7 +2010,7 @@ ProceduresIpcba = [
             {name:'otropanel'  , typeName:'integer'                          },
             {name:'otratarea'  , typeName:'integer'                          },
         ],
-        roles:['programador', 'coordinador'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `SELECT rv.periodo, rv.informante, rv.visita, rv.formulario, rv.panel, rv.tarea, rt.panel otropanel, rt.tarea otratarea
@@ -2037,7 +2036,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
-        roles:['programador', 'coordinador'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE relvis SET panel = $4, tarea = $5 
@@ -2065,7 +2064,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
-        roles:['programador','coordinador'],
+        roles:['programador','coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE relvis r set panel = otropanel, tarea = otratarea
@@ -2101,7 +2100,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer'                          },
         ],
-        roles:['programador','coordinador'],
+        roles:['programador','coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE relvis SET panel = $5, tarea = $6 
@@ -2149,7 +2148,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'id_lote'       , typeName:'integer'  , references:'cambiopantar_lote'}
         ],
-        roles:['programador','coordinador'],
+        roles:['programador','coordinador','analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
