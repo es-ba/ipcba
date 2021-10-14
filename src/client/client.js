@@ -1132,7 +1132,8 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         TypedControls.adaptElement(controlPanelHasta     ,{typeName:'integer'                       });
         TypedControls.adaptElement(controlTareaHasta     ,{typeName:'integer'                       });
         const lineStyles = `
-            margin: 5px 0px
+            margin: 5px 0px;
+            min-height: 15px;
         `
         layout.appendChild(
             html.div([
@@ -1148,27 +1149,29 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                         html.div({style:lineStyles},[html.span(["tarea hasta ", controlTareaHasta])]),
                     ]),
                 ]),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td({style:'width:700px'},[html.td([botonBuscarDesde]),html.span(' '),html.td([botonBuscar]),]), 
-                        html.td({style:'width:700px'},[html.td([botonBuscarHasta]),]), 
+                html.div({style:'display:grid; grid-template-columns:50% 50%'},[
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles},[html.span([botonBuscarDesde])]),
+                        html.div({style:lineStyles},[html.span([botonBuscar])]),
+                        html.div({style:lineStyles},[html.span([botonCambiarDesde])]),
+                    ]),
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles},[html.span([botonBuscarHasta])]),
+                        html.div({style:lineStyles},[html.span([])]),
+                        html.div({style:lineStyles},[html.span([botonCambiarHasta])]),
                     ]),
                 ]),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td({style:'width:700px'},[html.td([botonCambiarDesde]),]), 
-                        html.td({style:'width:700px'},[html.td([botonCambiarHasta]),]), 
-                    ])
+                html.div({style:'display:grid; grid-template-columns:100%'},[
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles + 'align-self:center;'},[html.span([botonIntercambiar])]),
+                    ]),
                 ]),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td({style:'width:1400px; display:flex; justify-content:center'},[html.td([botonIntercambiar]),]), 
-                    ])
-                ]),
-                html.table({class:'table-param-screen'},[
-                    html.tr({style:'display:flex'},[
-                        html.td({style:'min-width:700px;'},[divGrillaDesde]),
-                        html.td({style:'min-width:700px;'},[divGrillaHasta]),
+                html.div({style:'display:grid; grid-template-columns:50% 50%'},[
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles},[html.span([divGrillaDesde])]),
+                    ]),
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles},[html.span([divGrillaHasta])]),
                     ]),
                 ]),
             ]).create()
