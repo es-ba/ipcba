@@ -943,12 +943,17 @@ my.clientSides.cambiarPanelTareaUnInf = botonClientSideEnGrilla({
 my.wScreens.cambiar_paneltarea=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
-        var controlPeriodoDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:1}).create();
-        var controlPanelDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:2}).create();
-        var controlTareaDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:3}).create();
-
-        var controlPanelHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:4}).create();
-        var controlTareaHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:5}).create();
+        const inputStyles = `
+            border-width: 1px;
+            border-style: solid;
+            min-width: 100px;
+            padding: 5px;
+        `
+        var controlPeriodoDesde=html.td({style:inputStyles, "typed-controls-direct-input":"true"}).create();
+        var controlPanelDesde=  html.td({style:inputStyles, "typed-controls-direct-input":"true"}).create();
+        var controlTareaDesde=  html.td({style:inputStyles, "typed-controls-direct-input":"true"}).create();
+        var controlPanelHasta=  html.td({style:inputStyles, "typed-controls-direct-input":"true"}).create();
+        var controlTareaHasta=  html.td({style:inputStyles, "typed-controls-direct-input":"true"}).create();
 
         var botonBuscarDesde=html.button("buscar desde").create();
         var botonBuscarHasta=html.button("buscar hasta").create();
@@ -1126,24 +1131,21 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         TypedControls.adaptElement(controlTareaDesde     ,{typeName:'integer'                       });
         TypedControls.adaptElement(controlPanelHasta     ,{typeName:'integer'                       });
         TypedControls.adaptElement(controlTareaHasta     ,{typeName:'integer'                       });
+        const lineStyles = `
+            margin: 5px 0px
+        `
         layout.appendChild(
             html.div([
                 html.div({class:'titulo-form'},"cambiar panel-tarea"),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td("periodo"), controlPeriodoDesde, html.td({style:'min-width:200px'})
+                html.div({style:'margin: 5px 0px'},[html.span(["periodo ", controlPeriodoDesde])]),
+                html.div({style:'display:grid; grid-template-columns:50% 50%'},[
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles},[html.span(["panel desde ", controlPanelDesde])]),
+                        html.div({style:lineStyles},[html.span(["tarea desde ", controlTareaDesde])]),
                     ]),
-                ]),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td({style:'width:700px'},[html.td("panel desde"), controlPanelDesde,]),
-                        html.td({style:'width:700px'},[html.td("panel hasta"), controlPanelHasta,]),
-                    ]),
-                ]),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td({style:'width:700px'},[html.td("tarea desde "), controlTareaDesde,]),
-                        html.td({style:'width:700px'},[html.td("tarea hasta "), controlTareaHasta,]),
+                    html.div({style:'display:flex; flex-direction:column'},[
+                        html.div({style:lineStyles},[html.span(["panel hasta ", controlPanelHasta])]),
+                        html.div({style:lineStyles},[html.span(["tarea hasta ", controlTareaHasta])]),
                     ]),
                 ]),
                 html.table({class:'table-param-screen'},[
