@@ -943,12 +943,12 @@ my.clientSides.cambiarPanelTareaUnInf = botonClientSideEnGrilla({
 my.wScreens.cambiar_paneltarea=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
-        var controlPeriodoDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
-        var controlPanelDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
-        var controlTareaDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlPeriodoDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:1}).create();
+        var controlPanelDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:2}).create();
+        var controlTareaDesde=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:3}).create();
 
-        var controlPanelHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
-        var controlTareaHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlPanelHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:4}).create();
+        var controlTareaHasta=html.td({style:'min-width:100px', "typed-controls-direct-input":"true", tabindex:5}).create();
 
         var botonBuscarDesde=html.button("buscar desde").create();
         var botonBuscarHasta=html.button("buscar hasta").create();
