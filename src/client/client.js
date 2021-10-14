@@ -1137,7 +1137,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
         layout.appendChild(
             html.div([
                 html.div({class:'titulo-form'},"cambiar panel-tarea"),
-                html.div({style:'margin: 5px 0px'},[html.span(["periodo ", controlPeriodoDesde])]),
+                html.div({style:lineStyles},[html.span(["periodo ", controlPeriodoDesde])]),
                 html.div({style:'display:grid; grid-template-columns:50% 50%'},[
                     html.div({style:'display:flex; flex-direction:column'},[
                         html.div({style:lineStyles},[html.span(["panel desde ", controlPanelDesde])]),
