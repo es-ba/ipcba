@@ -1166,7 +1166,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                         html.div({style:lineStyles + 'align-self:center;'},[html.span([botonIntercambiar])]),
                     ]),
                 ]),
-                html.div({style:'display:grid; grid-template-columns:50% 50%'},[
+                html.div({style:'display:grid; grid-template-columns:50% 50%; min-width:1500px'},[
                     html.div({style:'display:flex; flex-direction:column'},[
                         html.div({style:lineStyles},[html.span([divGrillaDesde])]),
                     ]),
