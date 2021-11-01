@@ -349,7 +349,7 @@ function dm2CrearQueries(parameters){
             , ${jsono(`
                 SELECT p.producto, coalesce(nombreparaformulario,nombreproducto) as nombreproducto, ${ESPECIFICACION_COMPLETA}, e.destacada as destacado,
                         ${json(
-                            `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, validaropciones, 
+                            `SELECT atributo, CASE WHEN mostrar_cant_um='S' THEN true ELSE false END as mostrar_cant_um, valornormal, orden, rangodesde, rangohasta, normalizable='S' as normalizable, prioridad, tiponormalizacion, opciones, validaropciones, alterable='S' as alterable, 
                                 ${json(
                                     `SELECT atributo, valor, orden
                                         FROM prodatrval

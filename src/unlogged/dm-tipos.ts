@@ -32,6 +32,7 @@ export type ProdAtr = {
     lista_prodatrval:string[]
     mostrar_cant_um: boolean
     validaropciones: boolean
+    alterable: boolean
 }
 
 export type Producto={

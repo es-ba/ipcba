@@ -1229,6 +1229,7 @@ const AtributosRow = function(props:{
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<Element|null>(null);
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
+    const esAlterable = estructura.productos[relAtr.producto].atributos[relAtr.atributo].alterable;
     return (
         <>
             <div className="nombre-atributo">{atributo.nombreatributo}</div>
@@ -1273,7 +1274,7 @@ const AtributosRow = function(props:{
                 className="atributo-actual" 
                 inputId={props.inputId}
                 idProximo={props.idProximoAtributo || props.idProximoPrecio}
-                disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre)} 
+                disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre) || !esAlterable} 
                 dataType={adaptAtributoDataTypes(atributo.tipodato)} 
                 value={relAtr.valor} 
                 textTransform='uppercase'
