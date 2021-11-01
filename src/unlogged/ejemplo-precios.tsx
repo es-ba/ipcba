@@ -1229,7 +1229,7 @@ const AtributosRow = function(props:{
     const prodatr = estructura.productos[relAtr.producto].atributos[relAtr.atributo];
     const [menuCambioAtributos, setMenuCambioAtributos] = useState<Element|null>(null);
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
-    const esAlterable = estructura.productos[relAtr.producto].atributos[relAtr.atributo].alterable;
+    const esAlterable = prodatr.alterable;
     return (
         <>
             <div className="nombre-atributo">{atributo.nombreatributo}</div>
