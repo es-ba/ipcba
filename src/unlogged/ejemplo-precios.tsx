@@ -804,6 +804,7 @@ export const materialIoIconsSvgPath={
     Label: "M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z",
     LocalAtm: "M11 17h2v-1h1c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1h-3v-1h4V8h-2V7h-2v1h-1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1h3v1H9v2h2v1zm9-13H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z",
     Menu: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z",
+    NewReleases:"m23 12-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 5h-2v-2h2v2zm0-4h-2V7h2v6z",
     RemoveShoppingCart: "M22.73 22.73L2.77 2.77 2 2l-.73-.73L0 2.54l4.39 4.39 2.21 4.66-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h7.46l1.38 1.38c-.5.36-.83.95-.83 1.62 0 1.1.89 2 1.99 2 .67 0 1.26-.33 1.62-.84L21.46 24l1.27-1.27zM7.42 15c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h2.36l2 2H7.42zm8.13-2c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H6.54l9.01 9zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2z",
     Save:"M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z",
     Search: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z",
@@ -1579,30 +1580,15 @@ function TpAnterior(props:{relPre:RelPre, razonPositiva: boolean}){
 function EspecificacionCompletaRelpre(props:{relPre:RelPre}){
     const {relPre} = props;
     const productoDef:Producto = estructura.productos[relPre.producto];
-    const prodDestacadoBadgeStyle = {backgroundColor:'#b8dbed', color: "#000000"};
-    const comentariosAnalistaBadgeStyles = {backgroundColor:COLOR_ADVERTENCIAS};
     return <>
         <div className="especificacion">
-            <Badge
-                badgeContent={productoDef.destacado?"":null}
-                color={prodDestacadoBadgeStyle.color}
-                backgroundColor={prodDestacadoBadgeStyle.backgroundColor}
-                style={{top: -5, right:-5}}
-            >
-                <span>{productoDef.especificacioncompleta}</span>
-            </Badge>
+            {productoDef.destacado?<span style={{color:"#ffc107", marginRight:5}}><ICON.NewReleases/></span>:null}
+            <span>{productoDef.especificacioncompleta}</span>
         </div>
         {!!relPre.comentariosrelpre_1 && relPre.esvisiblecomentarioendm_1?
             <div className="comentario-analista">
-                <Badge
-                    badgeContent=""
-                    fullWidth={false}
-                    style={{top: 6, right: -10}}
-                    variant="dot"
-                    backgroundColor={comentariosAnalistaBadgeStyles.backgroundColor}
-                >
-                    <span>{relPre.comentariosrelpre_1}</span>
-                </Badge>
+                <span style={{color:COLOR_ADVERTENCIAS, marginRight:5}}><ICON.NewReleases/></span>
+                <span>{relPre.comentariosrelpre_1}</span>
             </div>
             :null
         }
