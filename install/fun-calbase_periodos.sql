@@ -72,12 +72,28 @@ Loop
    if vreglas.num_regla = 1 then
       agrega := ', ';
    else
-      agrega := ' OR';
+      agrega := ' OR ';
    end if;
-   vSql := vSql ||agrega||$$ COUNT( CASE WHEN (n.producto IS null OR (n.producto IS NOT null AND r.periodo > n.hasta_periodo))  AND periodo BETWEEN '$$||vreglas.desde||$$' AND '$$||vreglas.hasta||$$' THEN precionormalizado ELSE NULL END) >= $$ ||vreglas.valor; 
+  /* con 3 reglas
+  if vreglas.num_regla = 1 then
+      agrega := ', ';
+   else
+      if vreglas.num_regla = 2 then
+         agrega := ' AND (';
+      else
+         if vreglas.num_regla = 3 then
+            agrega := ' OR ';
+         end if;
+      end if;
+   end if;
+   */
+   vSql := vSql ||agrega||$$ COUNT (CASE WHEN cierre.periodo_cierre IS null AND (n.producto IS null OR (n.producto IS NOT null AND r.periodo > n.hasta_periodo))  AND periodo BETWEEN '$$||vreglas.desde||$$' AND '$$||vreglas.hasta||$$' THEN precionormalizado ELSE NULL END) >= $$ ||vreglas.valor; 
 end loop;
 
 if vhayreglas then
+  /* con 3 reglas:
+  vsql := vSql||$$) as incluido $$;
+  */
   vsql := vSql||$$ as incluido $$;
 end if;
 vsql := vSql||$$
@@ -88,10 +104,25 @@ vsql := vSql||$$
           INNER JOIN Calculos_def cd ON cd.calculo=d.calculo  --PK verificada
           INNER JOIN Gru_Prod gp ON cd.grupo_raiz = gp.grupo_padre AND r.producto = gp.producto  --PK verificada
           LEFT JOIN Novobs_Base n ON d.calculo = n.calculo and r.producto=n.producto AND r.informante=n.informante AND r.observacion=n.observacion  --PK verificada de Novobs_base
+          LEFT JOIN (select c.informante, c.periodo_cierre, a.ultimo_periodo_activo from
+                       (select r.informante, r.periodo as periodo_cierre
+                          from relvis r left join razones z on r.razon = z.razon
+                          group by informante, periodo 
+                          having min(case when coalesce(escierredefinitivoinf,'N') = 'S' or coalesce(escierredefinitivofor,'N') = 'S' then 'S' else 'N' end) =
+                                 max(case when coalesce(escierredefinitivoinf,'N') = 'S' or coalesce(escierredefinitivofor,'N') = 'S' then 'S' else 'N' end) and 
+                                 min(case when coalesce(escierredefinitivoinf,'N') = 'S' or coalesce(escierredefinitivofor,'N') = 'S' then 'S' else 'N' end) = 'S'
+                          order by r.periodo desc) c left join
+                       (select r.informante, max(periodo) ultimo_periodo_activo
+                          from relvis r left join razones z on r.razon = z.razon
+                          where coalesce(escierredefinitivoinf,'N') = 'N' and coalesce(escierredefinitivofor,'N') = 'N'
+                          group by r.informante) a on c.informante = a.informante
+                     where a.ultimo_periodo_activo is null or a.ultimo_periodo_activo < c.periodo_cierre) AS cierre on r.informante = cierre.informante
         GROUP BY r.producto, r.informante, r.observacion, ultimo_mes_anterior_bajas) as CBO;$$; 
+
 EXECUTE vSql;
 
   --EXECUTE Cal_Mensajes(null, pCalculo, 'CalBase_Periodos', pTipo:='finalizo');
+--raise notice 'sentencia: %', vsql;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
