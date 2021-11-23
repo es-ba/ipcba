@@ -21,7 +21,12 @@ INSERT INTO CalObs(periodo, calculo, producto, informante, observacion, division
      LEFT JOIN CalObs b ON b.periodo = pPeriodo AND b.calculo=pCalculo AND b.informante = a.informante 
        AND b.producto = a.producto AND b.observacion=a.observacion 
      JOIN Informantes i  ON a.informante=i.informante
-     inner join ProdDiv pd on pd.producto=a.producto and (pd.tipoinformante=i.tipoinformante or pd.sindividir)
+     inner join (select producto, division, tipoinformante, sindividir 
+                    from proddiv
+                   union
+                   select producto, divisionhibrido as division, tipoinformante, null as sindividir  
+                    from productos, tipoinf 
+                   where divisionhibrido is not null and otrotipoinformante is null) pd on pd.producto=a.producto and (pd.tipoinformante=i.tipoinformante or pd.sindividir)
      WHERE b.periodo IS NULL AND a.periodo=vPeriodo_1 AND a.calculo=vCalculo_1
         AND (a.AntiguedadConPrecio >0 OR a.AntiguedadIncluido >0) 
    );
