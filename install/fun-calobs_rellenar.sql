@@ -15,12 +15,13 @@ SELECT periodoanterior, calculoanterior, cd.grupo_raiz INTO vPeriodo_1, vCalculo
   WHERE c.periodo=pPeriodo AND c.calculo=pCalculo AND c.calculo= cd.calculo;
 INSERT INTO CalObs(periodo, calculo, producto, informante, observacion, division, PromObs, 
                    ImpObs, AntiguedadConPrecio, AntiguedadSinPrecio, Muestra)
-  (SELECT          pPeriodo, pCalculo, a.producto, a.informante, a.observacion, a.division, NULL,
+  (SELECT          pPeriodo, pCalculo, a.producto, a.informante, a.observacion, CASE WHEN otrotipoinformante is null then pd.division else a.division end as division, NULL,
                    'B',NULL,NULL, i.Muestra
      FROM CalObs a
      LEFT JOIN CalObs b ON b.periodo = pPeriodo AND b.calculo=pCalculo AND b.informante = a.informante 
        AND b.producto = a.producto AND b.observacion=a.observacion 
      JOIN Informantes i  ON a.informante=i.informante
+     join tipoinf ti on i.tipoinformante = ti.tipoinformante
      inner join (select producto, division, tipoinformante, sindividir 
                     from proddiv
                    union
