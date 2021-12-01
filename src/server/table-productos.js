@@ -36,6 +36,7 @@ module.exports = function(context){
             {name:'controlar_precios_sin_normalizar', typeName:'boolean'                             , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'prioritario'                 , typeName:'integer'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'cluster'                     , typeName:'integer' , isName:true                   , allow:{update:puedeEditarMigracion} },
+            {name:'divisionhibrido'             , typeName:'text'                                    , allow:{update:puedeEditar||puedeEditarMigracion}},
         ],
         primaryKey:['producto'],
         foreignKeys:[

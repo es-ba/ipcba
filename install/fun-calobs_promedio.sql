@@ -42,7 +42,12 @@ BEGIN
                  GROUP BY rla.periodo, rla.producto, rla.observacion, rla.informante, rla.visita) de
                ON r.periodo = de.periodo AND r.producto = de.producto AND r.observacion = de.observacion AND r.informante = de.informante AND r.visita=de.visita
        JOIN Informantes i ON r.informante=i.informante 
-       inner join ProdDiv pd on pd.producto=r.producto and (pd.tipoinformante=i.tipoinformante or pd.sindividir)
+       inner join (select producto, division, tipoinformante, sindividir 
+                    from proddiv
+                   union
+                   select producto, divisionhibrido as division, tipoinformante, null as sindividir  
+                    from productos, tipoinf 
+                   where divisionhibrido is not null and otrotipoinformante is null) pd on pd.producto=r.producto and (pd.tipoinformante=i.tipoinformante or pd.sindividir)
        inner join Calculos c on c.periodo=r.Periodo and c.calculo=pCalculo 
        inner join Calculos_def cd on cd.calculo=c.calculo
        INNER JOIN Gru_Prod gp ON cd.grupo_raiz = gp.grupo_padre AND r.producto = gp.producto 
