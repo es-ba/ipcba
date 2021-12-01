@@ -38,6 +38,7 @@ module.exports = function(context){
             {name:'otraunidaddemedida'        , typeName:'text'                                   , allow:{update:false}},
             {name:'opciones'                  , typeName:'text'                                   , allow:{update:false}},
             {name:'validaropciones'           , typeName:'boolean', default:false, defaultValue:false, allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'visible'                   , typeName:'text'    , default:'S', defaultValue:'S', allow:{update:puedeEditarMigracion}},
         ],
         primaryKey:['producto','atributo'],
         foreignKeys:[
@@ -48,7 +49,7 @@ module.exports = function(context){
             from:`(select p.producto, p.atributo, p.valornormal, p.orden, p.normalizable, p.tiponormalizacion, 
                    p.alterable, p.prioridad, p.operacion, p.rangodesde, p.rangohasta, p.orden_calculo_especial, p.tipo_promedio, p.esprincipal,
                    a.tipodato, a.abratributo, a.escantidad, a.unidaddemedida, a.es_vigencia, a.valorinicial, p.opciones, p.validaropciones, 
-                   p.visiblenombreatributo, p.otraunidaddemedida 
+                   p.visiblenombreatributo, p.otraunidaddemedida, p.visible 
                    from prodatr p left join atributos a on p.atributo = a.atributo
                 )`,
             isTable:true,
