@@ -33,6 +33,7 @@ export type ProdAtr = {
     mostrar_cant_um: boolean
     validaropciones: boolean
     alterable: boolean
+    visible: boolean
 }
 
 export type Producto={
