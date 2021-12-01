@@ -1952,6 +1952,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                 <Button 
                     onClick={event=>setMenuRazon(event.currentTarget)} 
                     color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} 
+                    disabled={Boolean(relVis.razon && !estructura.razones[relVis.razon].visibleparaencuestador)} 
                     variant="outline"
                     style={{width:'90%', maxWidth:70}}
                 >
@@ -1972,17 +1973,19 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                 }}
             />
             <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
-                {likeAr(estructura.razones).map((razon:Razon,index)=>{
-                    var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
-                    return(
-                    <MenuItem key={razon.nombrerazon} onClick={()=>{
-                        if(razonNecesitaConfirmacion(estructura, relVis,index)){
-                            setRazonAConfirmar({razon:index});
-                            setMenuConfirmarRazon(true)
-                        }else{
-                            dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index}));
-                        }
-                        setMenuRazon(null)
+                {likeAr(estructura.razones)
+                    .filter((razon:Razon)=>razon.visibleparaencuestador)
+                    .map((razon:Razon,index)=>{
+                        var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
+                        return(
+                        <MenuItem key={razon.nombrerazon} onClick={()=>{
+                            if(razonNecesitaConfirmacion(estructura, relVis,index)){
+                                setRazonAConfirmar({razon:index});
+                                setMenuConfirmarRazon(true)
+                            }else{
+                                dispatch(dispatchers.SET_RAZON({forPk:relVis, razon:index}));
+                            }
+                            setMenuRazon(null)
                     }}>
                         <ListItemText style={{color:color, maxWidth:'30px'}}>&nbsp;{index}</ListItemText>
                         <ListItemText style={{color:color}}>&nbsp;{razon.nombrerazon}</ListItemText>

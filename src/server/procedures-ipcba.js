@@ -391,9 +391,9 @@ function dm2CrearQueries(parameters){
                 'orden'
             )} as "tiposPrecioDef"
             , ${jsono(`
-                SELECT razon, nombrerazon, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
+                SELECT razon, nombrerazon, visibleparaencuestador='S' as visibleparaencuestador, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
                     FROM razones
-                    WHERE visibleparaencuestador='S'`, 
+                `, 
                 'razon'
             )} as razones
         FROM reltar rt

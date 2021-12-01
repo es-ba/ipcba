@@ -70,6 +70,7 @@ export type Informante={
 
 export type Razon={
     nombrerazon: string
+    visibleparaencuestador: boolean
     espositivoformulario: boolean
     escierredefinitivoinf: boolean
     escierredefinitivofor: boolean
