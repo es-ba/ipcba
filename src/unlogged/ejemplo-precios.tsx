@@ -1232,115 +1232,112 @@ const AtributosRow = function(props:{
     const {color: colorAdv, tieneAdv} = controlarAtributo(relAtr, relPre, estructura);
     const esAlterable = prodatr.alterable;
     return (
-        prodatr.visible?
-            <>
-                <div className="nombre-atributo">{atributo.nombreatributo}</div>
-                <div className="atributo-anterior" >{relAtr.valoranterior}</div>
-                {props.primerAtributo?
-                    <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
-                        {props.razonPositiva?(
-                            muestraFlechaCopiarAtributos(estructura, relPre)?
-                                <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ () => {
-                                    props.onSelection();
-                                    dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
-                                        forPk:relAtr, 
-                                        iRelPre:props.iRelPre,
-                                    }))
-                                    dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio?props.inputIdPrecio:false}))
-                                }}>
-                                    {FLECHAATRIBUTOS}
-                                </Button>
-                            :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
-                                <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
-                                    props.onSelection();
-                                    setMenuCambioAtributos(event.currentTarget)                            
-                                }}>
-                                    C
-                                </Button>
-                            :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
-                                <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
-                                    props.onSelection();
-                                    setMenuCambioAtributos(event.currentTarget)                            
-                                }}>
-                                    =
-                                </Button>
-                            :relPre.cambio
-                        ):null}
-                    </div>
+        <>
+            <div className="nombre-atributo">{atributo.nombreatributo}</div>
+            <div className="atributo-anterior" >{relAtr.valoranterior}</div>
+            {props.primerAtributo?
+                <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
+                    {props.razonPositiva?(
+                        muestraFlechaCopiarAtributos(estructura, relPre)?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ () => {
+                                props.onSelection();
+                                dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
+                                    forPk:relAtr, 
+                                    iRelPre:props.iRelPre,
+                                }))
+                                dispatch(dispatchers.SET_FOCUS({nextId:!relPre.precio?props.inputIdPrecio:false}))
+                            }}>
+                                {FLECHAATRIBUTOS}
+                            </Button>
+                        :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
+                                props.onSelection();
+                                setMenuCambioAtributos(event.currentTarget)                            
+                            }}>
+                                C
+                            </Button>
+                        :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
+                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
+                                props.onSelection();
+                                setMenuCambioAtributos(event.currentTarget)                            
+                            }}>
+                                =
+                            </Button>
+                        :relPre.cambio
+                    ):null}
+                </div>
+            :null}
+            <EditableTd 
+                borderBottomColor={PRIMARY_COLOR}
+                borderBottomColorError={colorAdv}
+                color={relPre.cambio != "C" && relPre.tipoprecio == null?PRIMARY_COLOR:undefined}
+                hasError={tieneAdv && props.razonPositiva}
+                className="atributo-actual" 
+                inputId={props.inputId}
+                idProximo={props.idProximoAtributo || props.idProximoPrecio}
+                disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre) || !esAlterable} 
+                dataType={adaptAtributoDataTypes(atributo.tipodato)} 
+                value={relAtr.valor} 
+                textTransform='uppercase'
+                simplificateText={true}
+                onUpdate={value=>{
+                    dispatch(dispatchers.SET_ATRIBUTO({
+                        forPk:relAtr, 
+                        iRelPre:props.iRelPre,
+                        valor:value,
+                    }))
+                }} 
+                tipoOpciones={prodatr.opciones}
+                opciones={prodatr.lista_prodatrval}
+                titulo={atributo.nombreatributo}
+                onFocus={()=>{
+                    props.onSelection();
+                }}
+            />
+            <Menu id="simple-menu-cambio"
+                open={Boolean(menuCambioAtributos)}
+                anchorEl={menuCambioAtributos}
+                onClose={()=>setMenuCambioAtributos(null)}
+            >
+                {relPre.cambio == 'C'?
+                    <>
+                        <MenuItem onClick={()=>{
+                            dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                            }))
+                            setMenuCambioAtributos(null)
+                        }}>
+                            <ListItemText style={{color:PRIMARY_COLOR}}>
+                                Copiar el resto de los atributos vacíos
+                            </ListItemText>
+                        </MenuItem>
+                        <MenuItem onClick={()=>{
+                            dispatch(dispatchers.COPIAR_ATRIBUTOS({
+                                forPk:relAtr, 
+                                iRelPre:props.iRelPre,
+                            }))
+                            setMenuCambioAtributos(null)
+                        }}>
+                            <ListItemText style={{color:SECONDARY_COLOR}}>
+                                Anular el cambio pisando los valores distintos
+                            </ListItemText>
+                        </MenuItem>
+                    </>
                 :null}
-                <EditableTd 
-                    borderBottomColor={PRIMARY_COLOR}
-                    borderBottomColorError={colorAdv}
-                    color={relPre.cambio != "C" && relPre.tipoprecio == null?PRIMARY_COLOR:undefined}
-                    hasError={tieneAdv && props.razonPositiva}
-                    className="atributo-actual" 
-                    inputId={props.inputId}
-                    idProximo={props.idProximoAtributo || props.idProximoPrecio}
-                    disabled={!props.razonPositiva || !puedeCambiarPrecioYAtributos(estructura, relPre) || !esAlterable} 
-                    dataType={adaptAtributoDataTypes(atributo.tipodato)} 
-                    value={relAtr.valor} 
-                    textTransform='uppercase'
-                    simplificateText={true}
-                    onUpdate={value=>{
-                        dispatch(dispatchers.SET_ATRIBUTO({
-                            forPk:relAtr, 
-                            iRelPre:props.iRelPre,
-                            valor:value,
-                        }))
-                    }} 
-                    tipoOpciones={prodatr.opciones}
-                    opciones={prodatr.lista_prodatrval}
-                    titulo={atributo.nombreatributo}
-                    onFocus={()=>{
-                        props.onSelection();
-                    }}
-                />
-                <Menu id="simple-menu-cambio"
-                    open={Boolean(menuCambioAtributos)}
-                    anchorEl={menuCambioAtributos}
-                    onClose={()=>setMenuCambioAtributos(null)}
-                >
-                    {relPre.cambio == 'C'?
-                        <>
-                            <MenuItem onClick={()=>{
-                                dispatch(dispatchers.COPIAR_ATRIBUTOS_VACIOS({
-                                    forPk:relAtr, 
-                                    iRelPre:props.iRelPre,
-                                }))
-                                setMenuCambioAtributos(null)
-                            }}>
-                                <ListItemText style={{color:PRIMARY_COLOR}}>
-                                    Copiar el resto de los atributos vacíos
-                                </ListItemText>
-                            </MenuItem>
-                            <MenuItem onClick={()=>{
-                                dispatch(dispatchers.COPIAR_ATRIBUTOS({
-                                    forPk:relAtr, 
-                                    iRelPre:props.iRelPre,
-                                }))
-                                setMenuCambioAtributos(null)
-                            }}>
-                                <ListItemText style={{color:SECONDARY_COLOR}}>
-                                    Anular el cambio pisando los valores distintos
-                                </ListItemText>
-                            </MenuItem>
-                        </>
-                    :null}
-                    <MenuItem onClick={()=>{
-                        dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
-                            forPk:relAtr, 
-                            iRelPre:props.iRelPre,
-                        }))
-                        setMenuCambioAtributos(null)
-                    }}>
-                        <ListItemText style={{color:SECONDARY_COLOR}}>
-                            Blanquear atributos
-                        </ListItemText>
-                    </MenuItem>
-                </Menu>
-            </>
-        :
-            null
+                <MenuItem onClick={()=>{
+                    dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
+                        forPk:relAtr, 
+                        iRelPre:props.iRelPre,
+                    }))
+                    setMenuCambioAtributos(null)
+                }}>
+                    <ListItemText style={{color:SECONDARY_COLOR}}>
+                        Blanquear atributos
+                    </ListItemText>
+                </MenuItem>
+            </Menu>
+        </>
     )
 };
 
@@ -1728,7 +1725,9 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                 {!render4scroll?
                 <div className="atributos">
                     {!compactar?
-                        relPre.atributos.map((relAtr, index)=>
+                        relPre.atributos
+                        .filter(relAtr=>estructura.productos[relPre.producto].atributos[relAtr.atributo].visible)
+                        .map((relAtr, index)=>
                             <AtributosRow key={relPre.producto+'/'+relPre.observacion+'/'+relAtr.atributo}
                                 relPre={relPre}
                                 iRelPre={props.iRelPre}
