@@ -10,7 +10,7 @@ module.exports = function(context){
             {name:'periodo'         , typeName:'text'    },
             {name:'panel'           , typeName:'integer' },
             {name:'tarea'           , typeName:'integer' },
-            {name:'fechasalida'     , typeName:'date'    },
+            //{name:'fechasalida'     , typeName:'date'    },
             {name:'fechasalidadesde', typeName:'date', title:'fechadesde' },
             {name:'fechasalidahasta', typeName:'date', title:'fechahasta' },
             {name:'informante'      , typeName:'integer' },
@@ -42,7 +42,8 @@ module.exports = function(context){
         hiddenColumns:['apenom'],
         sql:{
             isTable: false,
-            from: `(select rv.periodo, panel, tarea, rt.fechasalidadesde, rt.fechasalidahasta, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, 
+            from: `(select rv.periodo, panel, tarea, COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida) fechasalidadesde,
+                    COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida) fechasalidahasta, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, 
                     case when per.labor = 'E' then per.persona else null end as encuestador, per.persona, 
                     string_agg(distinct tk.username, ', ' order by tk.username) as usuario,
                     string_agg(distinct ptk.persona, ', ' order by ptk.persona) as usuario_codigo,
@@ -87,7 +88,7 @@ module.exports = function(context){
                         left join (select pre.*, tp.inconsistente, case when tipoprecio is null then 'N' else 'S' end as tipo from relpre pre left join tipopre tp using(tipoprecio)) pre on rv.periodo = pre.periodo and rv.informante = pre.informante and rv.visita = pre.visita and rv.formulario = pre.formulario
                         where p.ingresando = 'S' 
                         and current_timestamp between COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida)+interval '9 hours'  and COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida) +interval '24 hours'
-                    group by rv.periodo, panel, tarea, rt.fechasalidadesde, rt.fechasalidahasta, rp.fechasalida, rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, per.persona, per.labor)`
+                    group by rv.periodo, panel, tarea, COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida), COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida), rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, per.persona, per.labor)`
         },
     },context);
 }
