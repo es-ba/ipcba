@@ -1951,7 +1951,9 @@ ProceduresIpcba = [
                     };              
                     return 'descarga completa';
                 }else{
-                    return 'La sincronización no se puede realizar para el encuestador ' + params.encuestador + ' en este dispositivo. Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo'
+                    return `No se pudo descargar. 
+                        Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo. 
+                        Token: ${params.custom_data?params.current_token:params.token_instalacion}`
                 }
             }catch(err){
                 console.log('ERROR',err);
