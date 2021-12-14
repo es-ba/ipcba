@@ -1953,7 +1953,7 @@ ProceduresIpcba = [
                 }else{
                     return `No se pudo descargar. 
                         Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo. 
-                        Token: ${params.custom_data?params.current_token:params.token_instalacion}`
+                        ${params.custom_data?'Token: ' + params.current_token:'ID instalacion: ' + idInstalacion}`
                 }
             }catch(err){
                 console.log('ERROR',err);
