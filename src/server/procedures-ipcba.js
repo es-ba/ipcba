@@ -1783,7 +1783,7 @@ ProceduresIpcba = [
                         ).fetchUniqueValue();
                     }catch(err){
                         if(err.code=='54011!'){
-                            throw new Error('No se encuentra el token_instalacion. Quizas la persona tiene otro dipopsitivo activo');
+                            throw new Error(`No se encuentra el token_instalacion ${token}. Quizas la persona tiene otro dipopsitivo activo`);
                         }
                     }
                     var result = await context.client.query(
