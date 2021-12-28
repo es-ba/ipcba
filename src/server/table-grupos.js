@@ -26,9 +26,9 @@ module.exports = function(context){
             {name:'explicaciongrupo'             , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'responsable'                  , typeName:'text'                    , allow:{update:puedeEditarMigracion}},
         ],
-        filterColumns:[
-            {column:'esproducto', operator:'=', value:'N'},
-        ],                
+        //filterColumns:[
+        //    {column:'esproducto', operator:'=', value:'N'},
+        //],                
         primaryKey:['agrupacion','grupo'],
         foreignKeys:[
             {references:'agrupaciones', fields:['agrupacion']},
@@ -43,6 +43,15 @@ module.exports = function(context){
             //    {source:'agrupacionorigen'  , target:'agrupacion'     },
             //    {source:'grupo'             , target:'grupo'          },
             //], alias: 'ag_origen_g'},
-        ]
+        ],
+        sql:{
+            from:`(
+                select g.*
+                  from grupos g 
+                  inner join agrupaciones a on g.agrupacion = a.agrupacion
+                  where tipo_agrupacion <> 'GENERAL' 
+                  )`
+        }
+
     },context);
 }
