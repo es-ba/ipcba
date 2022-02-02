@@ -834,6 +834,8 @@ NETWORK:
                 {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},                        
             ], onlyVisibleFor:[programador,coordinador,analista,migracion,recepGabinete]},                
             {menuType:'menu', name:'resultados', menuContent:[
+                {menuType:'table', name:'calgru_base', label:'vista de calgru base'},
+                {menuType:'table', name:'caldiv_base', label:'vista de caldiv base'},
                 {menuType:'table', name:'calculos_calgru_vw', label:'vista de calgru'},
                 {menuType:'table', name:'calculos_caldiv_vw', label:'vista de caldiv'},
                 {menuType:'filtravarios_caldiv', name:'caldiv_vw_varios', label:'vista de caldiv varios', onlyVisibleFor:[programador]},
@@ -1175,6 +1177,8 @@ NETWORK:
             {name: 'hdrexportarefectivossinprecio', path: __dirname},
             {name: 'calgru', path: __dirname},
             {name: 'calgru_vw', path: __dirname},
+            {name: 'calgru_base', path: __dirname},
+            {name: 'caldiv_base', path: __dirname},
             {name: 'caldiv_vw', path: __dirname},
             {name: 'caldiv', path: __dirname},
             {name: 'proddivestimac', path: __dirname},
