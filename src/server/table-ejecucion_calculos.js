@@ -21,6 +21,14 @@ module.exports = function(context){
             import: false,
         },
     });
+    defNewElement.fields.find(field=>field.name == 'procedure_name').title='proceso';
+    defNewElement.fields.find(field=>field.name == 'parameters').title='parametros';
+    defNewElement.fields.find(field=>field.name == 'username').title='usuario';
+    defNewElement.fields.find(field=>field.name == 'init_date').title='inicio';
+    defNewElement.fields.find(field=>field.name == 'end_date').title='fin';
+    defNewElement.fields.find(field=>field.name == 'has_error').title='error';
+    defNewElement.fields.find(field=>field.name == 'end_status').title='estado fin';
+    defNewElement.hiddenColumns=['parameters_definition'];
     defNewElement.refrescable=true;
     defNewElement.sql={
         from:`
