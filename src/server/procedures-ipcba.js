@@ -23,6 +23,9 @@ var JSON4all = require('json4all');
 const periodo_inicial = 'a2012m07';
 const agrupacion = 'E';
 
+const CALCULO_ACTION = 'fechacalculo_touch';
+const PERIODO_BASE_CORRER_ACTION = 'periodobase_correr';
+
 const ESPECIFICACION_COMPLETA=`
     CONCAT_WS(' ',
         trim(e.nombreespecificacion)|| '.',
@@ -549,33 +552,47 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'fechacalculo_touch',
+        action:CALCULO_ACTION,
         parameters:[
             {name:'periodo', typeName:'text', references:'periodos'},
             {name:'calculo', typeName:'integer'                    },
         ],
+        bitacora:{error:true, always:true},
         roles:['programador','coordinador','analista'],
-        coreFunction:function(context, parameters){
+        coreFunction:async function(context, parameters){
             //context.informProgress({message:'cálculo lanzado'});
-            return context.client.query(
-                `UPDATE calculos SET fechageneracionexternos = COALESCE(fechageneracionexternos,current_timestamp), fechacalculo = current_timestamp
-                   WHERE periodo=$1 
-                     AND calculo=$2 AND abierto='S'
-                   RETURNING fechageneracionexternos, fechacalculo`,
-                [parameters.periodo,parameters.calculo]
-            ).onNotice(function(progressInfo){
-                progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
-                context.informProgress(progressInfo);
-            }).fetchUniqueRow().then(function(result){
-                return 'calculado '+result.row.fechacalculo.toHms();
-            }).catch(function(err){
-                if(err.code=='54011!'){
-                    throw new Error('El calculo no esta abierto');
-                }
-                console.log(err);
-                console.log(err.code);
-                throw err;
-            });
+            const BITACORA_TABLENAME = context.be.config.server.bitacoraTableName || 'bitacora';
+            //preguntar si hay alguien corriendo 'periodobase_correr' o mismo periodo dentro del calculo actual
+            var result = await context.client.query(
+                `select * 
+                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)} 
+                    where procedure_name = $1 and end_date is null or
+                        procedure_name = $2 and parameters = $3 and end_date is null`,
+                [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION,JSON.stringify(parameters)]
+            ).fetchAll();
+            if(result.rowCount > 1){
+                throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')
+            }else{
+                return context.client.query(
+                    `UPDATE calculos SET fechageneracionexternos = COALESCE(fechageneracionexternos,current_timestamp), fechacalculo = current_timestamp
+                    WHERE periodo=$1 
+                        AND calculo=$2 AND abierto='S'
+                    RETURNING fechageneracionexternos, fechacalculo`,
+                    [parameters.periodo,parameters.calculo]
+                ).onNotice(function(progressInfo){
+                    progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
+                    context.informProgress(progressInfo);
+                }).fetchUniqueRow().then(function(result){
+                    return 'calculado '+result.row.fechacalculo.toHms();
+                }).catch(function(err){
+                    if(err.code=='54011!'){
+                        throw new Error('El calculo no esta abierto');
+                    }
+                    console.log(err);
+                    console.log(err.code);
+                    throw err;
+                });
+            }
         }
     },
     {
@@ -1450,30 +1467,44 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'periodobase_correr',
+        action:PERIODO_BASE_CORRER_ACTION,
         parameters:[
             {name:'periodo' , typeName:'text'   , references:'periodos'},
             {name:'calculo' , typeName:'integer', defaultValue:20      },
             {name:'ejecutar', typeName:'boolean'                       },
         ],
+        bitacora:{error:true, always:true},
         roles:['programador','migracion','analista','coordinador'],
         coreFunction:async function(context, parameters){
-            try{await context.client.query(
-                    `SELECT periodobase($1, $2) where $3;`,
-                    [parameters.periodo, parameters.calculo, parameters.ejecutar]
-                ).onNotice((progressInfo)=>{
-                   progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
-                   context.informProgress(progressInfo);
-                }).fetchUniqueRow();
-                return 'periodo base calculado';
-            }catch(err){
-                if(err.code=='54011!'){
-                    throw new Error('El calculo no esta abierto, o el perido base no está habilitado');
-                 }
-                console.log(err);
-                console.log(err.code);
-                throw err;
-            }            
+            const BITACORA_TABLENAME = context.be.config.server.bitacoraTableName || 'bitacora';
+            //preguntar si hay alguien corriendo 'periodobase_correr' o fechacalculo_touch
+            var result = await context.client.query(
+                `select * 
+                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)} 
+                    where procedure_name in ($1,$2) and end_date is null`,
+                [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION]
+            ).fetchAll();
+            if(result.rowCount > 1){
+                throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')
+            }else{
+                try{
+                    await context.client.query(
+                        `SELECT periodobase($1, $2) where $3;`,
+                        [parameters.periodo, parameters.calculo, parameters.ejecutar]
+                    ).onNotice((progressInfo)=>{
+                    progressInfo.message=progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g,'');
+                    context.informProgress(progressInfo);
+                    }).fetchUniqueRow();
+                    return 'periodo base calculado';
+                }catch(err){
+                    if(err.code=='54011!'){
+                        throw new Error('El calculo no esta abierto, o el perido base no está habilitado');
+                    }
+                    console.log(err);
+                    console.log(err.code);
+                    throw err;
+                }            
+            }
         }
     },
     {

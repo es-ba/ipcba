@@ -45,6 +45,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 local-path: node_modules/backend-skins/dist/
             session-store: memory-saved
             keep-alive: true
+            bitacoraTableName: bp_bitacora
           db:
             motor: postgresql
             host: localhost
@@ -794,6 +795,7 @@ NETWORK:
                     {menuType:'table'        , name:'calbase_div'       , label:'calbase_div' , onlyVisibleFor:[programador,migracion,coordinador,analista]},
                     {menuType:'table'        , name:'calbase_prod'      , label:'calbase_prod', onlyVisibleFor:[programador,migracion,coordinador,analista]},
                     {menuType:'table'        , name:'calbase_obs'       , label:'calbase_obs' , onlyVisibleFor:[programador,migracion,coordinador,analista]},
+                    {menuType:'table'        , name:'ejecucion_calculos', label:'cálculos ejecutados', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 {menuType:'table', name:'calculos_novobs', label:'altas y bajas manuales del cálculo', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_novpre', label:'anulación de precios', onlyVisibleFor:[programador,coordinador,analista]},
@@ -1007,6 +1009,7 @@ NETWORK:
     }
     getTables(){
         return super.getTables().concat([
+            {name: 'ejecucion_calculos', path: __dirname},
             {name: 'pantar', path: __dirname},
             {name: 'barrios', path: __dirname},
             {name: 'bienvenida', path: __dirname},
