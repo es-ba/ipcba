@@ -21,6 +21,7 @@ module.exports = function(context){
             import: false,
         },
     });
+    defNewElement.refrescable=true;
     defNewElement.sql={
         from:`
             (select * 
