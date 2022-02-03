@@ -689,6 +689,24 @@ NETWORK:
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
         }
+
+        var subMenuCalculos = [
+            {menuType:'table'        , name:'calculos'          , label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
+            {menuType:'table'        , name:'calculos_novprod'  , label:'administración de externos', onlyVisibleFor:[programador,coordinador,analista]},
+            {menuType:'table'        , name:'proddivestimac'    , label:'umbrales para estimaciones', onlyVisibleFor:[programador,coordinador,analista]},
+            {menuType:'copia_calculo', name:'copias'            , label:'copias', onlyVisibleFor:[programador,coordinador,analista]},
+        ]
+        if(this.config.server.esAppParaCambioDeBase){
+            subMenuCalculos.push({menuType:'proc'         , name:'periodobase_correr', label:'periodobase', onlyVisibleFor:[programador,migracion,coordinador,analista]})
+        }
+        subMenuCalculos = subMenuCalculos.concat(
+            [
+                {menuType:'table'        , name:'calbase_div'       , label:'calbase_div' , onlyVisibleFor:[programador,migracion,coordinador,analista]},
+                {menuType:'table'        , name:'calbase_prod'      , label:'calbase_prod', onlyVisibleFor:[programador,migracion,coordinador,analista]},
+                {menuType:'table'        , name:'calbase_obs'       , label:'calbase_obs' , onlyVisibleFor:[programador,migracion,coordinador,analista]},
+                {menuType:'table'        , name:'ejecucion_calculos', label:'cálculos ejecutados', onlyVisibleFor:[programador,coordinador,analista]},
+            ]
+        )
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
@@ -786,17 +804,7 @@ NETWORK:
                 //{menuType:'table', name:'periodos_vista_control_diccionario', label:'diccionario valores de atributos', onlyVisibleFor:[programador,coordinador,analista]},
             ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo,recepGabinete,supervisor]},
             {menuType:'menu', name:'analisis', label:'análisis', menuContent:[
-                {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:[
-                    {menuType:'table'        , name:'calculos'          , label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
-                    {menuType:'table'        , name:'calculos_novprod'  , label:'administración de externos', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table'        , name:'proddivestimac'    , label:'umbrales para estimaciones', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'copia_calculo', name:'copias'            , label:'copias', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'proc'         , name:'periodobase_correr', label:'periodobase', onlyVisibleFor:[programador,migracion,coordinador,analista]},
-                    {menuType:'table'        , name:'calbase_div'       , label:'calbase_div' , onlyVisibleFor:[programador,migracion,coordinador,analista]},
-                    {menuType:'table'        , name:'calbase_prod'      , label:'calbase_prod', onlyVisibleFor:[programador,migracion,coordinador,analista]},
-                    {menuType:'table'        , name:'calbase_obs'       , label:'calbase_obs' , onlyVisibleFor:[programador,migracion,coordinador,analista]},
-                    {menuType:'table'        , name:'ejecucion_calculos', label:'cálculos ejecutados', onlyVisibleFor:[programador,coordinador,analista]},
-                ]},
+                {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:subMenuCalculos},
                 {menuType:'table', name:'calculos_novobs', label:'altas y bajas manuales del cálculo', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_novpre', label:'anulación de precios', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'menu', name:'listados', label:'listados', onlyVisibleFor:[programador,coordinador,analista], menuContent:[
