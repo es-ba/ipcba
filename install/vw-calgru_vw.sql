@@ -24,15 +24,16 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo
        c.ponderadorimplicito, 'Z'||substr(c.grupo,2) as ordenpor,
        CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, pr.responsable, p."cluster"
    from calgru c
-     left join calgru cb on  cb.agrupacion=c.agrupacion and cb.grupo=c.grupo and ((c.calculo=0 and cb.calculo=c.calculo) or (c.calculo>0 and cb.calculo=0))  
+     join calculos l on c.periodo = l.periodo and c.calculo = l.calculo 
+     left join calgru cb on  cb.agrupacion=c.agrupacion and cb.grupo=c.grupo and cb.calculo=l.calculoanterior  
                          and cb.periodo =periodo_igual_mes_anno_anterior(c.periodo)
-     left join calgru c_3 on c_3.agrupacion=c.agrupacion and c_3.grupo=c.grupo and ((c.calculo=0 and c_3.calculo=c.calculo) or (c.calculo>0 and c_3.calculo=0)) 
+     left join calgru c_3 on c_3.agrupacion=c.agrupacion and c_3.grupo=c.grupo and c_3.calculo=l.calculoanterior 
                           and c_3.periodo =moverperiodos(c.periodo,-3) --pk verificada
-     left join calgru pb on  ((c.calculo=0 and pb.calculo=c.calculo) or (c.calculo>0 and pb.calculo=0)) AND pb.agrupacion=c.agrupacion  AND pb.periodo=periodo_igual_mes_anno_anterior(c.periodo) 
+     left join calgru pb on  pb.calculo=l.calculoanterior AND pb.agrupacion=c.agrupacion  AND pb.periodo=periodo_igual_mes_anno_anterior(c.periodo) 
                          AND  pb.nivel = 0
-     left join calgru pa on  ((c.calculo=0 and pa.calculo=c.calculo) or (c.calculo>0 and pa.calculo=0)) AND pa.agrupacion=c.agrupacion  AND 
+     left join calgru pa on pa.calculo=l.calculoanterior AND pa.agrupacion=c.agrupacion  AND 
                              pa.periodo=(('a' || (substr(c.periodo, 2, 4)::integer - 1)) ||'m12') AND  pa.nivel = 0
-     left join calgru ca on ca.agrupacion=c.agrupacion AND ca.grupo=c.grupo AND ((c.calculo=0 and ca.calculo=c.calculo) or (c.calculo>0 and ca.calculo=0)) 
+     left join calgru ca on ca.agrupacion=c.agrupacion AND ca.grupo=c.grupo AND ca.calculo=l.calculoanterior 
                          AND ca.periodo =(('a' || (substr(c.periodo, 2, 4)::integer - 1)) ||'m12')
      inner join agrupaciones a on  a.agrupacion=c.agrupacion
      LEFT JOIN grupos g on c.agrupacion = g.agrupacion and c.grupo = g.grupo --pk verificada    

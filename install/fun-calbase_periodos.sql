@@ -99,7 +99,12 @@ end if;
 vsql := vSql||$$
         FROM RelPre r 
           INNER JOIN Informantes i ON r.informante=i.informante -- PK verificada
-          INNER JOIN ProdDiv pd ON pd.producto=r.producto AND (pd.TipoInformante=i.TipoInformante OR pd.sinDividir) -- UK verificada
+          INNER JOIN (SELECT producto, division, tipoinformante, sindividir 
+                        FROM proddiv
+                      UNION
+                      SELECT producto, divisionhibrido as division, tipoinformante, null as sindividir  
+                        FROM productos, tipoinf 
+                        WHERE divisionhibrido is not null and otrotipoinformante is null) pd on pd.producto=r.producto and (pd.tipoinformante=i.tipoinformante or pd.sindividir)
           LEFT JOIN CalBase_Div d ON d.calculo = $$||pCalculo||$$ AND r.producto = d.producto AND d.Division=pd.Division -- PK verificada
           INNER JOIN Calculos_def cd ON cd.calculo=d.calculo  --PK verificada
           INNER JOIN Gru_Prod gp ON cd.grupo_raiz = gp.grupo_padre AND r.producto = gp.producto  --PK verificada

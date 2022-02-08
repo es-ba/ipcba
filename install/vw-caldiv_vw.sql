@@ -37,9 +37,9 @@ CREATE OR REPLACE VIEW caldiv_vw AS
     CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, r.responsable
    FROM cvp.caldiv c
    LEFT JOIN cvp.productos p on c.producto = p.producto
-   LEFT JOIN cvp.periodos l ON c.periodo = l.periodo  
+   LEFT JOIN cvp.calculos l ON c.periodo = l.periodo and c.calculo = l.calculo  
    LEFT JOIN cvp.caldiv c0 ON c0.periodo = l.periodoanterior AND 
-       ((c.calculo = 0 and c0.calculo = c.calculo) or (c.calculo > 0 and c0.calculo = 0)) AND 
+       c0.calculo = l.calculoanterior AND --((c.calculo = 0 and c0.calculo = c.calculo) or (c.calculo > 0 and c0.calculo = 0)) AND 
        c.producto = c0.producto AND c.division = c0.division
    LEFT JOIN (SELECT grupo FROM cvp.gru_grupos WHERE agrupacion = 'C' and grupo_padre in ('C1','C2') and esproducto = 'S') gg ON c.producto = gg.grupo     
    LEFT JOIN cvp.CalProdResp r on c.periodo = r.periodo and c.calculo = r.calculo and c.producto = r.producto;
