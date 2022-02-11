@@ -1,3 +1,4 @@
+set search_path = cvp;
 -- UTF8:Sí
 CREATE OR REPLACE FUNCTION CalObs_Rellenar(pPeriodo Text, pCalculo Integer) RETURNS void
     LANGUAGE plpgsql SECURITY DEFINER
