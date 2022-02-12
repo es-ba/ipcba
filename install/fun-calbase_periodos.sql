@@ -8,7 +8,7 @@ agrega text;
 vhayreglas boolean := (select count(*) > 0 from cvp.pb_calculos_reglas where calculo = pcalculo);  
 BEGIN   
   --EXECUTE Cal_Mensajes(null, pCalculo, 'CalBase_Periodos', pTipo:='comenzo');
-
+  
   DELETE FROM calbase_prod WHERE calculo = pCalculo;
   DELETE FROM calbase_div  WHERE calculo = pCalculo;
   DELETE FROM calbase_obs  WHERE calculo = pCalculo;
@@ -45,7 +45,7 @@ BEGIN
          ProdDiv pd inner join CalBase_Prod c on c.producto=pd.producto
     WHERE c.calculo=pCalculo AND r.calculo = c.calculo
       AND r.tipo_regla='meses baja';
-
+    
 vSql := $$INSERT INTO calbase_obs (calculo, producto, informante, observacion, periodo_aparicion, periodo_anterior_baja$$;
 if vhayreglas then
   vSql := vSql|| $$, incluido$$; 
@@ -87,7 +87,7 @@ Loop
       end if;
    end if;
    */
-   vSql := vSql ||agrega||$$ COUNT (CASE WHEN cierre.periodo_cierre IS null AND (n.producto IS null OR (n.producto IS NOT null AND r.periodo > n.hasta_periodo))  AND periodo BETWEEN '$$||vreglas.desde||$$' AND '$$||vreglas.hasta||$$' THEN precionormalizado ELSE NULL END) >= $$ ||vreglas.valor; 
+   vSql := vSql ||agrega||$$ COUNT (CASE WHEN cierre.periodo_cierre IS null AND (n.producto IS null OR (n.producto IS NOT null AND r.periodo > n.hasta_periodo)) AND ($$||vreglas.num_regla||$$ <> 2 or $$||vreglas.num_regla||$$ = 2 and pbe.producto is not null) AND periodo BETWEEN '$$||vreglas.desde||$$' AND '$$||vreglas.hasta||$$' THEN precionormalizado ELSE NULL END) >= $$ ||vreglas.valor; 
 end loop;
 
 if vhayreglas then
@@ -122,6 +122,7 @@ vsql := vSql||$$
                           where coalesce(escierredefinitivoinf,'N') = 'N' and coalesce(escierredefinitivofor,'N') = 'N'
                           group by r.informante) a on c.informante = a.informante
                      where a.ultimo_periodo_activo is null or a.ultimo_periodo_activo < c.periodo_cierre) AS cierre on r.informante = cierre.informante
+          left join mant.pb_estacionales pbe on r.producto = pbe.producto 
         GROUP BY r.producto, r.informante, r.observacion, ultimo_mes_anterior_bajas) as CBO;$$; 
 
 EXECUTE vSql;
