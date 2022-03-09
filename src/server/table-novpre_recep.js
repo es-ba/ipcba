@@ -24,7 +24,7 @@ module.exports = function(context){
             {name:'usuario'                          , typeName:'text'                     , allow:{update:false}},
             {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}},
             {name:'recepcionista'                    , typeName:'text'                     , allow:{update:false}},
-            {name:'nombreformulario'                 , typeName:'text'                     , allow:{update:false}},
+            {name:'formulario'                       , typeName:'integer'                  , allow:{update:false}},
             {name:'comentarios'                      , typeName:'text'                     , allow:{update:false}},
             {name:'comentarios_recep', title:'Recepcion', typeName:'text'                  , allow:{update:puedeEditar}},
         ],
@@ -38,6 +38,13 @@ module.exports = function(context){
             {references:'relpre', fields:['periodo', 'producto', 'observacion', 'informante', 'visita']},            
             {references:'productos', fields:['producto']},            
             {references:'informantes', fields:['informante']},
+            {references:'formularios', fields:['formulario']},            
+            {references:'personal', fields:[
+                {source:'recepcionista'  , target:'persona' },
+            ], alias: 'rec'},        
+            {references:'personal', fields:[
+                {source:'encuestador'    , target:'persona' },
+            ], alias: 'enc'},        
         ],
         sql:{
             from: `(select n.periodo, 
@@ -48,17 +55,14 @@ module.exports = function(context){
                            v.panel, 
                            v.tarea,
                            CASE WHEN n.modi_usu = 'cvpowner' or n.modi_usu = 'postgres' THEN n.usuario ELSE n.modi_usu END as usuario,
-                           (v.encuestador||':'||s.nombre||' '||s.apellido) as encuestador,
-                           (v.recepcionista||':'||c.nombre||' '||c.apellido) as recepcionista,
-                           (r.formulario||':'||fo.nombreformulario)as nombreformulario, 
+                           v.encuestador,
+                           v.recepcionista,
+                           v.formulario,
                            n.comentarios, 
                            n.comentarios_recep
                     from novpre n 
-                            join relpre r on r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.producto = n.producto
-                            join formularios fo on r.formulario = fo.formulario
-                            join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
-                            join personal s on s.persona = v.encuestador
-                            join personal c on c.persona = v.recepcionista
+                         left join relpre r on r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.producto = n.producto and r.visita = n.visita
+                         left join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
                     where n.revisar_recep
             )`
         }  
