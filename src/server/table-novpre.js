@@ -60,19 +60,18 @@ module.exports = function(context){
                            v.recepcionista,
                            v.panel, 
                            v.tarea,
-                           r.formulario,
-                           NULLIF((coalesce(r.precio::text||';','')||coalesce(r.tipoprecio||';','')||coalesce(r.cambio,'')),'') as infopre,
+                           v.formulario,
+                           NULLIF((coalesce(rpa.precio::text||';','')||coalesce(rpa.tipoprecio||';','')||coalesce(rpa.cambio,'')),'') as infopre,
                            NULLIF((coalesce(rpa.precio_1::text||';','')||coalesce(rpa.tipoprecio_1||';','')||coalesce(rpa.cambio_1,'')),'') as infopreant,
                            n.confirma,
                            n.comentarios, n.revisar_recep, n.comentarios_recep
                     from 
-                           novpre n
-                            left join parametros par on unicoregistro
-                            left join relpre r on r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.producto = n.producto and r.visita = n.visita
-                            left join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
-                            left join relpre_1 rpa on n.periodo = rpa.periodo and n.producto = rpa.producto and n.observacion = rpa.observacion and
-                                    n.informante = rpa.informante and n.visita = rpa.visita
-                            where n.periodo >= pb_desde  
+                        novpre n
+                        left join parametros par on unicoregistro
+                        left join relpre_1 rpa on n.periodo = rpa.periodo and n.producto = rpa.producto and n.observacion = rpa.observacion and
+                                                  n.informante = rpa.informante and n.visita = rpa.visita
+                        left join relvis v on rpa.periodo = v.periodo and rpa.informante = v.informante and rpa.formulario = v.formulario and rpa.visita = v.visita
+                    where n.periodo >= pb_desde  
             )`,
         isTable: true, 
         },
