@@ -1,3 +1,4 @@
+set search_path = cvp;
 CREATE OR REPLACE FUNCTION calbase_periodos(pcalculo integer)
   RETURNS void AS
 $BODY$
