@@ -110,19 +110,19 @@ vsql := vSql||$$
           INNER JOIN Calculos_def cd ON cd.calculo=d.calculo  --PK verificada
           INNER JOIN Gru_Prod gp ON cd.grupo_raiz = gp.grupo_padre AND r.producto = gp.producto  --PK verificada
           LEFT JOIN Novobs_Base n ON d.calculo = n.calculo and r.producto=n.producto AND r.informante=n.informante AND r.observacion=n.observacion  --PK verificada de Novobs_base
-          LEFT JOIN (select c.informante, c.formulario, c.periodo_cierre, a.ultimo_periodo_activo from
-                       (select r.informante, r.formulario, r.periodo as periodo_cierre
+          LEFT JOIN (select c.informante, c.periodo_cierre, a.ultimo_periodo_activo from
+                       (select r.informante, r.periodo as periodo_cierre
                           from relvis r left join razones z on r.razon = z.razon
-                          group by informante, periodo, formulario 
+                          group by informante, periodo 
                           having min(case when coalesce(escierredefinitivoinf,'N') = 'S' or coalesce(escierredefinitivofor,'N') = 'S' then 'S' else 'N' end) =
                                  max(case when coalesce(escierredefinitivoinf,'N') = 'S' or coalesce(escierredefinitivofor,'N') = 'S' then 'S' else 'N' end) and 
                                  min(case when coalesce(escierredefinitivoinf,'N') = 'S' or coalesce(escierredefinitivofor,'N') = 'S' then 'S' else 'N' end) = 'S'
-                          order by r.periodo desc, formulario) c left join
-                       (select r.informante, r.formulario, max(periodo) ultimo_periodo_activo
+                          order by r.periodo desc) c left join
+                       (select r.informante, max(periodo) ultimo_periodo_activo
                           from relvis r left join razones z on r.razon = z.razon
                           where coalesce(escierredefinitivoinf,'N') = 'N' and coalesce(escierredefinitivofor,'N') = 'N'
-                          group by r.informante, r.formulario) a on c.informante = a.informante and c.formulario = a.formulario
-                     where a.ultimo_periodo_activo is null or a.ultimo_periodo_activo < c.periodo_cierre) AS cierre on r.informante = cierre.informante and r.formulario = cierre.formulario
+                          group by r.informante) a on c.informante = a.informante
+                     where a.ultimo_periodo_activo is null or a.ultimo_periodo_activo < c.periodo_cierre) AS cierre on r.informante = cierre.informante
           left join mant.pb_estacionales pbe on r.producto = pbe.producto 
         GROUP BY r.producto, r.informante, r.observacion, ultimo_mes_anterior_bajas) as CBO;$$; 
 
