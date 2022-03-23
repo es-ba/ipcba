@@ -1,3 +1,4 @@
+set search_path =cvp;
 CREATE OR REPLACE FUNCTION Cal_PerBase_Prop(pCalculo Integer, pPeriodoDesde text, pPeriodoHasta text) RETURNS void
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
@@ -61,3 +62,15 @@ BEGIN
   EXECUTE Cal_Mensajes(vPeriodo_Solo_para_CalMensajes, pCalculo, 'Cal_PerBase_Prop', pTipo:='finalizo');
 END;
 $$;
+
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en nombreinformante" CHECK (nombreinformante<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en direccion"        CHECK (direccion<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en nombrecalle"      CHECK (nombrecalle<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en altura"           CHECK (altura<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en piso"             CHECK (piso<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en departamento"     CHECK (departamento<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en cp"               CHECK (cp<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en contacto"         CHECK (contacto<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en telcontacto"      CHECK (telcontacto<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en web"              CHECK (web<>'');
+ALTER TABLE informantes ADD CONSTRAINT "cadena vacia en email"            CHECK (email<>'');
