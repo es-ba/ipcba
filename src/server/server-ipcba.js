@@ -736,8 +736,8 @@ NETWORK:
                 {menuType:'menu', name:'recepcion', menuContent:[
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
                 //{menuType:'table', name:'infreempdir', label:'administración de reemplazos'},
-                {menuType:'table', name:'periodos_precios_maximos_minimos', label:'precios maximos-mínimos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,recepGabinete]},
-                ]},
+                {menuType:'table', name:'periodos_precios_maximos_minimos', label:'precios maximos-mínimos'},
+                ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
                 {menuType:'menu', name:'controles', menuContent:[
                     {menuType:'table', name:'periodos_relpre_control_rangos_recepcion', label:'inconsistencias de precios Rec', onlyVisibleFor:[programador,recepcionista,supervisor,coordinador,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_anulados_recep'         , label:'anulados en recepción', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor]},
