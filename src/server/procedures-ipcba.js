@@ -715,13 +715,13 @@ ProceduresIpcba = [
                     WHERE d.calculo is null`,
                     [parameters.periodo]).execute();
             var result = await context.client.query(
-                `SELECT copiarcalculo(periodo,0,periodo,(
+                `SELECT copiarcalculo(periodo,cd.calculo,periodo,(
                           select max(calculo)+1
                             from calculos c2
                             where c2.periodo=c.periodo
                           ), $2 )
-                   FROM calculos c
-                   WHERE periodo=$1 AND calculo=0`,
+                   FROM calculos c join calculos_def cd on c.calculo = cd.calculo
+                   WHERE periodo=$1 AND cd.principal`,
                 [parameters.periodo,parameters.motivocopia]
             ).fetchUniqueValue();
             return 'copiado '+result.value;
