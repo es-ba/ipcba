@@ -21,13 +21,14 @@ FROM (SELECT o.periodo, g.grupo,
         coalesce(par.solo_cluster, p."cluster") as "cluster",
         COUNT(o.producto) OVER (PARTITION BY o.periodo, o.producto, coalesce(par.solo_cluster, p."cluster")) AS cantobs
         FROM cvp.calobs o
+        JOIN cvp.calculos_def cd on o.calculo = cd.calculo 
         LEFT JOIN cvp.calculos c ON o.periodo = c.periodo AND o.calculo = c.calculo
         LEFT JOIN cvp.calobs o1 ON o1.periodo = c.periodoanterior AND o1.calculo = c.calculoanterior AND o.producto = o1.producto AND o.informante = o1.informante AND o.observacion = o1.observacion
         LEFT JOIN cvp.gru_grupos gg ON o.producto = gg.grupo
         LEFT JOIN cvp.grupos g ON gg.grupo_padre = g.grupo AND gg.agrupacion = g.agrupacion
         LEFT JOIN cvp.productos p ON o.producto = p.producto
         LEFT JOIN cvp.parametros par ON unicoregistro
-        WHERE o.calculo = 0 AND g.agrupacion = 'Z' AND g.nivel = 0 AND o.impobs = 'R' AND o1.impobs = 'R'
+        WHERE cd.principal AND g.agrupacion = 'Z' AND g.nivel = 0 AND o.impobs = 'R' AND o1.impobs = 'R'
         --A Pedido de Mariana excluimos los siguientes grupos:
         AND g.grupo not in 
         ('Z0411',

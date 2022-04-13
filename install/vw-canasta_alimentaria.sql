@@ -13,9 +13,10 @@ SELECT CASE WHEN (x.agrupacion='B' AND x.nivel=2 )THEN x.grupopadre ELSE x.grupo
             c.agrupacion, c.calculo, c.periodo, g.nivel, 
             c.agrupacion AS agrupprincipal, g.grupopadre
           FROM cvp.calgru c
+          JOIN cvp.calculos_def cd on c.calculo = cd.calculo
           JOIN cvp.grupos g ON c.agrupacion::text = g.agrupacion::text AND c.grupo::text = g.grupo::text
           JOIN cvp.matrizperiodos6 a ON (a.periodo1 IS NULL OR c.periodo::text >= a.periodo1::text) AND c.periodo::text <= a.periodo6::text
-          WHERE c.calculo = 0 AND c.agrupacion in ('A','B') AND g.nivel in (2,3) AND substr(g.grupopadre::text, 1, 2) in ('A1','B1')
+          WHERE cd.principal AND c.agrupacion in ('A','B') AND g.nivel in (2,3) AND substr(g.grupopadre::text, 1, 2) in ('A1','B1')
 		) x ON x.periodo = p.periodo6	
     LEFT JOIN cvp.calgru c1 ON x.agrupprincipal = c1.agrupacion AND x.grupo = c1.grupo AND c1.periodo = p.periodo1 AND c1.calculo = x.calculo
     LEFT JOIN cvp.calgru c2 ON x.agrupprincipal = c2.agrupacion AND x.grupo = c2.grupo AND c2.periodo = p.periodo2 AND c2.calculo = x.calculo

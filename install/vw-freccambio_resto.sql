@@ -21,6 +21,7 @@ SELECT
   coalesce(par.solo_cluster, p."cluster") as "cluster",
   gg.grupo_padre
   FROM cvp.calobs o
+    join cvp.calculos_def cd on o.calculo = cd.calculo 
     LEFT JOIN cvp.calculos c ON o.periodo = c.periodo and o.calculo = c.calculo
     LEFT JOIN cvp.calobs o1 on o1.periodo = c.periodoanterior and o1.calculo = c.calculoanterior and 
       o.producto = o1.producto and o.informante = o1.informante and o.observacion = o1.observacion
@@ -29,7 +30,7 @@ SELECT
     LEFT JOIN cvp.grupos g on gu.grupo_padre = g.grupo and gu.agrupacion = g.agrupacion
     LEFT JOIN cvp.gru_grupos gg on gg.agrupacion = 'Z' and gg.esproducto = 'S' and gg.grupo = o.producto and length(gg.grupo_padre) = 5  --los niveles 3 para poder excluirlos
     LEFT JOIN cvp.parametros par ON unicoregistro
-  WHERE o.calculo = 0 and g.grupo ='R3' and o.impobs = 'R' and o1.impobs = 'R'
+WHERE cd.principal and g.grupo ='R3' and o.impobs = 'R' and o1.impobs = 'R'
   --Excluimos los siguientes grupos:
   and gg.grupo_padre not in 
   ('Z0411',

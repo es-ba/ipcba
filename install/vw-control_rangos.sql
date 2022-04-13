@@ -36,13 +36,13 @@ select periodo, producto, nombreproducto, informante, tipoinformante, observacio
            tamannodesvvar,
            tamannodesvpre
            FROM cvp.relpre_1 v
-           LEFT JOIN cvp.calobs co ON co.periodo = v.periodo_1 AND co.calculo = 0 AND co.producto = v.producto AND co.informante = v.informante AND co.observacion = v.observacion
+           LEFT JOIN (select c_0.* from cvp.calobs c_0 JOIN calculos_def cd on c_0.calculo = cd.calculo where cd.principal) co ON co.periodo = v.periodo_1 AND co.producto = v.producto AND co.informante = v.informante AND co.observacion = v.observacion
                 JOIN cvp.productos p on v.producto = p.producto
                 JOIN cvp.informantes i on v.informante = i.informante
                 JOIN cvp.relvis vi on v.periodo = vi.periodo and v.informante = vi.informante and v.visita = vi.visita and v.formulario = vi.formulario 
                 LEFT JOIN cvp.personal pe on vi.encuestador = pe.persona
                 LEFT JOIN cvp.personal pc on vi.recepcionista = pc.persona
-                LEFT JOIN cvp.calobs c2 ON c2.periodo::text = v.periodo::text AND c2.calculo = 0 AND c2.producto::text = v.producto::text AND c2.informante = v.informante AND c2.observacion = v.observacion
+                LEFT JOIN (select c_2.* from cvp.calobs c_2 JOIN calculos_def cd on c_2.calculo = cd.calculo where cd.principal) c2 ON c2.periodo::text = v.periodo::text AND c2.producto::text = v.producto::text AND c2.informante = v.informante AND c2.observacion = v.observacion
                 JOIN cvp.panel_promrotativo avgprot ON v.periodo = avgprot.periodo AND v.producto = avgprot.producto
                 JOIN cvp.parametros ON parametros.unicoregistro = true
                 LEFT JOIN cvp.prerep pr ON v.periodo = pr.periodo AND v.informante = pr.informante AND v.producto = pr.producto
