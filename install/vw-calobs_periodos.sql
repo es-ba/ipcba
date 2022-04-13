@@ -443,8 +443,9 @@ CREATE OR REPLACE VIEW calobs_periodos AS
             ELSE NULL::text
         END) AS a2012m08_imp
    FROM cvp.calobs c
+     JOIN cvp.calculos_def cd on c.calculo = cd.calculo 
      LEFT JOIN cvp.relpre r ON c.periodo::text = r.periodo::text AND c.producto::text = r.producto::text AND c.informante = r.informante AND c.observacion = r.observacion AND r.visita = 1
-  WHERE c.calculo = 0
+  WHERE cd.principal
   GROUP BY c.producto, c.informante, c.observacion
   ORDER BY c.producto, c.informante, c.observacion;
 

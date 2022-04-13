@@ -29,7 +29,7 @@ CREATE OR REPLACE VIEW control_calculoresultados AS
      JOIN cvp.grupos g ON c.grupo = g.grupo
      JOIN cvp.calculos a ON a.periodo = c.periodo AND a.calculo = c.calculo
      JOIN cvp.calculos_def cd ON a.calculo = cd.calculo
-  WHERE c.calculo = 0 AND c.agrupacion = cd.agrupacionprincipal AND c.esproducto = 'N'
+  WHERE cd.principal AND c.agrupacion = cd.agrupacionprincipal AND c.esproducto = 'N'
 UNION
  SELECT c.producto AS codigo,
     p.nombreproducto AS nombre,
@@ -75,6 +75,6 @@ UNION
      JOIN cvp.calprodAgr cpa ON c.periodo = cpa.periodo AND c.calculo = cpa.calculo AND c.producto = cpa.producto and g.agrupacion = cpa.agrupacion
      LEFT JOIN cvp.proddiv v ON p.producto = v.producto AND c.division = v.division
      LEFT JOIN cvp.caldiv c_1 ON a.periodoanterior = c_1.periodo AND a.calculoanterior = c_1.calculo AND c.producto = c_1.producto AND c.division = c_1.division
-  WHERE c.calculo = 0;
+  WHERE cd.principal;
 
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE control_calculoresultados TO cvp_administrador;

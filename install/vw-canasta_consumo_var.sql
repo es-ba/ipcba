@@ -7,11 +7,12 @@ CREATE OR REPLACE VIEW canasta_consumo_var AS
 		 c.agrupacion, c.calculo, c.periodo, c0.calculo AS calculoant, c0.periodo periodoant, ca.periodo periododiciembre, cm.periodo periodoaniooanterior, g.nivel 
     FROM cvp.calhoggru c
     JOIN cvp.grupos g ON  c.agrupacion=g.agrupacion AND c.grupo=g.grupo
-	JOIN cvp.calculos p ON c.periodo=p.periodo and  'A'=p.agrupacionprincipal AND  0=p.calculo
+	JOIN cvp.calculos p ON c.periodo=p.periodo and  'A'=p.agrupacionprincipal AND c.calculo=p.calculo
+    JOIN cvp.calculos_def cd on p.calculo = cd.calculo
     JOIN cvp.calhoggru c0 ON c.agrupacion=c0.agrupacion AND c.hogar=c0.hogar AND c.grupo=c0.grupo AND c0.calculo=p.calculoAnterior AND  c0.periodo=p.periodoAnterior 
 	LEFT JOIN cvp.calhoggru ca ON c.agrupacion=ca.agrupacion  AND c.hogar=ca.hogar AND c.grupo=ca.grupo AND c.calculo=ca.calculo AND  ca.periodo='a'||(substr(c.periodo,2,4)::integer-1)||'m12' 
     LEFT JOIN cvp.calhoggru cm ON c.agrupacion=cm.agrupacion  AND c.hogar=cm.hogar AND c.grupo=cm.grupo AND c.calculo=cm.calculo AND  cm.periodo='a'||(substr(c.periodo,2,4)::integer-1)||'m'||substr(c.periodo,7,2)
-    WHERE c.calculo=0  AND (g.nivel=2 AND substr(g.grupopadre,1,2)  not in ( 'A1','B1') )  
+    WHERE cd.principal AND (g.nivel=2 AND substr(g.grupopadre,1,2)  not in ( 'A1','B1') )  
   UNION 
   SELECT c.hogar, c.grupo||'X' AS grupo, g.nombrecanasta nombre,  
 		 ROUND(c0.valorhogsub::DECIMAL,2) AS valorgruant, 
@@ -22,11 +23,12 @@ CREATE OR REPLACE VIEW canasta_consumo_var AS
 		 c.agrupacion, c.calculo, c.periodo, c0.calculo AS calculoant, c0.periodo periodoant, ca.periodo periododiciembre, cm.periodo periodoaniooanterior, g.nivel
     FROM cvp.calhogsubtotales c
     JOIN cvp.grupos g ON  c.agrupacion=g.agrupacion AND c.grupo=g.grupo
-    JOIN cvp.calculos p ON c.periodo=p.periodo and  'A'=p.agrupacionprincipal AND  0=p.calculo
+    JOIN cvp.calculos p ON c.periodo=p.periodo and  'A'=p.agrupacionprincipal AND c.calculo=p.calculo
+    JOIN cvp.calculos_def cd on p.calculo = cd.calculo
     JOIN cvp.calhogsubtotales c0 ON c.agrupacion=c0.agrupacion AND c.hogar=c0.hogar AND c.grupo=c0.grupo AND c0.calculo=p.calculoAnterior AND  c0.periodo=p.periodoAnterior 
-	LEFT JOIN cvp.calhogsubtotales ca ON c.agrupacion=ca.agrupacion  AND c.hogar=ca.hogar AND c.grupo=ca.grupo AND c.calculo=ca.calculo AND  ca.periodo='a'||(substr(c.periodo,2,4)::integer-1)||'m12' 
+    LEFT JOIN cvp.calhogsubtotales ca ON c.agrupacion=ca.agrupacion  AND c.hogar=ca.hogar AND c.grupo=ca.grupo AND c.calculo=ca.calculo AND  ca.periodo='a'||(substr(c.periodo,2,4)::integer-1)||'m12' 
     LEFT JOIN cvp.calhogsubtotales cm ON c.agrupacion=cm.agrupacion  AND c.hogar=cm.hogar AND c.grupo=cm.grupo AND c.calculo=cm.calculo AND  cm.periodo='a'||(substr(c.periodo,2,4)::integer-1)||'m'||substr(c.periodo,7,2)
-    WHERE c.calculo=0 AND ((g.nivel=1 )) 
+    WHERE cd.principal AND ((g.nivel=1 )) 
 ORDER BY agrupacion, periodo, hogar, grupo;
 
 GRANT SELECT ON TABLE canasta_consumo_var TO cvp_administrador;	

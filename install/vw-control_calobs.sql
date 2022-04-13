@@ -7,8 +7,9 @@ CREATE OR REPLACE VIEW control_calobs AS
       FROM cvp.relpre r
       FULL OUTER JOIN cvp.calobs c ON c.periodo=r.periodo  AND c.producto=r.producto AND c.observacion=r.observacion AND c.informante=r.informante 
       JOIN cvp.calculos ca ON ca.periodo=c.periodo AND ca.calculo=c.calculo
+      JOIN calculos_def cd on ca.calculo = cd.calculo
       LEFT JOIN cvp.calobs c_1 ON c_1.producto=c.producto AND c_1.calculo=ca.calculoanterior AND c_1.informante=c.informante AND c_1.observacion=c.observacion
                                   AND c_1.periodo=ca.periodoanterior
-      WHERE c.calculo=0 ; 
+      WHERE cd.principal ; 
 
 GRANT SELECT ON TABLE control_calobs TO cvp_administrador; 

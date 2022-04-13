@@ -17,14 +17,16 @@ CREATE OR REPLACE VIEW canasta_consumo AS
     JOIN ( SELECT c.grupo,c.hogar,g.nombregrupo nombre, c.agrupacion,c.calculo ,a.periodo6, g.nivel
              FROM cvp.calhoggru c
              JOIN cvp.grupos g ON  c.agrupacion=g.agrupacion AND c.grupo=g.grupo
-             JOIN cvp.matrizperiodos6 a on (a.periodo1 IS NULL OR c.periodo >= a.periodo1) AND c.periodo <= a.periodo6 
-             WHERE c.calculo=0  AND (g.nivel=2 AND substr(g.grupopadre,1,2)  not in ( 'A1','B1') )  
+             JOIN cvp.matrizperiodos6 a on (a.periodo1 IS NULL OR c.periodo >= a.periodo1) AND c.periodo <= a.periodo6
+             JOIN cvp.calculos_def cd on c.calculo = cd.calculo 
+             WHERE cd.principal AND (g.nivel=2 AND substr(g.grupopadre,1,2)  not in ( 'A1','B1') )  
            UNION 
 		   SELECT c.grupo, c.hogar, g.nombrecanasta nombre, c.agrupacion, c.calculo, a.periodo6, g.nivel
 		     FROM cvp.calhogsubtotales c
 		     JOIN cvp.grupos g ON  c.agrupacion=g.agrupacion AND c.grupo=g.grupo
 		     JOIN cvp.matrizperiodos6 a on (a.periodo1 IS NULL OR c.periodo >= a.periodo1) AND c.periodo <= a.periodo6 
-		     WHERE c.calculo=0 AND ((g.nivel=1 )) 
+             JOIN cvp.calculos_def cd on c.calculo = cd.calculo 
+		     WHERE cd.principal AND ((g.nivel=1 )) 
 		     GROUP BY c.grupo, c.hogar,nombre , c.agrupacion,c.calculo,a.periodo6,g.nivel ) x on x.periodo6=p.periodo6 
   LEFT JOIN cvp.calhoggru c1 ON x.agrupacion=c1.agrupacion AND x.grupo=c1.grupo AND x.hogar=c1.hogar AND c1.periodo=p.periodo1 AND c1.calculo=x.calculo  AND x.nivel=2 
   LEFT JOIN cvp.calhoggru c2 ON x.agrupacion=c2.agrupacion AND x.grupo=c2.grupo AND x.hogar=c2.hogar AND c2.periodo=p.periodo2 AND c2.calculo=x.calculo  AND x.nivel=2 

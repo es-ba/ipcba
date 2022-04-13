@@ -451,7 +451,7 @@ CREATE OR REPLACE VIEW calobs_periodos AS
   ORDER BY c.producto, c.informante, c.observacion;
 ----------------------------------------------------------------------
   CREATE OR REPLACE VIEW calobs_vw AS
-  SELECT * 
+  SELECT c.* 
     FROM CalObs c JOIN calculos_def cd on c.calculo = cd.calculo 
     WHERE cd.principal;
 ----------------------------------------------------------------------

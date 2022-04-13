@@ -6,7 +6,8 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo as producto, p.nombreProducto
       , substr(c.grupo,2,2) as divisionCanasta
       , Agrupo1, Agrupo2, Agrupo3, Agrupo4 --ancestros de la rama A
       , Bgrupo0, Bgrupo1, Bgrupo2, Bgrupo3, Bgrupo4 --ancestros de la rama B
-   from cvp.calgru c 
+   from cvp.calgru c
+     join calculos_def cd on c.calculo = cd.calculo
      left join cvp.gru_grupos g on c.agrupacion = g.agrupacion and c.grupo = g.grupo
      left join cvp.productos p on c.grupo = p.producto
      left join cvp.prodagr ag on c.agrupacion = ag.agrupacion and p.producto = ag.producto 
@@ -29,7 +30,7 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo as producto, p.nombreProducto
                   inner join cvp.grupos g1 on g2.grupopadre=g1.grupo and g1.agrupacion='B'
                   where g.agrupacion='B'and g.nivel=4
                 ) as B on grupo_padre = Bgrupo0
-   where c.calculo = 0 and c.agrupacion in ('A','D') and g.esproducto = 'S' and ag.cantporunidcons >0 and valorgru is not null 
+   where cd.principal and c.agrupacion in ('A','D') and g.esproducto = 'S' and ag.cantporunidcons >0 and valorgru is not null 
          --and hp.hogar = 'Hogar 5b' and c.periodo = 'a2014m06' 
    group by c.periodo, c.calculo, c.agrupacion, c.grupo, p.nombreproducto, c.valorgru, c.grupopadre, g.grupo_padre, hp.hogar
             , Agrupo1, Agrupo2, Agrupo3, Agrupo4

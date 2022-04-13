@@ -5,10 +5,11 @@ SELECT x.periodo, x.calculo, x.agrupacion, x.grupo, x.nombregrupo as nombre, x.n
   FROM (SELECT d.periodo, d.calculo, gp.agrupacion, gp.grupo_padre as grupo, g.nombregrupo, g.ponderador, g.nivel, 
              sum(d.cantincluidos) cantincluidos, sum(d.cantrealesincluidos) cantrealesincluidos, sum(d.cantimputados) cantimputados 
         FROM cvp.caldiv d
+        JOIN calculos_def cd on d.calculo = cd.calculo
         LEFT JOIN cvp.gru_prod gp ON d.producto=gp.producto
         LEFT JOIN cvp.grupos g ON gp.grupo_padre = g.grupo AND gp.agrupacion = g.agrupacion
         LEFT JOIN cvp.agrupaciones a ON gp.agrupacion = a.agrupacion 
-        WHERE d.division = '0' and a.tipo_agrupacion = 'INDICE' and d.calculo = 0
+        WHERE d.division = '0' and a.tipo_agrupacion = 'INDICE' and cd.principal
         GROUP BY d.periodo, d.calculo, gp.agrupacion, gp.grupo_padre, g.nombregrupo, g.ponderador, g.nivel) as x
       LEFT JOIN cvp.calgru_vw c ON c.periodo = x.periodo and c.calculo = x.calculo and c.agrupacion = x.agrupacion and c.grupo = x.grupo 
    ORDER BY ordenpor;
