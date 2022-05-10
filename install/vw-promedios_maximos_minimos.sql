@@ -33,7 +33,8 @@ CREATE OR REPLACE VIEW promedios_maximos_minimos AS
    JOIN cvp.informantes n ON v.informante = n.informante
    JOIN cvp.rubros r ON n.rubro=r.rubro 
    LEFT JOIN cvp.tipopre ta ON ta.tipoprecio=coalesce(v.tipoprecio,'0')
-   LEFT JOIN cvp.CalObs co ON v.periodo_1 = co.periodo AND co.calculo = 0 AND v.informante = co.informante 
+   LEFT JOIN (select c.* from cvp.CalObs c join cvp.calculos_def cd on c.calculo = cd.calculo where cd.principal) co 
+                           ON v.periodo_1 = co.periodo  AND v.informante = co.informante 
                            AND v.producto = co.producto AND v.observacion = co.observacion 
    GROUP BY v.periodo,v.producto,f.nombreproducto,n.tipoinformante,r.despacho, v.observacion
    ORDER BY v.periodo,v.producto,n.tipoinformante,r.despacho,v.observacion; --confirmar si se agrega observacion al orden

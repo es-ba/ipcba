@@ -11,12 +11,13 @@ CREATE OR REPLACE VIEW preciosmedios_albs AS
    FROM cvp.matrizperiodos6 p
    JOIN ( SELECT c.producto, p.nombreproducto, p.unidadmedidaabreviada, g.agrupacion, c.calculo, a.periodo6, g.nivel, g.grupopadre,g2.nombregrupo as nombregrupopadre,g2.grupopadre as gruponivel1, g3.nombregrupo as  nombregruponivel1 
             FROM cvp.caldiv c
-            JOIN cvp.grupos g ON c.calculo = 0 AND g.grupo = c.producto AND g.esproducto = 'S'
+            JOIN cvp.calculos_def cd on c.calculo = cd.calculo
+            JOIN cvp.grupos g ON g.grupo = c.producto AND g.esproducto = 'S'
             JOIN cvp.productos p ON g.grupo = p.producto AND g.esproducto = 'S'
             JOIN cvp.matrizperiodos6 a ON (a.periodo1 IS NULL OR c.periodo >= a.periodo1) AND c.periodo <= a.periodo6
             LEFT JOIN cvp.grupos g2 ON  g.grupopadre=g2.grupo AND g2.agrupacion=g.agrupacion
             LEFT JOIN cvp.grupos g3 ON g2.grupopadre=g3.grupo AND g3.agrupacion=g2.agrupacion
-            WHERE c.calculo = 0 AND g.esproducto = 'S'  AND g.agrupacion='C'  AND c.division='0' -- AND g.agrupacion in ('A','B','C')
+            WHERE cd.principal AND g.esproducto = 'S'  AND g.agrupacion='C'  AND c.division='0' -- AND g.agrupacion in ('A','B','C')
             GROUP BY c.producto, p.nombreproducto, p.unidadmedidaabreviada, g.agrupacion, c.calculo, a.periodo6, g.nivel, g.grupopadre,g2.nombregrupo,g2.nombregrupo,g2.grupopadre,g3.nombregrupo
         ) x ON x.periodo6 = p.periodo6
    LEFT JOIN cvp.caldiv c1 ON x.producto = c1.producto AND c1.periodo = p.periodo1 AND c1.calculo = x.calculo AND c1.division='0'

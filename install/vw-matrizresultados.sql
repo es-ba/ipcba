@@ -43,18 +43,12 @@ SELECT x.producto, x.tipoinformante, x.informante, x.observacion,
             WHERE  ( a.periodo1 IS NULL OR r.periodo >= a.periodo1) AND r.periodo <=a.periodo6 
                AND r.informante= i.informante
             GROUP BY r.producto, i.tipoinformante, r.informante, r.observacion, a.periodo6) x  ON x.periodo6= p.periodo6
-      LEFT JOIN CalObs col1 ON col1.informante=x.informante AND col1.observacion=x.observacion AND col1.producto=x.producto AND col1.periodo= p.periodo1 
-         AND col1.calculo=0
-      LEFT JOIN CalObs col2 ON col2.informante=x.informante AND col2.observacion=x.observacion AND col2.producto=x.producto AND col2.periodo= p.periodo2 
-         AND col2.calculo=0
-      LEFT JOIN CalObs col3 ON col3.informante=x.informante AND col3.observacion=x.observacion AND col3.producto=x.producto AND col3.periodo= p.periodo3 
-         AND col3.calculo=0
-      LEFT JOIN CalObs col4 ON col4.informante=x.informante AND col4.observacion=x.observacion AND col4.producto=x.producto AND col4.periodo= p.periodo4 
-         AND col4.calculo=0
-      LEFT JOIN CalObs col5 ON col5.informante=x.informante AND col5.observacion=x.observacion AND col5.producto=x.producto AND col5.periodo= p.periodo5 
-         AND col5.calculo=0
-      LEFT JOIN CalObs col6 ON col6.informante=x.informante AND col6.observacion=x.observacion AND col6.producto=x.producto AND col6.periodo= p.periodo6 
-         AND col6.calculo=0
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col1 ON col1.informante=x.informante AND col1.observacion=x.observacion AND col1.producto=x.producto AND col1.periodo= p.periodo1 
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col2 ON col2.informante=x.informante AND col2.observacion=x.observacion AND col2.producto=x.producto AND col2.periodo= p.periodo2 
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col3 ON col3.informante=x.informante AND col3.observacion=x.observacion AND col3.producto=x.producto AND col3.periodo= p.periodo3 
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col4 ON col4.informante=x.informante AND col4.observacion=x.observacion AND col4.producto=x.producto AND col4.periodo= p.periodo4 
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col5 ON col5.informante=x.informante AND col5.observacion=x.observacion AND col5.producto=x.producto AND col5.periodo= p.periodo5 
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col6 ON col6.informante=x.informante AND col6.observacion=x.observacion AND col6.producto=x.producto AND col6.periodo= p.periodo6 
       LEFT JOIN relpre p1 ON p1.informante=x.informante AND p1.observacion=x.observacion AND p1.producto=x.producto AND p1.visita= 1 AND p1.periodo= p.periodo1 
       LEFT JOIN relpre p2 ON p2.informante=x.informante AND p2.observacion=x.observacion AND p2.producto=x.producto AND p2.visita= 1 AND p2.periodo= p.periodo2
       LEFT JOIN relpre p3 ON p3.informante=x.informante AND p3.observacion=x.observacion AND p3.producto=x.producto AND p3.visita= 1 AND p3.periodo= p.periodo3
@@ -68,7 +62,7 @@ SELECT x.producto, x.tipoinformante, x.informante, x.observacion,
       LEFT JOIN relvis v5 ON v5.informante=x.informante AND v5.formulario=p5.formulario AND v5.visita= 1 AND v5.periodo= p.periodo5
       LEFT JOIN relvis v6 ON v6.informante=x.informante AND v6.formulario=p6.formulario AND v6.visita= 1 AND v6.periodo= p.periodo6
       LEFT JOIN periodos p0 ON p0.periodo=p.periodo1 AND p0.periodoAnterior <>p.periodo1
-      LEFT JOIN CalObs col0 ON col0.informante=x.informante AND col0.observacion=x.observacion AND col0.producto=x.producto AND col0.periodo= p0.periodoAnterior 
-         AND col0.calculo=0;
+      LEFT JOIN (select c.* from CalObs c join calculos_def cd on c.calculo = cd.calculo where cd.principal) col0 
+        ON col0.informante=x.informante AND col0.observacion=x.observacion AND col0.producto=x.producto AND col0.periodo= p0.periodoAnterior;
 
 GRANT SELECT ON TABLE matrizresultados TO cvp_administrador;
