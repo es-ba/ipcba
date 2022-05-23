@@ -97,6 +97,7 @@ module.exports = function(context){
                            CASE WHEN antiguedadexcluido is NOT NULL THEN 'X' ELSE null END) desc) 
                 as orden_precio_maximo
                 FROM calprodresp cp
+                INNER JOIN calculos_def cd on cp.calculo = cd.calculo
                 INNER JOIN relpre e ON cp.periodo = e.periodo and cp.producto = e.producto
                 INNER JOIN productos o on e.producto = o.producto
                 INNER JOIN relvis v on e.periodo = v.periodo and e.informante = v.informante and e.visita = v.visita and e.formulario = v.formulario
@@ -105,7 +106,7 @@ module.exports = function(context){
                 LEFT JOIN calculos a on e.periodo = a.periodo and cp.calculo = a.calculo
                 LEFT JOIN calobs c on e.periodo = c.periodo and c.calculo = a.calculo and e.producto = c.producto and e.informante = c.informante and e.observacion = c.observacion
                 WHERE e.precionormalizado is not null and not(c.division is null AND e.modi_fec < a.fechacalculo)
-                      and cp.calculo = 0
+                      and cd.principal
                 ) q
                 group by periodo, producto, analista, umabreviada, normaliza, normalizable
                 order by periodo, producto, analista, umabreviada, normaliza, normalizable

@@ -77,8 +77,8 @@ module.exports = function(context){
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
                     left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
-                    left join calobs c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion and c.calculo = 0
-                    left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = 0
+                    left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
+                    left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
                     left join (select distinct periodo, producto, observacion, informante, visita, 'S' as normsindato from control_normalizables_sindato) n on
                     r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.visita = n.visita and r.producto = n.producto                    
                     left join (select distinct periodo, producto, observacion, informante, visita, 'S' as fueraderango from control_atributos) a on

@@ -437,7 +437,7 @@ function dm2CrearQueries(parameters){
                 inner join formularios f using (formulario)
                 left join blapre bp on rp.periodo_1 = bp.periodo and rp.informante = bp.informante and rp.visita = bp.visita and
                     rp.producto = bp.producto and rp.observacion = bp.observacion
-                left join calobs c on c.periodo = rp.periodo_1 and calculo = 0
+                left join (select * from calobs co join calculos_def cd on co.calculo = cd.calculo where cd.principal) c on c.periodo = rp.periodo_1
                     and c.informante = rp.informante and c.producto = rp.producto
                     and c.observacion = rp.observacion
                 left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante,
@@ -919,8 +919,9 @@ ProceduresIpcba = [
                     await cadenaPromesas; 
                     var data={};
                     data.periodos = await oriquery(`
-                        select p.periodo, ano as annio,mes from periodos p inner join calculos using (periodo) 
-                        where p.periodo >= '${periodo_inicial}' and abierto='N' and calculos.calculo = 0
+                        select p.periodo, ano as annio,mes from periodos p inner join calculos using (periodo)
+                        inner join calculos_def using(calculo) 
+                        where p.periodo >= '${periodo_inicial}' and abierto='N' and calculos_def.principal
                         order by periodo;
                     `);                   
                     await bulkInsert('periodos',esquema);
@@ -957,8 +958,9 @@ ProceduresIpcba = [
                         from caldiv d
                             inner join productos using(producto) inner join grupos on agrupacion = '${agrupacion}' and grupo=producto
                             inner join periodos p using(periodo) inner join calculos using (periodo,calculo)
+                            inner join calculos_def cd on d.calculo = cd.calculo
                             -- inner join calgru g on d.producto=g.grupo and d.periodo=g.periodo and d.calculo=g.calculo
-                        where d.calculo=0 and d.division='0'
+                        where cd.principal and d.division='0'
                             and p.periodo >= '${periodo_inicial}' and abierto='N'
                         order by producto
                     `);
@@ -966,7 +968,8 @@ ProceduresIpcba = [
                     data.calculo_grupos = await oriquery(`
                         select periodo,agrupacion,grupo,indiceredondeado
                         from calgru g inner join calculos c using (periodo,calculo)
-                        where agrupacion in ('Z', 'R', 'S') and nivel in (0,1) and g.calculo = 0  and periodo >= '${periodo_inicial}' 
+                        inner join calculos_def cd using (calculo)
+                        where agrupacion in ('Z', 'R', 'S') and nivel in (0,1) and cd.principal  and periodo >= '${periodo_inicial}' 
                         and abierto='N'
                         order by periodo, agrupacion, grupo;
                     `);

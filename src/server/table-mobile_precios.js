@@ -101,8 +101,8 @@ module.exports = function(context){
                    AND r_1.producto = r.producto
                    AND r_1.observacion = r.observacion
                         left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
-                        left join calobs c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion and c.calculo = 0
-                        left join calobs c_1 on r_1.periodo = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = 0
+                        left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion 
+                        left join calobs c_1 on r_1.periodo = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
                         left join tipopre tp on r_1.tipoprecio = tp.tipoprecio,
                         lateral (select max(substr(periodo,2,4)||'/'||substr(periodo,7,2)||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
                                    from relpre

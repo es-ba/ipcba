@@ -41,7 +41,7 @@ module.exports = function(context){
                         ,tipoprecio,cambio,impobs,precioant, tipoprecioant, antiguedadsinprecioant,variac,promvar, desvvar
                         ,promrotativo,desvprot,razon_impobs_ant, repregunta
                     from cvp.control_rangos
-                    where periodo=(select max(periodo) from calculos where calculo=0)
+                    where periodo=(select max(periodo) from calculos c join calculos_def cd on c.calculo = cd.calculo where cd.principal)
                  )`
         }
     },context);
