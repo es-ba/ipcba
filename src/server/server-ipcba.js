@@ -366,10 +366,11 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.get(baseUrl+`/carga-dm/web-manifest.webmanifest`, async function(req, res, next){
             console.log("be", be);
             let pwaVersion = be.config.server.pwaVersion || '';
+            var entorno = baseUrl.includes('pr')?'PR':'';
             try{
                 const content = {
                   "name": `IPCBA Progressive Web App`,
-                  "short_name": `IPCBA ${pwaVersion} PWA`,
+                  "short_name": `IPCBA ${pwaVersion} PWA ${entorno}`,
                   "description": "Progressive Web App for IPCBA.",
                   "icons": [
                     {
