@@ -64,6 +64,9 @@ class AppIpcba extends backendPlus.AppBackend{
             activeClausule: usu_activo
             double-dragon: true
             plus:
+              maxAge-5-sec: 5000    
+              maxAge: 864000000
+              maxAge-10-day: 864000000
               allowHttpLogin: true
               fileStore: true
               loginForm:
