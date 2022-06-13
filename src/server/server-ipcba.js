@@ -12,14 +12,6 @@ const { json } = require('backend-plus');
 
 const APP_DM_VERSION="#21-12-02";
 class AppIpcba extends backendPlus.AppBackend{
-    constructor(){
-        super();
-        this.internalData={
-            filterUltimoPeriodo : 'a2018m05',
-            filterUltimoCalculo : 0,
-            filterAgrupacion : 'Z'
-        }
-    }
     isAdmin(reqOrContext){
         var be = this;
         return reqOrContext && (reqOrContext.forDump || reqOrContext.user && reqOrContext.user[be.config.login.rolFieldName] == 'programador');
@@ -28,6 +20,20 @@ class AppIpcba extends backendPlus.AppBackend{
         super.postConfig();
         this.fieldDomain.grupo={sortMethod:'codigo_ipc'};
         this.fieldDomain.grupopadre={sortMethod:'codigo_ipc', title:'grupo padre'};
+    }
+    async postConfig(){
+        await super.postConfig();
+        var be=this;
+        await be.inTransaction(null, async function(client) {
+        var ultimoCalculo = await client.query(`
+        SELECT calculo FROM calculos_def where principal
+        `).fetchUniqueValue();
+        be.internalData={
+            filterUltimoPeriodo : 'a2018m05',
+            filterUltimoCalculo : ultimoCalculo.value,
+            filterAgrupacion : 'Z'
+            }
+        });
     }
     configStaticConfig(){
         super.configStaticConfig();
