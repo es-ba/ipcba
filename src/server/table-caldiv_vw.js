@@ -10,6 +10,8 @@ module.exports = function(context){
             {name:'periodo'              , typeName:'text'    },
             {name:'calculo'              , typeName:'integer' },
             {name:'producto'             , typeName:'text'    },
+            {name:'nombreproducto'       , typeName:'text'    },
+            {name:'cluster'              , typeName:'integer' },
             {name:'division'             , typeName:'text'    },
             {name:'prompriimpact'        , typeName:'decimal'  },
             {name:'prompriimpant'        , typeName:'decimal'  },
@@ -57,12 +59,10 @@ module.exports = function(context){
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
-            {column:'calculo', operator:'=' ,value:context.be.internalData.filterUltimoCalculo}
+            {column:'calculo', operator:'=' ,value:context.be.internalData.filterUltimoCalculo},
+            {column:'cluster', operator:'!=',value:context.be.internalData.filterExcluirCluster}
         ],        
         primaryKey:['periodo','calculo','producto','division'],
-        foreignKeys:[
-            {references:'productos', fields:['producto']},
-        ],
         sql:{
             isTable: false,
         },

@@ -1,3 +1,4 @@
+set search_path = cvp;
 CREATE OR REPLACE VIEW caldiv_vw AS 
  SELECT c.periodo, c.calculo, c.producto, p.nombreproducto, c.division, c.prompriimpact, c.prompriimpant,
          CASE
@@ -43,5 +44,3 @@ CREATE OR REPLACE VIEW caldiv_vw AS
        c.producto = c0.producto AND c.division = c0.division
    LEFT JOIN (SELECT grupo FROM cvp.gru_grupos WHERE agrupacion = 'C' and grupo_padre in ('C1','C2') and esproducto = 'S') gg ON c.producto = gg.grupo     
    LEFT JOIN cvp.CalProdResp r on c.periodo = r.periodo and c.calculo = r.calculo and c.producto = r.producto;
-   
-GRANT SELECT ON TABLE caldiv_vw TO cvp_administrador;
