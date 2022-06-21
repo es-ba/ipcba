@@ -16,21 +16,25 @@ class AppIpcba extends backendPlus.AppBackend{
         var be = this;
         return reqOrContext && (reqOrContext.forDump || reqOrContext.user && reqOrContext.user[be.config.login.rolFieldName] == 'programador');
     }
-    postConfig(){
-        super.postConfig();
-        this.fieldDomain.grupo={sortMethod:'codigo_ipc'};
-        this.fieldDomain.grupopadre={sortMethod:'codigo_ipc', title:'grupo padre'};
-    }
     async postConfig(){
         await super.postConfig();
+        this.fieldDomain.grupo={sortMethod:'codigo_ipc'};
+        this.fieldDomain.grupopadre={sortMethod:'codigo_ipc', title:'grupo padre'};
         var be=this;
         await be.inTransaction(null, async function(client) {
-        var ultimoCalculo = await client.query(`
-        SELECT calculo FROM calculos_def where principal
-        `).fetchUniqueValue();
+        var result = await client.query(`
+        SELECT * FROM calculos_def where principal
+        `).fetchOneRowIfExists();
+        if (result.rowCount === 0) {
+            var ultimoCalculo = 0;
+        } else {
+            var ultimoCalculo = result.row.calculo;
+        } 
+        console.log("Valor del calculo principal: ", ultimoCalculo,);
+        console.log("Campo calculo no definido en la tabla calculos_def se inicialza con 0");
         be.internalData={
             filterUltimoPeriodo : 'a2018m05',
-            filterUltimoCalculo : ultimoCalculo.value,
+            filterUltimoCalculo : ultimoCalculo,
             filterAgrupacion : 'Z',
             filterExcluirCluster : 3
             }
