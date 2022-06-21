@@ -27,11 +27,10 @@ class AppIpcba extends backendPlus.AppBackend{
         `).fetchOneRowIfExists();
         if (result.rowCount === 0) {
             var ultimoCalculo = 0;
+            console.log("Campo calculo no definido en la tabla calculos_def se inicializa con 0");
         } else {
             var ultimoCalculo = result.row.calculo;
         } 
-        console.log("Valor del calculo principal: ", ultimoCalculo,);
-        console.log("Campo calculo no definido en la tabla calculos_def se inicialza con 0");
         be.internalData={
             filterUltimoPeriodo : 'a2018m05',
             filterUltimoCalculo : ultimoCalculo,
