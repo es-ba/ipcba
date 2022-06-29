@@ -51,6 +51,9 @@ module.exports = function(context){
             {table:'forprod', abr:'FOR', label:'Formularios', fields:['producto']},
             {table:'prodcontrolrangos', abr:'CTRL', label:'Contol Rangos', fields:['producto']},
         ],
+        filterColumns:[
+            {column:'cluster', operator:'!=',value:context.be.internalData.filterExcluirCluster}
+        ],
         sql:{
             from:`(select p.*, 
                 CASE WHEN unidadmedidaabreviada is not null then cvp.validar_unidadmedidaabreviada(producto) else null end as compatible
