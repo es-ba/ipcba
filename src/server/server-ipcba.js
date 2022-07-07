@@ -753,7 +753,7 @@ NETWORK:
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
                 //{menuType:'table', name:'infreempdir', label:'administración de reemplazos'},
                 {menuType:'table', name:'periodos_precios_maximos_minimos', label:'precios maximos-mínimos'},
-                ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
                 {menuType:'menu', name:'controles', menuContent:[
                     {menuType:'table', name:'periodos_relpre_control_rangos_recepcion', label:'inconsistencias de precios Rec', onlyVisibleFor:[programador,recepcionista,supervisor,coordinador,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_anulados_recep'         , label:'anulados en recepción', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor]},
@@ -762,7 +762,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_atr1_diccionario_atributos', label:'inconsistencia (atr1) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
-                    {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    

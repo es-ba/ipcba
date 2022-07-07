@@ -14,7 +14,7 @@ module.exports = function(context){
         fields:[
             {name: "calcular"                    , typeName: "bigint"  , editable:false, clientSide:'calcular'},
             {name:'periodo'                      , typeName:'text'     , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'calculo'                      , typeName:'integer'  , nullable:false, default:0, defaultValue:0, allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'calculo'                      , typeName:'integer'  , nullable:false, default:0, defaultValue:context.be.internalData.filterUltimoCalculo, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'estimacion'                   , typeName:'integer'  , nullable:false, default:0, defaultValue:0, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'abierto'                      , typeName:'text'     , nullable:false, default:'S', postInput:'upperSpanish', defaultValue:'S', allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'esperiodobase'                , typeName:'text'     , default:'N', defaultValue:'N', allow:{update:puedeEditarMigracion}, visible:puedeEditarMigracion},
