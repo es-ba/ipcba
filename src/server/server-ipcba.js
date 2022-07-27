@@ -172,6 +172,24 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-periodo_maximos_precios.sql
                 - fun-periodobase.sql
                 - fun-testpanelesgenerados.sql
+                - fun-res_cuadro_i.sql
+                - fun-res_cuadro_ii.sql
+                - fun-res_cuadro_iivv.sql
+                - fun-res_cuadro_ivebs.sql
+                - fun-res_cuadro_matriz_canasta.sql
+                - fun-res_cuadro_matriz_canasta_var.sql
+                - fun-res_cuadro_matriz_hogar.sql
+                - fun-res_cuadro_matriz_hogar_per.sql
+                - fun-res_cuadro_matriz_hogar_var.sql
+                - fun-res_cuadro_matriz_i.sql
+                - fun-res_cuadro_matriz_ingreso.sql
+                - fun-res_cuadro_matriz_linea.sql
+                - fun-res_cuadro_matriz_linea_var.sql
+                - fun-res_cuadro_matriz_up.sql
+                - fun-res_cuadro_piivvi.sql
+                - fun-res_cuadro_pp.sql
+                - fun-res_cuadro_up.sql
+                - fun-res_cuadro_vc.sql
                 - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
