@@ -76,14 +76,15 @@ EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_Control', pTipo:='comenzo');
       SELECT p.periodo,p.calculo,p.producto,
              p.UnidadMedidaPorUnidCons,p0.UnidadMedidaPorUnidCons as UnidadMedidaPorUnidConsant,
              p.PesoVolumenPorUnidad,p0.PesoVolumenPorUnidad as PesoVolumenPorUnidadant ,
-             p.Cantidad,p0.Cantidad as Cantidadant, p.UnidadDeMedida,p0.UnidadDeMedida as UnidadDeMedidaant
+             p.Cantidad,p0.Cantidad as Cantidadant, p.UnidadDeMedida,p0.UnidadDeMedida as UnidadDeMedidaant, p.CoefAjuste, p0.CoefAjuste as CoefAjusteant
         FROM CalProdAgr p 
         JOIN CalProdAgr p0 ON p.producto=p0.producto AND p0.periodo=vPeriodo_1 AND p0.calculo=vCalculo_1 AND p0.agrupacion=p.agrupacion      
         WHERE p.periodo=pPeriodo AND p.calculo=pCalculo
           AND ( p.UnidadMedidaPorUnidCons is distinct from p0.UnidadMedidaPorUnidCons
           OR    p.PesoVolumenPorUnidad is distinct from p0.PesoVolumenPorUnidad
           OR    p.Cantidad is distinct from p0.Cantidad
-          OR    p.UnidadDeMedida is distinct from p0.UnidadDeMedida)
+          OR    p.UnidadDeMedida is distinct from p0.UnidadDeMedida
+          OR    P.CoefAjuste is distinct from p0.CoefAjuste)
 
     LOOP
       IF vreccampos.UnidadMedidaPorUnidCons is distinct from vreccampos.UnidadMedidaPorUnidConsant THEN
@@ -112,6 +113,12 @@ EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_Control', pTipo:='comenzo');
             pmensaje:='ERROR en el calculo. No coincide el parametro "unidadDeMedida" en el producto "'||vreccampos.producto||'"', 
             pProducto:=vreccampos.producto);
       END IF; 
+      IF vreccampos.CoefAjuste is distinct from vreccampos.CoefAjusteant THEN
+        RAISE NOTICE 'ADVERTENCIA en el calculo. No coincide el parametro "CoefAjuste" en el producto "%"', vreccampos.producto;        
+        --EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_Control', pTipo:='error', 
+        --    pmensaje:='ERROR en el calculo. No coincide el parametro "pesovolumenporunidad" en el producto "'||vreccampos.producto||'"', 
+        --    pProducto:=vreccampos.producto);
+      END IF;
     END LOOP;
       --    
     FOR vreccampos IN 

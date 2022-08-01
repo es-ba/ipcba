@@ -11,7 +11,7 @@ EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'CalProd_Valorizar', pTipo:='comenzo');
 
 FOR vcalprod IN
   SELECT d.periodo, d.calculo, d.producto, a.agrupacion, a.cantporunidcons, u1.factor as factorucons, a.cantidad, u2.factor as factor
-        , d.promdiv, d.PromedioRedondeado, a.pesovolumenporunidad 
+        , d.promdiv, d.PromedioRedondeado, a.pesovolumenporunidad, a.coefajuste 
     FROM CalDiv d
         JOIN CalProdAgr a ON d.periodo=a.periodo AND d.calculo=a.calculo AND d.producto=a.producto        
         JOIN Unidades u1 ON a.unidadmedidaporunidcons = u1.unidad 
@@ -20,10 +20,10 @@ FOR vcalprod IN
       AND (a.agrupacion = pAgrupacionEspecial or pAgrupacionEspecial is null)
 LOOP  
  UPDATE CalProdAgr SET  ValorProd 
-   =(vcalprod.PromedioRedondeado*vcalprod.cantporunidcons*vcalprod.factorucons)/(vcalprod.cantidad*vcalprod.factor*COALESCE(vcalprod.pesovolumenporunidad,1))
+   =(vcalprod.PromedioRedondeado*vcalprod.cantporunidcons*vcalprod.factorucons*COALESCE(vcalprod.coefajuste,1))/(vcalprod.cantidad*vcalprod.factor*COALESCE(vcalprod.pesovolumenporunidad,1))
    WHERE periodo = vcalprod.periodo AND calculo = vcalprod.calculo AND producto = vcalprod.producto AND agrupacion = vcalprod.agrupacion;  
 END LOOP;
  
-EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'CalProd_Valorizar', pTipo:='finalizo');
+EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'CalProd_Valorizar', pTipo:='finalizo', pagrupacion:=pagrupacionespecial);
 END;
 $$;

@@ -8,9 +8,9 @@ DECLARE
   vunidad CHARACTER VARYING(41); 
 BEGIN
   INSERT INTO CalProdAgr(periodo, calculo, producto, agrupacion, CantPorUnidCons,
-                       Cantidad, UnidadDeMedida, PesoVolumenPorUnidad, UnidadMedidaPorUnidCons)
+                       Cantidad, UnidadDeMedida, PesoVolumenPorUnidad, UnidadMedidaPorUnidCons, CoefAjuste)
   (SELECT           pPeriodo, pCalculo, pa.producto, pa.agrupacion, pa.CantPorUnidCons,
-                    e.Cantidad, e.UnidadDeMedida, PesoVolumenPorUnidad, UnidadMedidaPorUnidCons                     
+                    e.Cantidad, e.UnidadDeMedida, PesoVolumenPorUnidad, UnidadMedidaPorUnidCons, p.CoefAjuste                     
      FROM Productos p INNER JOIN Especificaciones e ON p.producto=e.producto AND e.especificacion=1                    
         INNER JOIN ProdAgr pa on p.producto = pa.producto
         INNER JOIN agrupaciones a ON pa.agrupacion = a.agrupacion 
