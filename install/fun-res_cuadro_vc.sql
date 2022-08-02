@@ -24,7 +24,7 @@ begin
   return query select /*row_number() over (order by c.grupo, c.periodo)+100,*/ 
                       case when pPonerCodigos then 'D11n'::text else 'D.2n'::text end as formato_renglon,
                       case when pPonerCodigos then c.grupo::text /*substr(c.grupo,2)::text*/ else null end as grupo,
-                      g.nombregrupo::text, devolver_mes_anio(c.periodo)||case when c.periodo=p_Periodo then ' *'::text else ''::text end as nombreperiodo,
+                      g.nombregrupo::text, devolver_mes_anio(c.periodo) as nombreperiodo,
                       --replace(round(c.valorgru::numeric,2)::text, '.',p_separador) as valorgru
                       replace(round((CASE WHEN p_cuadro = 'X1' then c.valorgru ELSE c.valorgrupromedio END)::numeric,2)::text, '.',p_separador) as valorgru
                  from calGru_promedios c inner join calculos_def cd on c.calculo = cd.calculo inner join cvp.grupos g on c.agrupacion=g.agrupacion and c.grupo=g.grupo

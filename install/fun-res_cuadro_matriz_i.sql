@@ -36,7 +36,7 @@ begin
               end                   
           else null end as grupo, coalesce(cuagru.orden::text,i.grupo) as ordenpor, i.periodo,
           overlay(lower(nombregrupo) placing upper(substr(nombregrupo,1,1)) from 1 for 1)::text as nombregrupo,
-          devolver_mes_anio(i.periodo)||case when i.periodo=p_Periodo then ' *'::text else ''::text end as nombreperiodo,
+          devolver_mes_anio(i.periodo) as nombreperiodo,
           CASE WHEN p_cuadro = '3h_ia' THEN
             replace(round(i.incidenciainteranualredondeada::numeric,case when i.nivel=0 then 1 else pCantDecimales end)::text,'.',p_separador)::text
           ELSE

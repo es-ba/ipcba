@@ -40,7 +40,7 @@ begin
                     /*,c.producto as ordenpor*/
                  from productos p inner join calDiv c on p.producto=c.producto and c.division='0'
 				 inner join calculos_def cd on c.calculo = cd.calculo
-                 where cd.principal
+                 where cd.principal and p."cluster" is distinct from 3
                    and periodo between v_periodo_desde and p_Periodo
                  order by c.producto, c.periodo
                 ) as q

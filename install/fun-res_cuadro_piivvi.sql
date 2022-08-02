@@ -15,7 +15,7 @@ begin
   select c.periodoanterior, c.calculoanterior, cd.agrupacionprincipal  
     into vMesanterior, vCalculoAnterior, vAgrupacionPrincipal
     from Calculos c, Calculos_def cd    
-    where c.periodo=p_periodo AND c.calculo=0 AND c.calculo= cd.calculo;
+    where c.periodo=p_periodo AND cd.principal AND c.calculo= cd.calculo;
     
   return query select 0::bigint,'anchos'::text,'auto'::text,'auto'::text,vAnchoNumeros,vAnchoNumeros,vAnchoNumeros,vAnchoNumeros,vAnchoNumeros,vAnchoNumeros,vAnchoNumeros;
   return query select 1::bigint
@@ -23,10 +23,10 @@ begin
                  , parametro1::text,null::text
                  , 'Ponderación'::text
                  , 'Índice ¹'::text
-                 , null::text,'Variación porcentual *'::text,null::text, null::text
-                 , 'Incidencia mensual *'::text;
+                 , null::text,'Variación porcentual'::text,null::text, null::text
+                 , 'Incidencia mensual'::text;
   return query select 2::bigint,'P...RRRRR.'::text,null::text,null::text, null::text
-                 , devolver_mes_anio(p_periodo)||' *'::text 
+                 , devolver_mes_anio(p_periodo) 
                  , devolver_mes_anio(vMesAnterior),'Respecto del mes anterior'::text
                  , 'Acumulado Anual'::text, 'Interanual'::text, null::text;
   return query select row_number() over (order by cg.grupo)+100,

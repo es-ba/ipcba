@@ -12,7 +12,7 @@ declare
 begin
   return query select 0::bigint,'anchos'::text,'auto'::text,'auto'::text,vAnchoNumeros;
 
-  return query select 1::bigint,'U2.R'::text,parametro1::text,null::text, devolver_mes_anio(p_periodo)||' *'::text;
+  return query select 1::bigint,'U2.R'::text,parametro1::text,null::text, devolver_mes_anio(p_periodo);
   return query select row_number() over (order by i.grupo)+100,
           case when i.nivel=0 then 'N.2n' when pPonerCodigos then 'D11n' else 'D.2n' end as formato_renglon,
           case when pPonerCodigos  and i.nivel<>0 then

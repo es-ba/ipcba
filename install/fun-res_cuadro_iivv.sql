@@ -23,10 +23,10 @@ begin
   --return query select 1::bigint,'E4.2.2.'::text,parametro1::text,null::text
   return query select 1::bigint,case when p_cuadro='1' then 'U5.86.7...' else 'U9..6.7...' end::text,parametro1::text,null::text
                  , case when p_cuadro ='1' then 'Ponderación por división' else null end::text, 'Índice ¹'::text
-                 , null::text,'Variación porcentual'||case when p_cuadro in ('1','A2bis') then ' *' else '' end::text
+                 , null::text,'Variación porcentual'
                  , null::text, null::text;
   return query select 2::bigint,'P...RRRRR'::text,null::text,null::text, null::text
-                 , devolver_mes_anio(p_periodo)||' *'::text 
+                 , devolver_mes_anio(p_periodo)
                  , devolver_mes_anio(vMesAnterior),'Respecto del mes anterior'::text --'Respecto de '||devolver_mes_anio(vMesAnterior)::text
                  , 'Acumulado Anual'::text, 'Interanual'::text;
   return query select row_number() over (order by cg.grupo)+100,
