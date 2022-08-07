@@ -25,8 +25,8 @@ begin
                       null::text,
                       null::text;
   return query select formato_renglon, producto, nombreproducto, unidadmedidaabreviada, nombreperiodo, promprod from (
-                select case when porden = 'desc' then row_number() over (order by periodo desc ,q.ordenpor)+100 
-                         else row_number() over (order by periodo, q.ordenpor)+100 end,
+                select case when porden = 'desc' then row_number() over (order by periodo desc , q.grupopadre, q.orden, q.producto)+100 
+                         else row_number() over (order by periodo, q.grupopadre, q.orden, q.producto)+100 end,
                     q.formato_renglon, q.producto, q.nombreproducto, q.unidadmedidaabreviada,
                     devolver_mes_anio(periodo) as nombreperiodo, q.promprod
                  from 
@@ -40,11 +40,15 @@ begin
                     unidadmedidaabreviada::text,
                     periodo,
                     replace(round(promprod::numeric,2)::text,'.',p_separador) as promprod,
-                    /*periodo||*/p.grupopadre||producto::text as ordenpor
+                    /*periodo||*/p.grupopadre||producto::text as ordenpor, coalesce(cg.orden, 0) as orden
                  from preciosmedios_albs_var p
-				      join calculos_def cd on p.calculo = cd.calculo
+                      join calculos_def cd on p.calculo = cd.calculo
                       left join gru_grupos g on g.agrupacion = 'E' and g.grupo = p.producto 
-                      left join cvp.grupos u on g.agrupacion = u.agrupacion and g.grupo_padre = u.grupo 
+                      left join cvp.grupos u on g.agrupacion = u.agrupacion and g.grupo_padre = u.grupo
+                      left join cuagru cg on p.agrupacion = cg.agrupacion and p.producto = cg.grupo and cg.cuadro = CASE WHEN parametro4 = 'C1' THEN '7h' 
+                                                                                                                         WHEN parametro4 = 'C2' THEN '6h'
+                                                                                                                         WHEN parametro4 = 'E1' THEN '7hApp'
+                                                                                                                         ELSE '6hApp' END
                  where (gruponivel1 = parametro4 or g.grupo_padre = parametro4)
                    and cd.principal and coalesce(u.nivel,1) = 1
                    and periodo between v_periodo_desde and p_Periodo
@@ -53,20 +57,20 @@ begin
                  select distinct  
                     v_formato_renglon_padres::text as formato_renglon,
                     p.grupopadre, 
-                    null as producto, 
+                    'Q0000000' as producto, 
                     substr(nombregrupopadre,1,1)||lower(substr(nombregrupopadre,2)) as nombreproducto, 
                     null as unidadmedidaabreviada,
                     periodo,
                     null as promprod,
-                    /*periodo||*/p.grupopadre||'P0000000'::text as ordenpor
+                    /*periodo||*/p.grupopadre||'Q0000000'::text as ordenpor, 0 as orden
                  from preciosmedios_albs_var p
-				      join calculos_def cd on p.calculo = cd.calculo
+                      join calculos_def cd on p.calculo = cd.calculo
                       left join gru_grupos g on g.agrupacion = 'E' and g.grupo = p.producto 
                       left join cvp.grupos u on g.agrupacion = u.agrupacion and g.grupo_padre = u.grupo 
                  where (gruponivel1 = parametro4 or g.grupo_padre = parametro4)
                    and cd.principal
                    and periodo between v_periodo_desde and p_Periodo
-                ) as d order by ordenpor, periodo) as q) as x
+                ) as d order by d.grupopadre, d.orden, d.producto, periodo) as q) as x
                ;
 end;
 $BODY$;

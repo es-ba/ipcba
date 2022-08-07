@@ -9,7 +9,6 @@ declare
     vAnchoNumeros text:='100';
 
 begin
-  
   return query select 0::bigint,'anchos'::text,
        'auto'::text,
        'auto'::text,'auto'::text,vAnchoNumeros;
@@ -17,7 +16,7 @@ begin
   return query select 1::bigint,case when pPonerCodigos then 'ULLLR'::text else 'U2.LR'::text end, 
                  case when pPonerCodigos then 'Código de Producto'::text else 'Descripción'::text end,
                  case when pPonerCodigos then 'Descripción'::text else null end, 'Unidad de medida'::text, 'Precio medio'::text;
-  return query select row_number() over (order by q.ordenpor)+100,
+  return query select row_number() over (order by q.grupopadre, q.orden, q.producto)+100,
                     q.formato_renglon, q.producto, q.nombreproducto, q.unidadmedidaabreviada, q.promprod
                  from 
                  (
@@ -30,9 +29,10 @@ begin
                     nombreproducto::text,
                     unidadmedidaabreviada::text,
                     replace(round(promprod::numeric,2)::text,'.',p_separador) as promprod,
-                    grupopadre||producto::text as ordenpor
+                    grupopadre||producto::text as ordenpor, coalesce(cg.orden, 0) as orden
                  from preciosmedios_albs_var p 
-				 join calculos_def cd on p.calculo = cd.calculo
+                 join calculos_def cd on p.calculo = cd.calculo
+                 left join cuagru cg on p.agrupacion = cg.agrupacion and p.producto = cg.grupo and cg.cuadro = CASE WHEN parametro4 = 'C1' THEN '7' ELSE '6' END
                  where gruponivel1 = parametro4
                    and cd.principal
                    and periodo=p_Periodo
@@ -41,13 +41,13 @@ begin
                  select distinct --row_number() over (ordenpor)+100, 
                     'G.2..' as formato_renglon, 
                     grupopadre, 
-                    null as producto, 
+                    'Q0000000' as producto,
                     substr(nombregrupopadre,1,1)||lower(substr(nombregrupopadre,2)) as nombreproducto, 
                     null as unidadmedidaabreviada, 
                     null as promprod,
-                    grupopadre||'P0000000'::text as ordenpor
+                    grupopadre||'Q0000000'::text as ordenpor, 0 AS orden
                  from preciosmedios_albs_var p 
-				 join calculos_def cd on p.calculo = cd.calculo
+                 join calculos_def cd on p.calculo = cd.calculo
                  where gruponivel1 = parametro4
                    and cd.principal
                    and periodo=p_periodo
