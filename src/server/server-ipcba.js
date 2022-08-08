@@ -817,7 +817,7 @@ NETWORK:
 
                 {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                 {menuType:'menu', name:'hoja de ruta', menuContent:[
-                    {menuType:'table', name:'periodos_hdrexportarteorica'       , label:'teórica'             , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},
+                    {menuType:'table', name:'periodos_hdrexportarteorica'       , label:'teórica'             , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete,supervisor]},
                     {menuType:'table', name:'periodos_hdrexportar'              , label:'efectiva'            , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},
                     {menuType:'table', name:'periodos_hdrexportarcierretemporal', label:'cierre temporal'     , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},
                     {menuType:'table', name:'periodos_reemplazosexportar'       , label:'titulares-reemplazos', onlyVisibleFor:[programador,coordinador,analista]},

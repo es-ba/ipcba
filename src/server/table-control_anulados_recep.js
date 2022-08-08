@@ -2,13 +2,14 @@
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador'|| context.user.usu_rol ==='recepcionista' || context.forDump;
+    var esAnalista = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'control_anulados_recep',
         tableName:'relpre',
         allow:{
             insert:false,
             delete:false,
-            update:puedeEditar,
+            update:puedeEditar||esAnalista,
         },
         //editable:false,
         //dbOrigin:'view',
@@ -31,6 +32,7 @@ module.exports = function(context){
             {name:'precionormalizadoant'         ,typeName:'decimal',   allow:{update:false}, title:'PNormAnt'},
             {name:'tipoprecioant'                ,typeName:'text'   ,   allow:{update:false}, title:'TPAnt'},
             {name:'comentariosrelpre'            ,typeName:'text'   ,   allow:{update:puedeEditar}},
+            {name:'observaciones'                ,typeName:'text'   ,   allow:{update:esAnalista}},
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
         foreignKeys:[
@@ -43,7 +45,7 @@ module.exports = function(context){
         sql:{
             from: `(select r.periodo, r.producto, r.informante, r.observacion, r.visita, v.panel, v.tarea, v.encuestador, v.recepcionista, 
                   r.formulario, r.comentariosrelpre, b.precio, round(b.precionormalizado::decimal,2) as precionormalizado, b.tipoprecio, 
-                  r_1.precio_1 as precioant, round(r_1.precionormalizado_1::decimal,2) as precionormalizadoant, r_1.tipoprecio_1 as tipoprecioant
+                  r_1.precio_1 as precioant, round(r_1.precionormalizado_1::decimal,2) as precionormalizadoant, r_1.tipoprecio_1 as tipoprecioant, r.observaciones
                     from relpre r left join relvis v USING (periodo,informante,visita,formulario)
                     left join blapre b USING (periodo,producto,informante,observacion,visita)
                     left join relpre_1 r_1 USING (periodo,producto,informante,visita,observacion)
