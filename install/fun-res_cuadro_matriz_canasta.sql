@@ -26,7 +26,7 @@ begin
                   case when pPonerCodigos then v.grupo::text else null end as lateral1,
                   CASE WHEN v.nivel = 1 THEN v.nombrecanasta 
                   ELSE v.nombregrupo END ::text as lateral2,
-                  devolver_mes_anio(v.periodo)||CASE WHEN v.periodo=p_periodo THEN '***' ELSE '' END as cabezal1,
+                  devolver_mes_anio(v.periodo) as cabezal1,
                   replace(round(v.valorhoggru::numeric,2)::text,'.',p_separador) as celda
                   FROM valorizacion_canasta_cuadros v --left join grupos g on v.agrupacion= g.agrupacion and v.grupo = g.grupo
                     join calculos_def cd on v.calculo = cd.calculo
@@ -38,7 +38,7 @@ begin
   return query  SELECT v_formato_renglon::text as formato_renglon, 
                   case when pPonerCodigos then v.grupo::text else null end as lateral1,
                   'Valor diario de la canasta '||v_basica||'alimentaria ('||v_linea_alimentaria||')**'::text as lateral2,
-                  devolver_mes_anio(v.periodo)||CASE WHEN v.periodo=p_periodo THEN '***' ELSE '' END as cabezal1,
+                  devolver_mes_anio(v.periodo) as cabezal1,
                   replace(round((v.valorhoggru::numeric/30),2)::text,'.',p_separador) as celda
                   FROM valorizacion_canasta_cuadros v --left join grupos g on v.agrupacion= g.agrupacion and v.grupo = g.grupo
                     join calculos_def cd on v.calculo = cd.calculo 
@@ -51,7 +51,7 @@ begin
   return query  SELECT v_formato_renglon::text as formato_renglon, 
                   case when pPonerCodigos then v.grupo::text else null end as lateral1,
                   'Valor diario de la canasta '||v_basica||'total ('||v_linea_total||')**'::text as lateral2,
-                  devolver_mes_anio(v.periodo)||CASE WHEN v.periodo=p_periodo THEN '***' ELSE '' END as cabezal1,
+                  devolver_mes_anio(v.periodo) as cabezal1,
                   replace(round((v.valorhoggru::numeric/30),2)::text,'.',p_separador) as celda
                   FROM valorizacion_canasta_cuadros v --left join grupos g on v.agrupacion= g.agrupacion and v.grupo = g.grupo
                           join calculos_def cd on v.calculo = cd.calculo

@@ -888,8 +888,8 @@ NETWORK:
                     {menuType:'table', name:'periodos_freccambio_nivel0', label:'nivel 0'},
                     {menuType:'table', name:'periodos_freccambio_nivel1', label:'nivel 1'},
                     {menuType:'table', name:'periodos_freccambio_nivel3', label:'nivel 3'},
-                    {menuType:'table', name:'periodos_freccambio_resto', label:'resto IPCBA general'},
-                    {menuType:'table', name:'periodos_freccambio_restorest', label:'resto IPCBA restricto'},
+                    //{menuType:'table', name:'periodos_freccambio_resto', label:'resto IPCBA general'},
+                    //{menuType:'table', name:'periodos_freccambio_restorest', label:'resto IPCBA restricto'},
                 ]},
                 {menuType: 'menu',name:'app precios', menuContent:[
                     {menuType:'exporta_precios_local', name:'exportaAppPreciosLocal', label:'exportar local'},

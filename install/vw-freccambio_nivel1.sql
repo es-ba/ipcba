@@ -29,43 +29,7 @@ FROM (SELECT
         LEFT JOIN cvp.grupos g on gg.grupo_padre = g.grupo AND gg.agrupacion = g.agrupacion
         LEFT JOIN cvp.productos p on o.producto = p.producto
         LEFT JOIN cvp.parametros par ON unicoregistro
-        WHERE cd.principal AND  g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs = 'R' AND o1.impobs = 'R'
-        --A Pedido de Mariana excluimos los siguientes grupos:
-        AND g.grupo not in 
-        ('Z0411',
-         'Z0431',
-         'Z0432',
-         'Z0441',
-         'Z0442',
-         'Z0533',
-         'Z0551',
-         'Z0552',
-         'Z0562',
-         'Z0611',
-         'Z0621',
-         'Z0622',
-         'Z0623',
-         'Z0711',
-         'Z0721',
-         'Z0722',
-         'Z0723',
-         'Z0811',
-         'Z0821',
-         'Z0822',
-         'Z0831',
-         'Z0832',
-         'Z0833',
-         'Z0912',
-         'Z0914',
-         'Z0915',
-         'Z0923',
-         'Z0942',
-         'Z0951',
-         'Z1012',
-         'Z1121',
-         'Z1212',
-         'Z1261'
-        )  
+        WHERE cd.principal AND  g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs = 'R' AND o1.impobs = 'R'  
       ) as x
     LEFT JOIN cvp.grupos u ON substr(x.grupo,1,3) = u.grupo
     WHERE cantobs > 6 and periodo >= 'a2017m01'

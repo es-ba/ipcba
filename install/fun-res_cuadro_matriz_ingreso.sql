@@ -23,7 +23,7 @@ begin
 
   return query  SELECT formato_renglon, lateral1, lateral2, cabezal1, celda from (
                 SELECT v_formato_renglon::text as formato_renglon, x.orden, v.periodo,
-                  devolver_mes_anio(v.periodo)||CASE WHEN v.periodo=p_periodo THEN '***' ELSE '' END as lateral1,
+                  devolver_mes_anio(v.periodo) as lateral1,
                   X.nombre as lateral2,
                   'Mínimo' as cabezal1,
                   CASE WHEN nombre = 'En situación de indigencia'           THEN '0'||p_separador||'00'::text
@@ -50,7 +50,7 @@ begin
                         and v.hogar = p_hogar --tiene que ser parametro
                 Union
                 SELECT v_formato_renglon::text as formato_renglon, x.orden, v.periodo,
-                  devolver_mes_anio(v.periodo)||CASE WHEN v.periodo=p_periodo THEN '***' ELSE '' END as lateral1,
+                  devolver_mes_anio(v.periodo) as lateral1,
                   X.nombre as lateral2,
                   'Máximo' as cabezal1,
                   CASE WHEN nombre = 'En situación de indigencia'           THEN replace(round((v1.valorhoggru-0.01)::numeric,2)::text,'.',p_separador)
