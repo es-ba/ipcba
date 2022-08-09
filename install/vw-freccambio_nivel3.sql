@@ -29,7 +29,7 @@ FROM (SELECT
         LEFT JOIN cvp.productos p on o.producto = p.producto
         LEFT JOIN cvp.parametros par ON unicoregistro
         WHERE /*o.periodo >= 'a2012m07' AND o.periodo <= 'a2017m09' AND */ 
-        cd.principal AND g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs = 'R' AND o1.impobs = 'R'
+        cd.principal AND g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs like 'R%' AND o1.impobs like 'R%'
      ) AS X
 WHERE cantobs > 6 and periodo >= 'a2017m01'
 ORDER BY "cluster", periodo, grupo, nombregrupo, estado;

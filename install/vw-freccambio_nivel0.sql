@@ -28,7 +28,7 @@ FROM (SELECT o.periodo, g.grupo,
         LEFT JOIN cvp.grupos g ON gg.grupo_padre = g.grupo AND gg.agrupacion = g.agrupacion
         LEFT JOIN cvp.productos p ON o.producto = p.producto
         LEFT JOIN cvp.parametros par ON unicoregistro
-        WHERE cd.principal AND g.agrupacion = 'Z' AND g.nivel = 0 AND o.impobs = 'R' AND o1.impobs = 'R'
+        WHERE cd.principal AND g.agrupacion = 'Z' AND g.nivel = 0 AND o.impobs like 'R%' AND o1.impobs like 'R%'
       ) as x
       LEFT JOIN cvp.grupos u ON substr(x.grupo,1,2) = u.grupo  
     WHERE cantobs > 6 and periodo >= 'a2017m01'
