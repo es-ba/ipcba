@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#21-12-02";
+const APP_DM_VERSION="#22-08-18";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -617,6 +617,7 @@ NETWORK:
         const especifico=[];
         jsonResult.cache=[
             "dm",
+            "offline",
             "lib/react.production.min.js",
             "lib/react-dom.production.min.js",
             "lib/material-ui.production.min.js",
@@ -687,12 +688,12 @@ NETWORK:
             "img/main-loading.gif",
             "client-setup"
         ].concat(especifico);
-        //jsonResult.fallback=[
-        //    {"path":"login", "fallback":"dm"},
-        //    {"path":"logout", "fallback":"dm"},
-        //    {"path":"login#i=dm2,sincronizar_dm2", "fallback":"dm"},
-        //    {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"dm"}
-        //];
+        jsonResult.fallback=[
+            {"path":"login", "fallback":"offline"},
+            {"path":"logout", "fallback":"offline"},
+            {"path":"login#i=dm2,sincronizar_dm2", "fallback":"offline"},
+            {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"offline"}
+        ];
         return jsonResult
     }
     getMenu(context){
