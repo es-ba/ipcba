@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#22-08-18";
+const APP_DM_VERSION="#22-08-19";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -691,8 +691,12 @@ NETWORK:
         jsonResult.fallback=[
             {"path":"login", "fallback":"offline"},
             {"path":"logout", "fallback":"offline"},
+            {"path":"not-logged-in#i=dm2,sincronizar_dm2", "fallback":"offline"},
+            {"path":"not-logged-in#i=dm2,instalar_dm2", "fallback":"offline"},
             {"path":"login#i=dm2,sincronizar_dm2", "fallback":"offline"},
-            {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"offline"}
+            {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"offline"},
+            {"path":"login#i=dm2,instalar_dm2", "fallback":"offline"},
+            {"path":"menu#i=dm2,instalar_dm2", "fallback":"offline"}
         ];
         return jsonResult
     }
