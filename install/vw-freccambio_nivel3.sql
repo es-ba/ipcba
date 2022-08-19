@@ -31,7 +31,7 @@ FROM (SELECT
         WHERE /*o.periodo >= 'a2012m07' AND o.periodo <= 'a2017m09' AND */ 
         cd.principal AND g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs like 'R%' AND o1.impobs like 'R%'
      ) AS X
-WHERE cantobs > 6 and periodo >= 'a2017m01'
+WHERE periodo >= 'a2017m01'
 ORDER BY "cluster", periodo, grupo, nombregrupo, estado;
 
 GRANT SELECT ON TABLE frecCambio_Nivel3 TO cvp_administrador;

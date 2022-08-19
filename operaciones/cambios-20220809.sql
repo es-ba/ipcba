@@ -32,7 +32,7 @@ FROM (SELECT
         WHERE /*o.periodo >= 'a2012m07' AND o.periodo <= 'a2017m09' AND */ 
         cd.principal AND g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs like 'R%' AND o1.impobs like 'R%'
      ) AS X
-WHERE cantobs > 6 and periodo >= 'a2017m01'
+WHERE periodo >= 'a2017m01'
 ORDER BY "cluster", periodo, grupo, nombregrupo, estado;
 -----------------------------------
 CREATE OR REPLACE VIEW cvp.frecCambio_Nivel1 AS
@@ -69,7 +69,7 @@ FROM (SELECT
         WHERE cd.principal AND  g.agrupacion = 'Z' AND g.nivel = 3 AND o.impobs like 'R%' AND o1.impobs like 'R%'  
       ) as x
     LEFT JOIN cvp.grupos u ON substr(x.grupo,1,3) = u.grupo
-    WHERE cantobs > 6 and periodo >= 'a2017m01'
+    WHERE periodo >= 'a2017m01'
     ORDER BY "cluster", periodo, grupo, nombregrupo, estado;
 ------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW cvp.freccambio_nivel0 AS
@@ -105,7 +105,7 @@ FROM (SELECT o.periodo, g.grupo,
         WHERE cd.principal AND g.agrupacion = 'Z' AND g.nivel = 0 AND o.impobs like 'R%' AND o1.impobs like 'R%'
       ) as x
       LEFT JOIN cvp.grupos u ON substr(x.grupo,1,2) = u.grupo  
-    WHERE cantobs > 6 and periodo >= 'a2017m01'
+    WHERE periodo >= 'a2017m01'
     ORDER BY "cluster", periodo, grupo, nombregrupo, estado;
 ------
 --res_cuadro_matriz_canasta
