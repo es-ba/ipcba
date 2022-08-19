@@ -14,9 +14,9 @@ SELECT distinct cvp.devolver_mes_anio(periodo) PeriodoNombre,
     , x."cluster"
 FROM (SELECT
         o.periodo, g.grupo, 
-        CASE WHEN o.promobs < o1.promobs THEN 'Bajó' 
-            WHEN o.promobs > o1.promobs THEN 'Subió' 
-            ELSE 'Igual' 
+        CASE WHEN abs(o.promobs - o1.promobs) < par.umbraligualdad THEN 'Igual'
+             WHEN o.promobs < o1.promobs THEN 'Bajó' 
+             WHEN o.promobs > o1.promobs THEN 'Subió' 
         END as estado,
         o.producto, p.nombreproducto, o.informante, o.observacion, o.division, o.promobs, o.impobs, o1.promobs as promobsant, o1.impobs as impobsant, 
         coalesce(par.solo_cluster, p."cluster") as "cluster",

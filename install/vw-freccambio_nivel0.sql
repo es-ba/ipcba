@@ -13,9 +13,9 @@ SELECT distinct cvp.devolver_mes_anio(periodo) Periodonombre,
     ROUND((COUNT(producto) OVER (PARTITION BY periodo, substr(x.grupo,1,2), estado, x."cluster")/ COUNT(substr(x.grupo,1,2)) OVER (PARTITION BY periodo, substr(x.grupo,1,2), x."cluster")::decimal)*100,2) AS porcobs 
     , x."cluster"
 FROM (SELECT o.periodo, g.grupo, 
-        CASE WHEN o.promobs < o1.promobs THEN 'Bajó' 
-            WHEN o.promobs > o1.promobs THEN 'Subió' 
-            ELSE 'Igual' 
+        CASE WHEN abs(o.promobs - o1.promobs) < par.umbraligualdad THEN 'Igual'
+             WHEN o.promobs < o1.promobs THEN 'Bajó' 
+             WHEN o.promobs > o1.promobs THEN 'Subió' 
         END as estado,
         o.producto, p.nombreproducto, o.informante, o.observacion, o.division, o.promobs, o.impobs, o1.promobs as promobsant, o1.impobs as impobsant, 
         coalesce(par.solo_cluster, p."cluster") as "cluster",
