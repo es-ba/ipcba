@@ -1,3 +1,4 @@
+set search_path =cvp;
 CREATE OR REPLACE VIEW calgru_vw AS
 select c.periodo, c.calculo, c.agrupacion, c.grupo
        , COALESCE(g.nombregrupo,p.nombreproducto) AS nombre 
@@ -5,15 +6,15 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo
        , c.incidencia, c.indiceredondeado, c.incidenciaredondeada
        , (c.indice - cb.indice) * c.ponderador / pb.indice * 100 as incidenciainteranual --con todos los decimales
        , case when c.nivel = 0 then
-               round(((round(c.indice::decimal,2) - round(cb.indice::decimal,2)) * c.ponderador / round(pb.indice::decimal,2) * 100)::decimal,1) -- a un decimal para nivel 0
+               round(((round(c.indice::decimal,l.decimalesindices) - round(cb.indice::decimal,l.decimalesindices)) * c.ponderador / round(pb.indice::decimal,l.decimalesindices) * 100)::decimal,1) -- a un decimal para nivel 0
               when c.nivel = 1 then
-               round(((round(c.indice::decimal,2) - round(cb.indice::decimal,2)) * c.ponderador / round(pb.indice::decimal,2) * 100)::decimal,2) -- a dos decimales para nivel 1
+               round(((round(c.indice::decimal,l.decimalesindices) - round(cb.indice::decimal,l.decimalesindices)) * c.ponderador / round(pb.indice::decimal,l.decimalesindices) * 100)::decimal,2) -- a dos decimales para nivel 1
               else null
        end as incidenciainteranualredondeada
        , (c.indice - ca.indice) * c.ponderador / pa.indice * 100 as incidenciaacumuladaanual --con todos los decimales
        , round( 
        case when (c.nivel in (0,1) ) then
-              (round(c.indice::decimal,2) - round(ca.indice::decimal,2)) * c.ponderador / round(pa.indice::decimal,2) * 100
+              (round(c.indice::decimal,l.decimalesindices) - round(ca.indice::decimal,l.decimalesindices)) * c.ponderador / round(pa.indice::decimal,l.decimalesindices) * 100
             else null
        end::decimal,2)::double precision as incidenciaacumuladaanualredondeada  -- a dos decimales para niveles 0 y 1
        , CASE WHEN cb.IndiceRedondeado=0 THEN null ELSE round((c.IndiceRedondeado::decimal/cb.IndiceRedondeado::decimal*100-100)::numeric,1) END as variacioninteranualredondeada

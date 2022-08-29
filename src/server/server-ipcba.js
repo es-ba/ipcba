@@ -32,7 +32,7 @@ class AppIpcba extends backendPlus.AppBackend{
             var ultimoCalculo = result.row.calculo;
         } 
         be.internalData={
-            filterUltimoPeriodo : 'a2018m05',
+            filterUltimoPeriodo : 'a2012m07',
             filterUltimoCalculo : ultimoCalculo,
             filterAgrupacion : 'Z',
             filterExcluirCluster : 3
