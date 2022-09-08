@@ -35,6 +35,7 @@ module.exports = function(context){
             {name:'cantpreciosinconsistentes', typeName:'integer' , title:'inconsistentes'}, 
             {name:'usuario'         , typeName:'text'    , title:'abierto por'},
             {name:'apenom'          , typeName:'text'    , title:'apellido y nombre', allowEmptyText:true},
+            {name:'maxperiodoinformado'           , typeName:'text'    },
         ],
         refrescable: true,
         primaryKey:['periodo', 'panel', 'tarea', 'informante','visita'],
@@ -73,7 +74,8 @@ module.exports = function(context){
                     sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null then 1 else 0 end) - 
                     sum(case when z.espositivoformulario is null then null when z.espositivoformulario = 'S' and pre.periodo is not null and pre.tipoprecio is not null then 1 else 0 end) as cantpreciosfaltantes,
                     sum(case when pre.inconsistente then 1 else null end) as cantpreciosinconsistentes,
-                    string_agg (distinct rv.razon::text,'~' order by rv.razon::text) as razones
+                    string_agg (distinct rv.razon::text,'~' order by rv.razon::text) as razones,
+                    mx.maxperiodoinformado
                     from (select * from personal per where per.username = ${db.quoteLiteral(context.user.usu_usu)}) per
                         inner join reltar rt on rt.encuestador = per.persona or per.labor not in ('E','S')
                         inner join relvis rv using (periodo, panel, tarea)
@@ -86,9 +88,10 @@ module.exports = function(context){
                         left join personal ptk on ptk.username = tk.username
                         left join relinf ri on rv.periodo = ri.periodo and rv.informante = ri.informante and rv.visita = ri.visita
                         left join (select pre.*, tp.inconsistente, case when tipoprecio is null then 'N' else 'S' end as tipo from relpre pre left join tipopre tp using(tipoprecio)) pre on rv.periodo = pre.periodo and rv.informante = pre.informante and rv.visita = pre.visita and rv.formulario = pre.formulario
+                        left join (select informante, max(periodo) maxperiodoinformado from relvis where razon = 1 group by informante) as mx on rv.informante = mx.informante
                         where p.ingresando = 'S' 
                         and current_timestamp between COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida)+interval '9 hours'  and COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida) +interval '24 hours'
-                    group by rv.periodo, panel, tarea, COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida), COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida), rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, per.persona, per.labor)`
+                    group by rv.periodo, panel, tarea, COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida), COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida), rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, per.persona, per.labor, mx.maxperiodoinformado)`
         },
     },context);
 }
