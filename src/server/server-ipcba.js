@@ -884,7 +884,7 @@ NETWORK:
                 {menuType:'table', name:'calgru_base', label:'vista de calgru base'},
                 {menuType:'table', name:'caldiv_base', label:'vista de caldiv base'},
                 {menuType:'table', name:'calculos_calgru_vw', label:'vista de calgru'},
-                {menuType:'table', name:'calculos_calgru_b1112_b21_vw', label:'vista de calgru empalme'},
+                {menuType:'table', name:'calculos_calgru_b1112_b21_vw', label:'empalme'},
                 {menuType:'table', name:'calculos_caldiv_vw', label:'vista de caldiv'},
                 {menuType:'filtravarios_caldiv', name:'caldiv_vw_varios', label:'vista de caldiv varios', onlyVisibleFor:[programador]},
                 {menuType:'table', name:'cuagru', label: 'grupos por cuadro'},
