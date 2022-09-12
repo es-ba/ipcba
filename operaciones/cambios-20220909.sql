@@ -263,28 +263,44 @@ GRANT SELECT ON TABLE calgru_b1112_b21 TO cvp_administrador;
 --agrega los indices empalmados a los registros de los indices actuales:
 CREATE OR REPLACE VIEW calgru_empalme AS --pk: periodo, calculo, agrupacion, grupo verificada
 SELECT *
-  FROM (SELECT c.periodo, c.calculo, c.agrupacion, c.grupo, c.indice, c.indiceredondeado 
+  FROM (SELECT distinct c.periodo, c.calculo, c.agrupacion, c.grupo, c.indice, c.indiceredondeado 
 	      FROM calgru c 
 	      JOIN parametros p ON unicoregistro
 		  JOIN calculos_def cd ON c.calculo = cd.calculo
+		  JOIN empalme_b1112 e ON c.agrupacion = e.agrupacion and c.grupo = e.grupo
 	      WHERE cd.principal AND c.periodo > periodo_empalme
 	    UNION 
 	    SELECT c.periodo, c.calculo, c.agrupacion, c.grupo, c.indice, c.indiceredondeado
 	      FROM calgru_b1112_b21 c 
 	   ) Q;
 
+ALTER TABLE calgru_empalme OWNER TO cvpowner;
+GRANT SELECT ON TABLE calgru_empalme TO cvp_administrador;
+
 --paso 6: 
 --vista para calcular las variaciones
+--drop view calgru_b1112_b21_vw;
 CREATE OR REPLACE VIEW calgru_b1112_b21_vw AS
 SELECT ce.*, 
    --coalesce(c.periodoanterior, cb.periodoanterior) as periodoanterior, coalesce(c.calculoanterior, cb.calculoprincipal_b21) as calculoanterior,
    --ce_a.indice indiceanterior , ce_a.indiceredondeado indiceredondeadoanterior,
-  CASE WHEN ce_a.Indiceredondeado=0 THEN NULL ELSE ROUND((ce.Indiceredondeado/ce_a.Indiceredondeado*100-100)::decimal,1) END AS variacion
+  CASE WHEN ce_a.Indiceredondeado=0    THEN NULL ELSE ROUND((ce.Indiceredondeado/ce_a.Indiceredondeado*100-100)::decimal,1) END AS variacion,
+  CASE WHEN ce_vi.indiceredondeado = 0 THEN NULL ELSE round((ce.indiceredondeado/ce_vi.indiceredondeado*100-100)::decimal,1) END AS variacioninteranualredondeada,
+  CASE WHEN ce_va.indiceredondeado = 0 THEN NULL ELSE round((ce.indiceredondeado/ce_va.indiceredondeado*100-100)::decimal,1) END AS variacionacumuladaanualredondeada,
+  g.nombregrupo as nombre
   FROM calgru_empalme ce
   JOIN parametros p ON unicoregistro
+  LEFT JOIN grupos g ON ce.agrupacion = g.agrupacion and ce.grupo = g.grupo
   LEFT JOIN calculos c ON ce.periodo = c.periodo and ce.calculo = c.calculo and c.periodo > p.periodo_empalme
   LEFT JOIN calculos_b1112 cb ON ce.periodo = cb.periodo and ce.calculo = cb.calculoprincipal_b21 and cb.periodo <= p.periodo_empalme
   LEFT JOIN calgru_empalme ce_a ON ce_a.periodo = coalesce(c.periodoanterior, cb.periodoanterior)
-             and ce_a.calculo = coalesce(c.calculoanterior, cb.calculoprincipal_b21) and ce_a.agrupacion = ce.agrupacion and ce_a.grupo = ce.grupo;
+             and ce_a.calculo = coalesce(c.calculoanterior, cb.calculoprincipal_b21) and ce_a.agrupacion = ce.agrupacion and ce_a.grupo = ce.grupo
+  LEFT JOIN calgru_empalme ce_vi ON ce_vi.agrupacion = ce.agrupacion AND ce_vi.grupo = ce.grupo 
+             AND ce_vi.calculo = coalesce(c.calculoanterior, cb.calculoprincipal_b21) 
+             AND ce_vi.periodo = periodo_igual_mes_anno_anterior(ce.periodo)
+  LEFT JOIN calgru_empalme ce_va ON ce_va.agrupacion = ce.agrupacion AND ce_va.grupo = ce.grupo 
+             AND ce_va.calculo = coalesce(c.calculoanterior, cb.calculoprincipal_b21) 
+             AND ce_va.periodo = ('a' || (substr(coalesce(ce.periodo), 2, 4)::integer - 1)::text || 'm12');
 
+ALTER TABLE calgru_b1112_b21_vw OWNER TO cvpowner;
 GRANT SELECT ON TABLE calgru_b1112_b21_vw TO cvp_administrador;
