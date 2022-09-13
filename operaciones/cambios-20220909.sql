@@ -287,7 +287,7 @@ SELECT ce.*,
   CASE WHEN ce_a.Indiceredondeado=0    THEN NULL ELSE ROUND((ce.Indiceredondeado/ce_a.Indiceredondeado*100-100)::decimal,1) END AS variacion,
   CASE WHEN ce_vi.indiceredondeado = 0 THEN NULL ELSE round((ce.indiceredondeado/ce_vi.indiceredondeado*100-100)::decimal,1) END AS variacioninteranualredondeada,
   CASE WHEN ce_va.indiceredondeado = 0 THEN NULL ELSE round((ce.indiceredondeado/ce_va.indiceredondeado*100-100)::decimal,1) END AS variacionacumuladaanualredondeada,
-  g.nombregrupo as nombre
+  g.nombregrupo as nombre, g.nivel
   FROM calgru_empalme ce
   JOIN parametros p ON unicoregistro
   LEFT JOIN grupos g ON ce.agrupacion = g.agrupacion and ce.grupo = g.grupo

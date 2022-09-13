@@ -15,7 +15,7 @@ module.exports = function(context){
             {name:'nombre'                            , typeName:'text'   },
             //{name:'cluster'                           , typeName:'integer'},
             //{name:'grupopadre'                        , typeName:'text'   },
-            //{name:'nivel'                             , typeName:'integer'},
+            {name:'nivel'                             , typeName:'integer'},
             //{name:'esproducto'                        , typeName:'text'   },
             //{name:'ponderador'                        , typeName:'decimal'},
             {name:'indice'                            , typeName:'decimal'},
