@@ -87,6 +87,6 @@ module.exports = function(context){
                     )`,
             isTable: true,
         },
-        hiddenColumns:['ultima_visita', 'precionormalizado']
+        hiddenColumns:['ultima_visita']
     },context);
 }

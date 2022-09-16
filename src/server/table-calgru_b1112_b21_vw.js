@@ -43,7 +43,8 @@ module.exports = function(context){
             //{column:'agrupacion', operator:'=' , value:context.be.internalData.filterAgrupacion},
             //{column:'cluster', operator:'!=',value:context.be.internalData.filterExcluirCluster}
         ],
-        //sortColumns:[{column:'ordenpor'}],        
+        //sortColumns:[{column:'ordenpor'}],
+        hiddenColumns:['indice'],
         primaryKey:['periodo','calculo','agrupacion','grupo'],
         sql:{
             isTable: false,
