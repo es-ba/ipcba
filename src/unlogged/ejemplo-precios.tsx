@@ -2291,7 +2291,7 @@ function InformanteRow(props:{informante:RelInf}){
                                     {telcontacto?<div className='telcontacto-informante'>{telcontacto}</div>:null}
                                     {web?<div className='web-informante'><a href={(web.startsWith('http') || web.startsWith('https')?"":"//")+web} target="_blank">{web}</a></div>:null}
                                     {email?<div className='email-informante'>{email}</div>:null}
-                                    <div className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`Últ. per. informado: ${informante.maxperiodoinformado}`:''}</div>
+                                    <div className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`Últ. mes informado: ${informante.maxperiodoinformado}`:''}</div>
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:
