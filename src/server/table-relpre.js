@@ -4,6 +4,7 @@ module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='supervisor';
     var puedeEditarRecep = context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='supervisor';
     var puedeAgregarVisita = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='recepcionista';
+    var puedeVerNormalizado = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='migracion';
     //console.log('Hola Mundo! ',puedeEditar);
     //console.log('Hola Mundo! ',context.user);
     return context.be.tableDefAdapt({
@@ -34,7 +35,7 @@ module.exports = function(context){
             {name:'comentariosrelpre'            , typeName:'text'                                 , allow:{update:puedeEditar}        , inTable: true    },
             {name:'esvisiblecomentarioendm'      , typeName:'boolean'                              , allow:{update:puedeEditarRecep}, title:'Ver', visible:puedeEditarRecep, inTable: true},
             {name:'comentariosanterior'          , typeName:'text'                                 , allow:{import:false, update:false}, inTable: false   },
-            {name:'precionormalizado'            , typeName:'decimal'                              , allow:{import:false, update:false}, inTable: true},
+            {name:'precionormalizado'            , typeName:'decimal'                              , allow:{import:false, update:false}, visible: puedeVerNormalizado, inTable: true},
             {name:'especificacion'               , typeName:'integer'                              , visible:false, inTable: true                         },
             {name:'ultima_visita'                , typeName:'boolean'                              , inTable: true                          },
             {name:'observaciones'                , typeName:'text'                                 , visible:false, inTable: true                         },
