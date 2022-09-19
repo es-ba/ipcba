@@ -54,7 +54,7 @@ module.exports = function(context){
                       max(coalesce(p.nombre||' '||p.apellido, p.apellido, p.nombre, '')) as nombreencuestador,
                       v.panel, v.tarea,
                       jsonb_agg(jsonb_build_object('formulario',v.formulario,'nombreformulario',f.nombreformulario,'faltan',rp.faltan, 'adv',rp.adv, 'prod',prod,'nombrerazon',r.nombrerazon,'espositivoformulario',r.espositivoformulario) ORDER BY f.orden) as formularios, 
-                      jsonb_build_object('informante',v.informante,'nombreinformante',i.nombreinformante,'direccion',i.direccion,'comentarios',ri.observaciones,'cantidad_periodos_sin_informacion', distanciaperiodos(v.periodo, max_periodos.maxperiodoinformado), 'contacto', i.contacto, 'telcontacto', i.telcontacto, 'web', i.web, 'email', i.email) as informantecompleto,
+                      jsonb_build_object('informante',v.informante,'nombreinformante',i.nombreinformante,'direccion',i.direccion,'comentarios',ri.observaciones,'cantidad_periodos_sin_informacion', distanciaperiodos(v.periodo, max_periodos.maxperiodoinformado), 'maxperiodoinformado','max_periodos.maxperiodoinformado', 'contacto', i.contacto, 'telcontacto', i.telcontacto, 'web', i.web, 'email', i.email) as informantecompleto,
                       i.direccion
                       from relvis v
                         join formularios f on v.formulario=f.formulario

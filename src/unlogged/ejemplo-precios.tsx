@@ -2285,14 +2285,13 @@ function InformanteRow(props:{informante:RelInf}){
                                     rowSpan={opciones.letraGrandeFormulario?1:informante.formularios.length}
                                     colSpan={opciones.letraGrandeFormulario?4:1}
                                 >
-                                    <div>{informante.informante} {informante.nombreinformante} 
-                                        <span className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`(${informante.cantidad_periodos_sin_informacion})`:''}</span>
-                                    </div>
+                                    <div>{informante.informante} {informante.nombreinformante}</div>
                                     <div className='direccion-informante'>{estructura.informantes[informante.informante].direccion}</div>
                                     {contacto?<div className='contacto-informante'>{contacto}</div>:null}
                                     {telcontacto?<div className='telcontacto-informante'>{telcontacto}</div>:null}
                                     {web?<div className='web-informante'><a href={(web.startsWith('http') || web.startsWith('https')?"":"//")+web} target="_blank">{web}</a></div>:null}
                                     {email?<div className='email-informante'>{email}</div>:null}
+                                    <div className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`Últ. per. informado: ${informante.maxperiodoinformado}`:''}</div>
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:

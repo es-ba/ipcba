@@ -165,6 +165,7 @@ export type RelInf={
     formularios: RelVis[]
     observaciones: RelPre[]
     cantidad_periodos_sin_informacion: number
+    maxperiodoinformado: string
 }
 
 export type QueVer = 'todos'|'pendientes'|'advertencias';

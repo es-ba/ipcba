@@ -467,7 +467,8 @@ function dm2CrearQueries(parameters){
         SELECT periodo, informante, nombreinformante, direccion,
                 ${json(sqlFormularios,'orden, formulario')} as formularios,
                 ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones,
-                distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion
+                distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion,
+                max_periodos.maxperiodoinformado
             FROM relvis rvi INNER JOIN informantes USING (informante),
             lateral(
                 SELECT 
