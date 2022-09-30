@@ -19,8 +19,8 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'    , nullable:false},
         ],
         detailTables:[
-            {table: 'paneles_unificacion_valores_atributos' , fields:['periodo'], abr:'PAN' , label: 'paneles'},
-            //{table: 'unificacion_valores_atributos' , fields:['periodo'], abr:'PAN' , label: 'paneles'},
+            //{table: 'paneles_unificacion_valores_atributos' , fields:['periodo'], abr:'PAN' , label: 'paneles'},
+            {table: 'unificacion_valores_atributos' , fields:['periodo'], abr:'PAN' , label: 'paneles'},
         ],
     });
     defNewElement.sql={
