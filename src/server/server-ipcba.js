@@ -748,6 +748,8 @@ NETWORK:
         )
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
+            {menuType:'menu', name:'pei', label:'PEI Novedades', menuContent:[
+               {menuType:'table', name:'bienvenida'}], onlyVisibleFor:[programador]},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
