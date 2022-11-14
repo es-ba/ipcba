@@ -24,7 +24,7 @@ begin
   return query select row_number() over (order by c.periodo)+100, 
                  case when parametro4='S' then 'D11nnn.nnn.'::text  else 'D11nnnnnnnn'::text  end as formato_renglon,
                  --cvp.devolver_mes(c.periodo), case when p_periodo_hasta =c.periodo then substr(c.periodo,2,4)||'*' else substr(c.periodo,2,4) end, 
-                 cvp.devolver_mes_anio(c.periodo)||case when p_periodo_hasta =c.periodo then '*' else '' end,''::text, 
+                 cvp.devolver_mes_anio(c.periodo),''::text, 
                  replace(round(c.indiceRedondeado::numeric,2)::text,'.',p_separador)::text, 
                  replace(round(b.indiceRedondeado::numeric,2)::text,'.',p_separador)::text  as indiceRedondeadobienes, 
                  replace(round(s.indiceRedondeado::numeric,2)::text,'.',p_separador)::text  as indiceRedondeadoserv,
