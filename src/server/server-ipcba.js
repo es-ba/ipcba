@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#22-09-19";
+const APP_DM_VERSION="#22-11-17";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -748,8 +748,6 @@ NETWORK:
         )
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
-            {menuType:'menu', name:'pei', label:'PEI Novedades', menuContent:[
-               {menuType:'table', name:'bienvenida'}], onlyVisibleFor:[programador]},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
@@ -803,6 +801,7 @@ NETWORK:
                     {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
+                    {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
                 ]},
                 /*
                 //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},

@@ -13,7 +13,7 @@ import {
     parseString
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
-    hdrEstaDescargada, getCacheVersion} from "./dm-react";
+    hdrEstaDescargada, getCacheVersion, hacerBackup} from "./dm-react";
 import {useState, useEffect, useRef, useLayoutEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
@@ -2380,6 +2380,7 @@ function PantallaInicial(_props:{}){
 function PantallaHojaDeRuta(_props:{}){
     useEffect(() => {
         window.scrollTo(0, posHdr)
+        hacerBackup(hdr)
         return function(){
             if(posHdr != window.scrollY){
                 dispatch(dispatchers.SET_OPCION({variable:'posHdr',valor:window.scrollY}))

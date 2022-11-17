@@ -1988,12 +1988,102 @@ ProceduresIpcba = [
                 }else{
                     return `No se pudo descargar. 
                         Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo. 
-                        ${params.custom_data?'Token: ' + params.current_token:'ID instalacion: ' + idInstalacion}`
+                        ${params.custom_data?'Token: ' + params.current_token:'ID instalacion: ' + idInstalacion.value}`
                 }
             }catch(err){
                 console.log('ERROR',err);
                 throw err;
             }
+        }
+    },
+    {
+        action: 'dm2_backup_hacer',
+        parameters:[
+            {name:'token_instalacion'  , typeName:'text' },
+            {name:'hoja_de_ruta'       , typeName:'jsonb'},
+        ],
+        policy:'web',
+        unlogged:true,
+        coreFunction:async function(context, params){
+            var token = params.token_instalacion;
+            try{
+                try{
+                    var idInstalacion = (await context.client.query(
+                        `select id_instalacion from instalaciones where token_instalacion = $1`,
+                        [token]
+                    ).fetchUniqueValue()).value;
+                }catch(err){
+                    if(err.code=='54011!'){
+                        throw new Error(`No se encuentra el token_instalacion ${token}. Quizas la persona tiene otro dipopsitivo activo`);
+                    }
+                }
+                try{
+                    await context.client.query(
+                        `update reltar
+                            set fecha_backup = current_timestamp, backup = $2
+                            where id_instalacion = $1
+                            returning 'ok'`
+                    ,[idInstalacion, params.hoja_de_ruta]).fetchUniqueValue();
+                }catch(err){
+                    if(err.code=='54011!'){
+                        throw new Error(`No se encuentra el la instalación ${idInstalacion} en reltar`);
+                    }
+                }   
+                return 'backup completado';
+            }catch(err){
+                console.log('ERROR',err);
+                throw err;
+            }
+        }
+    },   
+    {
+        action: 'dm2_backup_pre_recuperar',
+        parameters:[
+            {name:'periodo'  , typeName:'text', references:'periodos' },
+            {name:'panel'    , typeName:'integer'},
+            {name:'tarea'    , typeName:'integer' },
+        ],
+        resultOk:'mostrar_datos_backup',
+        roles:['programador'],
+        coreFunction:async function(context, params){
+            try{
+                var reltarRecord = (await context.client.query(
+                    `select * from reltar where periodo = $1 and panel = $2 and tarea = $3`,
+                    [params.periodo, params.panel, params.tarea]
+                ).fetchUniqueRow()).row;
+                return reltarRecord;
+            }catch(err){
+                throw Error("No se encuentra registro en reltar para ese periodo, panel, tarea. " + err.message)
+            }
+        }
+    },
+    {
+        action: 'dm2_backup_recuperar',
+        parameters:[
+            {name:'id_instalacion'  , typeName:'integer' },
+            {name:'hoja_de_ruta'    , typeName:'jsonb'},
+        ],
+        roles:['programador'],
+        coreFunction:async function(context, params){
+            var be = context.be;
+            var {hoja_de_ruta, id_instalacion} = params;
+            try{
+                var token_instalacion = (await context.client.query(
+                    `select token_instalacion from instalaciones where id_instalacion = $1`,
+                    [id_instalacion]
+                ).fetchUniqueValue()).value;
+            }catch(err){
+                if(err.code=='54011!'){
+                    throw new Error(`No se encuentra el token_instalacion para el id de instalación ${id_instalacion}.`);
+                }
+            }
+            var parameters = {
+                token_instalacion,
+                hoja_de_ruta,
+                custom_data: false,
+                current_token: null
+            }
+            return await be.procedure.dm2_descargar.coreFunction(context, parameters)
         }
     },
     {

@@ -27,6 +27,8 @@ module.exports = function(context){
             {name:'vencimiento_sincronizacion2', typeName:'timestamp'                            , title:"vencimiento sincro", allow:{update:puedeEditarMigracion}},
             {name:'preparar_dm'                , typeName:'text'     , editable:false            , visible: context.user.usu_rol.programador, clientSide:'prepararDM'},
             {name:'blanquear_dm'               , typeName:'text'     , editable:false                                                       , clientSide:'blanquearDM'},
+            {name:'fecha_backup'               , typeName:'timestamp'                            , allow:{update:false}},
+            {name:'backup'                     , typeName:'jsonb'                                , allow:{select:false}},
             {name:'puntos'                     , typeName:'integer'  , allow:{update:false}      , visible:false                   },
             {name:'archivo_manifiesto'         , typeName:'text'     , allow:{select:false}                                        },
             {name:'archivo_estructura'         , typeName:'text'     , allow:{select:false}                                        },

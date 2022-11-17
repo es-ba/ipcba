@@ -1209,3 +1209,61 @@ my.clientSides.procederCambioPT = botonClientSideEnGrilla({
         });
     }
 });
+
+my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
+    const RESULTADO_ELEMENT_ID = 'restaurar-backup-resultado';
+    var backupButton = html.button({id:'recuperar-backup'},'recuperar backup').create();
+    var waitGif=html.img({src:'img/loading16.gif'}).create();
+    waitGif.style.display = 'none';
+    backupButton.onclick = function(){
+        var resultadoElement = document.getElementById(RESULTADO_ELEMENT_ID);
+        resultadoElement.innerHTML='';
+        if(result.cargado){
+            backupButton.disabled=true;
+            waitGif.style.display = 'block';
+            my.ajax.dm2_backup_recuperar({
+                id_instalacion: result.id_instalacion,
+                hoja_de_ruta: result.backup,
+            }).then(function(resultadoBackup){
+                backupButton.disabled=false;
+                waitGif.style.display = 'none';
+                resultadoElement.appendChild(
+                    html.p({id:'restaurar-backup-resultado'}, resultadoBackup).create(),
+                )
+            }).catch(function(err){
+                console.log(err.message);
+                resultadoElement.appendChild(
+                    html.p({id:'restaurar-backup-resultado'}, err.message).create(),
+                )
+                backupButton.disabled=false;
+                waitGif.style.display = 'none';
+            });
+        }else{
+            resultadoElement.appendChild(
+                html.p({id:'restaurar-backup-resultado'}, 'no se puede restaurar el backup porque el DM no figura como cargado').create(),
+            )
+        }
+    }
+    var backupDiv = html.div({id:'backup-div'}).create();
+    divResult.appendChild(
+        html.div({id:'estado-backup'},[
+            html.h2({ id:'restaurar-backup-reltar'}         , `información reltar`),
+            html.div({id:'restaurar-backup-periodo'}        , `periodo: ${result.periodo}`),
+            html.div({id:'restaurar-backup-panel'}          , `panel: ${result.panel}`),
+            html.div({id:'restaurar-backup-tarea'}          , `tarea: ${result.tarea}`),
+            html.div({id:'restaurar-backup-encuestador'}    , `Nº encuestador/a: ${result.encuestador}`),
+            html.div({id:'restaurar-backup-instalacion'}    , `ID instalación: ${result.id_instalacion}`),
+            html.div({id:'restaurar-backup-fecha-carga'}    , `carga: ${result.cargado?result.cargado.toYmdHms():'-'}`),
+            html.div({id:'restaurar-backup-fecha-descarga'} , `descarga: ${result.descargado?result.descargado.toYmdHms():'-'}`),
+            html.div({id:'restaurar-backup-fecha-bkp'}      , `backup: ${result.fecha_backup?result.fecha_backup.toYmdHms():'-'}`),
+            result.fecha_backup && result.backup?html.p({},[
+                html.h2({ id:'restaurar-backup-detalle'}, `backup disponible`),
+                html.p({id:RESULTADO_ELEMENT_ID}),
+                backupButton, 
+                waitGif, 
+                backupDiv,
+            ]):html.p({},null),
+        ]).create()
+    );
+    my.agregar_json(backupDiv, result.backup)
+}
