@@ -364,8 +364,7 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
             var {user} = req;
             if(!user){
-                res.status(401);
-                res.redirect(baseUrl+'/login#w=path&path=/dm')
+                res.redirect(401, baseUrl+'/login#w=path&path=/dm')
             }
             var webManifestPath = 'carga-dm/web-manifest.webmanifest';
             var {useragent, user} = req;
