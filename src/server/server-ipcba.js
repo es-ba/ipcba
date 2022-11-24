@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#22-11-17";
+const APP_DM_VERSION="#22-11-22";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -374,7 +374,7 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.get(baseUrl+'/dm',async function(req,res,_next){
             var {user} = req;
             if(!user){
-                res.redirect(baseUrl+'/login#w=path&path=/dm')
+                res.redirect(401, baseUrl+'/login#w=path&path=/dm')
             }
             var webManifestPath = 'carga-dm/web-manifest.webmanifest';
             var {useragent, user} = req;
