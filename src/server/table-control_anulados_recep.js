@@ -42,6 +42,9 @@ module.exports = function(context){
             {references:'personal', fields:[
                 {source:'encuestador'         , target:'persona'     },
             ]}],
+        detailTables:[
+            {table:'blaatr', fields:['periodo','producto','observacion','informante','visita'], abr:'ATR', label:'atributos' },
+        ],
         sql:{
             from: `(select r.periodo, r.producto, r.informante, r.observacion, r.visita, v.panel, v.tarea, v.encuestador, v.recepcionista, 
                   r.formulario, r.comentariosrelpre, b.precio, round(b.precionormalizado::decimal,2) as precionormalizado, b.tipoprecio, 

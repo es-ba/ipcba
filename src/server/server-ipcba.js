@@ -31,8 +31,18 @@ class AppIpcba extends backendPlus.AppBackend{
         } else {
             var ultimoCalculo = result.row.calculo;
         } 
+        var result2 = await client.query(`
+        SELECT max(periodo) actperiodo FROM calculos where fechacalculo is not null
+        `).fetchOneRowIfExists();
+        if (!result2.row.actperiodo) {
+            var actualperiodo = 'a2012m07';
+            console.log("No hay calculos ejecutados, se inicializa con a2012m07");
+        } else {
+            var actualperiodo = result2.row.actperiodo;
+        } 
         be.internalData={
             filterUltimoPeriodo : 'a2012m07',
+            filterActualPeriodo : actualperiodo,
             filterUltimoCalculo : ultimoCalculo,
             filterAgrupacion : 'Z',
             filterExcluirCluster : 3

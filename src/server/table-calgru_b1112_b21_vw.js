@@ -38,7 +38,7 @@ module.exports = function(context){
             //{name:'responsable'                       , typeName:'text'   },
         ],
         filterColumns:[
-            {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
+            {column:'periodo', operator:'=', value:context.be.internalData.filterActualPeriodo},
             //{column:'calculo', operator:'=' , value:context.be.internalData.filterUltimoCalculo},
             //{column:'agrupacion', operator:'=' , value:context.be.internalData.filterAgrupacion},
             //{column:'cluster', operator:'!=',value:context.be.internalData.filterExcluirCluster}
