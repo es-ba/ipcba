@@ -2021,7 +2021,7 @@ ProceduresIpcba = [
                     await context.client.query(
                         `update reltar
                             set fecha_backup = current_timestamp, backup = $2
-                            where id_instalacion = $1
+                            where id_instalacion = $1 and cargado is not null and descargado is null
                             returning 'ok'`
                     ,[idInstalacion, params.hoja_de_ruta]).fetchUniqueValue();
                 }catch(err){
