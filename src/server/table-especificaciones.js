@@ -22,7 +22,7 @@ module.exports = function(context){
             {name:'cantidad'                  , typeName:'decimal'                            , allow:{update:puedeEditarMigracion}, inTable:true},
             {name:'unidaddemedida'            , typeName:'text'                               , allow:{update:puedeEditarMigracion}, inTable:true},
             {name:'pesovolumenporunidad'      , typeName:'decimal'                            , allow:{update:puedeEditarMigracion}, inTable:true},
-            {name:'destacada'                 , typeName:'boolean'                            , allow:{update:puedeEditarMigracion}, inTable:true},
+            {name:'destacada'                 , typeName:'boolean'                            , allow:{update:puedeEditar||puedeEditarMigracion}, inTable:true},
             {name:'mostrar_cant_um'           , typeName:'text'                               , allow:{update:puedeEditarMigracion}, inTable:true},
             {name:'especificacioncompleta'    , typeName:'text'                               , allow:{select:puedeEditarMigracion||puedeEditar}, inTable:false},
             {name:'observaciones'             , typeName:'text'                               , allow:{update:puedeEditarMigracion||puedeEditar}, inTable:true},
