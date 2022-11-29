@@ -30,7 +30,7 @@ module.exports = function(context){
             {name:'opciones'                         , typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
             {name:'especificaciones__mostrar_cant_um', typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
             {name:'validar_con_valvalatr'            , typeName:'boolean' , allow:{update:false}, visible:false, inTable:true},
-
+            {name:'impobs'                           , typeName:'text'    , allow:{update:false}, inTable:false},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
         sortColumns:[{column:'prodatr__orden'}],
@@ -56,16 +56,19 @@ module.exports = function(context){
         detailTables:[
             {table:'relatr_tipico', abr:'Valores Típicos', fields:['periodo','producto','atributo'], abr:'V'}
         ],
+        hiddenColumns:['impobs'],
         sql:{
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,
-                  n.normalizable, pa.opciones, a.validar_con_valvalatr
+                  n.normalizable, pa.opciones, a.validar_con_valvalatr, c.impobs
                   from relatr a
                   join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                   left join relatr_1 a_1 on a.periodo = a_1.periodo and a.producto = a_1.producto and a.observacion = a_1.observacion and
                   a.informante = a_1.informante and a.visita = a_1.visita and a.atributo = a_1.atributo
                   left join control_normalizables_sindato n on a.periodo = n.periodo and a.informante = n.informante and
                   a.observacion = n.observacion and a.visita = n.visita and a.producto = n.producto and a.atributo = n.atributo
+                  left join (select o.* from calobs o join calculos_def cd on o.calculo = cd.calculo and cd.principal) c 
+                  on a.periodo = c.periodo and a.informante = c.informante and a.producto = c.producto and a.observacion = c.observacion           
                   )`,
             isTable: true,
         }
