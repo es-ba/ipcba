@@ -166,6 +166,9 @@ export type RelInf={
     observaciones: RelPre[]
     cantidad_periodos_sin_informacion: number
     maxperiodoinformado: string
+    observacionesinformante: string
+    observaciones_campo: string | null
+    visita: number
 }
 
 export type QueVer = 'todos'|'pendientes'|'advertencias';

@@ -136,6 +136,18 @@ var calcularListas=function(otrosFormulariosInformanteIdx: {[key: string]: RelVi
 var setDirty = () => my.setLocalVar(LOCAL_STORAGE_DIRTY_NAME, true);
 
 var reducers={
+    SET_OBSERVACION_INFORMANTE: (payload: {forPk:{informante:number}, observaciones_campo:string|null}) => 
+        function(state: HojaDeRuta){
+            return surfRelInf(state, payload, (miRelInf:RelInf)=>{
+                if(miRelInf.observaciones_campo != payload.observaciones_campo){
+                    setDirty();
+                }
+                return {
+                    ...miRelInf,
+                    observaciones_campo: payload.observaciones_campo
+                }
+            });
+        },
     SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) => 
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
@@ -517,6 +529,7 @@ var redirectIfNotLogged = function redirectIfNotLogged(err:Error){
 
 export async function devolverHojaDeRuta(hdr:HojaDeRuta){
     var message:string='';
+    var code = 200;
     try{
         message = await my.ajax.dm2_descargar({
             token_instalacion: false,
@@ -527,8 +540,9 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
     }catch(err){
         redirectIfNotLogged(err);
         message=err.message;
+        code=err.code;
     }
-    return message;
+    return {code, message};
 }
 
 export const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
@@ -538,6 +552,8 @@ const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
 const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
 export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
 export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
+
+export const getTokenRelevamiento = ():string|null=> my.getLocalVar(TOKEN_LOCALSTORAGE_NAME);
 
 export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: HojaDeRuta, estructura: Estructura, token:string){
     my.setLocalVar(HDR_OPENED_LOCALSTORAGE_NAME, true);

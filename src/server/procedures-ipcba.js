@@ -464,12 +464,14 @@ function dm2CrearQueries(parameters){
                 AND informante=rvi.informante
         `;
     var sqlInformantes=`
-        SELECT periodo, informante, nombreinformante, direccion,
+        SELECT periodo, informante, visita, nombreinformante, direccion,
                 ${json(sqlFormularios,'orden, formulario')} as formularios,
                 ${json(sqlObservaciones, 'orden_formulario, formulario, orden_producto, producto, observacion')} as observaciones,
                 distanciaperiodos(rvi.periodo, max_periodos.maxperiodoinformado) as cantidad_periodos_sin_informacion,
-                max_periodos.maxperiodoinformado
-            FROM relvis rvi INNER JOIN informantes USING (informante),
+                max_periodos.maxperiodoinformado,
+                ri.observaciones as observacionesinformante,
+                ri.observaciones_campo
+            FROM relvis rvi INNER JOIN informantes USING (informante) LEFT JOIN relinf ri USING (periodo, informante, visita),
             lateral(
                 SELECT 
                     CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado
@@ -480,7 +482,7 @@ function dm2CrearQueries(parameters){
                 AND panel=rt.panel
                 ${parameters.informante?' AND informante='+parameters.informante+' ':' '}
                  AND tarea=rt.tarea
-            GROUP BY periodo, informante, nombreinformante, direccion, panel, tarea, maxperiodoinformado
+            GROUP BY periodo, informante, visita, nombreinformante, direccion, panel, tarea, maxperiodoinformado, observaciones, observaciones_campo
         `;
     var sqlHdR=`
         SELECT encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
@@ -1808,7 +1810,9 @@ ProceduresIpcba = [
                         ,[params.current_token]
                     ).fetchAll()
                     if(result.rowCount < params.hoja_de_ruta.informantes[0].formularios.length){
-                        throw new Error(`Su token (${params.current_token}) ha expirado porque alguien abrió la hoja de ruta desde otro dispositivo.`)
+                        let err = new Error(`Su token (${params.current_token}) ha expirado. Es probable que alguien alguien haya abierto la hoja de ruta desde otro dispositivo.`)
+                        err.code = 403;
+                        throw err;
                     }
                 }else{
                     try{
@@ -1876,6 +1880,18 @@ ProceduresIpcba = [
                     }
                     var hoja_de_ruta = params.hoja_de_ruta;
                     for(var informante of hoja_de_ruta.informantes){
+                        try{
+                            console.log("informante", informante)
+                            await context.client.query(`
+                                update relinf 
+                                    set observaciones_campo = $1
+                                    where periodo = $2 and informante = $3 and visita = $4 --pk verificada
+                                    returning true`
+                                ,[informante.observaciones_campo, hoja_de_ruta.periodo, informante.informante, informante.visita]
+                            ).fetchUniqueRow()
+                        }catch(err){
+                            throw new Error('Error al actualizar las observaciones para el informante: ' + informante.informante + ". " + err.message);
+                        }
                         for(var formulario of informante.formularios){
                             var filtroValoresPrecioAtributo;
                             var razonNegativa = razones[formulario.razon].espositivoformulario=="N";

@@ -13,7 +13,7 @@ import {
     parseString
 } from "./dm-funciones";
 import {ActionHdr, dispatchers, dmTraerDatosHdr, borrarDatosRelevamientoLocalStorage, devolverHojaDeRuta, isDirtyHDR, 
-    hdrEstaDescargada, getCacheVersion, hacerBackup} from "./dm-react";
+    hdrEstaDescargada, getCacheVersion, hacerBackup, getTokenRelevamiento} from "./dm-react";
 import {useState, useEffect, useRef, useLayoutEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
@@ -334,12 +334,6 @@ function ResizableTextarea(props:{
         className={`${props.className||''}`}
         onKeyDown={(event)=>{
             props.onKeyDown?.(event)
-        }}
-        onClick={(event)=>{
-            var element = event.target as HTMLTextAreaElement;
-            var selection = element.value.length||0;
-            element.selectionStart = selection;
-            element.selectionEnd = selection;
         }}
         onFocus={props.onFocus}
         onBlur={props.onBlur}
@@ -792,6 +786,7 @@ export const materialIoIconsSvgPath={
     Clear: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
     Close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
     Code: "M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z",
+    ContentCopy:"M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z",
     Delete:"M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
     Description: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z",
     EmojiObjects: "M12 3c-.46 0-.93.04-1.4.14-2.76.53-4.96 2.76-5.48 5.52-.48 2.61.48 5.01 2.22 6.56.43.38.66.91.66 1.47V19c0 1.1.9 2 2 2h.28c.35.6.98 1 1.72 1s1.38-.4 1.72-1H14c1.1 0 2-.9 2-2v-2.31c0-.55.22-1.09.64-1.46C18.09 13.95 19 12.08 19 10c0-3.87-3.13-7-7-7zm2 16h-4v-1h4v1zm0-2h-4v-1h4v1zm-1.5-5.59V14h-1v-2.59L9.67 9.59l.71-.71L12 10.5l1.62-1.62.71.71-1.83 1.82z",
@@ -834,6 +829,7 @@ const SyncAltIcon = ICON.SyncAlt;
 const SystemUpdateIcon = ICON.SystemUpdate;
 const RepreguntaIcon = ICON.Repregunta;
 const ExitToAppIcon = ICON.ExitToApp;
+const ContentCopyIcon = ICON.ContentCopy;
 
 export var estructura:Estructura;
 
@@ -2265,6 +2261,7 @@ function FormulariosCols(props:{informante:RelInf, relVis:RelVis}){
 }
 
 function InformanteRow(props:{informante:RelInf}){
+    const dispatch = useDispatch();
     const opciones = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const informante = props.informante;
     const contacto = estructura.informantes[informante.informante].contacto;
@@ -2292,6 +2289,26 @@ function InformanteRow(props:{informante:RelInf}){
                                     {web?<div className='web-informante'><a href={(web.startsWith('http') || web.startsWith('https')?"":"//")+web} target="_blank">{web}</a></div>:null}
                                     {email?<div className='email-informante'>{email}</div>:null}
                                     <div className="periodos-sin-informacion"> {informante.cantidad_periodos_sin_informacion>1?`Últ. mes informado: ${informante.maxperiodoinformado}`:''}</div>
+                                    <div className="observaciones-informante">
+                                        {informante.observacionesinformante?
+                                            <div className="comentario-analista">
+                                                <span style={{color:COLOR_ADVERTENCIAS, marginRight:5}}><ICON.NewReleases/></span>
+                                                <span className="observaciones-informante-analistas">{informante.observacionesinformante}</span>
+                                            </div>
+                                        :null}
+                                        <EditableTd
+                                            hasError={false}
+                                            placeholder="observaciones campo"
+                                            disabled={false}
+                                            className="observaciones-informante-campo"
+                                            dataType={"text"}
+                                            value={informante.observaciones_campo}
+                                            inputId={'obs-'+relVis.informante.toString()}
+                                            onUpdate={value=>{
+                                                dispatch(dispatchers.SET_OBSERVACION_INFORMANTE({forPk:{informante:relVis.informante}, observaciones_campo:value}));
+                                            }}
+                                        />
+                                    </div>
                                 </TableCell>
                             :null}
                             {opciones.letraGrandeFormulario?null:
@@ -2400,6 +2417,8 @@ function PantallaHojaDeRuta(_props:{}){
     }
     const [online, setOnline] = useState(window.navigator.onLine);
     const [mensajeDescarga, setMensajeDescarga] = useState<string|null>(null);
+    const [codigoDescarga, setCodigoeDescarga] = useState<number|null>(null);
+    const [tokenCopiado, setTokenCopiado] = useState<boolean>(false);
     const [descargaCompleta, setDescargaCompleta] = useState<boolean|null>(false);
     const [descargando, setDescargando] = useState<boolean|null>(false);
     window.addEventListener('online',  updateOnlineStatus);
@@ -2430,11 +2449,13 @@ function PantallaHojaDeRuta(_props:{}){
                                             <IconButton
                                                 color="inherit"
                                                 onClick={async ()=>{
+                                                    setCodigoeDescarga(null);
                                                     setMensajeDescarga('descargando, por favor espere...');
                                                     setDescargando(true);
-                                                    var message = await devolverHojaDeRuta(hdr);
+                                                    var {code, message} = await devolverHojaDeRuta(hdr);
                                                     setDescargando(false);
-                                                    if(message=='descarga completa'){
+                                                    setCodigoeDescarga(code);
+                                                    if(code==200){
                                                         setDescargaCompleta(true);
                                                         await borrarDatosRelevamientoLocalStorage();
                                                         message+=', redirigiendo a grilla de relevamiento...';
@@ -2475,6 +2496,28 @@ function PantallaHojaDeRuta(_props:{}){
                                             <DialogContentText id="alert-dialog-description">
                                                 {mensajeDescarga}{descargando?<CircularProgress />:null}
                                             </DialogContentText>
+                                            <DialogContentText id="copiar-token">
+                                                {codigoDescarga==403?
+                                                    <>
+                                                        <span>copie el token para informarlo a recepción </span>
+                                                        <Button 
+                                                            onClick={()=>{
+                                                                {navigator.clipboard.writeText(getTokenRelevamiento()!)}
+                                                                setTokenCopiado(true)
+                                                                setTimeout(()=>setTokenCopiado(false),3000)
+                                                            }} 
+                                                            color="primary" 
+                                                            variant="contained"
+                                                        >
+                                                            copiar 
+                                                            <ContentCopyIcon/>
+                                                        </Button>
+                                                    </>
+                                                :
+                                                    null
+                                                }
+                                                {tokenCopiado?<span id="token-copiado"> copiado!</span>:null}
+                                            </DialogContentText>
                                         </DialogContent>
                                         <DialogActions>
                                             {descargando?
@@ -2487,6 +2530,7 @@ function PantallaHojaDeRuta(_props:{}){
                                                         }else{
                                                             setMensajeDescarga(null)
                                                         }
+                                                        setTokenCopiado(false)
                                                     }} 
                                                     color="primary" 
                                                     variant="contained"

@@ -23,6 +23,7 @@ module.exports = function(context){
             {name:'contacto'               , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'maxperiodoinformado'    , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:false}, inTable:true},
         ],
         primaryKey:['periodo','informante','visita'],
         foreignKeys:[
@@ -41,7 +42,7 @@ module.exports = function(context){
                          string_agg ('Panel '||h.panel||' , '||'Tarea '||h.tarea||':'||chr(10)||h.maxperiodoinformado,chr(10) ORDER BY panel,tarea) 
                        ELSE
                          string_agg (h.maxperiodoinformado,chr(10) ORDER BY panel,tarea)
-                       END as maxperiodoinformado, r.observaciones
+                       END as maxperiodoinformado, r.observaciones, r.observaciones_campo
                    from relinf r 
                    left join (SELECT periodo, informante, visita, direccion, contacto, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, 
                                 row_number() OVER (PARTITION BY periodo, informante, visita) as pos
