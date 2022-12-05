@@ -811,6 +811,7 @@ NETWORK:
                     {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
+                    {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
                 ]},
                 /*
@@ -1319,7 +1320,9 @@ NETWORK:
             {name: 'relinf_fechassalida', path: __dirname},
             {name: 'cambiopantar_lote', path: __dirname},
             {name: 'cambiopantar_det', path: __dirname},
-            {name: 'tercera_ausencia', path: __dirname}
+            {name: 'tercera_ausencia', path: __dirname},
+            {name: 'periodos_submod', path: __dirname},
+            {name: 'submod', path: __dirname}
         ]);
     }
 }
