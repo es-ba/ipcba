@@ -17,7 +17,7 @@ module.exports = function(context){
             {name:'tarea'                  , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
             {name:'informante'             , typeName:'integer' , nullable:false, allow:{update:false}, inTable:true},
             {name:'razon'                  , typeName:'text'                    , allow:{update:false}, inTable:false},
-            {name:'visita'                 , typeName:'integer'                 , allow:{update:false}, inTable:false},
+            {name:'visita'                 , typeName:'integer'                 , allow:{update:false}, inTable:true},
             {name:'direccion'              , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'formularios'            , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'contacto'               , typeName:'text'                    , allow:{update:false}, inTable:false},
