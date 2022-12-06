@@ -10,7 +10,7 @@ var cookieParser = require('cookie-parser')
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 
-const APP_DM_VERSION="#22-12-02";
+const APP_DM_VERSION="#22-12-06";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
