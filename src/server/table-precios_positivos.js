@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'positivosref'         ,typeName:'integer'},
             {name:'positivosant'         ,typeName:'integer'},
             {name:'positivosact'         ,typeName:'integer'},
+            {name:'maxperiodoinformado'  ,typeName:'text'   }, 
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         foreignKeys:[
@@ -36,6 +37,7 @@ module.exports = function(context){
             sum(CASE WHEN t_1.espositivo = 'S' THEN 1 ELSE 0 END) as positivosant,
             sum(CASE WHEN t_ref.espositivo = 'S' THEN 1 ELSE 0 END) as positivosref,
             i.rubro, v.encuestador, per.nombre||' '||per.apellido as encuestadornombre, coalesce(p.solo_cluster,pp."cluster") as "cluster"
+            ,max_periodos.maxperiodoinformado
             from relvis v
               inner join relpre_1 r on v.periodo = r.periodo and v.informante = r.informante and v.formulario = r.formulario and v.visita = r.visita
               inner join parametros p on unicoregistro
@@ -48,8 +50,13 @@ module.exports = function(context){
               left join tipopre t_1 on r.tipoprecio_1 = t_1.tipoprecio
               left join tipopre t_ref on r_ref.tipoprecio = t_ref.tipoprecio   
               left join informantes i on v.informante = i.informante
-            group by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario, v.visita, i.rubro, v.encuestador, per.nombre||' '||per.apellido, coalesce(p.solo_cluster,pp."cluster")
-            order by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario, v.visita, i.rubro, v.encuestador, per.nombre||' '||per.apellido, coalesce(p.solo_cluster,pp."cluster"))`
+              left join (SELECT informante, formulario, max(periodo) maxperiodoinformado
+                      FROM relvis rv join razones z on rv.razon = z.razon 
+                      WHERE espositivoformulario='S' 
+                      GROUP BY rv.informante, rv.formulario ) as max_periodos on
+                      max_periodos.informante = v.informante and max_periodos.formulario = v.formulario
+            group by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario, v.visita, i.rubro, v.encuestador, per.nombre||' '||per.apellido, coalesce(p.solo_cluster,pp."cluster"),max_periodos.maxperiodoinformado
+            order by v.periodo, v.informante, v.panel, v.tarea, ta.operativo, v.formulario, v.visita, i.rubro, v.encuestador, per.nombre||' '||per.apellido, coalesce(p.solo_cluster,pp."cluster"),max_periodos.maxperiodoinformado)`
             },
     },context);
 }
