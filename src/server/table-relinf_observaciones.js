@@ -34,6 +34,7 @@ module.exports = function(context){
             {references:'periodos'   , fields:['periodo']},
             {references:'informantes', fields:['informante']},
         ],
+        hiddenColumns:['cluster'],
         sql:{
             from:`(select r.periodo, max(CASE WHEN h.pos = 1 THEN h.panel END) AS panel , max(CASE WHEN h.pos = 1 THEN h.tarea END) AS tarea, 
                        r.informante, string_agg (h.razon,'/' order by panel, tarea) as razon, r.visita, h.direccion, 
