@@ -6,7 +6,7 @@ var definnerPeriodo = require('../server/table-periodos.js');
 module.exports = function(context){
     var defNewElement = definnerPeriodo(context);
     defNewElement=changing(defNewElement,{
-        name:'periodos_relinf',
+        name:'periodos_control_cambios',
         tableName:'periodos',
         editable:false,
         allow:{
@@ -19,8 +19,7 @@ module.exports = function(context){
             {name:'periodo'                      , typeName:'text'    , nullable:false},
         ],
         detailTables:[
-            {table: 'relinf_observaciones' , fields:['periodo'], abr:'INF' , label: 'informantes'},
-            {table: 'paneles_relinf' , fields:['periodo'], abr:'PAN' , label: 'paneles'},
+            {table: 'control_cambios' , fields:['periodo'], abr:'CC' , label: 'Control cambios'},
         ],
     });
     defNewElement.sql={

@@ -49,6 +49,8 @@ module.exports = function(context){
             {name:'promrealessincambioant'       , typeName:'decimal'                 },
             {name:'promsinaltasbajas'            , typeName:'decimal'                 },
             {name:'promsinaltasbajasant'         , typeName:'decimal'                 },
+            {name:'promimputadosinactivos'       , typeName:'decimal'                 },
+            {name:'cantimputadosinactivos'       , typeName:'integer'                 },
         ],
         primaryKey:['periodo','calculo','producto','division'],
         foreignKeys:[

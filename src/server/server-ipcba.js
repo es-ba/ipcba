@@ -259,7 +259,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-bienvenida.sql
                 - vw-gru_grupos.sql
                 - vw-caldiv_vw.sql
-                - vw-caldiv_vw.sql
+                - vw-informantes_inactivos.sql
                 - vw-caldivsincambio.sql
                 - vw-calgru_promedios.sql
                 - vw-calgru_vw.sql
@@ -793,6 +793,8 @@ NETWORK:
                     {menuType:'table', name:'periodos_hdrexportarefectivossinprecio'  , label:'efectivos sin precio', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_normalizables_sindato'  , label:'normalizables sin dato', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_precios_positivos'              , label:'precios positivos periodo referente', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
+                    {menuType:'table', name:'periodos_control_ajustes'                , label:'ajustes de precios', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
+                    {menuType:'table', name:'periodos_control_cambios'                , label:'cambios de atributos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
                     {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_atr1_diccionario_atributos', label:'inconsistencia (atr1) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
@@ -875,7 +877,6 @@ NETWORK:
                         {menuType:'table', name:'periodos_relpre_control_rangos_analisis'         , label:'inconsistencias de precios analisis'},
                         {menuType:'table', name:'periodos_precios_inconsistentes'                 , label:'incompletitud'},
                         {menuType:'table', name:'periodos_precios_porcentaje_positivos_y_anulados', label:'porcentajes de potenciales y positivos por formulario'},
-                        {menuType:'table', name:'periodos_control_ajustes'                        , label:'ajustes de precios'},
                         {menuType:'table', name:'periodos_control_sinvariacion'                   , label:'precios sin variacion'},
                         {menuType:'table', name:'periodos_control_tipoprecio'                     , label:'tipos de precios'},
                         {menuType:'table', name:'periodos_control_sinprecio'                      , label:'tipo de precio sin existencia'},
@@ -1146,6 +1147,7 @@ NETWORK:
             {name: 'periodos_control_atr2_diccionario_atributos', path: __dirname},
             {name: 'periodos_control_diccionario_atributos_val', path: __dirname},
             {name: 'periodos_control_ajustes', path: __dirname},
+            {name: 'periodos_control_cambios', path: __dirname},
             //{name: 'periodos_relpre_control_rangos', path: __dirname},
             {name: 'periodos_relpre_control_rangos_analisis', path: __dirname},
             {name: 'periodos_relpre_control_rangos_recepcion', path: __dirname},
@@ -1252,6 +1254,7 @@ NETWORK:
             {name: 'canasta_producto', path: __dirname},
             {name: 'control_atributos', path: __dirname},
             {name: 'control_ajustes', path: __dirname},
+            {name: 'control_cambios', path: __dirname},
             {name: 'control_normalizables_sindato', path: __dirname},
             {name: 'control_observaciones', path: __dirname},
             {name: 'control_ingresados_calculo', path: __dirname},

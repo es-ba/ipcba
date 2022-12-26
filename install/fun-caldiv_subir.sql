@@ -45,7 +45,9 @@ Loop
            PromRealesSinCambio=pr_sincambio,
            PromRealesSinCambioAnt=pr_sincambioant,
            PromSinAltasBajas=pr_sinAltasBajas,
-           PromSinAltasBajasAnt=pr_sinAltasBajasAnt
+           PromSinAltasBajasAnt=pr_sinAltasBajasAnt,
+           promImputadosInactivos=pr_imputadosInactivos,
+           cantImputadosInactivos=n_imputadosInactivos
         FROM (  
             SELECT AVG(a.PromPriImpAct) pr_priImpAct,
                    AVG(a.PromPriImpAnt) pr_priImpAnt,
@@ -74,6 +76,8 @@ Loop
                    AVG(a.PromRealesSinCambioAnt) pr_sincambioant,
                    AVG(a.PromSinAltasBajas) pr_sinAltasBajas,
                    AVG(a.PromSinAltasBajasAnt) pr_sinAltasBajasant,
+                   AVG(a.promImputadosInactivos) pr_ImputadosInactivos,
+                   SUM(a.cantImputadosInactivos) n_ImputadosInactivos,
                    'AriAuto' tipo_promedio
                 FROM  caldiv a  
                   WHERE a.periodo=pperiodo AND a.calculo=pcalculo AND a.producto=vr.producto AND a.divisionpadre=vr.division
@@ -106,6 +110,8 @@ Loop
                      SUM(a.PromRealesSinCambioAnt *a.ponderadorDiv)/sum(case when a.PromRealesSinCambioAnt  is null then null else a.ponderadorDiv end) pr_sincambioant,
                      SUM(a.PromSinAltasBajas      *a.ponderadorDiv)/sum(case when a.PromSinAltasBajas       is null then null else a.ponderadorDiv end) pr_sinAltasBajas,
                      SUM(a.PromSinAltasBajasAnt   *a.ponderadorDiv)/sum(case when a.PromSinAltasBajasAnt    is null then null else a.ponderadorDiv end) pr_sinAltasBajasant,
+                     SUM(a.PromimputadosInactivos *a.ponderadorDiv)/sum(case when a.PromImputadosInactivos  is null then null else a.ponderadorDiv end) pr_ImputadosInactivos,
+                     SUM(a.CantImputadosInactivos) n_ImputadosInactivos,
                      'AriPond' tipo_promedio
                 FROM  caldiv a  
                   WHERE a.periodo=pperiodo AND a.calculo=pcalculo AND a.producto=vr.producto AND a.divisionpadre=vr.division
@@ -138,6 +144,8 @@ Loop
                      EXP(AVG(LN(a.PromRealesSinCambioAnt   ))) pr_sincambioAnt,
                      EXP(AVG(LN(a.PromSinAltasBajas      ))) pr_sinAltasBajas   ,
                      EXP(AVG(LN(a.PromSinAltasBajasAnt   ))) pr_sinAltasBajasAnt,
+                     EXP(AVG(LN(a.PromImputadosInactivos ))) pr_ImputadosInactivos,
+                     SUM(a.CantImputadosInactivos) n_ImputadosInactivos,
                      'GeoAuto' tipo_promedio
                 FROM  caldiv a  
                   WHERE a.periodo=pperiodo AND a.calculo=pcalculo AND a.producto=vr.producto AND a.divisionpadre=vr.division
@@ -170,6 +178,8 @@ Loop
                      EXP(SUM(LN(a.PromRealesSinCambioAnt )*a.ponderadorDiv)/SUM(case when a.PromRealesSinCambioAnt is null then null else a.ponderadorDiv end)) pr_sincambioant,
                      EXP(SUM(LN(a.PromsinAltasBajas      )*a.ponderadorDiv)/SUM(case when a.PromsinAltasBajas      is null then null else a.ponderadorDiv end)) pr_sinAltasBajas   ,
                      EXP(SUM(LN(a.PromsinAltasBajasAnt   )*a.ponderadorDiv)/SUM(case when a.PromsinAltasBajasAnt   is null then null else a.ponderadorDiv end)) pr_sinAltasBajasant,
+                     EXP(SUM(LN(a.PromImputadosInactivos )*a.ponderadorDiv)/SUM(case when a.PromImputadosInactivos is null then null else a.ponderadorDiv end)) pr_imputadosInactivos,
+                     SUM(a.CantImputadosInactivos) n_imputadosInactivos,
                      'GeoPond' tipo_promedio
                 FROM  caldiv a  
                   WHERE a.periodo=pperiodo AND a.calculo=pcalculo AND a.producto=vr.producto AND a.divisionpadre=vr.division
@@ -202,6 +212,8 @@ Loop
                      SUM(a.PromRealesSinCambioAnt ) pr_sincambioant,
                      SUM(a.PromsinAltasBajas ) pr_sinAltasBajas,
                      SUM(a.PromsinAltasBajasAnt ) pr_sinAltasBajasant,
+                     SUM(a.PromImputadosInactivos ) pr_ImputadosInactivos,
+                     SUM(a.CantImputadosInactivos) n_ImputadosInactivos,
                      'Suma' tipo_promedio
                 FROM  caldiv a  
                   WHERE a.periodo=pperiodo AND a.calculo=pcalculo AND a.producto=vr.producto AND a.divisionpadre=vr.division

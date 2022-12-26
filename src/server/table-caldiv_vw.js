@@ -56,6 +56,8 @@ module.exports = function(context){
             {name:'promrealesexcluidos'  , typeName:'decimal'  },
             {name:'publicado'            , typeName:'boolean'  },
             {name:'responsable'          , typeName:'text'     },
+            {name:'promimputadosinactivos'       , typeName:'decimal'                 },
+            {name:'cantimputadosinactivos'       , typeName:'integer'                 },
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},

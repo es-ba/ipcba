@@ -34,7 +34,7 @@ CREATE OR REPLACE VIEW caldiv_vw AS
             WHEN c.promsinaltasbajas > 0 AND c.promsinaltasbajasAnt > 0 THEN round((c.promsinaltasbajas / c.promsinaltasbajasAnt * 100 - 100)::numeric, 1)
             ELSE NULL::numeric
         END AS varSinAltasBajas,
-    CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, r.responsable, p."cluster"
+    CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, r.responsable, p."cluster", c.promImputadosInactivos, c.cantimputadosinactivos
    FROM cvp.caldiv c
    LEFT JOIN cvp.productos p on c.producto = p.producto
    LEFT JOIN cvp.calculos l ON c.periodo = l.periodo and c.calculo = l.calculo  
