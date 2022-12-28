@@ -25,6 +25,9 @@ LEFT JOIN
 ON a.informante = b.informante and a.formulario = b.formulario and a.visita = b.visita
 WHERE coalesce(b.periodoPositivo,'a0000m00') < PeriodoNegativo; 
 
+ALTER TABLE informantes_inactivos
+    OWNER TO cvpowner;
+
 GRANT SELECT ON TABLE informantes_inactivos TO cvp_administrador;
 
 ------------------------------------------------------------------------------------------------
