@@ -61,7 +61,7 @@ module.exports = function(context){
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
-            {column:'calculo', operator:'=' ,value:context.be.internalData.filterUltimoCalculo},
+            //{column:'calculo', operator:'=' ,value:context.be.internalData.filterUltimoCalculo},
             {column:'cluster', operator:'!=',value:context.be.internalData.filterExcluirCluster}
         ],        
         primaryKey:['periodo','calculo','producto','division'],

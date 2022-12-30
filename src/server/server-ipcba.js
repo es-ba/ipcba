@@ -166,6 +166,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calobs_segimp_perbase.sql
                 - fun-calprod_indexar.sql
                 - fun-calprod_valorizar.sql
+                - fun-copiarcalculo.sql
                 - fun-crear_vista_calobs_periodos.sql
                 - fun-controlar_estado_carga.sql
                 - fun-diferenciaentreperiodosparar.sql
