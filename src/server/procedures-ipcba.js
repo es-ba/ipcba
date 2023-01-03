@@ -2182,7 +2182,7 @@ ProceduresIpcba = [
         roles:['programador', 'coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE relvis SET panel = $4, tarea = $5 
+                `UPDATE relvis SET panel = $4, tarea = $5, fechasalida = (SELECT fechasalida from relpan where periodo = $1 and panel = $4) 
                    WHERE periodo=$1  
                      AND panel=$2 AND tarea = $3`,
                 [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
@@ -2210,15 +2210,19 @@ ProceduresIpcba = [
         roles:['programador','coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE relvis r set panel = otropanel, tarea = otratarea
-                FROM (select case when panel = $2 then $4
-                             when panel = $4 then $2 
+                `UPDATE relvis r set panel = otropanel, tarea = otratarea, fechasalida = otrafechasalida
+                FROM (select case when r1.panel = $2 then $4
+                             when r1.panel = $4 then $2 
                         end as otropanel, 
                         case when tarea = $3 then $5
                              when tarea = $5 then $3 
-                        end as otratarea, * 
-                        FROM cvp.relvis 
-                        WHERE periodo = $1 and (panel = $2 and tarea = $3 or panel = $4 and tarea = $5)) ro
+                        end as otratarea, p1.fechasalida otrafechasalida, r1.* 
+                        FROM cvp.relvis r1
+                        LEFT JOIN cvp.relpan p1 on r1.periodo = p1.periodo and
+                                                   case when r1.panel = $2 then $4
+                                                        when r1.panel = $4 then $2 
+                                                   end = p1.panel   
+                        WHERE r1.periodo = $1 and (r1.panel = $2 and tarea = $3 or r1.panel = $4 and tarea = $5)) ro
                 WHERE r.periodo = ro.periodo and r.informante = ro.informante and r.visita = ro.visita and r.formulario = ro.formulario`,
                 [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
             ).execute().then(function(result){
@@ -2246,7 +2250,7 @@ ProceduresIpcba = [
         roles:['programador','coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE relvis SET panel = $5, tarea = $6 
+                `UPDATE relvis SET panel = $5, tarea = $6, fechasalida = (SELECT fechasalida from relpan where periodo = $1 and panel = $5) 
                    WHERE periodo = $1 AND informante = $2 AND visita = $3 AND formulario = $4
                    RETURNING panel`,
                 [parameters.periodo,parameters.informante,parameters.visita, parameters.formulario, parameters.otropanel, parameters.otratarea]
