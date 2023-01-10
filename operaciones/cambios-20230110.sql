@@ -1,3 +1,4 @@
+set search_path = cvp;
 CREATE OR REPLACE FUNCTION validar_transmitir_canasta_trg()
   RETURNS trigger AS
 $BODY$
@@ -45,10 +46,3 @@ RETURN NEW;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY INVOKER;
-  
-CREATE TRIGGER calculos_controlar_transmitir_canastas_trg
-  BEFORE UPDATE
-  ON calculos
-  FOR EACH ROW
-  EXECUTE PROCEDURE validar_transmitir_canasta_trg();
-
