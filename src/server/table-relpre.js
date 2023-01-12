@@ -28,7 +28,7 @@ module.exports = function(context){
             {name:'cambio'                       , typeName:'text'                                 , allow:{update:false}            , postInput:'upperSpanish', clientSide:'navegar_cambio'    , serverSide:true , inTable: true},            
             {name:'repregunta'                   , typeName:'text'                                 , allow:{import:false, update:false}, title:'R', inTable: false},            
             {name:'excluido'                     , typeName:'text'                                 , allow:{import:false, update:false}, title:'X', inTable: false},            
-            {name:'antiguedadsinprecioant'       , typeName:'integer'                              , allow:{import:false, update:false}, title:'Aspa', inTable: false},            
+            {name:'cantidadperiodossinprecio'    , typeName:'integer'                              , allow:{import:false, update:false}, title:'Cpsp', inTable: false},
             {name:'precioanterior'               , typeName:'decimal'                              , allow:{import:false, update:false}, inTable: false   },
             {name:'tipoprecioanterior'           , typeName:'text'                                 , allow:{import:false, update:false}, title:'TPa', inTable: false},
             {name:'masdatos'                     , typeName:'text'                                 , allow:{import:false, update:false}, inTable: false   },
@@ -73,7 +73,10 @@ module.exports = function(context){
                         END AS masdatos,
                     c_1.antiguedadsinprecio as antiguedadsinprecioant, c_1.promobs as promobs_1, r_1.precionormalizado_1, normsindato, fueraderango,
                     CASE WHEN s.periodo is not null THEN 'S' ELSE null END as sinpreciohace4meses, fp.orden,
-                    case when r.ultima_visita is true then null else true end as agregarvisita, r.esvisiblecomentarioendm, r.modi_fec
+                    case when r.ultima_visita is true then null else true end as agregarvisita, r.esvisiblecomentarioendm, r.modi_fec,
+                    CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
+                    ELSE NULL 
+                    END cantidadperiodossinprecio
                     from relpre r
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
@@ -84,7 +87,12 @@ module.exports = function(context){
                     r.periodo = n.periodo and r.informante = n.informante and r.observacion = n.observacion and r.visita = n.visita and r.producto = n.producto                    
                     left join (select distinct periodo, producto, observacion, informante, visita, 'S' as fueraderango from control_atributos) a on
                     r.periodo = a.periodo and r.informante = a.informante and r.observacion = a.observacion and r.visita = a.visita and r.producto = a.producto
-                    left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto
+                    left join control_sinprecio s on r.periodo =s.periodo and r.informante = s.informante and r.visita = s.visita and r.observacion = s.observacion and r.producto = s.producto,
+					lateral (select max(periodo) ultimoperiodoconprecio 
+                               from relpre
+                               where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita 
+                               and periodo < r.periodo
+                            ) re
                     )`,
             isTable: true,
         },

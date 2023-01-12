@@ -425,7 +425,7 @@ function dm2CrearQueries(parameters){
                 false as adv,
                 ${json(sqlAtributos, 'orden, atributo')} as atributos,
                 c.promobs as promobs_1,
-                c.antiguedadsinprecio as cantidadperiodossinprecio,
+                distanciaperiodos(rp.periodo,ultimoperiodoconprecio)-1 cantidadperiodossinprecio,
                 split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 2) || '/' ||  split_part(split_part(re.ultimoperiodoconprecio,' ', 1),'/', 1) ultimoperiodoconprecio,
                 split_part(re.ultimoperiodoconprecio,' ', 2) ultimoprecioinformado,
                 r_his.sinpreciohace4meses = 'S' sinpreciohace4meses,
