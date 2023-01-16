@@ -27,6 +27,7 @@ module.exports = function(context){
             {name:'precio_1'             ,typeName:'decimal'},
             {name:'tipoprecio_1'         ,typeName:'text'   },
             {name:'precionormalizado_1'  ,typeName:'decimal'},
+            {name:'promobs_1'            ,typeName:'decimal'},
             {name:'masdatos'             ,typeName:'text'   },
             {name:'valor'                ,typeName:'text'   },
             {name:'valor_1'              ,typeName:'text'   },
@@ -39,10 +40,10 @@ module.exports = function(context){
         ],
         sql:{from:
             `(SELECT periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
-            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, masdatos,
+            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
             string_agg(concat(atributo,'(',nombreatributo,')',':',valor), chr(10)) as valor,
             string_agg(concat(atributo,'(',nombreatributo,')',':',valor_1), chr(10)) as valor_1
-            FROM (SELECT p.*, r_1.precio precio_1, r_1.tipoprecio tipoprecio_1, r_1.precionormalizado precionormalizado_1, a_1.valor as valor_1,
+            FROM (SELECT p.*, r_1.precio precio_1, r_1.tipoprecio tipoprecio_1, r_1.precionormalizado precionormalizado_1, c_1.promobs promobs_1, a_1.valor as valor_1,
                     CASE WHEN r_1.precio > 0 and r_1.precio <> p.precio 
                          THEN round((p.precio/r_1.precio*100-100)::decimal,1)::TEXT||'%' 
                          ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> p.precionormalizado and r_1.precio is null 
@@ -77,9 +78,9 @@ module.exports = function(context){
                   WHERE p.valor is distinct from a_1.valor
                  ) Q
             GROUP BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
-            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, masdatos
+            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos
             ORDER BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
-            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, masdatos)`
+            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos)`
             },
     },context);
 }

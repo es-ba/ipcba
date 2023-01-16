@@ -31,10 +31,10 @@ module.exports = function(context){
             {name:'precioant'                    ,typeName:'decimal',   allow:{update:false}},
             {name:'precionormalizadoant'         ,typeName:'decimal',   allow:{update:false}, title:'PNormAnt'},
             {name:'tipoprecioant'                ,typeName:'text'   ,   allow:{update:false}, title:'TPAnt'},
+            {name:'masdatos'                     ,typeName:'text'   ,   allow:{update:false}},
             {name:'comentariosrelpre'            ,typeName:'text'   ,   allow:{update:puedeEditar}},
             {name:'observaciones'                ,typeName:'text'   ,   allow:{update:esAnalista}},
             {name:'modalidad'                    ,typeName:'text'   ,   allow:{update:false}},
-            {name:'masdatos'                     ,typeName:'text'   ,   allow:{update:false}},
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
         foreignKeys:[
