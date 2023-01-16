@@ -24,6 +24,8 @@ module.exports = function(context){
             {name:'otropaneltarea'         , typeName:'text'                    , allow:{update:false}      },
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}},
+            {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'contacto'               , typeName:'text'                    , allow:{update:false}      },
             {name:'telcontacto'            , typeName:'text'                    , allow:{update:false}      },
             {name:'web'                    , typeName:'text'                    , allow:{update:false}      },
@@ -45,7 +47,7 @@ module.exports = function(context){
                           max(distinct (CASE WHEN v.pos = 1 THEN v.modalidad END)) AS modalidad,
                           CASE WHEN min(v.pos) <> max(v.pos) THEN 
                             string_agg (CASE WHEN v.pos> 1 then 'Panel '||v.panel||' , '||'Tarea '||v.tarea||coalesce(' Mod. '||v.modalidad,'') end, chr(10) ORDER BY 'Panel '||v.panel||' , '||'Tarea '||v.tarea||coalesce(' Mod. '||v.modalidad,''))  
-                          END as otramodalidad
+                          END as otramodalidad, r.observaciones, r.observaciones_campo
                    from relinf r
                    left join informantes i on r.informante = i.informante
                    left join rubros ru on i.rubro = ru.rubro

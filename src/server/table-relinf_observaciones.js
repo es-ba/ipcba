@@ -27,7 +27,7 @@ module.exports = function(context){
             {name:'maxperiodoinformado'    , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, title:'cod', postInput:'upperSpanish', inTable:true},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
-            {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:false}, inTable:true},
+            {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
         ],
         primaryKey:['periodo','informante','visita'],
         foreignKeys:[
