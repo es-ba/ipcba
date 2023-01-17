@@ -5,10 +5,12 @@ SELECT v.periodo, v.panel, v.tarea, v.fechasalida, v.informante,
     v.ingresador, COALESCE(n.apellido, null)::text AS nombreingresador,
     v.supervisor, COALESCE(r.apellido, null)::text AS nombresupervisor, 
     v.formulario, f.nombreformulario, f.operativo, v.razon, r_1.razon as razonanterior, v.visita, i.nombreinformante, i.direccion, 
-    i.conjuntomuestral, i.ordenhdr
+    i.conjuntomuestral, i.ordenhdr, ri.observaciones, ri.observaciones_campo, ri.fechasalidahasta, rt.modalidad, rt_1.modalidad modalidad_ant
    FROM cvp.relvis v
    JOIN cvp.informantes i ON v.informante = i.informante
    JOIN cvp.formularios f ON v.formulario = f.formulario
+   LEFT JOIN cvp.relinf ri ON v.periodo = ri.periodo AND v.informante = ri.informante AND v.visita = ri.visita
+   LEFT JOIN cvp.reltar rt ON v.periodo = rt.periodo AND v.panel = rt.panel AND v.tarea = rt.tarea
    LEFT JOIN cvp.personal p ON v.encuestador = p.persona
    LEFT JOIN cvp.personal s ON v.recepcionista = s.persona
    LEFT JOIN cvp.personal n ON v.ingresador = n.persona
@@ -20,6 +22,7 @@ SELECT v.periodo, v.panel, v.tarea, v.fechasalida, v.informante,
           ELSE o.periodoanterior
         END AND (r_1.ultima_visita = true AND v.visita = 1 OR v.visita > 1 AND r_1.visita = (v.visita - 1)) 
         AND r_1.informante = v.informante AND r_1.formulario = v.formulario
+   LEFT JOIN cvp.reltar rt_1 ON r_1.periodo = rt_1.periodo AND r_1.panel = rt_1.panel AND r_1.tarea = rt_1.tarea
    order by v.periodo, v.panel, v.tarea, v.informante, v.formulario;
    
 GRANT SELECT ON TABLE control_hojas_ruta TO cvp_usuarios;

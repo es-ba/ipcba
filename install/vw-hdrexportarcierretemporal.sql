@@ -5,7 +5,8 @@ SELECT c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreen
     ELSE COALESCE(min(c.razon) || ''::text, ''::text)
   END as razon, c.visita, c.nombreinformante, c.direccion, string_agg(formulario::text||':'||nombreformulario, '|') as formularios, 
   (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto, 
-  c.conjuntomuestral, c.ordenhdr, distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado
+  c.conjuntomuestral, c.ordenhdr, distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado,
+  c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant
 FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.razones z on c.razon = z.razon 
    LEFT JOIN cvp.informantes i ON c.informante = i.informante
@@ -17,6 +18,7 @@ FROM cvp.control_hojas_ruta c
    WHERE z.escierretemporalfor = 'S'
    GROUP BY c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreencuestador, recepcionista, nombrerecepcionista, c.visita, c.nombreinformante, c.direccion, 
    (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text,  c.conjuntomuestral, c.ordenhdr, 
-   distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado;
+   distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado,
+   c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant;
 
 GRANT SELECT ON TABLE hdrexportarcierretemporal TO cvp_usuarios;

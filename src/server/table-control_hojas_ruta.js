@@ -28,6 +28,11 @@ module.exports = function(context){
             {name:'direccion'                    , typeName:'text'      },
             {name:'conjuntomuestral'             , typeName:'integer'   },
             {name:'ordenhdr'                     , typeName:'integer'   },
+            {name:'observaciones'                , typeName:'text'      },
+            {name:'observaciones_campo'          , typeName:'text'      },
+            {name:'fechasalidahasta'             , typeName:'date'      },
+            {name:'modalidad'                    , typeName:'text'      },
+            {name:'modalidad_ant'                , typeName:'text'      },
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sql:{

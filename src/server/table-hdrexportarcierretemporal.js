@@ -33,6 +33,11 @@ module.exports = function(context){
             {name:'rubro'                        , typeName:'integer'},
             {name:'nombrerubro'                  , typeName:'text'   },
             {name:'maxperiodoinformado'          , typeName:'text'   },
+            {name:'observaciones'                , typeName:'text'   },
+            {name:'observaciones_campo'          , typeName:'text'   },
+            {name:'fechasalidahasta'             , typeName:'date'   },
+            {name:'modalidad'                    , typeName:'text'   },
+            {name:'modalidad_ant'                , typeName:'text'   },
         ],
         primaryKey:['periodo','informante','visita','formularios'],
         sql:{
