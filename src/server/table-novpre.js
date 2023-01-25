@@ -39,7 +39,6 @@ module.exports = function(context){
         */
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
-            {references:'relpre', fields:['periodo', 'producto', 'observacion', 'informante', 'visita']},            
             {references:'productos', fields:['producto']},            
             {references:'formularios', fields:['formulario']},            
             {references:'personal', fields:[
@@ -50,7 +49,7 @@ module.exports = function(context){
             ], alias: 'enc'},        
         ],
         sql:{
-            from: `(select n.periodo, 
+            from: `(select n.periodo,
                            n.producto, 
                            n.informante, 
                            n.observacion, 
