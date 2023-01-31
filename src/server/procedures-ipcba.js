@@ -1185,7 +1185,7 @@ ProceduresIpcba = [
         ],
         coreFunction:async function(context, parameters){
             var now = datetime.now();
-            var tokenDueDate = now.add({hours:1});
+            var tokenDueDate = now.add({hours:3});
             try{
                 await context.client.query(
                     `update reltar
@@ -1194,7 +1194,7 @@ ProceduresIpcba = [
                     ,
                     [parameters.encuestador]
                 ).execute();
-                var dueDate = await context.client.query(
+                await context.client.query(
                     `update reltar
                         set vencimiento_sincronizacion2 = $4
                         where periodo = $1 and panel = $2 and tarea = $3`
@@ -1758,7 +1758,7 @@ ProceduresIpcba = [
                 //sino tambien prepara archivos y calculo sincronizacion
                 }else{
                     result = await be.procedure.dm2_archivospreparar.coreFunction(context, parameters);
-                    vencimientoSincronizacion2 = (await be.procedure.sincronizacion_habilitar2.coreFunction(context,parameters)).vencimientoSincronizacion2;
+                    vencimientoSincronizacion2 = (await be.procedure.sincronizacion_habilitar2.coreFunction(context,{...parameters,encuestador:result.hdr.encuestador})).vencimientoSincronizacion2;
                 }
                 var {estructura, hdr} = result;
                 //resultado
