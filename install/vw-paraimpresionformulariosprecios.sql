@@ -15,7 +15,7 @@
         ||string_agg(
            CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN 
               CASE WHEN t.visiblenombreatributo = 'S' THEN 
-                   a.nombreatributo||' ' 
+                   concat(a.separador,a.nombreatributo)||' ' 
                    ELSE '' 
                    END||'de '||t.rangodesde||' a '||t.rangohasta||' '||COALESCE(a.unidaddemedida, a.nombreatributo, '')||
               CASE WHEN t.alterable = 'S' AND t.normalizable = 'S' AND NOT(t.rangodesde <= t.valornormal AND t.valornormal <= t.rangohasta) THEN 

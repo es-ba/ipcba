@@ -13,7 +13,7 @@ CREATE OR REPLACE VIEW ParaImpresionFormulariosEnBlanco AS
             , '') 
             ||string_agg(
                CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN 
-                  CASE WHEN t.visiblenombreatributo = 'S' THEN a.nombreatributo||' ' ELSE '' END||
+                  CASE WHEN t.visiblenombreatributo = 'S' THEN concat(a.separador,a.nombreatributo)||' ' ELSE '' END||
                   'de '||t.rangodesde||' a '||t.rangohasta||' '||COALESCE(a.unidaddemedida, a.nombreatributo, '')
                   ||CASE WHEN t.alterable = 'S' AND t.normalizable = 'S' AND NOT(t.rangodesde <= t.valornormal AND t.valornormal <= t.rangohasta) THEN ' ó '||t.valornormal||' '||a.unidaddemedida ELSE '' END||'. '
                 ELSE ''

@@ -20,6 +20,7 @@ module.exports = function(context){
             {name:'es_vigencia'                 , typeName:'boolean'   },
             {name:'valorinicial'                , typeName:'text'      },
             {name:'visible'                     , typeName:'text'   , defaultValue:'S', nullable:false},
+            {name:'separador'                   , typeName:'text'      },
         ],
         primaryKey:['atributo'],
         foreignKeys:[
