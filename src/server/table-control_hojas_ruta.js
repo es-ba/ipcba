@@ -33,6 +33,9 @@ module.exports = function(context){
             {name:'fechasalidahasta'             , typeName:'date'      },
             {name:'modalidad'                    , typeName:'text'      },
             {name:'modalidad_ant'                , typeName:'text'      },
+            {name:'telcontacto'                  , typeName:'text'      },
+            {name:'web'                          , typeName:'text'      },
+            {name:'email'                        , typeName:'text'      },
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sql:{

@@ -39,6 +39,7 @@ module.exports = function(context){
             {name:'tareareferencia'              , typeName:'text'    },
             {name:'periodoalta'                  , typeName: 'text'   },
             {name:'modalidad'                    , typeName: 'text'   },            
+            {name:'otropaneltarea'               , typeName: 'text'   },            
         ],
         primaryKey:['periodo','informante','visita','formularios'],
         sql:{
