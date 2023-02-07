@@ -1,3 +1,7 @@
+set search_path = cvp;
+ALTER TABLE calculos_def ALTER COLUMN agrupacionprincipal drop default; 
+ALTER TABLE calculos_def ALTER COLUMN para_rellenado_de_base drop default;
+
 CREATE OR REPLACE VIEW caldiv_vw AS 
  SELECT c.periodo, c.calculo, c.producto, p.nombreproducto, c.division, c.prompriimpact, c.prompriimpant,
          CASE
@@ -49,5 +53,3 @@ CREATE OR REPLACE VIEW caldiv_vw AS
                 JOIN calculos_def d on c.calculo = d.calculo 
                 WHERE c.agrupacion = d.agrupacionprincipal and c.esproducto = 'S'
             ) cg ON c.periodo = cg.periodo AND c.calculo = cg.calculo AND  c.producto = cg.producto;
-   
-GRANT SELECT ON TABLE caldiv_vw TO cvp_administrador;

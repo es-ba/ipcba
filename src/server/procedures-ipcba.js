@@ -708,13 +708,15 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             try{
             var previusResult = await context.client.query(
-                `INSERT INTO calculos_def (calculo,definicion)
-                 SELECT m.calculo,'Copia del Calculo' definicion from 
+                `INSERT INTO calculos_def (calculo,definicion, agrupacionprincipal, para_rellenado_de_base, grupo_raiz)
+                 SELECT m.calculo,'Copia del Calculo' definicion, dp.agrupacionprincipal, dp.para_rellenado_de_base, dp.grupo_raiz 
+                   from 
                     (select periodo,max(calculo)+1 calculo
                         from calculos 
                         where periodo=$1
                         group by periodo) m 
                     LEFT JOIN calculos_def d USING (calculo)
+                    CROSS JOIN (SELECT * FROM calculos_def WHERE principal) dp
                     WHERE d.calculo is null`,
                     [parameters.periodo]).execute();
             var result = await context.client.query(

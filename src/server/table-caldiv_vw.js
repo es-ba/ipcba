@@ -58,6 +58,7 @@ module.exports = function(context){
             {name:'responsable'          , typeName:'text'     },
             {name:'promimputadosinactivos'       , typeName:'decimal'                 },
             {name:'cantimputadosinactivos'       , typeName:'integer'                 },
+            {name:'variacion_indice'             , typeName:'decimal'                 },
         ],
         filterColumns:[
             {column:'periodo', operator:'>=', value:context.be.internalData.filterUltimoPeriodo},
