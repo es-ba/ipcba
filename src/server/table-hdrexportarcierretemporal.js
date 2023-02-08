@@ -36,6 +36,7 @@ module.exports = function(context){
             {name:'rubro'                        , typeName:'integer'},
             {name:'nombrerubro'                  , typeName:'text'   },
             {name:'maxperiodoinformado'          , typeName:'text'   },
+            {name:'codobservaciones'             , typeName:'text', title:'cod'},
             {name:'observaciones'                , typeName:'text'   },
             {name:'observaciones_campo'          , typeName:'text'   },
             {name:'fechasalidahasta'             , typeName:'date'   },

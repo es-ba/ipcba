@@ -6,7 +6,7 @@ SELECT c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreen
   END as razon, c.visita, c.nombreinformante, c.direccion, string_agg(formulario::text||':'||nombreformulario, '|') as formularios, 
   i.contacto::text, 
   c.conjuntomuestral, c.ordenhdr, distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado,
-  c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email
+  c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email, c.codobservaciones
 FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.razones z on c.razon = z.razon 
    LEFT JOIN cvp.informantes i ON c.informante = i.informante
@@ -19,6 +19,6 @@ FROM cvp.control_hojas_ruta c
    GROUP BY c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreencuestador, recepcionista, nombrerecepcionista, c.visita, c.nombreinformante, c.direccion, 
    i.contacto, c.conjuntomuestral, c.ordenhdr, 
    distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado,
-   c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email;
+   c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email, c.codobservaciones;
 
 GRANT SELECT ON TABLE hdrexportarcierretemporal TO cvp_usuarios;

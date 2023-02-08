@@ -6,7 +6,7 @@ SELECT v.periodo, v.panel, v.tarea, v.fechasalida, v.informante,
     v.supervisor, COALESCE(r.apellido, null)::text AS nombresupervisor, 
     v.formulario, f.nombreformulario, f.operativo, v.razon, r_1.razon as razonanterior, v.visita, i.nombreinformante, i.direccion, 
     i.conjuntomuestral, i.ordenhdr, ri.observaciones, ri.observaciones_campo, ri.fechasalidahasta, rt.modalidad, rt_1.modalidad modalidad_ant,
-    i.telcontacto, i.web, i.email
+    i.telcontacto, i.web, i.email, ri.codobservaciones
    FROM cvp.relvis v
    JOIN cvp.informantes i ON v.informante = i.informante
    JOIN cvp.formularios f ON v.formulario = f.formulario

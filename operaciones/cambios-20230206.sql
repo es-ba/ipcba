@@ -54,6 +54,34 @@ CREATE OR REPLACE VIEW caldiv_vw AS
                 WHERE c.agrupacion = d.agrupacionprincipal and c.esproducto = 'S'
             ) cg ON c.periodo = cg.periodo AND c.calculo = cg.calculo AND  c.producto = cg.producto;
 --------------------------------------------------------------------
+CREATE OR REPLACE VIEW control_hojas_ruta AS
+SELECT v.periodo, v.panel, v.tarea, v.fechasalida, v.informante, 
+    v.encuestador, COALESCE(p.apellido, null)::text AS nombreencuestador,
+    v.recepcionista, COALESCE(s.apellido, null)::text AS nombrerecepcionista, 
+    v.ingresador, COALESCE(n.apellido, null)::text AS nombreingresador,
+    v.supervisor, COALESCE(r.apellido, null)::text AS nombresupervisor, 
+    v.formulario, f.nombreformulario, f.operativo, v.razon, r_1.razon as razonanterior, v.visita, i.nombreinformante, i.direccion, 
+    i.conjuntomuestral, i.ordenhdr, ri.observaciones, ri.observaciones_campo, ri.fechasalidahasta, rt.modalidad, rt_1.modalidad modalidad_ant,
+    i.telcontacto, i.web, i.email, ri.codobservaciones
+   FROM cvp.relvis v
+   JOIN cvp.informantes i ON v.informante = i.informante
+   JOIN cvp.formularios f ON v.formulario = f.formulario
+   LEFT JOIN cvp.relinf ri ON v.periodo = ri.periodo AND v.informante = ri.informante AND v.visita = ri.visita
+   LEFT JOIN cvp.reltar rt ON v.periodo = rt.periodo AND v.panel = rt.panel AND v.tarea = rt.tarea
+   LEFT JOIN cvp.personal p ON v.encuestador = p.persona
+   LEFT JOIN cvp.personal s ON v.recepcionista = s.persona
+   LEFT JOIN cvp.personal n ON v.ingresador = n.persona
+   LEFT JOIN cvp.personal r ON v.supervisor = r.persona
+   LEFT JOIN cvp.periodos o ON v.periodo = o.periodo
+   LEFT JOIN cvp.relvis r_1 ON r_1.periodo=
+        CASE
+          WHEN v.visita > 1 THEN v.periodo
+          ELSE o.periodoanterior
+        END AND (r_1.ultima_visita = true AND v.visita = 1 OR v.visita > 1 AND r_1.visita = (v.visita - 1)) 
+        AND r_1.informante = v.informante AND r_1.formulario = v.formulario
+   LEFT JOIN cvp.reltar rt_1 ON r_1.periodo = rt_1.periodo AND r_1.panel = rt_1.panel AND r_1.tarea = rt_1.tarea
+   order by v.periodo, v.panel, v.tarea, v.informante, v.formulario;
+--------------------------------------------------------------------
 CREATE OR REPLACE VIEW hdrexportarcierretemporal AS  ----informantes/hoja de ruta/cierre temporal
 SELECT c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreencuestador, recepcionista, nombrerecepcionista, 
   CASE
@@ -62,7 +90,7 @@ SELECT c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreen
   END as razon, c.visita, c.nombreinformante, c.direccion, string_agg(formulario::text||':'||nombreformulario, '|') as formularios, 
   i.contacto::text, 
   c.conjuntomuestral, c.ordenhdr, distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado,
-  c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email
+  c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email, c.codobservaciones
 FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.razones z on c.razon = z.razon 
    LEFT JOIN cvp.informantes i ON c.informante = i.informante
@@ -75,4 +103,4 @@ FROM cvp.control_hojas_ruta c
    GROUP BY c.periodo, panel, tarea, fechasalida, c.informante, encuestador, nombreencuestador, recepcionista, nombrerecepcionista, c.visita, c.nombreinformante, c.direccion, 
    i.contacto, c.conjuntomuestral, c.ordenhdr, 
    distrito, fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, nombrerubro, maxperiodoinformado,
-   c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email;
+   c.observaciones, c.observaciones_campo, c.fechasalidahasta, c.modalidad, c.modalidad_ant, c.telcontacto, c.web, c.email, c.codobservaciones;
