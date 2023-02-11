@@ -2316,6 +2316,61 @@ ProceduresIpcba = [
             });
         }
     },
+    {
+        action:'unificar_valores_atributos_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista'],
+        forExport:{
+            fileName:'unificacionDeMarcas.xlsx',
+            csvFileName:'unificacionDeMarcas.csv'
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            return [
+                /*{
+                    title:'agrupaciones',
+                    rows: (
+                        await context.client.query(`select * from agrupaciones order by agrupacion`).fetchAll()
+                    ).rows.map(r=>{return r; })
+                },
+                {
+                    title:'divisiones',
+                    rows: (
+                        await context.client.query(`select * from divisiones order by division`).fetchAll()
+                    ).rows
+                }*/
+                {   title:'unificacionDeMarcasTitle',
+                    rows:(
+                        await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto, 
+                        rm.informante, rm.visita, rm.observacion, rm.formulario,
+                        rm.atributo, rm.nombreatributo, rm.valor, 
+                        r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2, rm.comentariosrelpre as comentarios
+                        from (select rp.formulario, ra.*, rp.comentariosrelpre, a2.nombreatributo 
+                                from cvp.relpre rp 
+                                join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
+                                join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                        and rp.visita = ra.visita and rp.observacion = ra.observacion 
+                                join cvp.atributos a2 on ra.atributo = a2.atributo 
+                                where a2.nombreatributo = 'Marca' and rp.periodo = $1 and t.espositivo = 'S') rm
+                             join cvp.relvis v on v.periodo = rm.periodo and v.informante = rm.informante and v.visita = rm.visita and v.formulario = rm.formulario  
+                             join cvp.productos p on rm.producto = p.producto
+                             left join 
+                             (select rp.formulario, ra.* , a1.nombreatributo
+                                from cvp.relpre rp 
+                                join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
+                                join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                                  and rp.visita = ra.visita and rp.observacion = ra.observacion
+                                join cvp.atributos a1 on ra.atributo = a1.atributo
+                                join cvp.prodatr pa on rp.producto = pa.producto and ra.atributo = pa.atributo
+                                where pa.normalizable = 'S' and rp.periodo = $1 and t.espositivo = 'S') r 
+                                   on r.periodo = rm.periodo and r.informante = rm.informante and r.producto = rm.producto 
+                                   and r.observacion = rm.observacion and r.visita = rm.visita`, [parameters.periodo]).fetchAll()
+                    ).rows
+                }
+            ]
+        }
+    }
 ];
 
 module.exports = ProceduresIpcba;
