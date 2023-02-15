@@ -1,3 +1,5 @@
+set search_path = cvp;
+
 CREATE OR REPLACE VIEW control_ajustes AS 
     SELECT per.periodo, rv.panel, rv.tarea, rp.informante, i.tipoinformante, rp.visita, rp.formulario, 
         split_part(string_agg(gg_1.grupo_padre||'|'||g_1.nombregrupo,'|' ORDER BY g_1.nivel),'|',1) AS grupo_padre_1, 
@@ -26,5 +28,3 @@ CREATE OR REPLACE VIEW control_ajustes AS
         AND gg_1.esproducto = 'S'
         AND g_1.nivel in (1,2,3)
     GROUP BY 1,2,3,4,5,6,7,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30;
-    
-GRANT SELECT ON TABLE control_ajustes TO cvp_administrador;
