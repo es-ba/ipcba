@@ -872,7 +872,7 @@ NETWORK:
                         {menuType:'table', name:'periodos_calprodresp'                  , label:'revision de los productos por el analista'},
                         {menuType:'table', name:'grupos_resp'                           , label:'grupos de revision'},
                         //{menuType:'table', name:'periodos_unificacion_valores_atributos', label:'unificación de marcas'},
-                        {menuType:'proc', name:'unificar_valores_atributos_exportar', label:'unificación de marcas', onlyVisibleFor:[programador]},
+                        {menuType:'proc', name:'unificar_valores_atributos_exportar', label:'unificación de marcas'},
                     ]},
                     {menuType:'menu', name:'precios'  , label:'precios'  , onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                         {menuType:'table', name:'periodos_relpre_control_rangos_analisis'         , label:'inconsistencias de precios analisis'},
