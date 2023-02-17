@@ -37,6 +37,7 @@ module.exports = function(context){
             {name:'fechasalidadesde'           , typeName:'date'     , allow:{update:puedeEditar}                                  },
             {name:'fechasalidahasta'           , typeName:'date'     , allow:{update:puedeEditar}                                  },
             {name:'modalidad'                  , typeName:'text'     , postInput:'upperSpanish', allow:{update:puedeEditar}        },
+            {name:'visiblepararelevamiento'    , typeName:'text'     , postInput:'upperSpanish', allow:{update:puedeEditar}        },
         ],
         primaryKey:['periodo','panel','tarea'],
         foreignKeys:[
