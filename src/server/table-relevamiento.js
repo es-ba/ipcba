@@ -91,6 +91,7 @@ module.exports = function(context){
                         left join (select informante, max(periodo) maxperiodoinformado from relvis where razon = 1 group by informante) as mx on rv.informante = mx.informante
                         where p.ingresando = 'S' 
                         and current_timestamp between COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida)+interval '9 hours'  and COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida) +interval '24 hours'
+                        and COALESCE(rt.visiblepararelevamiento, 'S') = 'S' 
                     group by rv.periodo, panel, tarea, COALESCE(ri.fechasalidadesde, rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida), COALESCE(ri.fechasalidahasta, rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida), rv.informante, rv.visita, i.nombreinformante, i.direccion, i.contacto, i.telcontacto, i.web, i.email, rub.nombrerubro, per.persona, per.labor, mx.maxperiodoinformado)`
         },
     },context);

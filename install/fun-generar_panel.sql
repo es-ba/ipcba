@@ -68,8 +68,8 @@ BEGIN
   WHERE rd.periodo = d.periodo and rd.informante = d.informante and rd.formulario = d.formulario and rd.visita = d.visita ;
   --08/01/19: todas las tareas a reltar en el momento de la generación del panel (hasta ahora se insertaban en el momento de preparar la supervisión):
   --14/02/19: las tareas que tuvieron por lo menos una respuesta positiva (o nula) el periodo anterior
-  INSERT INTO cvp.relTar(periodo, panel, tarea, encuestador, modalidad)
-      SELECT p.periodo, p.panel, t.tarea, a.encuestador, x_1.modalidad
+  INSERT INTO cvp.relTar(periodo, panel, tarea, encuestador, modalidad, visiblepararelevamiento)
+      SELECT p.periodo, p.panel, t.tarea, a.encuestador, x_1.modalidad, x_1.visiblepararelevamiento
         FROM cvp.relpan p 
           INNER JOIN cvp.pantar t ON p.panel= t.panel  
           INNER JOIN cvp.tareas a ON a.tarea= t.tarea -- pk verificada

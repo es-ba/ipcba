@@ -25,6 +25,7 @@ module.exports = function(context){
             {name:'web'                    , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'email'                  , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'maxperiodoinformado'    , typeName:'text'                    , allow:{update:false}, inTable:false},
+            {name:'modalidad'              , typeName:'text'                    , allow:{update:false}, inTable:false},
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, title:'cod', postInput:'upperSpanish', inTable:true},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
@@ -47,13 +48,19 @@ module.exports = function(context){
                          string_agg ('Panel '||h.panel||' , '||'Tarea '||h.tarea||':'||chr(10)||h.maxperiodoinformado,chr(10) ORDER BY panel,tarea) 
                        ELSE
                          string_agg (h.maxperiodoinformado,chr(10) ORDER BY panel,tarea)
-                       END as maxperiodoinformado, r.observaciones, r.observaciones_campo, r.codobservaciones
+                       END as maxperiodoinformado,
+                       CASE WHEN min(h.pos) <> max(h.pos) THEN 
+                         string_agg ('Panel '||h.panel||' , '||'Tarea '||h.tarea||':'||chr(10)||h.modalidad,chr(10) ORDER BY panel,tarea) 
+                       ELSE
+                         string_agg (h.modalidad,chr(10) ORDER BY panel,tarea)
+                       END as modalidad,                       
+                       r.observaciones, r.observaciones_campo, r.codobservaciones
                    from relinf r 
                    left join (SELECT periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, 
-                                row_number() OVER (PARTITION BY periodo, informante, visita) as pos
+                                modalidad, row_number() OVER (PARTITION BY periodo, informante, visita) as pos
                               from hdrexportarteorica 
-                              group by periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr
-                              order by periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr) h 
+                              group by periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, modalidad
+                              order by periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, modalidad) h 
                               on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita
                     group by r.periodo, r.informante, r.visita, h.direccion, h.contacto, h.telcontacto, h.web, h.email, h.ordenhdr
                 )`,

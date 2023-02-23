@@ -1268,33 +1268,3 @@ my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
     my.agregar_json(backupDiv, result.backup)
 }
 
-my.wScreens.unificar_valores_atributos=function(addrParams){
-    setTimeout(function(){
-        var layout = document.getElementById('main_layout');
-        var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
-        var resultDiv=html.div({class:"result-div"}).create();
-        var botonExportar=html.button("exportar").create();
-        botonExportar.onclick=function(){
-            my.ajax.unificar_valores_atributos_exportar({
-                periodo:controlPeriodo.getTypedValue(),
-            }).then(function(result){
-                resultDiv.textContent=result;
-            })
-        }
-        TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
-        layout.appendChild(
-            html.div([
-                html.div({class:'titulo-form'},"unificar valores atributos"),
-                html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
-                    ]),
-                    html.tr([
-                        html.td(), html.td([botonExportar]), 
-                    ])
-                ]),
-                resultDiv,
-            ]).create()
-        );
-    },50);
-}
