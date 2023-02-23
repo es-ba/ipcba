@@ -562,6 +562,7 @@ ProceduresIpcba = [
         ],
         bitacora:{error:true, always:true},
         roles:['programador','coordinador','analista'],
+        progress:true,
         coreFunction:async function(context, parameters){
             //context.informProgress({message:'cálculo lanzado'});
             const BITACORA_TABLENAME = context.be.config.server.bitacoraTableName || 'bitacora';
