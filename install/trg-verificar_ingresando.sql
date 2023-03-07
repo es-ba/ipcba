@@ -158,7 +158,8 @@ $BODY$
   LANGUAGE plpgsql VOLATILE;
 
 CREATE TRIGGER reltar_abi_trg
-  BEFORE INSERT OR UPDATE OF supervisor, encuestador, realizada, resultado, observaciones, puntos, cargado, descargado OR DELETE
+  BEFORE INSERT OR UPDATE OF supervisor, encuestador, realizada, resultado, observaciones, puntos, cargado, descargado,
+                             fechasalidadesde, fechasalidahasta, modalidad, visiblepararelevamiento OR DELETE
   ON reltar
   FOR EACH ROW
   EXECUTE PROCEDURE verificar_ingresando();
