@@ -282,6 +282,7 @@ function ResizableTextarea(props:{
     onFocus?:(event:any)=>void,
     onBlur?:(event:any)=>void,
     color?:string
+    tabIndex?:number
 }&CommonAttributes){
     const [myValue, setMyValue] = useState<string|null>(props.value);
     const [config, setConfig] = useState({
@@ -339,6 +340,7 @@ function ResizableTextarea(props:{
         onBlur={props.onBlur}
         placeholder={props.placeholder}
         style={{...props.style,...{width:props.fullWidth?'100%':'unset'}}}
+        tabIndex={props.tabIndex}
 	/>
 }
 
@@ -361,6 +363,7 @@ const TextField = (props:{
     borderBottomColor?:string,
     borderBottomColorError?:string,
     color?:string
+    tabIndex?:number
 })=>{
     var {hasError, borderBottomColorError, borderBottomColor, color} = props;
     borderBottomColor=borderBottomColor||PRIMARY_COLOR;
@@ -387,6 +390,7 @@ const TextField = (props:{
             onBlur={props.onBlur}
             placeholder={props.placeholder}
             style={{...styles}}
+            tabIndex={props.tabIndex}
         />
     :
         <input
@@ -407,6 +411,7 @@ const TextField = (props:{
             onBlur={props.onBlur}
             placeholder={props.placeholder}
             style={styles}
+            tabIndex={props.tabIndex}
         />
 };
 
@@ -932,6 +937,7 @@ function TypedInput<T extends string|number|null>(props:{
     placeholder?:string,
     simplificateText: boolean,
     textTransform?:'lowercase'|'uppercase',
+    tabIndex?:number
 }){
     const dispatch = useDispatch();
     function valueT(value:string):T{
@@ -993,6 +999,7 @@ function TypedInput<T extends string|number|null>(props:{
         setValue(event.target.value);
     }
     const onKeyDownFun:React.KeyboardEventHandler = function(event:React.KeyboardEvent<HTMLInputElement>){
+        //no anda en mobile con Chromes nuevos (se resuelve con tabIndex, se deja para PC y tablets viejas)
         var tecla = event.charCode || event.which;
         if((tecla==13) && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey){
             // @ts-ignore puede existir blur si target es un HTMLInputElement
@@ -1031,6 +1038,7 @@ function TypedInput<T extends string|number|null>(props:{
         borderBottomColor={props.borderBottomColor}
         borderBottomColorError={props.borderBottomColorError}
         color={props.color}
+        tabIndex={props.tabIndex}
     />
 }
 
@@ -1089,6 +1097,7 @@ function EditableTd<T extends string|number|null>(props:{
     onFocus?:()=>void,
     textTransform?:'uppercase'|'lowercase',
     simplificateText?:boolean,
+    tabIndex?:number
 }){
     const [editando, setEditando]=useState(false);
     const [editandoOtro, setEditandoOtro]=useState(false);
@@ -1137,6 +1146,7 @@ function EditableTd<T extends string|number|null>(props:{
                     opciones={props.opciones}
                     placeholder={props.placeholder}
                     onFocus={()=>{props.onFocus?props.onFocus():null}}
+                    tabIndex={props.tabIndex}
                 />            
             </Badge>
         </div>
@@ -1714,6 +1724,7 @@ var PreciosRow = React.memo(function PreciosRow(props:{
                             onFocus={()=>{
                                 handleSelection(relPre, hasSearchString, allForms, inputIdPrecio, compactar, inputIdPrecio);
                             }}
+                            tabIndex={props.iRelPre + 1}
                         />
                     </>
                     :null}                   
