@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'relpantar',
         tableName:'reltar',
@@ -27,6 +27,8 @@ module.exports = function(context){
             {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:puedeEditar}},
             {name:'modalidad'             , typeName:'text'       , allow:{update:false}},
             {name:'visiblepararelevamiento',typeName:'text'       , postInput:'upperSpanish', allow:{update:puedeEditar}, title:'visible'},
+            {name:'supervisor'             , typeName:'text'      , allow:{update:puedeEditar}},
+            {name:'observaciones'          , typeName:'text'      , allow:{update:puedeEditar}},
         ],
         primaryKey:['periodo','panel','tarea'],
         detailTables:[
@@ -39,7 +41,7 @@ module.exports = function(context){
                           t.encuestador encuestador_titular, te.nombre||' '||te.apellido as titular, rt.encuestador, 
                           case when rt.encuestador=t.encuestador then null else nullif(concat_ws(' ', tre.nombre, tre.apellido),'') end as suplente,
                           nullif(nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1),0) as sobrecargado,
-                          rt.fechasalidadesde, rt.fechasalidahasta, rt.modalidad, rt.visiblepararelevamiento
+                          rt.fechasalidadesde, rt.fechasalidahasta, rt.modalidad, rt.visiblepararelevamiento, rt.supervisor, rt.observaciones
                      from reltar rt
                        left join tareas t on rt.tarea = t.tarea
                        left join pantar pt on rt.panel = pt.panel and rt.tarea = pt.tarea

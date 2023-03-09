@@ -3,23 +3,24 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo'|| context.user.usu_rol ==='supervisor'|| context.user.usu_rol ==='recepcionista';
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
+    var puedeEditarAnalisis = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'reltar',
-        editable:puedeEditar||puedeEditarMigracion,
+        editable:puedeEditar||puedeEditarMigracion||puedeEditarAnalisis,
         allow:{
             insert:puedeEditarMigracion,
             delete:false,
-            update:puedeEditar||puedeEditarMigracion,
+            update:puedeEditar||puedeEditarMigracion||puedeEditarAnalisis,
         },
         fields:[
             {name:'periodo'                    , typeName:'text'     , nullable:false            , allow:{update:puedeEditarMigracion}},
             {name:'panel'                      , typeName:'integer'  , nullable:false            , allow:{update:puedeEditarMigracion}},
             {name:'tarea'                      , typeName:'integer'  , nullable:false            , allow:{update:puedeEditarMigracion}},
-            {name:'supervisor'                 , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'supervisor'                 , typeName:'text'                                 , allow:{update:puedeEditarAnalisis||puedeEditarMigracion}},
             {name:'encuestador'                , typeName:'text'                                 , allow:{update:true}},
             {name:'realizada'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'resultado'                  , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'observaciones'              , typeName:'text'                                 , allow:{update:puedeEditar||puedeEditarMigracion}},
+            {name:'observaciones'              , typeName:'text'                                 , allow:{update:puedeEditarAnalisis||puedeEditarMigracion}},
             {name:'id_instalacion'             , typeName:'integer'                              , allow:{update:false}},
             {name:'cargado'                    , typeName:'timestamp', title: 'cargado a dm'     , allow:{update:puedeEditarMigracion}},
             {name:'descargado'                 , typeName:'timestamp', title: 'descargado de dm' , allow:{update:puedeEditarMigracion}},
