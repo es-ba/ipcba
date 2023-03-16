@@ -261,6 +261,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-gru_grupos.sql
                 - vw-caldiv_vw.sql
                 - vw-informantes_inactivos.sql
+                - vw-informantes_estado.sql
                 - vw-caldivsincambio.sql
                 - vw-calgru_promedios.sql
                 - vw-calgru_vw.sql
