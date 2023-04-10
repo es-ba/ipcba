@@ -22,7 +22,7 @@ module.exports = function(context){
             {name:'fechasalida'               , typeName:'date'                                , allow:{update:puedeEditar}, title:'salida' },
             {name:'fechaingreso'              , typeName:'date'                                , allow:{update:puedeEditar}, title:'ingreso'},
             {name:'encuestador'               , typeName:'text'                                , allow:{update:puedeEditar}, title:'enc'    },
-            {name:'ingresador'                , typeName:'text'                                , allow:{update:puedeEditar}, title:'ing'    },
+            {name:'ingresador'                , typeName:'text'                                , allow:{update:puedeEditar}, title:'ing', visible:false},
             {name:'recepcionista'             , typeName:'text'                                , allow:{update:puedeEditar}, title:'rec'    },
             {name:'razon'                     , typeName:'integer'                             , allow:{update:puedeEditar}, clientSide:'control_razones', serverSide:true, inTable:true},
             {name:'ultimavisita'              , typeName:'integer' , nullable:false , default:1, allow:{update:false}, visible:false},
@@ -40,6 +40,7 @@ module.exports = function(context){
             {name:'direccion'                 , typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
             {name:'operadorrec'               , typeName:'text'                                , allow:{update:false}, visible:false, inTable:false},
             {name:'token_relevamiento'        , typeName:'text'                                , allow:{update:puedeEditarToken}                   },
+            {name:'maxperiodoinformado'       , typeName:'text'                                , allow:{update:false}, inTable:false},
         ],
         primaryKey:['periodo','informante','visita','formulario'],
         sortColumns:[{column:'direccion'},{column:'orden'},{column:'visita'}],
@@ -50,7 +51,7 @@ module.exports = function(context){
             {references:'relpan'     , fields:['periodo','panel']},            
             {references:'razones'    , fields:['razon']},            
             {references:'personal'   , fields:[{source:'encuestador'  , target:'persona'  }]},
-            {references:'personal'   , fields:[{source:'ingresador'   , target:'persona'  }], alias:'pering'},
+            //{references:'personal'   , fields:[{source:'ingresador'   , target:'persona'  }], alias:'pering'},
             {references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'},
             {references:'tokens'     , fields:[{source:'token_relevamiento', target:'token'  }]},
             //{references:'personal'   , fields:[{source:'supervisor'   , target:'persona'  }], alias:'persup'},
@@ -76,13 +77,18 @@ module.exports = function(context){
                   v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento,
                   CASE WHEN rec.labor = 'R' THEN rec.persona 
                        WHEN per.labor = 'R' THEN per.persona 
-                       ELSE rec.persona END operadorrec, v.codcomentarios
+                       ELSE rec.persona END operadorrec, v.codcomentarios, mx.maxperiodoinformado
                   from relvis v
                   join informantes i on v.informante = i.informante
                   left join formularios f on v.formulario=f.formulario
                   left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
                   left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
                   and per.activo = 'S' and rec.persona is distinct from per.persona
+                  left join (select informante, formulario, max(periodo) maxperiodoinformado 
+                               from relvis r join razones z using(razon) 
+                               where espositivoformulario = 'S' 
+                               group by informante, formulario) as mx 
+                               on v.informante = mx.informante and v.formulario = mx.formulario
                   )`,
             isTable:true,
                 }        

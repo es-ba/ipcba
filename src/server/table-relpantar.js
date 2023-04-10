@@ -1,16 +1,17 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo';
+    var puedeEditarAnalisis = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'relpantar',
         tableName:'reltar',
         title:'relpantar',
-        editable:puedeEditar,
+        editable:puedeEditar||puedeEditarAnalisis,
         allow:{
             insert:false,
             delete:false,
-            update:puedeEditar,
+            update:puedeEditar||puedeEditarAnalisis,
         },        
         fields:[
             {name:'periodo'               , typeName:'text'       , allow:{update:false}},
@@ -27,8 +28,8 @@ module.exports = function(context){
             {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:puedeEditar}},
             {name:'modalidad'             , typeName:'text'       , allow:{update:false}},
             {name:'visiblepararelevamiento',typeName:'text'       , postInput:'upperSpanish', allow:{update:puedeEditar}, title:'visible'},
-            {name:'supervisor'             , typeName:'text'      , allow:{update:puedeEditar}},
-            {name:'observaciones'          , typeName:'text'      , allow:{update:puedeEditar}},
+            {name:'supervisor'             , typeName:'text'      , allow:{update:puedeEditarAnalisis}},
+            {name:'observaciones'          , typeName:'text'      , allow:{update:puedeEditarAnalisis}},
         ],
         primaryKey:['periodo','panel','tarea'],
         detailTables:[

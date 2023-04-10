@@ -47,6 +47,7 @@ module.exports = function(context){
             {name:'orden'                        , typeName:'integer'                              , visible:false          , inTable: false},
             {name:'agregarvisita'                , typeName:'boolean'                              , allow:{select:puedeAgregarVisita, update:puedeAgregarVisita}, serverSide:true, inTable:false, clientSide:'agregar_visita'},
             {name:'modi_fec'                     , typeName:'timestamp'                            , visible:false, inTable: true                         },
+            {name:'panel'                        , typeName:'integer'                              , inTable: false    },
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -76,8 +77,9 @@ module.exports = function(context){
                     case when r.ultima_visita is true then null else true end as agregarvisita, r.esvisiblecomentarioendm, r.modi_fec,
                     CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
                     ELSE NULL 
-                    END cantidadperiodossinprecio
+                    END cantidadperiodossinprecio, v.panel
                     from relpre r
+                    inner join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita and r.formulario = v.formulario
                     inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario
                     left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
                     left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
@@ -96,6 +98,6 @@ module.exports = function(context){
                     )`,
             isTable: true,
         },
-        hiddenColumns:['ultima_visita']
+        hiddenColumns:['panel', 'ultima_visita' ]
     },context);
 }
