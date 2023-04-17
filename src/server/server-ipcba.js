@@ -880,10 +880,12 @@ NETWORK:
                         {menuType:'table', name:'periodos_precios_inconsistentes'                 , label:'incompletitud'},
                         {menuType:'table', name:'periodos_precios_porcentaje_positivos_y_anulados', label:'porcentajes de potenciales y positivos por formulario'},
                         {menuType:'table', name:'periodos_control_ajustes'                        , label:'ajustes de precios'},
+                        {menuType:'proc' , name:'control_ajustes_exportar'                        , label:'ajustes de precios exp'},
                         {menuType:'table', name:'periodos_control_sinvariacion'                   , label:'precios sin variacion'},
                         {menuType:'table', name:'periodos_control_tipoprecio'                     , label:'tipos de precios'},
                         {menuType:'table', name:'periodos_control_sinprecio'                      , label:'tipo de precio sin existencia'},
                         {menuType:'table', name:'periodos_relpre_1_sn'                            , label:'tipo de precio sin existencia/no vende'},
+                        {menuType:'proc' , name:'relpre_exportar'                                 , label:'relpre exp'},
                         {menuType:'proc' , name:'calobs_ampliado_exportar'                        , label:'calobs ampliado'},
         
                     ]},

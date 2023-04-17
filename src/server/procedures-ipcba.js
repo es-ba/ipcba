@@ -2412,7 +2412,98 @@ ProceduresIpcba = [
                 }
             ]
         }
-    }
+    },
+    {
+        action:'relpre_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista'],
+        forExport:{
+            fileName:'relpreExportar.xlsx',
+            csvFileName:'relpreExportar.csv'
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            return [
+                {   title:'relpreExportarTitle',
+                    rows:(
+                        await context.client.query(`select r.periodo, 
+                        r.producto,
+                        o.nombreproducto,
+                        o.cluster as pcluster,
+                        r.informante,
+                        i.nombreinformante,
+                        i.tipoinformante as ti,
+                        i.cluster as icluster,
+                        r.formulario as for, 
+                        r.visita as vis, 
+                        r.observacion as obs, 
+                        r.precio, 
+                        r.tipoprecio as tp, 
+                        r.cambio, 
+                        CASE WHEN p.periodo is not null THEN 'R' ELSE null END as R,
+                        CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as X, 
+                        CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 
+                             THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
+                             ELSE NULL 
+                        END as cpsp,	   
+                        r_1.precio_1 as precioanterior, 
+                        r_1.tipoprecio_1 as tpa, 
+                        CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio 
+                             THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
+                             ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null 
+                                       THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
+                                       ELSE NULL 
+                                  END 
+                        END AS masdatos,
+                        r.comentariosrelpre, 
+                        r.esvisiblecomentarioendm as ver,
+                        r_1.comentariosrelpre_1 as comentariosanterior,                  
+                        r.precionormalizado, 
+                        case when r.ultima_visita is true then null else true end as agregarvisita
+                 from relpre r
+                      inner join productos o on r.producto = o.producto
+                      inner join informantes i on r.informante = i.informante
+                      left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
+                      left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
+                      left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
+                      left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
+                      , lateral (select max(periodo) ultimoperiodoconprecio 
+                               from relpre
+                               where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita 
+                               and periodo < r.periodo) re
+                        where r.periodo = $1`, [parameters.periodo]).fetchAll()
+                    ).rows
+                }
+            ]
+        }
+    },    
+    {
+        action:'control_ajustes_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista'],
+        forExport:{
+            fileName:'controlAjustesExportar.xlsx',
+            csvFileName:'controlAjustesExportar.csv'
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            return [
+                {   title:'controlAjustesExportarTitle',
+                    rows:(
+                        await context.client.query(`select periodo, panel, tarea, informante, tipoinformante, visita, formulario, grupo_padre_1, 
+                        nombregrupo_1, grupo_padre_2, nombregrupo_2, grupo_padre_3, nombregrupo_3, c.producto, p.nombreproducto, p.cluster, observacion, 
+                        precionormalizado, tipoprecio, cambio, variacion_1, varia_1, precionormalizado_1, 
+                        tipoprecio_1, cambio_1, variacion_2, varia_2, precionormalizado_2, tipoprecio_2, cambio_2, varia_ambos 
+                        from control_ajustes c 
+                        join productos p on c.producto = p.producto
+                        where c.periodo = $1`, [parameters.periodo]).fetchAll()
+                    ).rows
+                }
+            ]
+        }
+    },    
 ];
 
 module.exports = ProceduresIpcba;
