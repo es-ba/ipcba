@@ -884,6 +884,7 @@ NETWORK:
                         {menuType:'table', name:'periodos_control_tipoprecio'                     , label:'tipos de precios'},
                         {menuType:'table', name:'periodos_control_sinprecio'                      , label:'tipo de precio sin existencia'},
                         {menuType:'table', name:'periodos_relpre_1_sn'                            , label:'tipo de precio sin existencia/no vende'},
+                        {menuType:'proc' , name:'calobs_ampliado_exportar'                        , label:'calobs ampliado'},
         
                     ]},
                     //{menuType:'menu', name:'atributos', label:'atributos', onlyVisibleFor:[programador,coordinador,analista], menuContent:[

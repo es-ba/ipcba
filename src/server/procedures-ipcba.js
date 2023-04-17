@@ -2371,6 +2371,47 @@ ProceduresIpcba = [
                 }
             ]
         }
+    },
+    {
+        action:'calobs_ampliado_exportar',
+        parameters:[
+            {name:'periododesde'     , typeName:'text'   , references:'periodos'   },
+            {name:'periodohasta'     , typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista'],
+        forExport:{
+            fileName:'calobsAmpliado.xlsx',
+            csvFileName:'calobsAmpliado.csv'
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            return [
+                {   title:'calobsAmpliadoTitle',
+                    rows:(
+                        await context.client.query(`select c.periodo, c.calculo, c.producto, p.cluster, c.informante, i.nombreinformante, i.tipoinformante,c.observacion, c.division, c.promobs, 
+                        c.impobs, c.antiguedadconprecio, c.antiguedadsinprecio, c.antiguedadexcluido, c.antiguedadincluido, c.sindatosestacional, v.panel, v.encuestador
+                        , r.visita, r.precio, r.tipoprecio, r.cambio, case when c.antiguedadexcluido>0 then 'X' else null end as excluido
+                        , case when ((z.escierredefinitivoinf = 'S' or z.escierredefinitivofor = 'S') or v.informante is null and c.promobs is not null and vv.informante is null) then 'Inactivo ' else null end as inactivo
+                        , v.razon, ra.valor as marca, r.comentariosrelpre, rt.modalidad
+                        from calobs c
+                        join calculos_def cd on c.calculo = cd.calculo
+                        join productos p on c.producto = p.producto
+                        join informantes i on c.informante = i.informante
+                        LEFT join relpre r on c.periodo = r.periodo and c.informante = r.informante and c.producto = r.producto and c.observacion = r.observacion
+                        LEFT join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
+                        LEFT join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea 
+                        LEFT JOIN razones z ON v.razon = z.razon 
+                        LEFT JOIN forprod fp ON c.producto = fp.producto 
+                        LEFT JOIN formularios formu ON formu.formulario = fp.formulario 
+                        JOIN cvp.forinf fi ON fp.formulario = fi.formulario and c.informante = fi.informante 
+                        LEFT JOIN cvp.relvis vv on c.periodo = vv.periodo and fi.informante = vv.informante and fi.formulario = vv.formulario and vv.ultima_visita
+                        LEFT JOIN (SELECT * from relatr r join atributos a using(atributo) where nombreatributo = 'Marca') ra 
+                        on r.periodo = ra.periodo and r.informante = ra.informante and r.visita = ra.visita and r.observacion = ra.observacion and r.producto = ra.producto
+                        where cd.principal and c.periodo >= $1 and c.periodo <= $2 and p.cluster is distinct from 3 and formu.activo = 'S'
+                        order by c.periodo, c.calculo, c.producto, c.informante, c.observacion, r.visita`, [parameters.periododesde, parameters.periodohasta]).fetchAll()
+                    ).rows
+                }
+            ]
+        }
     }
 ];
 
