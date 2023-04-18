@@ -2459,11 +2459,12 @@ ProceduresIpcba = [
                         r.comentariosrelpre, 
                         r.esvisiblecomentarioendm as ver,
                         r_1.comentariosrelpre_1 as comentariosanterior,                  
-                        r.precionormalizado, 
-                        case when r.ultima_visita is true then null else true end as agregarvisita
+                        r.precionormalizado,
+                        v.panel /*, case when r.ultima_visita is true then null else true end as agregarvisita*/
                  from relpre r
                       inner join productos o on r.producto = o.producto
                       inner join informantes i on r.informante = i.informante
+                      inner join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
                       left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
                       left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
                       left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
