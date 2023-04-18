@@ -2347,7 +2347,9 @@ ProceduresIpcba = [
                         rm.informante, rm.visita, rm.observacion, rm.formulario,
                         rm.atributo, rm.nombreatributo, rm.valor, 
                         r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2, 
-                        rn.atributo as atributo_3, rn.nombreatributo as nombreatributo_3, rn.valor as valor_3,                        rm.comentariosrelpre as comentarios
+                        rn.atributo as atributo_3, rn.nombreatributo as nombreatributo_3, rn.valor as valor_3,
+                        rs.atributo as atributo_4, rs.nombreatributo as nombreatributo_4, rs.valor as valor_4,
+                        rm.comentariosrelpre as comentarios
                         from (select rp.formulario, ra.*, rp.comentariosrelpre, a2.nombreatributo 
                                 from cvp.relpre rp 
                                 join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
@@ -2376,8 +2378,18 @@ ProceduresIpcba = [
                                                   and rp.visita = ra.visita and rp.observacion = ra.observacion
                                 join cvp.atributos a2 on ra.atributo = a2.atributo
                                 where a2.nombreatributo = 'Nombre' and rp.periodo = $1 and t.espositivo = 'S') rn 
-                                   on r.periodo = rn.periodo and r.informante = rn.informante and r.producto = rn.producto 
-                                   and r.observacion = rn.observacion and r.visita = rn.visita`, [parameters.periodo]).fetchAll()
+                                   on rm.periodo = rn.periodo and rm.informante = rn.informante and rm.producto = rn.producto 
+                                   and rm.observacion = rn.observacion and rm.visita = rn.visita
+                            left join 
+                            (select rp.formulario, ra.* , a3.nombreatributo
+                               from cvp.relpre rp 
+                               join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
+                               join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                                  and rp.visita = ra.visita and rp.observacion = ra.observacion
+                               join cvp.atributos a3 on ra.atributo = a3.atributo
+                               where a3.nombreatributo = 'Sabor' and rp.periodo = $1 and t.espositivo = 'S') rs 
+                                  on rm.periodo = rs.periodo and rm.informante = rs.informante and rm.producto = rs.producto 
+                                  and rm.observacion = rs.observacion and rm.visita = rs.visita`, [parameters.periodo]).fetchAll()
                     ).rows
                 }
             ]
