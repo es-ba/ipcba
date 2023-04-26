@@ -2439,7 +2439,7 @@ ProceduresIpcba = [
     {
         action:'relpre_exportar',
         parameters:[
-            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+            {name:'periodo'     , typeName:'text'      , references:'periodos'   },
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
@@ -2452,26 +2452,26 @@ ProceduresIpcba = [
                     rows:(
                         await context.client.query(`select r.periodo, 
                         r.producto,
-                        o.nombreproducto,
-                        o.cluster as pcluster,
+                        o.nombreproducto as productos__nombreproducto,
+                        o.cluster as productos__cluster,
                         r.informante,
-                        i.nombreinformante,
-                        i.tipoinformante as ti,
-                        i.cluster as icluster,
-                        r.formulario as for, 
-                        r.visita as vis, 
-                        r.observacion as obs, 
+                        i.nombreinformante as informantes__nombreinformante,
+                        i.tipoinformante as informantes__tipoinformante,
+                        i.cluster as informantes__cluster,
+                        r.formulario, 
+                        r.visita, 
+                        r.observacion, 
                         r.precio, 
-                        r.tipoprecio as tp, 
+                        r.tipoprecio, 
                         r.cambio, 
-                        CASE WHEN p.periodo is not null THEN 'R' ELSE null END as R,
-                        CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as X, 
+                        CASE WHEN p.periodo is not null THEN 'R' ELSE null END as repregunta,
+                        CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as excluido, 
                         CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 
                              THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
                              ELSE NULL 
-                        END as cpsp,	   
+                        END as cantidadperiodossinprecio,	   
                         r_1.precio_1 as precioanterior, 
-                        r_1.tipoprecio_1 as tpa, 
+                        r_1.tipoprecio_1 as tipoprecioanterior, 
                         CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio 
                              THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
                              ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null 
@@ -2480,15 +2480,16 @@ ProceduresIpcba = [
                                   END 
                         END AS masdatos,
                         r.comentariosrelpre, 
-                        r.esvisiblecomentarioendm as ver,
+                        r.esvisiblecomentarioendm,
                         r_1.comentariosrelpre_1 as comentariosanterior,                  
                         r.precionormalizado,
-                        v.panel /*, case when r.ultima_visita is true then null else true end as agregarvisita*/
+                        case when r.ultima_visita is true then null else true end as agregarvisita,
+                        v.panel
                  from relpre r
                       inner join productos o on r.producto = o.producto
                       inner join informantes i on r.informante = i.informante
                       inner join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
-                      left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
+                      inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario                      left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
                       left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
                       left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
                       left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
@@ -2496,7 +2497,7 @@ ProceduresIpcba = [
                                from relpre
                                where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita 
                                and periodo < r.periodo) re
-                        where r.periodo = $1`, [parameters.periodo]).fetchAll()
+                        where r.periodo = $1 order by fp.orden, r.observacion`, [parameters.periodo]).fetchAll()
                     ).rows
                 }
             ]
