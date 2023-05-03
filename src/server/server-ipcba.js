@@ -889,6 +889,7 @@ NETWORK:
                         {menuType:'proc' , name:'calobs_ampliado_exportar'                        , label:'calobs ampliado'},
         
                     ]},
+                    {menuType:'proc', name:'revisor_exportar'  , label:'revisor'  , onlyVisibleFor:[programador]},
                     //{menuType:'menu', name:'atributos', label:'atributos', onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                     //    {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
                     //]},

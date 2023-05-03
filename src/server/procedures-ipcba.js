@@ -2528,7 +2528,42 @@ ProceduresIpcba = [
                 }
             ]
         }
-    },    
+    },
+    {
+        action:'revisor_exportar',
+        parameters:[
+            {name:'periododesde'     , typeName:'text'   , references:'periodos'   },
+            {name:'periodohasta'     , typeName:'text'   , references:'periodos'   },
+            {name:'producto'         , typeName:'text'   , references:'productos'  },
+            {name:'proceso'          , typeName:'text'   , defaultValue: 'MatrizVPT' /*['MatrizVPT','Matriz','MatrizV']*/ },
+        ],
+        //roles:['programador','coordinador','analista'],
+        roles:['programador'],
+        forExport:{
+            fileName:'revisorExportar.xlsx',
+            csvFileName:'revisorExportar.csv'
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            try{
+                var previusResult = await context.client.query(
+                    `select * from revisorFilasPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
+                ).execute(); //fetchAll();
+                return [
+                    {
+                        title:'revisorResumen '+parameters.producto,
+                        rows: (
+                            await context.client.query(`select * from revisorFilasCrear()`).fetchAll()
+                        ).rows
+                    }
+    
+                ]
+                }catch(err){
+                    console.log(err);
+                    console.log(err.code);
+                    throw err;
+                };
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
