@@ -52,9 +52,10 @@ module.exports = function(context){
             {references:'tipoinf'         , fields:['tipoinformante']  }
         ],
         sql:{
-            from:`(select i.informante, nombreinformante, estado, tipoinformante, direccion, rubro, altamanualperiodo, altamanualpanel, altamanualtarea,
+            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, direccion, rubro, altamanualperiodo, altamanualpanel, altamanualtarea,
                    nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, telcontacto, web, email,  altamanualconfirmar, r.periodo, "cluster", conjuntomuestral
-                     from informantes i 
+                     from informantes i
+                     left join informantes_estado ei on i.informante = ei.informante 
                      left join (select distinct periodo, informante, dense_rank() OVER (PARTITION BY informante ORDER BY periodo desc) as orden
                                   from cvp.relvis) r on i.informante = r.informante 
                     where coalesce(orden, 0) <= 1)`

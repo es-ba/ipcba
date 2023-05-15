@@ -50,9 +50,6 @@ begin
                 AND NOT EXISTS (SELECT * FROM cvp.relvis v
                                  WHERE v.periodo = new.altamanualperiodo AND v.visita = 1 AND v.informante= new.informante 
                                  AND v.formulario=fi.formulario);
-    IF NEW.estado = 'No usado' 
-      THEN NEW.estado = 'Nuevo';
-    END IF;
   end if;
   return new;
 end;

@@ -16,9 +16,9 @@ module.exports = function(context){
         primaryKey:['informante','informanteenmismadireccion'],
         sortColumns:[{column:'informanteenmismadireccion'}],
         sql:{
-            from:`(select i.informante, i2.informante informanteenmismadireccion, i2.nombreinformante, i2.direccion, i2.estado
-                    from infreemp i, informantes i2
-                    where i.direccionalternativa = i2.direccion and i.informante is distinct from i2.informante
+            from:`(select i.informante, i2.informante informanteenmismadireccion, i2.nombreinformante, i2.direccion, ei.estado
+                    from infreemp i, informantes i2, informantes_estado ei
+                    where i.direccionalternativa = i2.direccion and i.informante is distinct from i2.informante and i2.informante = ei.informante
                   )`
         }
     },context);

@@ -173,7 +173,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-moverperiodos.sql
                 - fun-periodo_igual_mes_anno_anterior.sql
                 - fun-obtenerunidadnormalizada.sql
-                - fun-estadoinformante.sql
                 - fun-devolver_mes_anio.sql
                 - fun-formularioshdr.sql
                 - fun-matrizresultados_atributos_fun.sql
@@ -201,7 +200,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-res_cuadro_pp.sql
                 - fun-res_cuadro_up.sql
                 - fun-res_cuadro_vc.sql
-                - trg-actualizar_estado_informante_trg.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
                 - trg-adm_blanqueo_precios_trg.sql
@@ -301,7 +299,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-control_tipoprecio.sql
                 - vw-controlvigencias.sql
                 - vw-desvios.sql
-                - vw-estadoinformantes.sql
                 - vw-forobs.sql
                 - vw-foresp.sql
                 - vw-forobsinf.sql

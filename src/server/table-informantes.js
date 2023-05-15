@@ -15,7 +15,7 @@ module.exports = function(context){
         fields:[
             {name:'informante'                , typeName:'integer' , nullable:false, allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'nombreinformante'          , typeName:'text'    , isName:true   , allow:{update:puedeEditar||puedeEditarMigracion}},
-            {name:'estado'                    , typeName:'text'                    , allow:{update:puedeEditarMigracion}},
+            {name:'estado'                    , typeName:'text'    , allow:{import:false, update:false}, inTable: false              },
             {name:'tipoinformante'            , typeName:'text' , nullable:false, isName:true, title:'TI', allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'rubroclanae'               , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
             {name:'cadena'                    , typeName:'text'                    , allow:{update:puedeEditar||puedeEditarMigracion}},
@@ -73,6 +73,12 @@ module.exports = function(context){
             {references:'muestras'        , fields:['muestra']         },
             {references:'tipoinf'         , fields:['tipoinformante']  },
             {references:'barrios'         , fields:['barrio']          }
-        ]
+        ],
+        sql:{
+            from:`(select i.*, ie.estado
+                   from informantes i left join informantes_estado ie on i.informante = ie.informante 
+                )`,
+                isTable: true,
+            },    
     },context);
 }
