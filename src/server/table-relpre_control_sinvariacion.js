@@ -17,6 +17,7 @@ module.exports = function(context){
             {name:'informante'                   ,typeName:'integer', allow:{update:false}},
             {name:'formulario'                   ,typeName:'integer', allow:{update:false}},
             {name:'producto'                     ,typeName:'text'   , allow:{update:false}},
+            {name:'nombreproducto'               ,typeName:'text'   , allow:{update:false}},
             {name:'visita'                       ,typeName:'integer', allow:{update:false}},
             {name:'observacion'                  ,typeName:'integer', allow:{update:false}},
             {name:'precionormalizado'            ,typeName:'decimal', allow:{update:false}},
@@ -31,12 +32,12 @@ module.exports = function(context){
             {name:'cantprecios'                  ,title:'cantperiodosconigualprecio',typeName:'integer', allow:{update:false}},
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
-        hiddenColumns:['visita','productos__cluster'],
-        foreignKeys:[
-            {references:'productos'  , fields:['producto']},
-        ],        
+        //hiddenColumns:['visita','productos__cluster'],
+        //foreignKeys:[
+        //    {references:'productos'  , fields:['producto']},
+        //],        
         sql:{
-            from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.visita, cv.observacion, cv.panel, cv.tarea,
+            from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.panel, cv.tarea,
                 cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
                 cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario 
                 FROM relpre rp 
@@ -45,5 +46,5 @@ module.exports = function(context){
                 LEFT JOIN tareas t on cv.tarea = t.tarea
                 WHERE t.activa = 'S' and t.operativo = 'C')`
             },
-    },context);
+    });
 }
