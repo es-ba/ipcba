@@ -38,12 +38,11 @@ module.exports = function(context){
         sql:{
             from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.visita, cv.observacion, cv.panel, cv.tarea,
                 cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
-                cv.direccion, cv.telcontacto, cv.web, rt.modalidad, cv.formulario 
+                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario 
                 FROM relpre rp 
-                INNER JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
+                LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
                 cv.visita = rp.visita and cv.observacion = rp.observacion
-                INNER JOIN tareas t on cv.tarea = t.tarea
-                INNER JOIN reltar rt on cv.periodo = rt.periodo and cv.panel = rt.panel and cv.tarea = rt.tarea
+                LEFT JOIN tareas t on cv.tarea = t.tarea
                 WHERE t.activa = 'S' and t.operativo = 'C')`
             },
     },context);

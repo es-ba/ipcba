@@ -80,7 +80,7 @@ Loop
                    else max(case when c.periodo='$$ || vActual || $$' and c.antiguedadexcluido>0 then 'X ' else '' end)||
                         max(case when c.periodo='$$ || vActual || $$' then coalesce(substr(o.estado,1,1)||' ','') else '' end)||
                         string_agg(case when c.periodo='$$ || vActual || $$' and c.antiguedadexcluido>0 then 
-                                    replace(substr(comun.a_texto(ROUND(r.precionormalizado::NUMERIC,6)),
+                                    replace(substr(comun.a_texto(ROUND(r.precionormalizado::NUMERIC,6)),1,
                                                    strpos(comun.a_texto(ROUND(r.precionormalizado::NUMERIC,6)) , '.')+6)::text 
                                             ,'.','$$ || pSeparadorDecimal || $$') 
                                     else null end,';' ORDER BY r.visita) end as $$ || vActual || '_pr'|| 
