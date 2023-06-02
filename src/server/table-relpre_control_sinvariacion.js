@@ -1,6 +1,7 @@
 "use strict";
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='ingresador' || context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recep_gabinete'|| context.user.usu_rol ==='migracion'|| context.user.usu_rol ==='supervisor';
+    var esAnalista = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'relpre_control_sinvariacion',
         tableName:'relpre',
@@ -29,6 +30,7 @@ module.exports = function(context){
             {name:'web'                          ,typeName:'text'   , allow:{update:false}}, 
             {name:'comentariosrelpre'            ,typeName:'text'   , allow:{update:puedeEditar}},
             {name:'esvisiblecomentarioendm'      ,typeName:'boolean', title:'Ver', allow:{update:puedeEditar}},
+            {name:'observaciones'                ,typeName:'text'   , allow:{update:esAnalista}},
             {name:'cantprecios'                  ,title:'cantperiodosconigualprecio',typeName:'integer', allow:{update:false}},
         ],
         primaryKey:['periodo','producto','informante','observacion','visita'],
@@ -39,7 +41,7 @@ module.exports = function(context){
         sql:{
             from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.panel, cv.tarea,
                 cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
-                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario 
+                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario, rp.observaciones 
                 FROM relpre rp 
                 LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
                 cv.visita = rp.visita and cv.observacion = rp.observacion
