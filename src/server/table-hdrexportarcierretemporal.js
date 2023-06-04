@@ -1,9 +1,16 @@
 "use strict";
 
 module.exports = function(context){
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'hdrexportarcierretemporal',
-        dbOrigin:'view',
+        tableName:'relinf',
+        allow:{
+            insert:false,
+            delete:false,
+            update:puedeEditar,
+        },
+        //dbOrigin:'view',
         fields:[
             {name:'periodo'                      , typeName:'text'   },
             {name:'panel'                        , typeName:'integer'},
@@ -36,16 +43,24 @@ module.exports = function(context){
             {name:'rubro'                        , typeName:'integer'},
             {name:'nombrerubro'                  , typeName:'text'   },
             {name:'maxperiodoinformado'          , typeName:'text'   },
-            {name:'codobservaciones'             , typeName:'text', title:'cod'},
-            {name:'observaciones'                , typeName:'text'   },
-            {name:'observaciones_campo'          , typeName:'text'   },
-            {name:'fechasalidahasta'             , typeName:'date'   },
             {name:'modalidad'                    , typeName:'text'   },
             {name:'modalidad_ant'                , typeName:'text'   },
+            {name:'fechasalidahasta'             , typeName:'date' , allow:{update:puedeEditar}, table:'relinf'},
+            {name:'observaciones'                , typeName:'text' , allow:{update:puedeEditar}, table:'relinf'},
+            {name:'codobservaciones'             , typeName:'text' , allow:{update:puedeEditar}, table:'relinf', title:'cod'},
         ],
         primaryKey:['periodo','informante','visita','formularios'],
+        sortColumns:[{column:'periodo'},{column:'informante'},{column:'visita'},{column:'formularios'}],
+        //sql:{
+        //    isTable: false,
+        //},
         sql:{
-            isTable: false,
-        },
+            from:`(select r.periodo, r.informante, r.visita, r.fechasalidahasta, r.observaciones, r.codobservaciones, h.panel, h.tarea, h.fechasalida, h.encuestador, h.nombreencuestador, h.recepcionista, 
+                    h.nombrerecepcionista, h.razon, h.nombreinformante, h.direccion, h.formularios, h.contacto, h.conjuntomuestral, h.ordenhdr, h.distrito, h.fraccion_ant, 
+                    h.comuna, h.fraccion, h.radio, h.manzana, h.depto, h.barrio, h.rubro, h.nombrerubro, h.maxperiodoinformado, h.observaciones_campo, h.modalidad, h.modalidad_ant, 
+                    h.telcontacto, h.web, h.email                
+                   from relinf r join hdrexportarcierretemporal h on r.periodo= h.periodo and r.informante = h.informante and r.visita = h.visita 
+                )`
+            },    
     },context);
 }

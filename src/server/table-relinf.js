@@ -17,6 +17,7 @@ module.exports = function(context){
             {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:false}, inTable:true},
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
         ],
         primaryKey:['periodo','informante','visita'],
         foreignKeys:[
