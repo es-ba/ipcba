@@ -1,4 +1,5 @@
 set search_path = cvp;
+set role cvpowner;
 drop view control_sinvariacion;
 CREATE OR REPLACE view control_sinvariacion AS
 SELECT periodo, informante, nombreinformante, tipoinformante, producto, nombreproducto, visita, observacion, panel, tarea, 
