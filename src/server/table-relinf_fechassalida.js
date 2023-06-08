@@ -20,8 +20,8 @@ module.exports = function(context){
             {name:'razones'                , typeName:'text'                    , allow:{update:false}      },
             {name:'direccion'              , typeName:'text'                    , allow:{update:false}      },
             {name:'rubro'                  , typeName:'integer'                 , allow:{update:false}      },
-            {name:'nombrerubro'            , typeName:'text'                    , allow:{update:false}      },
-            //{name:'otropaneltarea'         , typeName:'text'                    , allow:{update:false}      },
+            //{name:'nombrerubro'            , typeName:'text'                    , allow:{update:false}      },
+            {name:'otropaneltarea'         , typeName:'text'                    , allow:{update:false}      },
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}, table:'relinf'},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}, table:'relinf'},
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, table:'relinf', title:'cod', postInput:'upperSpanish', inTable:true},
@@ -38,23 +38,37 @@ module.exports = function(context){
         foreignKeys:[
             {references:'periodos'   , fields:['periodo']},
             {references:'informantes', fields:['informante']},
+            {references:'rubros'     , fields:['rubro']},
         ],
         sql:{
-            from:`(select r.periodo, v.panel, v.tarea, r.informante, r.visita,
-                    CASE WHEN min(razon) <> max(razon) THEN (min(razon) || '~'::text) || max(razon)
-                         ELSE COALESCE(min(razon) || ''::text, NULL::text)
-                    END AS razones,
-                    i.direccion, r.fechasalidadesde, r.fechasalidahasta, i.rubro, ru.nombrerubro, i.contacto, i.telcontacto, i.web, i.email,
-                    rt.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones
-                   from relinf r
-                   left join informantes i on r.informante = i.informante
-                   left join rubros ru on i.rubro = ru.rubro
-                   left join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita 
-                   left join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea
-                  group by r.periodo, r.informante, v.panel, v.tarea, r.visita, i.direccion, r.fechasalidadesde, r.fechasalidahasta, 
-                   i.rubro, ru.nombrerubro, i.contacto, i.telcontacto, i.web, i.email,
-                   rt.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones
-                 )`,
+            from:`(select v.periodo, v.informante, v.panel, v.tarea, v.visita,  string_agg(distinct z.razones,' ') as razones,
+            i.direccion, i.rubro, case when cant>1 then otropaneltarea else null end as otropaneltarea,
+            r.fechasalidadesde, r.fechasalidahasta, i.contacto, i.telcontacto, i.web, i.email, z.modalidad,
+            r.observaciones, r.observaciones_campo, r.codobservaciones
+            from relvis v 
+            join relinf r on v.periodo = r.periodo and v.informante = r.informante and v.visita = r.visita
+            left join informantes i on r.informante = i.informante
+            left join
+               (select periodo, informante, visita, count(*) cant,
+               string_agg ('Panel '||panel||' , '||'Tarea '||tarea||coalesce(' Raz. '||razon,''), chr(10)
+                         ORDER BY 'Panel '||panel||' , '||'Tarea '||tarea||coalesce(' Raz. '||razon,'')) otropaneltarea,
+               string_agg(q.razon,' ') as razones,
+               CASE WHEN min(modalidad) <> max(modalidad) THEN (min(modalidad) || '~') || max(modalidad)
+               ELSE COALESCE(min(modalidad) || '', NULL)
+               END AS modalidad
+               from
+                    (select v.periodo, informante, visita, v.panel, v.tarea, t.modalidad, 
+                        CASE WHEN min(razon) <> max(razon) THEN (min(razon) || '~') || max(razon)
+                           ELSE COALESCE(min(razon) || '', NULL)
+                        END AS razon
+                       from relvis v join reltar t on v.periodo = t.periodo and v.panel = t.panel and v.tarea = t.tarea
+                       group by v.periodo, informante, visita, v.panel, v.tarea, modalidad) q
+               group by periodo, informante, visita) z
+            on r.periodo = z.periodo and r.informante = Z.informante and r.visita = z.visita
+            group by v.periodo, v.informante, v.panel, v.tarea, v.visita,
+            i.direccion, i.rubro, case when cant>1 then otropaneltarea else null end,
+            r.fechasalidadesde, r.fechasalidahasta, i.contacto, i.telcontacto, i.web, i.email, z.modalidad,
+            r.observaciones, r.observaciones_campo, r.codobservaciones)`,
             },
     },context);
 }
