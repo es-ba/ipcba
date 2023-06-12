@@ -10,7 +10,6 @@ module.exports = function(context){
             delete:false,
             update:puedeEditar,
         },
-        //dbOrigin:'view',
         fields:[
             {name:'periodo'                      , typeName:'text'   },
             {name:'panel'                        , typeName:'integer'},
@@ -43,24 +42,22 @@ module.exports = function(context){
             {name:'rubro'                        , typeName:'integer'},
             {name:'nombrerubro'                  , typeName:'text'   },
             {name:'maxperiodoinformado'          , typeName:'text'   },
-            {name:'modalidad'                    , typeName:'text'   },
-            {name:'modalidad_ant'                , typeName:'text'   },
-            {name:'fechasalidahasta'             , typeName:'date' , allow:{update:puedeEditar}, table:'relinf'},
-            {name:'observaciones'                , typeName:'text' , allow:{update:puedeEditar}, table:'relinf'},
-            {name:'codobservaciones'             , typeName:'text' , allow:{update:puedeEditar}, table:'relinf', title:'cod'},
+            {name:'codobservaciones'             , typeName:'text', allow:{update:false}, title:'cod'},
+            {name:'observaciones'                , typeName:'text', allow:{update:false}},
+            {name:'observaciones_campo'          , typeName:'text', allow:{update:false}},
+            {name:'fechasalidahasta'             , typeName:'date', allow:{update:false}},
+            {name:'modalidad'                    , typeName:'text', allow:{update:false}},
+            {name:'modalidad_ant'                , typeName:'text', allow:{update:false}},
+            {name:'recuperos'                    , typeName:'text' , allow:{update:puedeEditar}, table:'relinf'},
         ],
         primaryKey:['periodo','informante','visita','formularios'],
-        sortColumns:[{column:'periodo'},{column:'informante'},{column:'visita'},{column:'formularios'}],
-        //sql:{
-        //    isTable: false,
-        //},
         sql:{
             from:`(select r.periodo, r.informante, r.visita, r.fechasalidahasta, r.observaciones, r.codobservaciones, h.panel, h.tarea, h.fechasalida, h.encuestador, h.nombreencuestador, h.recepcionista, 
                     h.nombrerecepcionista, h.razon, h.nombreinformante, h.direccion, h.formularios, h.contacto, h.conjuntomuestral, h.ordenhdr, h.distrito, h.fraccion_ant, 
                     h.comuna, h.fraccion, h.radio, h.manzana, h.depto, h.barrio, h.rubro, h.nombrerubro, h.maxperiodoinformado, h.observaciones_campo, h.modalidad, h.modalidad_ant, 
-                    h.telcontacto, h.web, h.email                
-                   from relinf r join hdrexportarcierretemporal h on r.periodo= h.periodo and r.informante = h.informante and r.visita = h.visita 
+                    h.telcontacto, h.web, h.email, r.recuperos                
+                    from relinf r join hdrexportarcierretemporal h on r.periodo= h.periodo and r.informante = h.informante and r.visita = h.visita 
                 )`
-            },    
-    },context);
+            },
+        },context);
 }

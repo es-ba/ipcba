@@ -18,6 +18,7 @@ module.exports = function(context){
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'recuperos'              , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
         ],
         primaryKey:['periodo','informante','visita'],
         foreignKeys:[
