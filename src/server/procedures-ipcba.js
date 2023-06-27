@@ -2547,10 +2547,19 @@ ProceduresIpcba = [
             try{
                 var previusResult = await context.client.query(
                     `select * from revisorFilasPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
-                ).execute(); //fetchAll();
+                ).execute(); 
+                var result = await context.client.query(
+                    `select * from revisorResumenPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
+                ).execute(); 
                 return [
                     {
                         title:'revisorResumen '+parameters.producto,
+                        rows: (
+                            await context.client.query(`select * from revisorResumenCrear()`).fetchAll()
+                        ).rows
+                    },
+                    {
+                        title:'revisorFilas '+parameters.producto,
                         rows: (
                             await context.client.query(`select * from revisorFilasCrear()`).fetchAll()
                         ).rows
