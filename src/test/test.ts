@@ -21,6 +21,7 @@ var tablas:TablaInfo[] = ([
     {nombre:'relpre'      , whereDelete:wherePeriodo},
     {nombre:'relvis'      , whereDelete:wherePeriodo},
     {nombre:'relinf'      , whereDelete:wherePeriodo},
+    {nombre:'relpantarinf', whereDelete:wherePeriodo},
     {nombre:'reltar'      , whereDelete:wherePeriodo},
     {nombre:'relpan'      , whereDelete:wherePeriodo},
     {nombre:'relmon'      , whereDelete:wherePeriodo},

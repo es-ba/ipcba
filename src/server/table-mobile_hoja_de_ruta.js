@@ -65,9 +65,9 @@ module.exports = function(context){
                         left join (select periodo, informante, visita, formulario, (sum(case when tipoprecio is null then 1 else 0 end))::text as faltan, (sum(case when true = true then 1 else 0 end))::text as adv, count(*)::text as prod
                             from relpre
                             group by periodo, informante, visita, formulario) rp on v.periodo = rp.periodo and v.informante = rp.informante and v.visita = rp.visita and v.formulario = rp.formulario
-                        left join (select periodo, informante, visita, string_agg(observaciones,' | ') observaciones 
-                            from  relinf
-                            group by periodo, informante, visita) ri on v.periodo = ri.periodo and v.informante = ri.informante and v.visita = ri.visita,
+                        left join (select periodo, informante, visita, panel, tarea, string_agg(observaciones,' | ') observaciones 
+                            from  relpantarinf
+                            group by periodo, informante, visita, panel, tarea) ri on v.periodo = ri.periodo and v.informante = ri.informante and v.visita = ri.visita and v.panel= ri.panel and v.tarea = ri.tarea,
                         lateral(
                          SELECT 
                         CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado

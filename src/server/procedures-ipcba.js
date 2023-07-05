@@ -471,7 +471,7 @@ function dm2CrearQueries(parameters){
                 max_periodos.maxperiodoinformado,
                 ri.observaciones as observacionesinformante,
                 ri.observaciones_campo
-            FROM relvis rvi INNER JOIN informantes USING (informante) LEFT JOIN relinf ri USING (periodo, informante, visita),
+            FROM relvis rvi INNER JOIN informantes USING (informante) LEFT JOIN relpantarinf ri USING (periodo, informante, visita, panel, tarea),
             lateral(
                 SELECT 
                     CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado
@@ -1886,11 +1886,11 @@ ProceduresIpcba = [
                         try{
                             console.log("informante", informante)
                             await context.client.query(`
-                                update relinf 
+                                update relpantarinf 
                                     set observaciones_campo = $1
-                                    where periodo = $2 and informante = $3 and visita = $4 --pk verificada
+                                    where periodo = $2 and informante = $3 and visita = $4 and panel = $5 and tarea= $6 --pk verificada
                                     returning true`
-                                ,[informante.observaciones_campo, hoja_de_ruta.periodo, informante.informante, informante.visita]
+                                ,[informante.observaciones_campo, hoja_de_ruta.periodo, informante.informante, informante.visita, hoja_de_ruta.panel, hoja_de_ruta.tarea]
                             ).fetchUniqueRow()
                         }catch(err){
                             throw new Error('Error al actualizar las observaciones para el informante: ' + informante.informante + ". " + err.message);
