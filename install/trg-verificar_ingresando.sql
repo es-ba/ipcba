@@ -215,3 +215,9 @@ CREATE TRIGGER relatr_abi_trg
   ON relatr
   FOR EACH ROW
   EXECUTE PROCEDURE verificar_ingresando();
+
+CREATE TRIGGER relpantarinf_abi_trg
+  BEFORE INSERT OR UPDATE OR DELETE
+  ON relpantarinf
+  FOR EACH ROW
+  EXECUTE PROCEDURE verificar_ingresando();

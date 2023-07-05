@@ -16,7 +16,7 @@ BEGIN
   else
     RAISE EXCEPTION 'operacion desconocida';
   end if;
-  /*
+
   if 'con historico'='sin historico' then
     execute 'insert into ' || tg_table_schema || '.his_' || tg_table_name || 
       ' select *, ''' || user || ''', ''' || vOpe || ''' ' || 
@@ -50,12 +50,14 @@ BEGIN
     elsif tg_table_name='prerep' then
       INSERT INTO his.prerep SELECT vUsuario,vOpe,* FROM cvp.prerep WHERE periodo=OLD.periodo AND producto=OLD.producto AND informante=OLD.informante; 
     elsif tg_table_name='relinf' then
-      INSERT INTO his.relinf SELECT vUsuario,vOpe,* FROM cvp.relinf WHERE periodo=OLD.periodo AND informante=OLD.informante and visita=OLD.visita;
+      INSERT INTO his.relinf SELECT vUsuario,vOpe,periodo, informante, visita, observaciones, modi_usu, modi_fec, modi_ope, null as panel, null as tarea, fechasalidadesde, fechasalidahasta FROM cvp.relinf WHERE periodo=OLD.periodo AND informante=OLD.informante and visita=OLD.visita;
+    elsif tg_table_name='relpantarinf' then
+      INSERT INTO his.relpantarinf SELECT vUsuario,vOpe,* FROM cvp.relpantarinf WHERE periodo=OLD.periodo AND informante=OLD.informante and visita=OLD.visita and panel=OLD.panel and tarea=OLD.tarea;
     --else
       --RAISE EXCEPTION 'Auditoria de tabla % no contemplada', tg_table_name ;
     end if;
   end if;
-  */
+ 
   if TG_OP='DELETE' then
     RETURN OLD;
   else
@@ -65,7 +67,7 @@ BEGIN
     RETURN NEW;
   end if;
 END;
-$BODY$
+$BODY$;
   LANGUAGE 'plpgsql' VOLATILE SECURITY DEFINER;
 
 CREATE TRIGGER RelTar_modi_trg
@@ -119,5 +121,11 @@ CREATE TRIGGER NovProd_modi_trg
 CREATE TRIGGER relsup_modi_trg
   BEFORE INSERT OR UPDATE OR DELETE
   ON relsup
+  FOR EACH ROW
+  EXECUTE PROCEDURE modi_trg();
+
+CREATE TRIGGER relpantarinf_modi_trg
+  BEFORE INSERT OR UPDATE OR DELETE
+  ON relpantarinf
   FOR EACH ROW
   EXECUTE PROCEDURE modi_trg();

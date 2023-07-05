@@ -9,6 +9,7 @@ var cookieParser = require('cookie-parser')
 
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
+var html = require('js-to-html').html;
 
 const APP_DM_VERSION="#23-04-21";
 class AppIpcba extends backendPlus.AppBackend{
@@ -454,6 +455,44 @@ class AppIpcba extends backendPlus.AppBackend{
                 console.log(err);
                 MiniTools.serveErr(req, res, next)(err);
             }
+        });
+        mainApp.get(baseUrl+`/planificacion/:periodo/:panel/:tarea`, async function(req, res, next){
+            var {user, useragent} = req;
+            var {user} = req;
+            if(!user){
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion/${req.params.periodo}/${req.params.panel}/${req.params.tarea}`)
+            }
+            await be.inDbClient(req, async function(client){
+                try{
+                    const result = (await client.query(`
+                        SELECT * 
+                            FROM reltar
+                            WHERE periodo = $1 AND panel = $2 AND tarea = $3
+                        `, [req.params.periodo, req.params.panel, req.params.tarea]
+                    ).fetchUniqueRow()).row;
+                    
+                    var htmlMain = html.html({},[
+                        html.head([
+                            html.title("planificacion"),
+                            html.meta({charset:"utf-8"}),
+                            html.meta({name:"format-detection", content:"telephone=no"}),
+                        ].concat(
+                            html.link({href: baseUrl+'/css/planificacion.css', rel: "stylesheet"})
+                        )),
+                        html.body({},[
+                            html.div({id: "total-layout"},[
+                                html.pre({id:'resultado'},[JSON.stringify(result)])
+                            ]),
+                        ])
+                    ]);
+                    console.log(JSON.stringify(htmlMain));
+                    MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
+                    //MiniTools.serveText(pre.toHtmlText, 'html')(req,res);
+                }catch(err){
+                    console.log(err);
+                    MiniTools.serveErr(req, res, next)(err);
+                }
+            })
         });
         super.addSchrödingerServices(mainApp, baseUrl);
     }
@@ -1205,6 +1244,7 @@ NETWORK:
             {name: 'reltar', path: __dirname},
             {name: 'reltar_candidatas', path: __dirname},
             {name: 'relinf', path: __dirname},
+            {name: 'relpantarinf', path: __dirname},
             {name: 'relinf_observaciones', path: __dirname},
             {name: 'calprodresp', path: __dirname},
             {name: 'cuadros', path: __dirname},

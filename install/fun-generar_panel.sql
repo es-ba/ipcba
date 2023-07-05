@@ -3,10 +3,10 @@
 -- DROP FUNCTION cvp.generar_panel(text, integer, date, timestamp without time zone);
 
 CREATE OR REPLACE FUNCTION cvp.generar_panel(
-	pperiodo text,
-	ppanel integer,
-	pfechasalida date,
-	pfechageneracionpanel timestamp without time zone)
+    pperiodo text,
+    ppanel integer,
+    pfechasalida date,
+    pfechageneracionpanel timestamp without time zone)
     RETURNS text
     LANGUAGE 'plpgsql'
     VOLATILE SECURITY DEFINER PARALLEL UNSAFE
@@ -15,6 +15,8 @@ DECLARE
   f_hoy date= current_date;
 BEGIN
   /*
+   V230705
+      genera filas para relpantarinf
    V190117
       genera el encuestador a partir de la tabla reltar
    V161201
@@ -79,7 +81,7 @@ BEGIN
           LEFT JOIN cvp.reltar x ON x.periodo= p.periodo AND x.panel=p.panel AND x.tarea= t.tarea --pk verificada
         WHERE p.periodo=pperiodo AND p.panel= ppanel AND a.activa = 'S' --tareas activas
               AND x.periodo IS NULL
-        GROUP BY p.periodo, p.panel, t.tarea, a.encuestador, x_1.modalidad
+        GROUP BY p.periodo, p.panel, t.tarea, a.encuestador, x_1.modalidad, x_1.visiblepararelevamiento
         HAVING string_agg(COALESCE(z.escierredefinitivoinf,'N'),'') like '%N%' AND string_agg(COALESCE(z.escierredefinitivofor,'N'),'') like'%N%'
         ORDER BY p.periodo, p.panel, t.tarea;
   --11/08/2020: tareas nuevas (agregadas a pantar)
@@ -89,7 +91,7 @@ BEGIN
           INNER JOIN cvp.tareas a ON a.tarea= t.tarea -- pk verificada
           LEFT JOIN cvp.reltar x ON x.periodo= pperiodo AND x.panel=t.panel AND x.tarea= t.tarea --pk verificada
         WHERE t.panel= ppanel AND a.activa = 'S' --tareas activas
-		      AND t.activa = 'S' --paneles-tarea activas
+              AND t.activa = 'S' --paneles-tarea activas
               AND x.periodo IS NULL
         ORDER BY t.panel, t.tarea;
 
@@ -128,11 +130,19 @@ BEGIN
         AND fi.altaManualPeriodo=pPeriodo
         AND i.altaManualPeriodo=pPeriodo
         AND i.altaManualPanel=pPanel;
-		
+        
   INSERT INTO cvp.relinf(periodo, informante, visita)
     SELECT DISTINCT v.periodo, v.informante, v.visita
       FROM cvp.relvis v
       LEFT JOIN cvp.relinf i on v.periodo = i.periodo and v.informante = i.informante and v.visita = i.visita 
+    WHERE v.periodo = pPeriodo
+      AND v.panel = ppanel
+      AND i.periodo IS NULL;
+
+  INSERT INTO cvp.relpantarinf(periodo, informante, visita, panel, tarea)
+    SELECT v.periodo, v.informante, v.visita, v.panel, v.tarea
+      FROM cvp.relvis v
+      LEFT JOIN cvp.relpantarinf i on v.periodo = i.periodo and v.informante = i.informante and v.visita = i.visita and v.panel = i.panel and v.tarea = i.tarea 
     WHERE v.periodo = pPeriodo
       AND v.panel = ppanel
       AND i.periodo IS NULL;
