@@ -4,7 +4,7 @@ module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='jefe_campo' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador'|| context.user.usu_rol ==='supervisor';
     return context.be.tableDefAdapt({
         name:'relinf_observaciones',
-        tableName: 'relinf',
+        tableName: 'relpantarinf',
         title: 'hoja de ruta',
         allow:{
             insert:false,
@@ -30,39 +30,18 @@ module.exports = function(context){
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
         ],
-        primaryKey:['periodo','informante','visita'],
+        primaryKey:['periodo','informante','visita','panel','tarea'],
         foreignKeys:[
             {references:'periodos'   , fields:['periodo']},
             {references:'informantes', fields:['informante']},
         ],
         hiddenColumns:['cluster'],
         sql:{
-            from:`(select r.periodo, max(CASE WHEN h.pos = 1 THEN h.panel END) AS panel , max(CASE WHEN h.pos = 1 THEN h.tarea END) AS tarea, 
-                       r.informante, string_agg (h.razon,'/' order by panel, tarea) as razon, r.visita, h.direccion, 
-                       CASE WHEN min(h.pos) <> max(h.pos) THEN 
-                         string_agg ('Panel '||h.panel||' , '||'Tarea '||h.tarea||':'||chr(10)||h.formularioshdr,chr(10) ORDER BY panel,tarea) 
-                       ELSE
-                         string_agg (h.formularioshdr,chr(10) ORDER BY panel,tarea)
-                       END as formularios, h.contacto, h.telcontacto, h.web, h.email, h.ordenhdr,
-                       CASE WHEN min(h.pos) <> max(h.pos) THEN 
-                         string_agg ('Panel '||h.panel||' , '||'Tarea '||h.tarea||':'||chr(10)||h.maxperiodoinformado,chr(10) ORDER BY panel,tarea) 
-                       ELSE
-                         string_agg (h.maxperiodoinformado,chr(10) ORDER BY panel,tarea)
-                       END as maxperiodoinformado,
-                       CASE WHEN min(h.pos) <> max(h.pos) THEN 
-                         string_agg ('Panel '||h.panel||' , '||'Tarea '||h.tarea||':'||chr(10)||h.modalidad,chr(10) ORDER BY panel,tarea) 
-                       ELSE
-                         string_agg (h.modalidad,chr(10) ORDER BY panel,tarea)
-                       END as modalidad,                       
-                       r.observaciones, r.observaciones_campo, r.codobservaciones
-                   from relinf r 
-                   left join (SELECT periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, 
-                                modalidad, row_number() OVER (PARTITION BY periodo, informante, visita) as pos
-                              from hdrexportarteorica 
-                              group by periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, modalidad
-                              order by periodo, informante, visita, direccion, contacto, telcontacto, web, email, ordenhdr, panel, tarea, maxperiodoinformado, razon, formularioshdr, modalidad) h 
-                              on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita
-                    group by r.periodo, r.informante, r.visita, h.direccion, h.contacto, h.telcontacto, h.web, h.email, h.ordenhdr
+            from:`(select r.periodo, r.panel , r.tarea, r.informante, h.razon, r.visita, h.direccion, h.formularioshdr formularios, h.contacto, 
+                        h.telcontacto, h.web, h.email, h.ordenhdr, h.maxperiodoinformado, h.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones
+                   from relpantarinf r 
+                       left join hdrexportarteorica h 
+                       on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita and r.panel = h.panel and r.tarea = h.tarea
                 )`,
             },
     },context);

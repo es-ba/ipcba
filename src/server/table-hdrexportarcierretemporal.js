@@ -4,7 +4,8 @@ module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     return context.be.tableDefAdapt({
         name:'hdrexportarcierretemporal',
-        tableName:'relinf',
+        tableName:'relpantarinf',
+        editable:puedeEditar,
         allow:{
             insert:false,
             delete:false,
@@ -48,15 +49,16 @@ module.exports = function(context){
             {name:'fechasalidahasta'             , typeName:'date', allow:{update:false}},
             {name:'modalidad'                    , typeName:'text', allow:{update:false}},
             {name:'modalidad_ant'                , typeName:'text', allow:{update:false}},
-            {name:'recuperos'                    , typeName:'text' , allow:{update:puedeEditar}, table:'relinf'},
+            {name:'recuperos'                    , typeName:'text', allow:{update:puedeEditar}},
         ],
-        primaryKey:['periodo','informante','visita','formularios'],
+        primaryKey:['periodo','informante','visita','panel','tarea'],
         sql:{
-            from:`(select r.periodo, r.informante, r.visita, r.fechasalidahasta, r.observaciones, r.codobservaciones, h.panel, h.tarea, h.fechasalida, h.encuestador, h.nombreencuestador, h.recepcionista, 
+            from:`(select r.periodo, r.informante, r.visita, r.fechasalidahasta, r.observaciones, r.codobservaciones, r.panel, r.tarea, h.fechasalida, h.encuestador, h.nombreencuestador, h.recepcionista, 
                     h.nombrerecepcionista, h.razon, h.nombreinformante, h.direccion, h.formularios, h.contacto, h.conjuntomuestral, h.ordenhdr, h.distrito, h.fraccion_ant, 
                     h.comuna, h.fraccion, h.radio, h.manzana, h.depto, h.barrio, h.rubro, h.nombrerubro, h.maxperiodoinformado, h.observaciones_campo, h.modalidad, h.modalidad_ant, 
                     h.telcontacto, h.web, h.email, r.recuperos                
-                    from relinf r join hdrexportarcierretemporal h on r.periodo= h.periodo and r.informante = h.informante and r.visita = h.visita 
+                    from relpantarinf r 
+                    join hdrexportarcierretemporal h on r.periodo= h.periodo and r.informante = h.informante and r.visita = h.visita and r.panel = h.panel and r.tarea = h.tarea
                 )`
             },
         },context);

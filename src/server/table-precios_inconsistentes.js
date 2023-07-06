@@ -31,7 +31,7 @@ module.exports = function(context){
         sql:{from:`(select v.periodo, v.informante, i.nombreinformante, v.panel, v.tarea, v.formulario, r.producto, v.visita, r.observacion, r.tipoprecio
             from relvis v
             left join informantes i on v.informante = i.informante
-            left join relinf ri on v.periodo = ri.periodo and v.informante = ri.informante and v.visita = ri.visita
+            left join relpantarinf ri on v.periodo = ri.periodo and v.informante = ri.informante and v.visita = ri.visita and v.panel = ri.panel and v.tarea = ri.tarea 
             left join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.panel = rt.tarea
             left join relpan rp on v.periodo = rp.periodo and v.panel = rp.panel
             left join razones z on v.razon = z.razon

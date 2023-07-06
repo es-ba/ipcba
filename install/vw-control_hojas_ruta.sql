@@ -10,7 +10,7 @@ SELECT v.periodo, v.panel, v.tarea, v.fechasalida, v.informante,
    FROM cvp.relvis v
    JOIN cvp.informantes i ON v.informante = i.informante
    JOIN cvp.formularios f ON v.formulario = f.formulario
-   LEFT JOIN cvp.relinf ri ON v.periodo = ri.periodo AND v.informante = ri.informante AND v.visita = ri.visita
+   LEFT JOIN cvp.relpantarinf ri ON v.periodo = ri.periodo AND v.informante = ri.informante AND v.visita = ri.visita and v.panel = ri.panel and v.tarea = ri.tarea
    LEFT JOIN cvp.reltar rt ON v.periodo = rt.periodo AND v.panel = rt.panel AND v.tarea = rt.tarea
    LEFT JOIN cvp.personal p ON v.encuestador = p.persona
    LEFT JOIN cvp.personal s ON v.recepcionista = s.persona
