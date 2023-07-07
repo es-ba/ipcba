@@ -21,7 +21,7 @@ module.exports = function(context){
             {name:'direccion'              , typeName:'text'                    , allow:{update:false}      },
             {name:'rubro'                  , typeName:'integer'                 , allow:{update:false}      },
             {name:'nombrerubro'            , typeName:'text'                    , allow:{update:false}      },
-            //{name:'otropaneltarea'         , typeName:'text'                    , allow:{update:false}      },
+            {name:'otropaneltarea'         , typeName:'text'                    , allow:{update:false}      },
             {name:'fechasalidadesde'       , typeName:'date'                    , allow:{update:puedeEditar}},
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}},
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, title:'cod', postInput:'upperSpanish', inTable:true},
@@ -41,22 +41,24 @@ module.exports = function(context){
         ],
         sql:{
             from:`(select r.periodo, r.panel , r.tarea, r.informante, r.visita, v.razon razones, i.direccion, r.fechasalidadesde, r.fechasalidahasta, i.rubro, ru.nombrerubro, 
-                          i.contacto, i.telcontacto, i.web, i.email, v.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones
+                    i.contacto, i.telcontacto, i.web, i.email, rt.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones, otropaneltarea
                     from relpantarinf r
+                    left join reltar rt on r.periodo = rt.periodo and r.panel = rt.panel and r.tarea = rt.tarea
                     left join informantes i on r.informante = i.informante
                     left join rubros ru on i.rubro = ru.rubro
-                    left join (select rv.periodo, informante, visita, rv.panel, rv.tarea,
-                                CASE WHEN min(razon) <> max(razon) THEN (min(razon) || '~'::text) || max(razon)
-                                ELSE COALESCE(min(razon) || ''::text, NULL::text)
-                                END AS razon,
-                                CASE WHEN min(modalidad) <> max(modalidad) THEN (min(modalidad) || '~') || max(modalidad)
-                                ELSE COALESCE(min(modalidad) || '', NULL::text)
-                                END AS modalidad
-                               from relvis rv
-                               left join reltar rt on rv.periodo = rt.periodo and rv.panel = rt.panel and rv.tarea = rt.tarea
-                               group by rv.periodo, informante, visita, rv.panel, rv.tarea
-                               order by rv.periodo, informante, visita, rv.panel, rv.tarea) v 
+                    left join (select periodo, informante, visita, panel, tarea,
+                               CASE WHEN min(razon) <> max(razon) THEN (min(razon) || '~'::text) || max(razon)
+                               ELSE COALESCE(min(razon) || ''::text, NULL::text)
+                               END AS razon
+                               from relvis
+                               group by periodo, informante, visita, panel, tarea
+                               order by periodo, informante, visita, panel, tarea) v 
                                on r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita and r.panel = v.panel and r.tarea = v.tarea
+                    left join (select periodo, informante, visita, string_agg ('Panel '||panel||' , '||'Tarea '||tarea, chr(10) order by panel,tarea) otropaneltarea
+                               from relpantarinf
+                               group by periodo, informante, visita
+                               having count(*) > 1) o 
+                               on r.periodo = o.periodo and r.informante = o.informante and r.visita = o.visita
                     )`,
             },
     },context);
