@@ -29,6 +29,7 @@ module.exports = function(context){
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, title:'cod', postInput:'upperSpanish', inTable:true},
             {name:'observaciones'          , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'observaciones_campo'    , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'recuperos'              , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
         ],
         primaryKey:['periodo','informante','visita','panel','tarea'],
         foreignKeys:[
@@ -38,7 +39,7 @@ module.exports = function(context){
         hiddenColumns:['cluster'],
         sql:{
             from:`(select r.periodo, r.panel , r.tarea, r.informante, h.razon, r.visita, h.direccion, h.formularioshdr formularios, h.contacto, 
-                        h.telcontacto, h.web, h.email, h.ordenhdr, h.maxperiodoinformado, h.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones
+                        h.telcontacto, h.web, h.email, h.ordenhdr, h.maxperiodoinformado, h.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones, r.recuperos
                    from relpantarinf r 
                        left join hdrexportarteorica h 
                        on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita and r.panel = h.panel and r.tarea = h.tarea
