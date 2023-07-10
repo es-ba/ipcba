@@ -10,7 +10,7 @@ FROM (SELECT p.periodo, p.informante, i.nombreinformante, i.tipoinformante, p.pr
       FROM cvp.relpre p
       JOIN cvp.relvis v ON p.periodo = v.periodo AND p.informante = v.informante AND p.visita = v.visita AND p.formulario = v.formulario
       JOIN cvp.reltar t ON p.periodo = t.periodo AND v.panel = t.panel AND v.tarea = t.tarea
-      JOIN (SELECT periodo, cvp.moverperiodos(periodo, -5) as perreferencia
+      JOIN (SELECT periodo, cvp.moverperiodos(periodo, -3) as perreferencia
          FROM cvp.periodos 
          WHERE ingresando = 'S' OR periodo = (SELECT MAX(periodo) FROM cvp.periodos WHERE ingresando = 'N')) per ON p.periodo = per.periodo
       JOIN cvp.relpre pant ON p.informante =pant.informante AND p.producto = pant.producto AND p.visita = pant.visita AND p.observacion = pant.observacion
