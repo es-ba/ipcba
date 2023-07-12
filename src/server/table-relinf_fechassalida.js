@@ -39,6 +39,9 @@ module.exports = function(context){
             {references:'periodos'   , fields:['periodo']},
             {references:'informantes', fields:['informante']},
         ],
+        detailTables:[
+            {table:'relvis', abr:'VIS', label:'visitas', fields:['periodo','informante','visita','panel','tarea']},
+        ],        
         sql:{
             from:`(select r.periodo, r.panel , r.tarea, r.informante, r.visita, v.razon razones, i.direccion, r.fechasalidadesde, r.fechasalidahasta, i.rubro, ru.nombrerubro, 
                     i.contacto, i.telcontacto, i.web, i.email, rt.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones, otropaneltarea
