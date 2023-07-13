@@ -470,6 +470,6 @@ FROM (SELECT p.periodo, p.informante, i.nombreinformante, i.tipoinformante, p.pr
       WHERE p.precionormalizado is not null) q 
 GROUP BY periodo, informante, nombreinformante, tipoinformante, producto, nombreproducto, visita, observacion, panel, tarea, recepcionista, precionormalizado,
 tipoprecio, comentariosrelpre, formulario, direccion, telcontacto, web, modalidad
-HAVING MIN(precioparacontar)=MAX(precioparacontar) AND SUM(cantprecio) >= 6
+HAVING MIN(precioparacontar)=MAX(precioparacontar) AND SUM(cantprecio) >= 4
 ORDER BY periodo, informante, nombreinformante, tipoinformante, producto, nombreproducto, visita, observacion, panel, tarea, recepcionista, precionormalizado,
 tipoprecio, comentariosrelpre, formulario, direccion, telcontacto, web, modalidad;
