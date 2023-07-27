@@ -456,6 +456,104 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
+        mainApp.get(baseUrl+`/planificacion/:periodo/:encuestador`, async function(req, res, next){
+            var {user, useragent} = req;
+            var {user} = req;
+            if(!user){
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion/${req.params.periodo}/${req.params.encuestador}`)
+            }
+            await be.inDbClient(req, async function(client){
+                try{
+                    
+                    const result = (await client.query(`
+                        SELECT periodo, panel, tarea, modalidad, string_agg(submod_informantes, ';') informantes, encuestador, encuestadortitular,
+                        string_agg(direcciones, ',') direcciones, fechasalidadesde, fechasalidahasta 
+                            FROM (SELECT t.periodo, t.panel, t.tarea, t.modalidad, t.encuestador, i.tipoinformante||':'||count(distinct informante) as submod_informantes, 
+                                    i.tipoinformante||':'||count(*) as submod_formularios,
+                                    string_agg(distinct (CASE WHEN modalidad = 'PRESENCIAL' THEN direccion ELSE NULL END),', ') direcciones,
+                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
+                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida) fechasalidahasta,
+                                    concat(nombre, concat(' ', apellido)) as encuestadortitular
+                                    FROM reltar t
+                                    JOIN personal e on t.encuestador = e.persona
+                                    JOIN relpan p using (periodo,panel)
+                                    JOIN relvis v using (periodo, panel, tarea) 
+                                    JOIN informantes i using(informante)
+                                    GROUP BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador,
+                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
+                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
+                                    concat(nombre, concat(' ', apellido))
+                                    ORDER BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador,
+                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
+                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
+                                    concat(nombre, concat(' ', apellido))) a
+                            WHERE periodo = $1 and encuestador = $2
+                            GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular
+                            ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular`
+                            , [req.params.periodo, req.params.encuestador]
+                    ).fetchAll());
+
+                    //console.log ('filas:', result.rowCount);
+                    var htmlBody = [];
+                    var rowTable = [];
+                    rowTable.push(html.tr([html.td(['periodo']),
+                    html.td(['panel']),
+                    html.td(['tarea']),
+                    html.td(['encuestador titular']),
+                    html.td(['modalidad']),
+                    html.td(['informantes']),
+                    //html.td(['encuestador']),
+                    html.td(['direcciones']),
+                    html.td(['fecha desde']),
+                    html.td(['fecha hasta']),
+                    ],)
+                    );
+                    for (var j = 0; j < result.rowCount; j++) {
+                       rowTable.push(html.tr([html.td([result.rows[j].periodo]),
+                                              html.td([result.rows[j].panel]),
+                                              html.td([result.rows[j].tarea]),
+                                              html.td([result.rows[j].encuestadortitular]),
+                                              html.td([result.rows[j].modalidad]),
+                                              html.td([result.rows[j].informantes]),
+                                              //html.td([result.rows[j].encuestador]),
+                                              html.td([result.rows[j].direcciones]),
+                                              html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
+                                              html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
+                                             ],
+                                            )
+                                    )
+                    }
+                    htmlBody.push(html.table(rowTable));
+                      
+                    var htmlMain = html.html({},[
+                        html.head([
+                            html.title("planificacion"),
+                            html.meta({charset:"utf-8"}),
+                            html.meta({name:"format-detection", content:"telephone=no"}),
+                            //html.style.table='border',
+                            //html.style.table='border 1px solid black',
+                        ].concat(
+                            html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
+                            //html.link({href: baseUrl+'/css/planificacion.css', rel: "stylesheet"})
+                        )),
+                        html.body({},[
+                            html.div({id: "total-layout"},[
+                                //html.pre({id:'resultado'},result.rows[0].encuestador),
+                                html.pre({id:'resultado'},htmlBody /*[JSON.stringify(result)]*/)
+                            ]),
+                        ])
+                    ]);
+
+                    //console.log(JSON.stringify(htmlMain));
+                    MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
+                
+                }catch(err){
+                    console.log(err);
+                    MiniTools.serveErr(req, res, next)(err);
+                }
+            })
+        });
+        /*
         mainApp.get(baseUrl+`/planificacion/:periodo/:panel/:tarea`, async function(req, res, next){
             var {user, useragent} = req;
             var {user} = req;
@@ -494,6 +592,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 }
             })
         });
+        */
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
