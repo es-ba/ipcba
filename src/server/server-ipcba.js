@@ -464,7 +464,6 @@ class AppIpcba extends backendPlus.AppBackend{
             }
             await be.inDbClient(req, async function(client){
                 try{
-                    
                     const result = (await client.query(`
                         SELECT periodo, panel, tarea, modalidad, string_agg(submod_informantes, ';') informantes, encuestador, encuestadortitular,
                         string_agg(direcciones, ',') direcciones, fechasalidadesde, fechasalidahasta 
@@ -493,20 +492,19 @@ class AppIpcba extends backendPlus.AppBackend{
                             , [req.params.periodo, req.params.encuestador]
                     ).fetchAll());
 
-                    //console.log ('filas:', result.rowCount);
                     var htmlBody = [];
                     var rowTable = [];
                     rowTable.push(html.tr([html.td(['periodo']),
-                    html.td(['panel']),
-                    html.td(['tarea']),
-                    html.td(['encuestador titular']),
-                    html.td(['modalidad']),
-                    html.td(['informantes']),
-                    //html.td(['encuestador']),
-                    html.td(['direcciones']),
-                    html.td(['fecha desde']),
-                    html.td(['fecha hasta']),
-                    ],)
+                                  html.td(['panel']),
+                                  html.td(['tarea']),
+                                  html.td(['encuestador titular']),
+                                  html.td(['modalidad']),
+                                  html.td(['informantes']),
+                                  //html.td(['encuestador']),
+                                  html.td(['direcciones']),
+                                  html.td(['fecha desde']),
+                                  html.td(['fecha hasta']),
+                                  ],)
                     );
                     for (var j = 0; j < result.rowCount; j++) {
                        rowTable.push(html.tr([html.td([result.rows[j].periodo]),
@@ -524,27 +522,22 @@ class AppIpcba extends backendPlus.AppBackend{
                                     )
                     }
                     htmlBody.push(html.table(rowTable));
-                      
+                    console.log('Base url',baseUrl);  
                     var htmlMain = html.html({},[
                         html.head([
                             html.title("planificacion"),
                             html.meta({charset:"utf-8"}),
                             html.meta({name:"format-detection", content:"telephone=no"}),
-                            //html.style.table='border',
-                            //html.style.table='border 1px solid black',
                         ].concat(
                             html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
-                            //html.link({href: baseUrl+'/css/planificacion.css', rel: "stylesheet"})
                         )),
                         html.body({},[
                             html.div({id: "total-layout"},[
-                                //html.pre({id:'resultado'},result.rows[0].encuestador),
-                                html.pre({id:'resultado'},htmlBody /*[JSON.stringify(result)]*/)
+                                html.pre({id:'resultado'},htmlBody)
                             ]),
                         ])
                     ]);
 
-                    //console.log(JSON.stringify(htmlMain));
                     MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
                 
                 }catch(err){
@@ -553,46 +546,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 }
             })
         });
-        /*
-        mainApp.get(baseUrl+`/planificacion/:periodo/:panel/:tarea`, async function(req, res, next){
-            var {user, useragent} = req;
-            var {user} = req;
-            if(!user){
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion/${req.params.periodo}/${req.params.panel}/${req.params.tarea}`)
-            }
-            await be.inDbClient(req, async function(client){
-                try{
-                    const result = (await client.query(`
-                        SELECT * 
-                            FROM reltar
-                            WHERE periodo = $1 AND panel = $2 AND tarea = $3
-                        `, [req.params.periodo, req.params.panel, req.params.tarea]
-                    ).fetchUniqueRow()).row;
-                    
-                    var htmlMain = html.html({},[
-                        html.head([
-                            html.title("planificacion"),
-                            html.meta({charset:"utf-8"}),
-                            html.meta({name:"format-detection", content:"telephone=no"}),
-                        ].concat(
-                            html.link({href: baseUrl+'/css/planificacion.css', rel: "stylesheet"})
-                        )),
-                        html.body({},[
-                            html.div({id: "total-layout"},[
-                                html.pre({id:'resultado'},[JSON.stringify(result)])
-                            ]),
-                        ])
-                    ]);
-                    console.log(JSON.stringify(htmlMain));
-                    MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
-                    //MiniTools.serveText(pre.toHtmlText, 'html')(req,res);
-                }catch(err){
-                    console.log(err);
-                    MiniTools.serveErr(req, res, next)(err);
-                }
-            })
-        });
-        */
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
