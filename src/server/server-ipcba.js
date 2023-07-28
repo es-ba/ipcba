@@ -456,11 +456,11 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
-        mainApp.get(baseUrl+`/planificacion/:periodo/:encuestador`, async function(req, res, next){
+        mainApp.get(baseUrl+`/planificacion/:periodo/:encuestador/:fechasalidadesde/:fechasalidahasta`, async function(req, res, next){
             var {user, useragent} = req;
             var {user} = req;
             if(!user){
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion/${req.params.periodo}/${req.params.encuestador}`)
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion/${req.params.periodo}/${req.params.encuestador}/${req.params.fechasalidadesde}/${req.params.fechasalidahasta}`)
             }
             await be.inDbClient(req, async function(client){
                 try{
@@ -486,10 +486,10 @@ class AppIpcba extends backendPlus.AppBackend{
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
                                     concat(nombre, concat(' ', apellido))) a
-                            WHERE periodo = $1 and encuestador = $2
+                            WHERE periodo = $1 and encuestador = $2 and fechasalidadesde >= $3 and fechasalidahasta <= $4
                             GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular
                             ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular`
-                            , [req.params.periodo, req.params.encuestador]
+                            , [req.params.periodo, req.params.encuestador, req.params.fechasalidadesde, req.params.fechasalidahasta]
                     ).fetchAll());
 
                     var htmlBody = [];
@@ -522,7 +522,6 @@ class AppIpcba extends backendPlus.AppBackend{
                                     )
                     }
                     htmlBody.push(html.table(rowTable));
-                    console.log('Base url',baseUrl);  
                     var htmlMain = html.html({},[
                         html.head([
                             html.title("planificacion"),
