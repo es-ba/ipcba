@@ -1,12 +1,21 @@
 table, th, td {
   border: 1px solid black;
 }
+table {
+  table-layout:fixed
+}
 body {
   font-size: 120%;
   font-family: arial, sans-serif;
 }
 input {
   font-size: 100%;
+}
+td {
+padding: 8px;
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 400px;
 }
 .formtd input {
   width: 200px;
@@ -19,4 +28,22 @@ input {
 }
 #loginFormRightImg {
   height: 120px;
+}
+.container-plan {
+  display: flex;
+}
+.container-fecha-1 {
+  margin-left: 8px;
+  margin-right: 24px;
+}
+.container-fecha-2 {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.container-encuestador {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.titulos-plan {
+  font-weight: bold;
 }

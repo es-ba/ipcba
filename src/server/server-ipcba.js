@@ -520,7 +520,8 @@ class AppIpcba extends backendPlus.AppBackend{
                                              ],
                                             )
                                     )
-                    }
+                    };
+                    var htmlNombreEncuestador = result.rows[0].encuestadortitular;
                     htmlBody.push(html.table(rowTable));
                     var htmlMain = html.html({},[
                         html.head([
@@ -530,6 +531,22 @@ class AppIpcba extends backendPlus.AppBackend{
                         ].concat(
                             html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
                         )),
+                        
+                        html.h1('Planificación'),
+
+                        html.div({class:"container-plan"},[
+                            html.p({class:'titulos-plan'},'Fecha Desde: '),
+                            html.p({class:'container-fecha-1'}, req.params.fechasalidadesde),
+                            html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
+                            html.p({class:'container-fecha-2'}, req.params.fechasalidahasta),
+                        ]),
+
+                        html.div({class:"container-plan"},[                   
+                            html.p({class:'titulos-plan'},'Encuestador: '),
+                            html.p({class:'container-encuestador'}, req.params.encuestador),
+                            html.p(htmlNombreEncuestador),
+                        ]),
+
                         html.body({},[
                             html.div({id: "total-layout"},[
                                 html.pre({id:'resultado'},htmlBody)
