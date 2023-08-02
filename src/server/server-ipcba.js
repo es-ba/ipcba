@@ -1437,7 +1437,8 @@ NETWORK:
             {name: 'cambiopantar_det', path: __dirname},
             {name: 'tercera_ausencia', path: __dirname},
             {name: 'periodos_submod', path: __dirname},
-            {name: 'submod', path: __dirname}
+            {name: 'submod', path: __dirname},
+            {name:'precios_maximos_minimos_resumen', path: __dirname},
         ]);
     }
 }
