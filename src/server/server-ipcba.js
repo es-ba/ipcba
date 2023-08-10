@@ -472,20 +472,34 @@ class AppIpcba extends backendPlus.AppBackend{
                                     string_agg(distinct (CASE WHEN modalidad = 'PRESENCIAL' THEN direccion ELSE NULL END),', ') direcciones,
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida) fechasalidahasta,
-                                    concat(nombre, concat(' ', apellido)) as encuestadortitular
+                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
+                                       concat(r.nombre, concat(' ', r.apellido))
+                                    ELSE 
+                                       concat(e.nombre, concat(' ', e.apellido))
+                                    END as encuestadortitular 
                                     FROM reltar t
+                                    JOIN tareas a on t.tarea = a.tarea
                                     JOIN personal e on t.encuestador = e.persona
+                                    JOIN personal r on a.encuestador = r.persona
                                     JOIN relpan p using (periodo,panel)
-                                    JOIN relvis v using (periodo, panel, tarea) 
+                                    JOIN relvis v on t.periodo= v.periodo and t.panel= v.panel and t.tarea = v.tarea 
                                     JOIN informantes i using(informante)
                                     GROUP BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador,
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
-                                    concat(nombre, concat(' ', apellido))
+                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
+                                      concat(r.nombre, concat(' ', r.apellido))
+                                    ELSE 
+                                      concat(e.nombre, concat(' ', e.apellido))
+                                    END
                                     ORDER BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador,
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
-                                    concat(nombre, concat(' ', apellido))) a
+                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
+                                       concat(r.nombre, concat(' ', r.apellido))
+                                    ELSE 
+                                       concat(e.nombre, concat(' ', e.apellido))
+                                    END) a
                             WHERE periodo = $1 and encuestador = $2 and fechasalidadesde >= $3 and fechasalidahasta <= $4
                             GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular
                             ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular`
