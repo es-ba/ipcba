@@ -1,49 +1,86 @@
+*   {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;  
+    }
+
 table, th, td {
-  border: 1px solid black;
-}
+    border: 1px solid rgb(196, 196, 196);
+    Border-collapse: collapse;
+    }
+
+tbody{
+    border-style: solid;
+    }
+
 table {
-  table-layout:fixed
-}
+    table-layout:unset
+    }
+
 body {
-  font-size: 120%;
-  font-family: arial, sans-serif;
-}
+    padding-left: 30px;  
+    font-size: 120%;
+    /*font-family: arial, sans-serif;*/
+    }
+
 input {
-  font-size: 100%;
-}
+    font-size: 100%;
+    }
+
 td {
-padding: 8px;
-  word-wrap: break-word;
-  white-space: normal;
-  max-width: 400px;
-}
+    padding: 8px;
+    word-wrap: break-word;
+    white-space: normal;
+    max-width: 200px;
+    font-size: 15px;
+    }
+
 .formtd input {
-  width: 200px;
-}
+    width: 200px;
+    }
+
 .logintableImgRow {
-  display: none;
-}
+    display: none;
+    }
+
 .iconostd {
-  display: none;
-}
+    display: none;
+    }
+
 #loginFormRightImg {
-  height: 120px;
-}
+    height: 120px;
+    }
+
 .container-plan {
-  display: flex;
-}
+    display: flex;
+    }
+
 .container-fecha-1 {
-  margin-left: 8px;
-  margin-right: 24px;
-}
+    margin-left: 8px;
+    margin-right: 24px;
+    }
+
 .container-fecha-2 {
-  margin-left: 8px;
-  margin-right: 8px;
-}
+    margin-left: 8px;
+    margin-right: 8px;
+    }
+
 .container-encuestador {
-  margin-left: 8px;
-  margin-right: 8px;
-}
+    margin-left: 8px;
+    margin-right: 8px;
+    }
+
 .titulos-plan {
-  font-weight: bold;
-}
+    font-weight: bold;
+    }
+
+@media print{
+  td {
+    font-size: 10px;
+    }
+  body {
+    padding-left: 0px;
+    }
+
+    }
+
+
+
