@@ -936,6 +936,8 @@ my.clientSides.cambiarPanelTareaUnInf = botonClientSideEnGrilla({
             formulario: depot.row.formulario,
             otropanel: depot.row.otropanel,
             otratarea: depot.row.otratarea,
+            panel:depot.row.panel,
+            tarea:depot.row.tarea,
         });
     }
 });

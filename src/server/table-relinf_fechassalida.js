@@ -57,11 +57,12 @@ module.exports = function(context){
                                group by periodo, informante, visita, panel, tarea
                                order by periodo, informante, visita, panel, tarea) v 
                                on r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita and r.panel = v.panel and r.tarea = v.tarea
-                    left join (select periodo, informante, visita, string_agg ('Panel '||panel||' , '||'Tarea '||tarea, chr(10) order by panel,tarea) otropaneltarea
-                               from relpantarinf
+                    left join (select periodo, informante, visita, string_agg (distinct 'Panel '||panel||' , '||'Tarea '||tarea, chr(10) order by 'Panel '||panel||' , '||'Tarea '||tarea) otropaneltarea
+                               from relvis
                                group by periodo, informante, visita
-                               having count(*) > 1) o 
+                               having count(distinct 'Panel '||panel||' , '||'Tarea '||tarea) > 1) o 
                                on r.periodo = o.periodo and r.informante = o.informante and r.visita = o.visita
+                    where v.periodo is not null
                     )`,
             },
     },context);

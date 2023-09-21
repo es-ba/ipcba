@@ -2183,22 +2183,29 @@ ProceduresIpcba = [
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
         roles:['programador', 'coordinador', 'analista'],
-        coreFunction:function(context, parameters){
-            return context.client.query(
+        coreFunction: async function(context, parameters){
+            try{
+            var firstResult = await context.client.query(
                 `UPDATE relvis SET panel = $4, tarea = $5, fechasalida = (SELECT fechasalida from relpan where periodo = $1 and panel = $4) 
                    WHERE periodo=$1  
                      AND panel=$2 AND tarea = $3`,
                 [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
-            ).execute().then(function(result){
-                return 'listo';
-            }).catch(function(err){
+            ).execute();
+            var secondResult = await context.client.query(
+                `UPDATE relpantarinf SET panel = $4, tarea = $5 
+                   WHERE periodo=$1  
+                     AND panel=$2 AND tarea = $3`,
+                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
+            ).execute();
+            return 'listo';
+            }catch(err){
                 if(err.code=='54011!'){
                     throw new Error('El periodo no esta abierto para ingreso');
                 }
                 console.log(err);
                 console.log(err.code);
                 throw err;
-            });
+            };
         }
     },
     {
@@ -2211,8 +2218,9 @@ ProceduresIpcba = [
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
         roles:['programador','coordinador', 'analista'],
-        coreFunction:function(context, parameters){
-            return context.client.query(
+        coreFunction: async function(context, parameters){
+            try{
+            var firstResult = await context.client.query(
                 `UPDATE relvis r set panel = otropanel, tarea = otratarea, fechasalida = otrafechasalida
                 FROM (select case when r1.panel = $2 then $4
                              when r1.panel = $4 then $2 
@@ -2228,16 +2236,29 @@ ProceduresIpcba = [
                         WHERE r1.periodo = $1 and (r1.panel = $2 and tarea = $3 or r1.panel = $4 and tarea = $5)) ro
                 WHERE r.periodo = ro.periodo and r.informante = ro.informante and r.visita = ro.visita and r.formulario = ro.formulario`,
                 [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
-            ).execute().then(function(result){
-                return 'listo';
-            }).catch(function(err){
+            ).execute();
+            var secondResult = await context.client.query(
+                `UPDATE relpantarinf r set panel = otropanel, tarea = otratarea
+                FROM (select case when r1.panel = $2 then $4
+                             when r1.panel = $4 then $2 
+                        end as otropanel, 
+                        case when tarea = $3 then $5
+                             when tarea = $5 then $3 
+                        end as otratarea, r1.* 
+                        FROM cvp.relpantarinf r1
+                        WHERE r1.periodo = $1 and (r1.panel = $2 and tarea = $3 or r1.panel = $4 and tarea = $5)) ro
+                WHERE r.periodo = ro.periodo and r.informante = ro.informante and r.visita = ro.visita and r.panel = ro.panel and r.tarea = ro.tarea`,
+                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
+            ).execute();
+            return 'listo';
+            }catch(err){
                 if(err.code=='54011!'){
                     throw new Error('El periodo no esta abierto para ingreso');
                 }
                 console.log(err);
                 console.log(err.code);
                 throw err;
-            });
+            };
         }
     },
     {
@@ -2249,24 +2270,31 @@ ProceduresIpcba = [
             {name:'formulario'  , typeName:'integer', references:'formularios'},
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer'                          },
+            {name:'panel'       , typeName:'integer'                          },
+            {name:'tarea'       , typeName:'integer'                          },
         ],
         roles:['programador','coordinador', 'analista'],
-        coreFunction:function(context, parameters){
-            return context.client.query(
+        coreFunction: async function(context, parameters){
+            try{
+            var firstResult = await context.client.query(
                 `UPDATE relvis SET panel = $5, tarea = $6, fechasalida = (SELECT fechasalida from relpan where periodo = $1 and panel = $5) 
-                   WHERE periodo = $1 AND informante = $2 AND visita = $3 AND formulario = $4
-                   RETURNING panel`,
+                   WHERE periodo = $1 AND informante = $2 AND visita = $3 AND formulario = $4`,
                 [parameters.periodo,parameters.informante,parameters.visita, parameters.formulario, parameters.otropanel, parameters.otratarea]
-            ).fetchUniqueRow().then(function(result){
-                return 'ok ';
-            }).catch(function(err){
+            ).execute();
+            var secondResult = await context.client.query(
+                `UPDATE relpantarinf SET panel = $4, tarea = $5 
+                   WHERE periodo = $1 AND informante = $2 AND visita = $3 AND panel = $6 AND tarea = $7`,
+                [parameters.periodo,parameters.informante,parameters.visita, parameters.otropanel, parameters.otratarea, parameters.panel, parameters.tarea]
+            ).execute();
+            return 'listo';
+            }catch(err){
                 if(err.code=='54011!'){
                     throw new Error('El perido no esta abierto para ingreso');
                 }
                 console.log(err);
                 console.log(err.code);
                 throw err;
-            });
+            };
         }
     },
     {
