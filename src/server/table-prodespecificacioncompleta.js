@@ -16,7 +16,7 @@ module.exports = function(context){
             {name:'producto'                    , typeName:'text'       },
             {name:'formulario'                  , typeName:'integer'    },
             {name:'observacion'                 , typeName:'integer'    },
-            {name:'especificacioncompleta'      , typeName:'text'       },
+            {name:'especificacioncompleta'      , typeName:'text'       , width:1000},
         ],
         primaryKey:['producto','formulario','observacion'],
         sql:{
