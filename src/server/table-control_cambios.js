@@ -29,9 +29,9 @@ module.exports = function(context){
             {name:'precionormalizado_1'  ,typeName:'decimal'},
             {name:'promobs_1'            ,typeName:'decimal'},
             {name:'masdatos'             ,typeName:'text'   },
-            {name:'comentariosrelpre'    ,typeName:'text'   },
             {name:'valor'                ,typeName:'text'   },
             {name:'valor_1'              ,typeName:'text'   },
+            {name:'comentariosrelpre'    ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','producto','observacion','visita'],
         foreignKeys:[
