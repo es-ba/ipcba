@@ -1,5 +1,6 @@
 --res_cuadro_matriz_hogar
 --UTF8=Sí
+set search_path = cvp;
 
 create or replace function res_cuadro_matriz_hogar(parametro1 text, p_periodo text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text) 
   returns setof res_mat
