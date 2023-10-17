@@ -18,13 +18,16 @@ module.exports = function(context){
             {name:'informante'                , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'nombreinformante'          , typeName:'text'    , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'altamanualperiodo'         , typeName:'text'    , allow:{update:puedeEditar}, title:'AltaEnPeriodo'},
+            {name:'periodo'                   , typeName:'text'    , title:'UltimoPeriodo', editable:false},
             {name:'altamanualpanel'           , typeName:'integer' , allow:{update:puedeEditar}, title:'AltaEnPanel'},
+            {name:'ultimopanel'               , typeName:'integer' , title:'UltimoPanel', editable:false},
             {name:'altamanualtarea'           , typeName:'integer' , allow:{update:puedeEditar}, title:'AltaEnTarea'},
+            {name:'ultimatarea'               , typeName:'integer' , title:'UltimaTarea', editable:false},
+            {name:'masdeunpaneltarea'         , typeName:'text'    , title:'MasDeUnPanelTarea', editable:false},
             {name:'estado'                    , typeName:'text'    , editable:false},
             {name:'tipoinformante'            , typeName:'text'    , allow:{update:puedeEditar}, title:'TI', postInput:'upperSpanish'},
             {name:'rubro'                     , typeName:'integer' , allow:{update:puedeEditar}},
-
-            {name:'periodo'                   , typeName:'text'     , editable:false, title:'ultimoPeriodo'},
+            //{name:'periodo'                   , typeName:'text'     , editable:false, title:'ultimoPeriodo'},
             {name:'direccion'                 , typeName:'text'    , editable:false},           
             {name:'nombrecalle'               , typeName:'text'    , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}},
@@ -38,8 +41,8 @@ module.exports = function(context){
             {name:'web'                       , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'email'                     , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'cluster'                   , typeName:'integer' , allow:{update:puedeEditar}},
-
             {name:'altamanualconfirmar'       , typeName:'timestamp', allow:{update:puedeEditar}},
+            {name:'cadena'                    , typeName:'text'     , allow:{update:puedeEditar}},
         ],
         primaryKey:['informante'],
         hiddenColumns:['altamanualconfirmar'],
@@ -52,12 +55,20 @@ module.exports = function(context){
             {references:'tipoinf'         , fields:['tipoinformante']  }
         ],
         sql:{
-            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, direccion, rubro, altamanualperiodo, altamanualpanel, altamanualtarea,
-                   nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, telcontacto, web, email,  altamanualconfirmar, r.periodo, "cluster", conjuntomuestral
-                     from informantes i
-                     left join informantes_estado ei on i.informante = ei.informante 
-                     left join (select distinct periodo, informante, dense_rank() OVER (PARTITION BY informante ORDER BY periodo desc) as orden
-                                  from cvp.relvis) r on i.informante = r.informante 
+            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, direccion, rubro, altamanualperiodo, 
+                       altamanualpanel, case when cantpantar = 1 then r.panelselec else null end::integer as ultimopanel, 
+                       altamanualtarea, case when cantpantar = 1 then r.tareaselec else null end::integer as ultimatarea,
+                       case when cantpantar > 1 then varias else null end as masdeunpaneltarea, nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, 
+                       telcontacto, web, email,  altamanualconfirmar, r.periodo, "cluster", conjuntomuestral, i.cadena
+                    from informantes i
+                    left join informantes_estado ei on i.informante = ei.informante 
+                    left join (select periodo, informante, cantpantar, panelselec, tareaselec, varias, dense_rank() OVER (PARTITION BY informante ORDER BY periodo desc) as orden
+                                from
+                                (select periodo, informante, count(distinct panel::text||tarea::text) cantpantar, max(panel) panelselec, max(tarea) tareaselec,
+                                        string_agg (distinct 'Panel: '||panel::text||' Tarea:'||tarea::text,chr(10) order by 'Panel: '||panel::text||' Tarea:'||tarea::text) varias
+                                from relvis
+                                group by periodo, informante
+                                order by informante, periodo desc) q) r on i.informante = r.informante 
                     where coalesce(orden, 0) <= 1)`
         }
 

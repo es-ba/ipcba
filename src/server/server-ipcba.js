@@ -879,6 +879,7 @@ NETWORK:
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
+            {menuType:'table', name:'planificacion', onlyVisibleFor:[programador]},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -1449,10 +1450,12 @@ NETWORK:
             {name: 'relinf_fechassalida', path: __dirname},
             {name: 'cambiopantar_lote', path: __dirname},
             {name: 'cambiopantar_det', path: __dirname},
+            {name: 'cambiopantar_hist', path: __dirname},
             {name: 'tercera_ausencia', path: __dirname},
             {name: 'periodos_submod', path: __dirname},
             {name: 'submod', path: __dirname},
-            {name:'precios_maximos_minimos_resumen', path: __dirname},
+            {name: 'precios_maximos_minimos_resumen', path: __dirname},
+            {name: 'planificacion', path: __dirname},
         ]);
     }
 }
