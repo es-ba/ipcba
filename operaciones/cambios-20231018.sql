@@ -1,3 +1,4 @@
+set search_path = cvp;
 CREATE OR REPLACE FUNCTION altamanualdeinformantes_trg()
   RETURNS trigger AS 
 $BODY$
@@ -96,9 +97,3 @@ begin
 end;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
-
-CREATE TRIGGER altamanualdeinformantes_trg
-    BEFORE UPDATE 
-    ON informantes
-    FOR EACH ROW
-    EXECUTE PROCEDURE altamanualdeinformantes_trg();
