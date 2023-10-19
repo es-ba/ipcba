@@ -13,7 +13,7 @@ SELECT c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante as ti, t.encu
    c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|') AS formularios, 
    i.contacto::text contacto, 
    c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
-   pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta, pta.modalidad, q.otropaneltarea
+   pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta, pta.modalidad, q.otropaneltarea, i.cadena
    FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.tareas t on c.tarea = t.tarea
    LEFT JOIN cvp.personal p on p.persona = t.encuestador 
@@ -36,6 +36,6 @@ SELECT c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante as ti, t.encu
 GROUP BY c.periodo, c.panel, c.tarea, c.informante, i.tipoinformante, t.encuestador||':'||p.nombre||' '||p.apellido, c.visita, c.nombreinformante, c.direccion, 
     i.contacto, c.conjuntomuestral, 
     c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, i.web, i.email,
-    pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta, pta.modalidad, q.otropaneltarea;
+    pt.panelreferencia, pt.tareareferencia, i.telcontacto, a.periodoalta, pta.modalidad, q.otropaneltarea, i.cadena;
 
 GRANT SELECT ON TABLE hdrexportarteorica TO cvp_usuarios;

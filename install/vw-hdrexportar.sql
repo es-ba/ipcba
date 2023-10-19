@@ -8,7 +8,7 @@ CREATE OR REPLACE VIEW hdrexportar AS
    c.visita, c.nombreinformante, c.direccion, string_agg(c.formulario::text || ':'::text || c.nombreformulario::text, '|'::text) AS formularios, 
    (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto, 
     c.conjuntomuestral, c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, 
-    a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta, pta.modalidad
+    a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta, pta.modalidad, i.cadena
    FROM cvp.control_hojas_ruta c
    LEFT JOIN cvp.informantes i ON c.informante = i.informante
    LEFT JOIN cvp.rubros r ON i.rubro = r.rubro
@@ -22,6 +22,6 @@ CREATE OR REPLACE VIEW hdrexportar AS
     c.ingresador, c.nombreingresador, c.supervisor, c.nombresupervisor, c.visita, c.nombreinformante, c.direccion, 
     (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text, c.conjuntomuestral, 
     c.ordenhdr, i.distrito, i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, 
-    a.minperiodoinformado, a.periodoalta, pta.modalidad;
+    a.minperiodoinformado, a.periodoalta, pta.modalidad, i.cadena;
 
 GRANT SELECT ON TABLE hdrexportar TO cvp_usuarios;

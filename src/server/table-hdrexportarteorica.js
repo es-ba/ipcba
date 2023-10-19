@@ -40,6 +40,7 @@ module.exports = function(context){
             {name:'periodoalta'                  , typeName: 'text'   },
             {name:'modalidad'                    , typeName: 'text'   },            
             {name:'otropaneltarea'               , typeName: 'text'   },            
+            {name:'cadena'                       , typeName: 'text'   },            
         ],
         primaryKey:['periodo','informante','visita','formularios'],
         sql:{
