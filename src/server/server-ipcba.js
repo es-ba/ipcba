@@ -901,6 +901,7 @@ NETWORK:
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
                     {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table', name:'periodos_cambiopantar_hist', label:'Historico de cambios de Panel Tarea', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
@@ -1450,6 +1451,7 @@ NETWORK:
             {name: 'relinf_fechassalida', path: __dirname},
             {name: 'cambiopantar_lote', path: __dirname},
             {name: 'cambiopantar_det', path: __dirname},
+            {name: 'periodos_cambiopantar_hist', path: __dirname},
             {name: 'cambiopantar_hist', path: __dirname},
             {name: 'tercera_ausencia', path: __dirname},
             {name: 'periodos_submod', path: __dirname},
