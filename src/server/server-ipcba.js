@@ -469,7 +469,7 @@ class AppIpcba extends backendPlus.AppBackend{
                         string_agg(direcciones, ',') direcciones, fechasalidadesde, fechasalidahasta 
                             FROM (SELECT t.periodo, t.panel, t.tarea, t.modalidad, t.encuestador, i.tipoinformante||':'||count(distinct informante) as submod_informantes, 
                                     i.tipoinformante||':'||count(*) as submod_formularios,
-                                    string_agg(distinct (CASE WHEN modalidad = 'PRESENCIAL' THEN direccion ELSE NULL END),', ') direcciones,
+                                    string_agg(distinct (CASE WHEN modalidad = 'PRESENCIAL' THEN direccion ELSE NULL END),', ') direcciones, p.fechasalida,
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida) fechasalidahasta,
                                     CASE WHEN t.encuestador is distinct from a.encuestador THEN
@@ -484,7 +484,7 @@ class AppIpcba extends backendPlus.AppBackend{
                                     JOIN relpan p using (periodo,panel)
                                     JOIN relvis v on t.periodo= v.periodo and t.panel= v.panel and t.tarea = v.tarea 
                                     JOIN informantes i using(informante)
-                                    GROUP BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador,
+                                    GROUP BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador, p.fechasalida,
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
                                     CASE WHEN t.encuestador is distinct from a.encuestador THEN
@@ -492,7 +492,7 @@ class AppIpcba extends backendPlus.AppBackend{
                                     ELSE 
                                       concat(e.nombre, concat(' ', e.apellido))
                                     END
-                                    ORDER BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador,
+                                    ORDER BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador, p.fechasalida,
                                     coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
                                     coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
                                     CASE WHEN t.encuestador is distinct from a.encuestador THEN
@@ -500,9 +500,9 @@ class AppIpcba extends backendPlus.AppBackend{
                                     ELSE 
                                        concat(e.nombre, concat(' ', e.apellido))
                                     END) a
-                            WHERE periodo = $1 and encuestador = $2 and fechasalidadesde >= $3 and fechasalidahasta <= $4
-                            GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular
-                            ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalidadesde, fechasalidahasta, encuestadortitular`
+                            WHERE periodo = $1 and encuestador = $2 and fechasalida >= $3 and fechasalida <= $4
+                            GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular
+                            ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular`
                             , [req.params.periodo, req.params.encuestador, req.params.fechasalidadesde, req.params.fechasalidahasta]
                     ).fetchAll());
 
