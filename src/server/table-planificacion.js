@@ -20,7 +20,7 @@ module.exports = function(context){
 
         ],
         refrescable: true,
-        primaryKey:['periodo', 'encuestador'],
+        primaryKey:['periodo', 'panel', 'tarea'],
         sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'}],
         hiddenColumns:['parametros','planurl'],
         sql:{
