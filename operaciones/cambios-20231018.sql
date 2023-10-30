@@ -5,7 +5,8 @@ $BODY$
 DECLARE
 vseguir boolean:= true;
 vcantfilasgeneradas integer:= 0;
-vesactiva integer:= 0;
+vesactiva integer:= 0; --es tarea activa? (en tabla tareas)
+vesptactiva integer:= 0;  --es panel-tarea activo? (tabla tabla pantar)
 begin
   IF NEW.AltaManualConfirmar is distinct from OLD.AltaManualConfirmar then
     vseguir := true;
@@ -29,6 +30,14 @@ begin
     WHERE tarea = NEW.altamanualtarea AND activa = 'S';
     IF vesactiva = 0 THEN
        RAISE EXCEPTION 'La tarea en la cual se generará no está activa';
+       vseguir := false;
+       RETURN NULL;
+    END IF;
+    SELECT count(*) INTO vesptactiva 
+    FROM cvp.pantar 
+    WHERE panel = NEW.altamanualpanel AND tarea = NEW.altamanualtarea AND activa = 'S';
+    IF vesptactiva = 0 THEN
+       RAISE EXCEPTION 'El panel-tarea en la cual se generará no está activo (pantar)';
        vseguir := false;
        RETURN NULL;
     END IF;

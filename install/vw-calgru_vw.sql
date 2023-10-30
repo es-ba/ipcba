@@ -12,11 +12,12 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo
               else null
        end as incidenciainteranualredondeada
        , (c.indice - ca.indice) * c.ponderador / pa.indice * 100 as incidenciaacumuladaanual --con todos los decimales
-       , round( 
-       case when (c.nivel in (0,1) ) then
-              (round(c.indice::decimal,2) - round(ca.indice::decimal,2)) * c.ponderador / round(pa.indice::decimal,2) * 100
-            else null
-       end::decimal,2)::double precision as incidenciaacumuladaanualredondeada  -- a dos decimales para niveles 0 y 1
+       ,(case when c.nivel = 0 then
+               round(((round(c.indice::decimal,2) - round(ca.indice::decimal,2)) * c.ponderador / round(pa.indice::decimal,2) * 100)::decimal, 1) -- a un decimal para nivel 0
+              when c.nivel = 1 then
+               round(((round(c.indice::decimal,2) - round(ca.indice::decimal,2)) * c.ponderador / round(pa.indice::decimal,2) * 100)::decimal, 2) -- a dos decimales para nivel 1
+              else null
+       end)::double precision as incidenciaacumuladaanualredondeada
        , CASE WHEN cb.IndiceRedondeado=0 THEN null ELSE round((c.IndiceRedondeado::decimal/cb.IndiceRedondeado::decimal*100-100)::numeric,1) END as variacioninteranualredondeada
        , CASE WHEN cb.Indice=0 THEN null ELSE (c.Indice::decimal/cb.Indice::decimal*100-100)::decimal END as variacioninteranual
        , CASE WHEN c_3.Indice=0 THEN null ELSE (c.Indice::decimal/c_3.Indice::decimal*100-100) END as variaciontrimestral
