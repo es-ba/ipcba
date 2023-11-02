@@ -456,11 +456,11 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
-        mainApp.get(baseUrl+`/planificacion/:periodo/:encuestador/:fechasalidadesde/:fechasalidahasta`, async function(req, res, next){
+        mainApp.get(baseUrl+`/planificacion`, async function(req, res, next){
             var {user, useragent} = req;
-            var {user} = req;
+            var {periodo, encuestador, fechasalidadesde, fechasalidahasta} = req.query;
             if(!user){
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion/${req.params.periodo}/${req.params.encuestador}/${req.params.fechasalidadesde}/${req.params.fechasalidahasta}`)
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&fechasalidadesde=${fechasalidadesde}&fechasalidahasta=${fechasalidahasta}`)
             }
             await be.inDbClient(req, async function(client){
                 try{
@@ -503,7 +503,7 @@ class AppIpcba extends backendPlus.AppBackend{
                             WHERE periodo = $1 and encuestador = $2 and fechasalida >= $3 and fechasalida <= $4
                             GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular
                             ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular`
-                            , [req.params.periodo, req.params.encuestador, req.params.fechasalidadesde, req.params.fechasalidahasta]
+                            , [periodo, encuestador, fechasalidadesde, fechasalidahasta]
                     ).fetchAll());
 
                     var htmlBody = [];

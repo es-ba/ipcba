@@ -30,7 +30,7 @@ module.exports = function(context){
             isTable: false,
             from: `(SELECT periodo, panel, tarea, encuestador, concat(pp.nombre||' ',pp.apellido) apenom, fechadesde, fechahasta
                     , t.planificacion_url as planurl
-                    ,'/planificacion'||'/'||periodo||'/'||encuestador||'/'||fechadesde||'/'||fechahasta as parametros
+                    ,'/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador||'&fechasalidadesde='||fechadesde||'&fechasalidahasta='||fechahasta as parametros
                     FROM (SELECT * FROM personal per WHERE per.username = ${db.quoteLiteral(context.user.usu_usu)}) per
                          INNER JOIN reltar rt ON rt.encuestador = per.persona OR per.labor not in ('E','S')
                          INNER JOIN personal pp ON rt.encuestador = pp.persona
