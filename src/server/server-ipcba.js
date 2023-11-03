@@ -107,7 +107,6 @@ class AppIpcba extends backendPlus.AppBackend{
             skin: default
             menu: true
             lang: es
-            grid-buffer: wsql
             version: 0.1
             deviceWidthForMobile: 768px
             user-scalable: no
@@ -550,14 +549,14 @@ class AppIpcba extends backendPlus.AppBackend{
 
                         html.div({class:"container-plan"},[
                             html.p({class:'titulos-plan'},'Fecha Desde: '),
-                            html.p({class:'container-fecha-1'}, req.params.fechasalidadesde),
+                            html.p({class:'container-fecha-1'}, fechasalidadesde),
                             html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
-                            html.p({class:'container-fecha-2'}, req.params.fechasalidahasta),
+                            html.p({class:'container-fecha-2'}, fechasalidahasta),
                         ]),
 
                         html.div({class:"container-plan"},[                   
                             html.p({class:'titulos-plan'},'Encuestador: '),
-                            html.p({class:'container-encuestador'}, req.params.encuestador),
+                            html.p({class:'container-encuestador'}, encuestador),
                             html.p(htmlNombreEncuestador),
                         ]),
 
