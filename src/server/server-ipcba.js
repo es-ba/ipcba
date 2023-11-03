@@ -393,8 +393,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 .replace("'/*version*/'", JSON.stringify(manifest.version))
                 .replace("'/*appName*/'", JSON.stringify(manifest.appName))
                 .replace(/\[\s*\/\*urlsToCache\*\/\s*\]/, JSON.stringify(manifest.cache))
-                .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []));
-                //.replace("/#CACHE$/", "/(a\\d+m\\d+p\\d+t\\d+_estructura.js)|(a\\d+m\\d+p\\d+t\\d+_hdr.json)/");
+                .replace(/\[\s*\/\*fallbacks\*\/\s*\]/, JSON.stringify(manifest.fallback || []))
+                .replace("'/*defaultFallback*/'", JSON.stringify(manifest.defaultFallback))
             return swManifest
         }
         mainApp.get(baseUrl+`/sw-manifest.js`, async function(req, res, next){
@@ -818,16 +818,7 @@ NETWORK:
             "img/main-loading.gif",
             "client-setup"
         ].concat(especifico);
-        jsonResult.fallback=[
-            {"path":"login", "fallback":"offline"},
-            {"path":"logout", "fallback":"offline"},
-            {"path":"not-logged-in#i=dm2,sincronizar_dm2", "fallback":"offline"},
-            {"path":"not-logged-in#i=dm2,instalar_dm2", "fallback":"offline"},
-            {"path":"login#i=dm2,sincronizar_dm2", "fallback":"offline"},
-            {"path":"menu#i=dm2,sincronizar_dm2", "fallback":"offline"},
-            {"path":"login#i=dm2,instalar_dm2", "fallback":"offline"},
-            {"path":"menu#i=dm2,instalar_dm2", "fallback":"offline"}
-        ];
+        jsonResult.defaultFallback="offline";
         return jsonResult
     }
     getMenu(context){
