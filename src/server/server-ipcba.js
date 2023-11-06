@@ -374,15 +374,16 @@ class AppIpcba extends backendPlus.AppBackend{
             var {user} = req;
             if(!user){
                 res.redirect(401, baseUrl+'/login#w=path&path=/dm')
+            }else{
+                var webManifestPath = 'carga-dm/web-manifest.webmanifest';
+                var {useragent, user} = req;
+                var parameters = req.query;
+                var extraFiles = [
+                    // { type: 'js', src:'dm-main.js' },
+                ];
+                var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles, webManifestPath}).toHtmlDoc();
+                MiniTools.serveText(htmlMain,'html')(req,res);
             }
-            var webManifestPath = 'carga-dm/web-manifest.webmanifest';
-            var {useragent, user} = req;
-            var parameters = req.query;
-            var extraFiles = [
-                // { type: 'js', src:'dm-main.js' },
-            ];
-            var htmlMain=be.mainPage({useragent, user}, false, {skipMenu:true, icon:"img/icon-dm.png", extraFiles, webManifestPath}).toHtmlDoc();
-            MiniTools.serveText(htmlMain,'html')(req,res);
         });
         mainApp.use(cookieParser());
         var createServiceWorker = async function(){
