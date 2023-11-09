@@ -130,15 +130,18 @@ BEGIN
         AND fi.altaManualPeriodo=pPeriodo
         AND i.altaManualPeriodo=pPeriodo
         AND i.altaManualPanel=pPanel;
-        
-  INSERT INTO cvp.relinf(periodo, informante, visita)
-    SELECT DISTINCT v.periodo, v.informante, v.visita
-      FROM cvp.relvis v
-      LEFT JOIN cvp.relinf i on v.periodo = i.periodo and v.informante = i.informante and v.visita = i.visita 
-    WHERE v.periodo = pPeriodo
-      AND v.panel = ppanel
-      AND i.periodo IS NULL;
 
+--9/11/23 descontinuamos el uso de relinf, reemplazado por relpantarinf
+--9/11/23 Borrado en relpantarinf de las filas que se borraron de relvis 
+  DELETE FROM cvp.relpantarinf d USING
+   (SELECT DISTINCT i.periodo, i.informante, i.visita, i.panel, i.tarea
+      FROM cvp.relpantarinf i 
+      LEFT JOIN cvp.relvis v ON i.periodo = v.periodo and i.informante = v.informante and i.visita = v.visita and i.panel = v.panel and i.tarea = v.tarea
+      WHERE i.periodo = Pperiodo
+        AND i.panel= pPanel 
+        AND v.periodo IS NULL) rpi
+    WHERE d.periodo = rpi.periodo AND d.informante = rpi.informante AND d.visita = rpi.visita AND d.panel = rpi.panel AND d.tarea = rpi.tarea;
+  
   INSERT INTO cvp.relpantarinf(periodo, informante, visita, panel, tarea)
     SELECT v.periodo, v.informante, v.visita, v.panel, v.tarea
       FROM cvp.relvis v
