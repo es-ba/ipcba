@@ -456,6 +456,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
+        /*
         mainApp.get(baseUrl+`/planificacion`, async function(req, res, next){
             var {user, useragent} = req;
             var {periodo, encuestador, fechasalidadesde, fechasalidahasta} = req.query;
@@ -576,6 +577,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 }
             })
         });
+        */
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
@@ -870,7 +872,7 @@ NETWORK:
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
-            //{menuType:'planificacion', name:'planificacion', onlyVisibleFor:[programador, coordinador, analista]},
+            //{menuType:'table', name:'planificacion', onlyVisibleFor:[programador, coordinador, analista]},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -1448,7 +1450,7 @@ NETWORK:
             {name: 'periodos_submod', path: __dirname},
             {name: 'submod', path: __dirname},
             {name: 'precios_maximos_minimos_resumen', path: __dirname},
-            {name: 'planificacion', path: __dirname},
+            //{name: 'planificacion', path: __dirname},
         ]);
     }
 }
