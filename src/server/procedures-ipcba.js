@@ -2538,8 +2538,8 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
-            fileName:'controlAjustesExportar.xlsx',
-            csvFileName:'controlAjustesExportar.csv'
+            fileName: 'controlAjustesExportar' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.xlsx',
+            csvFileName:'controlAjustesExportar' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             return [
