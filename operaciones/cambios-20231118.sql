@@ -1,6 +1,7 @@
 set search_path = cvp;
 drop view if exists paralistadodecontroldecm;
 DROP view if exists informantes_estado;
+set role cvpowner;
 CREATE or REPLACE view informantes_estado as
 SELECT i.informante, periodo, ingresando, mincierreinf, maxcierreinf, mincierrefor, maxcierrefor,
        CASE 
@@ -53,6 +54,8 @@ SELECT i.informante, periodo, ingresando, mincierreinf, maxcierreinf, mincierref
        HAVING count (distinct periodo) = 1 and min(razon) is null and max(razon) is null) N ON W.informante = N.informantenuevo;
  
 GRANT SELECT ON TABLE informantes_estado TO cvp_administrador;
+GRANT SELECT ON TABLE cvp.informantes_estado TO cvp_recepcionista;
+GRANT SELECT ON TABLE cvp.informantes_estado TO cvp_usuarios;
 
 CREATE OR REPLACE VIEW paralistadodecontroldecm AS
  SELECT

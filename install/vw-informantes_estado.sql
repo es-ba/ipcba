@@ -59,3 +59,5 @@ SELECT i.informante, periodo, ingresando, mincierreinf, maxcierreinf, mincierref
        HAVING count (distinct periodo) = 1 and min(razon) is null and max(razon) is null) N ON W.informante = N.informantenuevo;
  
 GRANT SELECT ON TABLE informantes_estado TO cvp_administrador;
+GRANT SELECT ON TABLE cvp.informantes_estado TO cvp_recepcionista;
+GRANT SELECT ON TABLE cvp.informantes_estado TO cvp_usuarios;
