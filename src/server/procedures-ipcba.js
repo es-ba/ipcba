@@ -2174,7 +2174,64 @@ ProceduresIpcba = [
         }
     },
     {
+        action:'paneltarea_mover',
+        //Proc genérico para procesar (por lotes) cualquier cambio de panel-tarea
+        //un informante-formulario particular
+        //todo un panel-tarea a otro
+        //intercambiar entre dos paneles-tarea
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+            {name:'panel'       , typeName:'integer'                          },
+            {name:'tarea'       , typeName:'integer', references:'tareas'     },
+            {name:'informante'  , typeName:'integer', references:'informantes'},
+            {name:'visita'      , typeName:'integer'                          },
+            {name:'formulario'  , typeName:'integer', references:'formularios'},
+            {name:'otropanel'   , typeName:'integer'                          },
+            {name:'otratarea'   , typeName:'integer', references:'tareas'     },
+        ],
+        //roles:['programador', 'coordinador', 'analista'],
+        coreFunction: async function(context, parameters, intercambiar){
+            try{
+            var firstResult = await context.client.query(
+                `INSERT INTO cambiopantar_lote (fecha_lote, formulario) 
+                  VALUES (current_date, ${parameters.formulario?' '+parameters.formulario+' ':'null'}) returning id_lote`
+            ).fetchUniqueRow();      
+            var secondResult = await context.client.query(
+                `INSERT INTO cambiopantar_det
+                 (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva 
+                    FROM relvis
+                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${parameters.informante?' AND informante='+parameters.informante+' ':' '})`,
+                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
+            ).execute();
+            if (intercambiar) {
+               var secondOtherResult = await context.client.query(
+                `INSERT INTO cambiopantar_det
+                 (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $2::integer panel_nuevo, $3::integer tarea_nueva 
+                    FROM relvis
+                    WHERE periodo = $1 AND panel = $4 AND tarea = $5)`,
+                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
+               ).execute();
+            }
+            var thirdResult =  await context.client.query(
+                `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
+                 WHERE id_lote = $1
+                 RETURNING id_lote, fechaprocesado`,
+                 [firstResult.row.id_lote]
+            ).fetchUniqueRow();
+            return 'ok, id_lote ' + firstResult.row.id_lote + ' procesado en ' + thirdResult.row.fechaprocesado;
+            }catch(err){
+            if(err.code=='54011!'){
+                throw new Error('El periodo no esta abierto para ingreso');
+            }
+            console.log(err);
+            console.log(err.code);
+            throw err;
+            };
+        }
+    },
+    {
         action:'paneltarea_cambiar',
+        //mover todo un panel-tarea a otro
         parameters:[
             {name:'periodo'     , typeName:'text'   , references:'periodos'   },
             {name:'panel'       , typeName:'integer'                          },
@@ -2184,32 +2241,21 @@ ProceduresIpcba = [
         ],
         roles:['programador', 'coordinador', 'analista'],
         coreFunction: async function(context, parameters){
+            var be=context.be;
+            var esIntercambiar = false;
             try{
-            var firstResult = await context.client.query(
-                `UPDATE relvis SET panel = $4, tarea = $5, fechasalida = (SELECT fechasalida from relpan where periodo = $1 and panel = $4) 
-                   WHERE periodo=$1  
-                     AND panel=$2 AND tarea = $3`,
-                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
-            ).execute();
-            var secondResult = await context.client.query(
-                `UPDATE relpantarinf SET panel = $4, tarea = $5 
-                   WHERE periodo=$1  
-                     AND panel=$2 AND tarea = $3`,
-                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
-            ).execute();
-            return 'listo';
+                let result = await be.procedure.paneltarea_mover.coreFunction(context, parameters, esIntercambiar);
+                return result;
             }catch(err){
-                if(err.code=='54011!'){
-                    throw new Error('El periodo no esta abierto para ingreso');
-                }
-                console.log(err);
-                console.log(err.code);
-                throw err;
-            };
+                let errMessage = "paneltarea_cambiar "+ err ;
+                console.log(errMessage)
+            }     
+
         }
     },
     {
         action:'paneltarea_intercambiar',
+        //intercambiar entre dos paneles-tarea
         parameters:[
             {name:'periodo'     , typeName:'text'   , references:'periodos'   },
             {name:'panel'       , typeName:'integer'                          },
@@ -2219,50 +2265,20 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador', 'analista'],
         coreFunction: async function(context, parameters){
+            var be=context.be;
+            var esIntercambiar = true;
             try{
-            var firstResult = await context.client.query(
-                `UPDATE relvis r set panel = otropanel, tarea = otratarea, fechasalida = otrafechasalida
-                FROM (select case when r1.panel = $2 then $4
-                             when r1.panel = $4 then $2 
-                        end as otropanel, 
-                        case when tarea = $3 then $5
-                             when tarea = $5 then $3 
-                        end as otratarea, p1.fechasalida otrafechasalida, r1.* 
-                        FROM cvp.relvis r1
-                        LEFT JOIN cvp.relpan p1 on r1.periodo = p1.periodo and
-                                                   case when r1.panel = $2 then $4
-                                                        when r1.panel = $4 then $2 
-                                                   end = p1.panel   
-                        WHERE r1.periodo = $1 and (r1.panel = $2 and tarea = $3 or r1.panel = $4 and tarea = $5)) ro
-                WHERE r.periodo = ro.periodo and r.informante = ro.informante and r.visita = ro.visita and r.formulario = ro.formulario`,
-                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
-            ).execute();
-            var secondResult = await context.client.query(
-                `UPDATE relpantarinf r set panel = otropanel, tarea = otratarea
-                FROM (select case when r1.panel = $2 then $4
-                             when r1.panel = $4 then $2 
-                        end as otropanel, 
-                        case when tarea = $3 then $5
-                             when tarea = $5 then $3 
-                        end as otratarea, r1.* 
-                        FROM cvp.relpantarinf r1
-                        WHERE r1.periodo = $1 and (r1.panel = $2 and tarea = $3 or r1.panel = $4 and tarea = $5)) ro
-                WHERE r.periodo = ro.periodo and r.informante = ro.informante and r.visita = ro.visita and r.panel = ro.panel and r.tarea = ro.tarea`,
-                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea]
-            ).execute();
-            return 'listo';
+                let result = await be.procedure.paneltarea_mover.coreFunction(context, parameters, esIntercambiar);
+                return result;
             }catch(err){
-                if(err.code=='54011!'){
-                    throw new Error('El periodo no esta abierto para ingreso');
-                }
-                console.log(err);
-                console.log(err.code);
-                throw err;
-            };
+                let errMessage = "paneltarea_intercambiar "+ err ;
+                console.log(errMessage)
+            }     
         }
     },
     {
         action:'paneltarea_cambiaruninf',
+        // mover un informante-formulario particular de un panel-tarea a otro
         parameters:[
             {name:'periodo'     , typeName:'text'   , references:'periodos'   },
             {name:'informante'  , typeName:'integer', references:'informantes'},
@@ -2275,26 +2291,15 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador', 'analista'],
         coreFunction: async function(context, parameters){
+            var be=context.be;
+            var esIntercambiar = false;
             try{
-            var firstResult = await context.client.query(
-                `UPDATE relvis SET panel = $5, tarea = $6, fechasalida = (SELECT fechasalida from relpan where periodo = $1 and panel = $5) 
-                   WHERE periodo = $1 AND informante = $2 AND visita = $3 AND formulario = $4`,
-                [parameters.periodo,parameters.informante,parameters.visita, parameters.formulario, parameters.otropanel, parameters.otratarea]
-            ).execute();
-            var secondResult = await context.client.query(
-                `UPDATE relpantarinf SET panel = $4, tarea = $5 
-                   WHERE periodo = $1 AND informante = $2 AND visita = $3 AND panel = $6 AND tarea = $7`,
-                [parameters.periodo,parameters.informante,parameters.visita, parameters.otropanel, parameters.otratarea, parameters.panel, parameters.tarea]
-            ).execute();
-            return 'listo';
+                let result = await be.procedure.paneltarea_mover.coreFunction(context, parameters, esIntercambiar);
+                return result;
             }catch(err){
-                if(err.code=='54011!'){
-                    throw new Error('El perido no esta abierto para ingreso');
-                }
-                console.log(err);
-                console.log(err.code);
-                throw err;
-            };
+                let errMessage = "paneltarea_cambiaruninf "+ err ;
+                console.log(errMessage)
+            }     
         }
     },
     {

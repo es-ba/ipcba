@@ -1,5 +1,7 @@
 set search_path = cvp;
 
+ALTER TABLE cambiopantar_lote ADD COLUMN formulario INTEGER;
+
 CREATE OR REPLACE FUNCTION verificar_procesar_lote_trg()
     RETURNS trigger
     LANGUAGE 'plpgsql'
@@ -30,13 +32,14 @@ BEGIN
       INSERT INTO cvp.pantar (panel, tarea, activa) 
         (SELECT DISTINCT panel_nuevo, tarea_nueva, 'S' as activa 
            FROM cvp.cambiopantar_det r 
-           JOIN cvp.tareas t ON r.tarea = t.tarea 
+           JOIN cvp.tareas t ON r.tarea = t.tarea
            LEFT JOIN cvp.pantar pt ON r.panel_nuevo = pt.panel AND r.tarea_nueva = pt.tarea 
            WHERE t.activa = 'S' AND pt.panel is null AND id_lote = NEW.id_lote);
       --cambiar el panel, tarea en relvis
       UPDATE cvp.relvis r SET panel = panel_nuevo, tarea= tarea_nueva 
         FROM cvp.cambiopantar_det pt 
-        WHERE id_lote = NEW.id_lote AND r.periodo = pt.periodo AND r.informante = pt.informante AND r.panel = pt.panel AND r.tarea = pt.tarea;
+        WHERE id_lote = NEW.id_lote AND r.periodo = pt.periodo AND r.informante = pt.informante AND r.panel = pt.panel AND r.tarea = pt.tarea
+         AND CASE WHEN NEW.formulario IS NOT NULL THEN r.formulario = NEW.formulario ELSE TRUE END;
 
       --cambiar el panel, tarea en relpantarinf
       FOR vC in cParaRecorrerCambios LOOP

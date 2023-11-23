@@ -18,12 +18,14 @@ module.exports = function(context){
             {name:'cantorigen'    , typeName:'integer'  , allow:{update:false}, inTable:false},
             {name:'cantdestino'   , typeName:'integer'  , allow:{update:false}, inTable:false},
             {name: "proceder"     , typeName: "bigint"  , editable:false, clientSide:'procederCambioPT'},
+            {name:'formulario'    , typeName:'integer'  , editable:false},
         ],
         primaryKey:['id_lote'],
         sortColumns:[{column:'id_lote', order:-1}],
         detailTables:[
             {table:'cambiopantar_det', abr:'CPT', label:'cambios pantar', fields:['id_lote'], refreshParent: true, refreshFromParent: true},
         ],
+        hiddenColumns:['formulario'],
         sql:{
             isTable: true,
             from:`(select r.*, c.cantorigen, c.cantdestino from cambiopantar_lote r,
