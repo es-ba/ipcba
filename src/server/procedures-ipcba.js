@@ -786,7 +786,7 @@ ProceduresIpcba = [
             var pie = previusResult.row.pie;
             var pie1 = previusResult.row.pie1;
             return context.client.query(
-                `SELECT * FROM ${funcion_a_llamar}(${parametros_funcion},$1) resultado`,
+                `SELECT * FROM ${context.be.db.quoteLiteral(funcion_a_llamar)}(${context.be.db.quoteLiteral(parametros_funcion)},$1) resultado`,
                 [separador_decimal]
             ).fetchAll().then(function(result){
                 //las filas resultado de la funcion_a_llamar
@@ -2191,16 +2191,18 @@ ProceduresIpcba = [
         ],
         //roles:['programador', 'coordinador', 'analista'],
         coreFunction: async function(context, parameters, intercambiar){
+            var vFormulario = (parameters.formulario?context.be.db.quoteLiteral(parameters.formulario):'null');
+            var vInformante = (parameters.informante?' AND informante= '+context.be.db.quoteLiteral(parameters.informante):' ');
             try{
             var firstResult = await context.client.query(
                 `INSERT INTO cambiopantar_lote (fecha_lote, formulario) 
-                  VALUES (current_date, ${parameters.formulario?' '+parameters.formulario+' ':'null'}) returning id_lote`
-            ).fetchUniqueRow();      
+                  VALUES (current_date, ${vFormulario}) returning id_lote`
+            ).fetchUniqueRow();
             var secondResult = await context.client.query(
                 `INSERT INTO cambiopantar_det
                  (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva 
                     FROM relvis
-                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${parameters.informante?' AND informante='+parameters.informante+' ':' '})`,
+                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${vInformante})`,
                 [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
             ).execute();
             if (intercambiar) {
