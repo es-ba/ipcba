@@ -1,4 +1,5 @@
-﻿-- UTF8:Sí
+set search_path = cvp;
+-- UTF8:Sí
 CREATE OR REPLACE FUNCTION CalDiv_PromFinal(pPeriodo Text, pCalculo Integer) RETURNS void
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
