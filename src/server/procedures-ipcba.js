@@ -500,19 +500,25 @@ function dm2CrearQueries(parameters, context){
 }
 
 async function paneltarea_mover(context, parameters, intercambiar){
-    var vFormulario = (parameters.formulario?context.be.db.quoteLiteral(parameters.formulario):'null');
-    var vInformante = (parameters.informante?' AND informante= '+context.be.db.quoteLiteral(parameters.informante):' ');
+    var condicionExtra = '';
+    var paramsArray = [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea];
     try{
         var firstResult = await context.client.query(
             `INSERT INTO cambiopantar_lote (fecha_lote, formulario) 
-              VALUES (current_date, ${vFormulario}) returning id_lote`
+              VALUES (current_date, $1) returning id_lote`,
+              [parameters.formulario]
         ).fetchUniqueRow();
+        paramsArray.push(firstResult.row.id_lote); //posicion 6
+        if(parameters.informante){
+            paramsArray.push(parameters.informante);
+            condicionExtra = ' AND informante= $7';
+        }
         var secondResult = await context.client.query(
             `INSERT INTO cambiopantar_det
              (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva 
                 FROM relvis
-                WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${vInformante})`,
-            [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
+                WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${condicionExtra})`,
+                paramsArray
         ).execute();
         if (intercambiar) {
            var secondOtherResult = await context.client.query(
@@ -2226,14 +2232,8 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             var be=context.be;
             var esIntercambiar = false;
-            try{
-                let result = paneltarea_mover(context, parameters, esIntercambiar);
-                return result;
-            }catch(err){
-                let errMessage = "paneltarea_cambiar "+ err ;
-                console.log(errMessage)
-            }     
-
+            let result = await paneltarea_mover(context, parameters, esIntercambiar);
+            return result;
         }
     },
     {
@@ -2250,13 +2250,8 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             var be=context.be;
             var esIntercambiar = true;
-            try{
-                let result = paneltarea_mover(context, parameters, esIntercambiar);
-                return result;
-            }catch(err){
-                let errMessage = "paneltarea_intercambiar "+ err ;
-                console.log(errMessage)
-            }     
+            let result = await paneltarea_mover(context, parameters, esIntercambiar);
+            return result;
         }
     },
     {
@@ -2276,13 +2271,8 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             var be=context.be;
             var esIntercambiar = false;
-            try{
-                let result = paneltarea_mover(context, parameters, esIntercambiar);
-                return result;
-            }catch(err){
-                let errMessage = "paneltarea_cambiaruninf "+ err ;
-                console.log(errMessage)
-            }     
+            let result = await paneltarea_mover(context, parameters, esIntercambiar);
+            return result;
         }
     },
     {
