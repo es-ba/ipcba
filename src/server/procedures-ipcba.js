@@ -499,7 +499,46 @@ function dm2CrearQueries(parameters){
     return {sqlEstructura, sqlHdR}
 }
 
-
+async function paneltarea_mover(context, parameters, intercambiar){
+    var vFormulario = (parameters.formulario?context.be.db.quoteLiteral(parameters.formulario):'null');
+    var vInformante = (parameters.informante?' AND informante= '+context.be.db.quoteLiteral(parameters.informante):' ');
+    try{
+        var firstResult = await context.client.query(
+            `INSERT INTO cambiopantar_lote (fecha_lote, formulario) 
+              VALUES (current_date, ${vFormulario}) returning id_lote`
+        ).fetchUniqueRow();
+        var secondResult = await context.client.query(
+            `INSERT INTO cambiopantar_det
+             (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva 
+                FROM relvis
+                WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${vInformante})`,
+            [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
+        ).execute();
+        if (intercambiar) {
+           var secondOtherResult = await context.client.query(
+            `INSERT INTO cambiopantar_det
+             (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $2::integer panel_nuevo, $3::integer tarea_nueva 
+                FROM relvis
+                WHERE periodo = $1 AND panel = $4 AND tarea = $5)`,
+            [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
+           ).execute();
+        }
+        var thirdResult =  await context.client.query(
+            `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
+             WHERE id_lote = $1
+             RETURNING id_lote, fechaprocesado`,
+             [firstResult.row.id_lote]
+        ).fetchUniqueRow();
+        return 'ok, id_lote ' + firstResult.row.id_lote + ' procesado en ' + thirdResult.row.fechaprocesado;
+        }catch(err){
+        if(err.code=='54011!'){
+            throw new Error('El periodo no esta abierto para ingreso');
+        }
+        console.log(err);
+        console.log(err.code);
+        throw err;
+        };
+    }
 //----------------------fin FUNCIONES AUXILIARES-----------------------------------------------------------------------
 
 ProceduresIpcba = [
@@ -2174,64 +2213,6 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'paneltarea_mover',
-        //Proc genérico para procesar (por lotes) cualquier cambio de panel-tarea
-        //un informante-formulario particular
-        //todo un panel-tarea a otro
-        //intercambiar entre dos paneles-tarea
-        parameters:[
-            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
-            {name:'panel'       , typeName:'integer'                          },
-            {name:'tarea'       , typeName:'integer', references:'tareas'     },
-            {name:'informante'  , typeName:'integer', references:'informantes'},
-            {name:'visita'      , typeName:'integer'                          },
-            {name:'formulario'  , typeName:'integer', references:'formularios'},
-            {name:'otropanel'   , typeName:'integer'                          },
-            {name:'otratarea'   , typeName:'integer', references:'tareas'     },
-        ],
-        //roles:['programador', 'coordinador', 'analista'],
-        coreFunction: async function(context, parameters, intercambiar){
-            var vFormulario = (parameters.formulario?context.be.db.quoteLiteral(parameters.formulario):'null');
-            var vInformante = (parameters.informante?' AND informante= '+context.be.db.quoteLiteral(parameters.informante):' ');
-            try{
-            var firstResult = await context.client.query(
-                `INSERT INTO cambiopantar_lote (fecha_lote, formulario) 
-                  VALUES (current_date, ${vFormulario}) returning id_lote`
-            ).fetchUniqueRow();
-            var secondResult = await context.client.query(
-                `INSERT INTO cambiopantar_det
-                 (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva 
-                    FROM relvis
-                    WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${vInformante})`,
-                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
-            ).execute();
-            if (intercambiar) {
-               var secondOtherResult = await context.client.query(
-                `INSERT INTO cambiopantar_det
-                 (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $2::integer panel_nuevo, $3::integer tarea_nueva 
-                    FROM relvis
-                    WHERE periodo = $1 AND panel = $4 AND tarea = $5)`,
-                [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
-               ).execute();
-            }
-            var thirdResult =  await context.client.query(
-                `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
-                 WHERE id_lote = $1
-                 RETURNING id_lote, fechaprocesado`,
-                 [firstResult.row.id_lote]
-            ).fetchUniqueRow();
-            return 'ok, id_lote ' + firstResult.row.id_lote + ' procesado en ' + thirdResult.row.fechaprocesado;
-            }catch(err){
-            if(err.code=='54011!'){
-                throw new Error('El periodo no esta abierto para ingreso');
-            }
-            console.log(err);
-            console.log(err.code);
-            throw err;
-            };
-        }
-    },
-    {
         action:'paneltarea_cambiar',
         //mover todo un panel-tarea a otro
         parameters:[
@@ -2246,7 +2227,7 @@ ProceduresIpcba = [
             var be=context.be;
             var esIntercambiar = false;
             try{
-                let result = await be.procedure.paneltarea_mover.coreFunction(context, parameters, esIntercambiar);
+                let result = paneltarea_mover(context, parameters, esIntercambiar);
                 return result;
             }catch(err){
                 let errMessage = "paneltarea_cambiar "+ err ;
@@ -2270,7 +2251,7 @@ ProceduresIpcba = [
             var be=context.be;
             var esIntercambiar = true;
             try{
-                let result = await be.procedure.paneltarea_mover.coreFunction(context, parameters, esIntercambiar);
+                let result = paneltarea_mover(context, parameters, esIntercambiar);
                 return result;
             }catch(err){
                 let errMessage = "paneltarea_intercambiar "+ err ;
@@ -2296,7 +2277,7 @@ ProceduresIpcba = [
             var be=context.be;
             var esIntercambiar = false;
             try{
-                let result = await be.procedure.paneltarea_mover.coreFunction(context, parameters, esIntercambiar);
+                let result = paneltarea_mover(context, parameters, esIntercambiar);
                 return result;
             }catch(err){
                 let errMessage = "paneltarea_cambiaruninf "+ err ;
