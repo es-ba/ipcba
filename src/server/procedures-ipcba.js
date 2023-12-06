@@ -318,7 +318,7 @@ function simplificateText(text){
     );
 }
 
-function dm2CrearQueries(parameters){
+function dm2CrearQueries(parameters, context){
     var sqlEstructura=`
       SELECT 
             ${jsono(`
@@ -480,7 +480,7 @@ function dm2CrearQueries(parameters){
                     ) as max_periodos
             WHERE periodo=rt.periodo 
                 AND panel=rt.panel
-                ${parameters.informante?' AND informante='+parameters.informante+' ':' '}
+                ${parameters.informante?`AND informante=${context.be.db.quoteLiteral(parameters.informante)} `:' '}
                  AND tarea=rt.tarea
             GROUP BY periodo, informante, visita, nombreinformante, direccion, panel, tarea, maxperiodoinformado, observaciones, observaciones_campo
         `;
@@ -1562,7 +1562,7 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             var {be, client} = context;
             try{
-                var {sqlEstructura, sqlHdR} = dm2CrearQueries(parameters);
+                var {sqlEstructura, sqlHdR} = dm2CrearQueries(parameters, context);
                 try{
                     var resultEstructura = await context.client.query(
                         sqlEstructura,
