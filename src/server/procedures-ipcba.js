@@ -831,7 +831,7 @@ ProceduresIpcba = [
             var pie = previusResult.row.pie;
             var pie1 = previusResult.row.pie1;
             return context.client.query(
-                `SELECT * FROM ${context.be.db.quoteLiteral(funcion_a_llamar)}(${context.be.db.quoteLiteral(parametros_funcion)},$1) resultado`,
+                `SELECT * FROM ${context.be.db.quoteIdent(funcion_a_llamar)}(${context.be.db.quoteLiteral(parametros_funcion)},$1) resultado`,
                 [separador_decimal]
             ).fetchAll().then(function(result){
                 //las filas resultado de la funcion_a_llamar
