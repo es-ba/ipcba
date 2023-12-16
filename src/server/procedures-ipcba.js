@@ -2516,10 +2516,11 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
-            fileName: 'controlAjustesExportar' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.xlsx',
-            csvFileName:'controlAjustesExportar' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var be = this;
+            be.forExport.fileName    = 'controlAjustesExportar_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.xlsx';
+            be.forExport.csvFileName = 'controlAjustesExportar_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.csv';
             return [
                 {   title:'controlAjustesExportarTitle',
                     rows:(
