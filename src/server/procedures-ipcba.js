@@ -2330,11 +2330,13 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
-            fileName:'unificacionDeMarcas.xlsx',
-            csvFileName:'unificacionDeMarcas.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            return [
+                var nombre = 'unificacionDeMarcas_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+                var be = this;
+                be.forExport.fileName    = nombre + '.xlsx';
+                be.forExport.csvFileName = nombre + '.csv';
+                return [
                 /*{
                     title:'agrupaciones',
                     rows: (
@@ -2409,10 +2411,12 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
-            fileName:'calobsAmpliado.xlsx',
-            csvFileName:'calobsAmpliado.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var nombre = 'calobsAmpliado_' + parameters.periododesde + '_' + parameters.periodohasta + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            var be = this;
+            be.forExport.fileName    = nombre + '.xlsx';
+            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'calobsAmpliadoTitle',
                     rows:(
@@ -2449,10 +2453,12 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
-            fileName:'relpreExportar.xlsx',
-            csvFileName:'relpreExportar.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var nombre = 'relpre_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            var be = this;
+            be.forExport.fileName    = nombre + '.xlsx';
+            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'relpreExportarTitle',
                     rows:(
@@ -2516,10 +2522,12 @@ ProceduresIpcba = [
         ],
         roles:['programador','coordinador','analista'],
         forExport:{
-            fileName: 'controlAjustesExportar' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.xlsx',
-            csvFileName:'controlAjustesExportar' + datetime.now().toYmdHms().replace(/[: -/]/g,'') + '.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var nombre = 'controlAjustes_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            var be = this;
+            be.forExport.fileName    = nombre + '.xlsx';
+            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'controlAjustesExportarTitle',
                     rows:(
@@ -2546,10 +2554,12 @@ ProceduresIpcba = [
         //roles:['programador','coordinador','analista'],
         roles:['programador'],
         forExport:{
-            fileName:'revisorExportar.xlsx',
-            csvFileName:'revisorExportar.csv'
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var nombre = 'revisor_' + parameters.periododesde + '_'+ parameters.periodohasta + '_' + parameters.producto + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            var be = this;
+            be.forExport.fileName    = nombre + '.xlsx';
+            be.forExport.csvFileName = nombre + '.csv';
             try{
                 var previusResult = await context.client.query(
                     `select * from revisorFilasPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]

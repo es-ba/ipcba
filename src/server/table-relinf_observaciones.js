@@ -41,7 +41,7 @@ module.exports = function(context){
             from:`(select r.periodo, r.panel , r.tarea, r.informante, h.razon, r.visita, h.direccion, h.formularioshdr formularios, h.contacto, 
                         h.telcontacto, h.web, h.email, h.ordenhdr, h.maxperiodoinformado, h.modalidad, r.observaciones, r.observaciones_campo, r.codobservaciones, r.recuperos
                    from relpantarinf r 
-                       join hdrexportarteorica h 
+                       left join hdrexportarteorica h 
                        on r.periodo = h.periodo and r.informante = h.informante and r.visita = h.visita and r.panel = h.panel and r.tarea = h.tarea
                 )`,
             },
