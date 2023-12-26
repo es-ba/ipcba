@@ -6,7 +6,7 @@ var MiniTools = require('mini-tools');
 var uptime = new Date().toString();
 var fs = require("fs").promises;
 var cookieParser = require('cookie-parser')
-
+var getSqlPlanificacion = require("./planificacion").getSqlPlanificacion;
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
@@ -464,6 +464,7 @@ class AppIpcba extends backendPlus.AppBackend{
             }
             await be.inDbClient(req, async function(client){
                 try{
+                    console.log("planificacion importada:", getSqlPlanificacion({periodo,encuestador}));
                     const result = (await client.query(`
                         SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
                         modalidad, compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
