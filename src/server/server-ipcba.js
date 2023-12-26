@@ -456,55 +456,65 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
-        /*
         mainApp.get(baseUrl+`/planificacion`, async function(req, res, next){
             var {user, useragent} = req;
-            var {periodo, encuestador, fechasalidadesde, fechasalidahasta} = req.query;
+            var {periodo, encuestador, minfechaplanificada, maxfechaplanificada} = req.query;
             if(!user){
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&fechasalidadesde=${fechasalidadesde}&fechasalidahasta=${fechasalidahasta}`)
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&minfechaplanificada=${minfechaplanificada}&maxfechaplanificada=${maxfechaplanificada}`)
             }
             await be.inDbClient(req, async function(client){
                 try{
                     const result = (await client.query(`
-                        SELECT periodo, panel, tarea, modalidad, string_agg(submod_informantes, ';') informantes, encuestador, encuestadortitular,
-                        string_agg(direcciones, ',') direcciones, fechasalidadesde, fechasalidahasta 
-                            FROM (SELECT t.periodo, t.panel, t.tarea, t.modalidad, t.encuestador, i.tipoinformante||':'||count(distinct informante) as submod_informantes, 
-                                    i.tipoinformante||':'||count(*) as submod_formularios,
-                                    string_agg(distinct (CASE WHEN modalidad = 'PRESENCIAL' THEN direccion ELSE NULL END),', ') direcciones, p.fechasalida,
-                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
-                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida) fechasalidahasta,
-                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
-                                       concat(r.nombre, concat(' ', r.apellido))
-                                    ELSE 
-                                       concat(e.nombre, concat(' ', e.apellido))
-                                    END as encuestadortitular 
-                                    FROM reltar t
-                                    JOIN tareas a on t.tarea = a.tarea
-                                    JOIN personal e on t.encuestador = e.persona
-                                    JOIN personal r on a.encuestador = r.persona
-                                    JOIN relpan p using (periodo,panel)
-                                    JOIN relvis v on t.periodo= v.periodo and t.panel= v.panel and t.tarea = v.tarea 
-                                    JOIN informantes i using(informante)
-                                    GROUP BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador, p.fechasalida,
-                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
-                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
-                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
-                                      concat(r.nombre, concat(' ', r.apellido))
-                                    ELSE 
-                                      concat(e.nombre, concat(' ', e.apellido))
-                                    END
-                                    ORDER BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador, p.fechasalida,
-                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
-                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
-                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
-                                       concat(r.nombre, concat(' ', r.apellido))
-                                    ELSE 
-                                       concat(e.nombre, concat(' ', e.apellido))
-                                    END) a
-                            WHERE periodo = $1 and encuestador = $2 and fechasalida >= $3 and fechasalida <= $4
-                            GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular
-                            ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular`
-                            , [periodo, encuestador, fechasalidadesde, fechasalidahasta]
+                        SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
+                        modalidad, compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
+                        minfechaplanificada, maxfechaplanificada, concat(s.planificacion_url,
+                        '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador||'&minfechaplanificada='||minfechaplanificada||'&maxfechaplanificada='||maxfechaplanificada) as url_plan
+                       FROM (SELECT t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador encuestador_titular, r.nombre||' '||r.apellido as titular, t.encuestador, 
+                                case when t.encuestador=a.encuestador then null else nullif(concat_ws(' ', e.nombre, e.apellido),'') end as suplente,
+                                coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
+                                coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida) fechasalidahasta,t.modalidad, 
+                                CASE WHEN l.persona is not null THEN 'No disponible' ELSE 'Disponible' END AS consulta,   
+                                i.tipoinformante||':'||count(distinct i.informante) as submodalidad_informantes,
+                                string_agg(distinct (CASE WHEN modalidad LIKE '%PRESENCIAL%' THEN direccion ELSE NULL END),chr(10)) direcciones,
+                                o.compartido, fv.visible_planificacion visible, f.minfechaplanificada, f.maxfechaplanificada
+                             FROM reltar t --pk:periodo, panel, tarea
+                             JOIN tareas a on t.tarea = a.tarea --pk: tarea, pk verificada
+                             JOIN personal e on t.encuestador = e.persona --pk: persona, pk verificada, encuestador suplente
+                             JOIN personal r on a.encuestador = r.persona --pk: persona, pk verificada, encuestador titular
+                             JOIN relpan p using (periodo,panel) --pk: periodo, panel, pk verificada
+                             JOIN relvis v on t.periodo= v.periodo and t.panel= v.panel and t.tarea = v.tarea --pk:periodo,informante,visita,formulario, pk verificada
+                             JOIN informantes i using(informante) --pk:informante, pk verificada
+                             LEFT JOIN 
+                             (SELECT periodo, informante, visita, string_agg (distinct 'Panel '||panel||' , '||'Tarea '||tarea, chr(10) order by 'Panel '||panel||' , '||'Tarea '||tarea) compartido
+                               FROM relvis
+                               GROUP BY periodo, informante, visita
+                               HAVING COUNT(distinct 'Panel '||panel||' , '||'Tarea '||tarea) > 1) o 
+                             ON v.periodo = o.periodo and v.informante = o.informante and v.visita = o.visita
+                             LEFT JOIN
+                             (SELECT persona, fechadesde, fechahasta, motivo, concat('a', date_part('year', fechadesde), 'm', 
+                                 case when date_part('month', fechadesde) < 10 THEN '0' END, date_part('month', fechadesde)) periododesde,
+                                 concat('a', date_part('year', fechahasta), 'm', 
+                                 case when date_part('month', fechahasta) < 10 THEN '0' END, date_part('month', fechahasta)) periodohasta
+                                 FROM licencias) l
+                             ON l.persona = t.encuestador and (t.periodo = l.periododesde OR t.periodo = l.periodohasta) and p.fechasalida between l.fechadesde and l.fechahasta
+                             LEFT JOIN fechas fv ON p.fechasalida = fv.fecha 
+                             JOIN (SELECT MIN(fecha) minfechaplanificada, MAX(fecha) maxfechaplanificada 
+                                    FROM fechas
+                                    WHERE seleccionada_planificacion = 'S') f ON p.fechasalida between minfechaplanificada and maxfechaplanificada
+                             GROUP BY 
+                             t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador, r.nombre||' '||r.apellido, t.encuestador, 
+                             case when t.encuestador=a.encuestador then null else nullif(concat_ws(' ', e.nombre, e.apellido),'') end,
+                             coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
+                             coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),i.tipoinformante,
+                             t.modalidad, o.compartido, CASE WHEN l.persona is not null THEN 'No disponible' ELSE 'Disponible' END, fv.visible_planificacion,
+                             f.minfechaplanificada, f.maxfechaplanificada) q
+                      JOIN parametros s ON unicoregistro
+                        where periodo = $1 and encuestador = $2 and minfechaplanificada = $3 and maxfechaplanificada = $4
+                      GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
+                      compartido, consulta, visible, minfechaplanificada, maxfechaplanificada, 
+                      concat(planificacion_url, 
+                      '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador||'&minfechaplanificada='||minfechaplanificada||'&maxfechaplanificada='||maxfechaplanificada)`
+                    , [periodo, encuestador, minfechaplanificada, maxfechaplanificada]
                     ).fetchAll());
 
                     var htmlBody = [];
@@ -525,9 +535,9 @@ class AppIpcba extends backendPlus.AppBackend{
                        rowTable.push(html.tr([html.td([result.rows[j].periodo]),
                                               html.td([result.rows[j].panel]),
                                               html.td([result.rows[j].tarea]),
-                                              html.td([result.rows[j].encuestadortitular]),
+                                              html.td([result.rows[j].titular]),
                                               html.td([result.rows[j].modalidad]),
-                                              html.td([result.rows[j].informantes]),
+                                              html.td([result.rows[j].submodalidad]),
                                               //html.td([result.rows[j].encuestador]),
                                               html.td([result.rows[j].direcciones]),
                                               html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
@@ -536,7 +546,7 @@ class AppIpcba extends backendPlus.AppBackend{
                                             )
                                     )
                     };
-                    var htmlNombreEncuestador = result.rows[0].encuestadortitular;
+                    var htmlNombreEncuestador = result.rows[0].titular;
                     htmlBody.push(html.table(rowTable));
                     var htmlMain = html.html({},[
                         html.head([
@@ -551,9 +561,9 @@ class AppIpcba extends backendPlus.AppBackend{
 
                         html.div({class:"container-plan"},[
                             html.p({class:'titulos-plan'},'Fecha Desde: '),
-                            html.p({class:'container-fecha-1'}, fechasalidadesde),
+                            html.p({class:'container-fecha-1'}, minfechaplanificada),
                             html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
-                            html.p({class:'container-fecha-2'}, fechasalidahasta),
+                            html.p({class:'container-fecha-2'}, maxfechaplanificada),
                         ]),
 
                         html.div({class:"container-plan"},[                   
@@ -577,7 +587,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 }
             })
         });
-        */
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
@@ -872,7 +881,7 @@ NETWORK:
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
-            //{menuType:'table', name:'planificacion', onlyVisibleFor:[programador, coordinador, analista]},
+            {menuType:'table', name:'planificacion', onlyVisibleFor:[programador, coordinador, analista]},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -930,6 +939,11 @@ NETWORK:
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
+                ]},
+                {menuType:'menu', name:'planificacion', menuContent:[
+                    {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'planificar',  name:'planificar', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 /*
                 //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
@@ -1450,7 +1464,10 @@ NETWORK:
             {name: 'periodos_submod', path: __dirname},
             {name: 'submod', path: __dirname},
             {name: 'precios_maximos_minimos_resumen', path: __dirname},
-            //{name: 'planificacion', path: __dirname},
+            {name: 'planificacion', path: __dirname},
+            {name: 'reltar_planificacion', path: __dirname},
+            {name: 'fechas', path: __dirname},
+            {name: 'licencias', path: __dirname},
         ]);
     }
 }
