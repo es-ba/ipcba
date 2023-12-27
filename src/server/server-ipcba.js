@@ -462,85 +462,82 @@ class AppIpcba extends backendPlus.AppBackend{
             var {periodo, encuestador, minfechaplanificada, maxfechaplanificada} = req.query;
             if(!user){
                 //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&minfechaplanificada=${minfechaplanificada}&maxfechaplanificada=${maxfechaplanificada}`)
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
-            }
-            await be.inDbClient(req, async function(client){
-                try{
-                    var sqlPlanificacion = `SELECT * FROM (`+ getSqlPlanificacion() + `) q WHERE periodo =${db.quoteLiteral(periodo)} AND encuestador =${db.quoteLiteral(encuestador)}` 
-                    console.log("planificacion armada:", sqlPlanificacion);
-                    const result = (await client.query(sqlPlanificacion
-                    ).fetchAll());
+                //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
+                res.redirect(401, baseUrl+`/login`)
+            }else{
+                await be.inDbClient(req, async function(client){
+                    try{
+                        var sqlPlanificacion = getSqlPlanificacion({periodo,encuestador});
+                        const result = await client.query(sqlPlanificacion).fetchAll();
+                        var htmlBody = [];
+                        var rowTable = [];
+                        rowTable.push(html.tr([
+                            html.td(['periodo']),
+                            html.td(['panel']),
+                            html.td(['tarea']),
+                            html.td(['encuestador titular']),
+                            html.td(['modalidad']),
+                            html.td(['informantes']),
+                            //html.td(['encuestador']),
+                            html.td(['direcciones']),
+                            html.td(['fecha desde']),
+                            html.td(['fecha hasta']),
+                        ]));
+                        for (var j = 0; j < result.rowCount; j++) {
+                            rowTable.push(html.tr([
+                                html.td([result.rows[j].periodo]),
+                                html.td([result.rows[j].panel]),
+                                html.td([result.rows[j].tarea]),
+                                html.td([result.rows[j].titular]),
+                                html.td([result.rows[j].modalidad]),
+                                html.td([result.rows[j].submodalidad]),
+                                //html.td([result.rows[j].encuestador]),
+                                html.td([result.rows[j].direcciones]),
+                                html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
+                                html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
+                            ]))
+                        };
+                        var htmlNombreEncuestador = result.rowCount?result.rows[0].titular:null;
+                        var htmlMinfechaplanificada = result.rowCount?result.rows[0].minfechaplanificada.toLocaleDateString():null;
+                        var htmlMaxfechaplanificada = result.rowCount?result.rows[0].maxfechaplanificada.toLocaleDateString():null;
+                        htmlBody.push(html.table(rowTable));
+                        var htmlMain = html.html({},[
+                            html.head([
+                                html.title("planificacion"),
+                                html.meta({charset:"utf-8"}),
+                                html.meta({name:"format-detection", content:"telephone=no"}),
+                            ].concat(
+                                html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
+                            )),
+                            
+                            html.h1('Planificación'),
 
-                    var htmlBody = [];
-                    var rowTable = [];
-                    rowTable.push(html.tr([html.td(['periodo']),
-                                  html.td(['panel']),
-                                  html.td(['tarea']),
-                                  html.td(['encuestador titular']),
-                                  html.td(['modalidad']),
-                                  html.td(['informantes']),
-                                  //html.td(['encuestador']),
-                                  html.td(['direcciones']),
-                                  html.td(['fecha desde']),
-                                  html.td(['fecha hasta']),
-                                  ],)
-                    );
-                    for (var j = 0; j < result.rowCount; j++) {
-                       rowTable.push(html.tr([html.td([result.rows[j].periodo]),
-                                              html.td([result.rows[j].panel]),
-                                              html.td([result.rows[j].tarea]),
-                                              html.td([result.rows[j].titular]),
-                                              html.td([result.rows[j].modalidad]),
-                                              html.td([result.rows[j].submodalidad]),
-                                              //html.td([result.rows[j].encuestador]),
-                                              html.td([result.rows[j].direcciones]),
-                                              html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
-                                              html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
-                                             ],
-                                            )
-                                    )
-                    };
-                    var htmlNombreEncuestador = result.rows[0].titular;
-                    var htmlMinfechaplanificada = result.rows[0].minfechaplanificada.toLocaleDateString();
-                    var htmlMaxfechaplanificada = result.rows[0].maxfechaplanificada.toLocaleDateString();
-                    htmlBody.push(html.table(rowTable));
-                    var htmlMain = html.html({},[
-                        html.head([
-                            html.title("planificacion"),
-                            html.meta({charset:"utf-8"}),
-                            html.meta({name:"format-detection", content:"telephone=no"}),
-                        ].concat(
-                            html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
-                        )),
-                        
-                        html.h1('Planificación'),
-
-                        html.div({class:"container-plan"},[
-                            html.p({class:'titulos-plan'},'Fecha Desde: '),
-                            html.p({class:'container-fecha-1'}, htmlMinfechaplanificada),
-                            html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
-                            html.p({class:'container-fecha-2'}, htmlMaxfechaplanificada),
-                        ]),
-
-                        html.div({class:"container-plan"},[                   
-                            html.p({class:'titulos-plan'},'Encuestador: '),
-                            html.p({class:'container-encuestador'}, encuestador),
-                            html.p(htmlNombreEncuestador),
-                        ]),
-
-                        html.body({},[
-                            html.div({id: "total-layout"},[
-                                html.pre({id:'resultado'},htmlBody)
+                            html.div({class:"container-plan"},[
+                                html.p({class:'titulos-plan'},'Fecha Desde: '),
+                                html.p({class:'container-fecha-1'}, htmlMinfechaplanificada),
+                                html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
+                                html.p({class:'container-fecha-2'}, htmlMaxfechaplanificada),
                             ]),
-                        ])
-                    ]);
 
-                    MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
-                }catch(err){
-                    console.log(err);
-                    MiniTools.serveErr(req, res, next)(err);
-                }
-            })
+                            html.div({class:"container-plan"},[                   
+                                html.p({class:'titulos-plan'},'Encuestador: '),
+                                html.p({class:'container-encuestador'}, encuestador),
+                                html.p(htmlNombreEncuestador),
+                            ]),
+
+                            html.body({},[
+                                html.div({id: "total-layout"},[
+                                    html.pre({id:'resultado'},htmlBody)
+                                ]),
+                            ])
+                        ]);
+                        MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
+                    }catch(err){
+                        console.log(err);
+                        MiniTools.serveErr(req, res, next)(err);
+                    }
+                })
+            }
         });
         super.addSchrödingerServices(mainApp, baseUrl);
     }

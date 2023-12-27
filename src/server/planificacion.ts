@@ -1,4 +1,7 @@
-export const getSqlPlanificacion= ()=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
+
+import * as sqlTools from 'sql-tools';
+
+export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
     modalidad, compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
     minfechaplanificada, maxfechaplanificada, concat(s.planificacion_url,
     '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador||'&minfechaplanificada='||minfechaplanificada||'&maxfechaplanificada='||maxfechaplanificada) as url_plan,
@@ -47,6 +50,7 @@ export const getSqlPlanificacion= ()=>`(SELECT periodo, fechasalida, panel, tare
        nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0),
        t.supervisor, t.observaciones) q
        JOIN parametros s ON unicoregistro
+       where ${params?`periodo = ${sqlTools.quoteLiteral(params.periodo)}and encuestador = ${sqlTools.quoteLiteral(params.encuestador)}`:'true'}
    GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
      compartido, consulta, visible, minfechaplanificada, maxfechaplanificada, 
      concat(planificacion_url, 
