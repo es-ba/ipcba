@@ -462,8 +462,8 @@ class AppIpcba extends backendPlus.AppBackend{
             var {periodo, encuestador, minfechaplanificada, maxfechaplanificada} = req.query;
             if(!user){
                 //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&minfechaplanificada=${minfechaplanificada}&maxfechaplanificada=${maxfechaplanificada}`)
-                //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
-                res.redirect(401, baseUrl+`/login`)
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
+                //res.redirect(401, baseUrl+`/login`)
             }else{
                 await be.inDbClient(req, async function(client){
                     try{
