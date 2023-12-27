@@ -1283,10 +1283,11 @@ my.wScreens.planificar=function(addrParams){
             var periodo = controlPeriodo.getTypedValue();
             var fixedFields = [];
             fixedFields.push({fieldName: 'periodo', value: periodo});
+            //fixedFields.push({fieldName: 'encuestador', value: '39'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['sobrecargado','supervisor','observaciones'],
                 //filterColumns:[
-                //    {column:'panel', alias:'paneldesde', operator:'>=' , value:15},
+                //    {column:'periodo', operator:'=', value:periodo},
                 //    {column:'panel', operator:'<=' , value:17},
                 //],        
             }, fixedFields: fixedFields});
@@ -1298,6 +1299,7 @@ my.wScreens.planificar=function(addrParams){
             var periodo = controlPeriodo.getTypedValue();
             var fixedFields = [];
             fixedFields.push({fieldName: 'periodo', value: periodo});
+            //fixedFields.push({fieldName: 'encuestador', value: '39'});
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible'],
