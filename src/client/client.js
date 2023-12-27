@@ -1320,7 +1320,7 @@ my.wScreens.planificar=function(addrParams){
             fixedFields.push({fieldName: 'encuestador', value: encuestador});
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
+                hiddenColumns:['fechasalida','encuestador_titular','suplente','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
                 //filterColumns:[
                 //    {column:'panel', alias:'paneldesde', operator:'>=' , value:15},
                 //    {column:'panel', operator:'<=' , value:17},

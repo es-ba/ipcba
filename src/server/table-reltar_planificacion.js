@@ -32,10 +32,10 @@ module.exports = function(context){
             {name:'visible'               , typeName:'text'       , allow:{update:false}},
             {name:'minfechaplanificada'   , typeName:'date'       , allow:{update:false}},
             {name:'maxfechaplanificada'   , typeName:'date'       , allow:{update:false}},
-            {name:'url_plan'              , typeName:'text'       , allow:{update:false}},
             {name:'sobrecargado'          , typeName:'integer'    , allow:{update:false}},
             {name:'supervisor'            , typeName:'text'       , allow:{update:false}},
             {name:'observaciones'         , typeName:'text'       , allow:{update:false}},
+            {name:'url_plan'              , typeName:'text'       , allow:{update:false}, clientSide:'displayUrl', serverSide:true, width:600},
         ],
         primaryKey:['periodo','panel','tarea'],
         /*
