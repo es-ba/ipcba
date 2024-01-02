@@ -1,7 +1,6 @@
-
 import * as sqlTools from 'sql-tools';
 
-export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
+export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string,usuario:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
     modalidad, compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
     minfechaplanificada, maxfechaplanificada, concat(s.planificacion_url,
     '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador) as url_plan,
@@ -16,7 +15,9 @@ export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string})=
          o.compartido, fv.visible_planificacion visible, f.minfechaplanificada, f.maxfechaplanificada,
          nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0) as sobrecargado,
          t.supervisor, t.observaciones
-           FROM reltar t --pk:periodo, panel, tarea
+           FROM 
+           (select * from personal per where per.username = ${sqlTools.quoteLiteral(params?.usuario)}) per
+           JOIN reltar t on t.encuestador = per.persona or per.labor not in ('E','S') --pk:periodo, panel, tarea
            JOIN tareas a on t.tarea = a.tarea --pk: tarea, pk verificada
            JOIN personal e on t.encuestador = e.persona --pk: persona, pk verificada, encuestador suplente
            JOIN personal r on a.encuestador = r.persona --pk: persona, pk verificada, encuestador titular
@@ -50,7 +51,8 @@ export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string})=
        nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0),
        t.supervisor, t.observaciones) q
        JOIN parametros s ON unicoregistro
-       where ${params?`periodo = ${sqlTools.quoteLiteral(params.periodo)}and encuestador = ${sqlTools.quoteLiteral(params.encuestador)}`:'true'}
+       where true ${params?.periodo? ` and periodo = ${sqlTools.quoteLiteral(params.periodo)} `:' '}
+       ${params?.encuestador? ` and encuestador = ${sqlTools.quoteLiteral(params.encuestador)} `:' '}
    GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
      compartido, consulta, visible, minfechaplanificada, maxfechaplanificada, 
      concat(planificacion_url, 

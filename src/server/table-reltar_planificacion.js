@@ -3,6 +3,7 @@ var getSqlPlanificacion = require("./planificacion").getSqlPlanificacion;
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
+    //console.log("sql desde la grilla: ",getSqlPlanificacion({usuario:context.user.usu_usu}));
     return context.be.tableDefAdapt({
         name:'reltar_planificacion',
         tableName:'reltar',
@@ -45,7 +46,7 @@ module.exports = function(context){
         ],
         */        
         sql:{
-            from: getSqlPlanificacion()
+            from: getSqlPlanificacion({usuario:context.user.usu_usu})
         }
     },context);
 }

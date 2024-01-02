@@ -460,6 +460,7 @@ class AppIpcba extends backendPlus.AppBackend{
             var {db}=be;
             var {user, useragent} = req;
             var {periodo, encuestador, minfechaplanificada, maxfechaplanificada} = req.query;
+            //console.log ("usuario conectado: ",JSON.stringify(user));
             if(!user){
                 //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&minfechaplanificada=${minfechaplanificada}&maxfechaplanificada=${maxfechaplanificada}`)
                 res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
@@ -467,7 +468,8 @@ class AppIpcba extends backendPlus.AppBackend{
             }else{
                 await be.inDbClient(req, async function(client){
                     try{
-                        var sqlPlanificacion = getSqlPlanificacion({periodo,encuestador});
+                        //console.log("planificacion importada:", getSqlPlanificacion({periodo,encuestador,usuario:user.usu_usu}));
+                        var sqlPlanificacion = getSqlPlanificacion({periodo,encuestador,usuario:user.usu_usu});
                         const result = await client.query(sqlPlanificacion).fetchAll();
                         var htmlBody = [];
                         var rowTable = [];
