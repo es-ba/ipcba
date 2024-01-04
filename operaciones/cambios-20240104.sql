@@ -1,3 +1,5 @@
+set search_path = cvp;
+
 CREATE OR REPLACE FUNCTION cambio_panel_tarea_trg()
   RETURNS trigger AS
 $BODY$
@@ -47,9 +49,3 @@ RETURN NEW;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE SECURITY DEFINER;
-
-CREATE TRIGGER relvis_cambio_panel_tarea_trg
-  BEFORE UPDATE OF panel, tarea
-  ON relvis
-  FOR EACH ROW
-  EXECUTE PROCEDURE cambio_panel_tarea_trg();
