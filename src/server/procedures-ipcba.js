@@ -2589,6 +2589,31 @@ ProceduresIpcba = [
                 };
         }
     },
+    {
+        action:'controlvigencias_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'      , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista'],
+        forExport:{
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var nombre = 'controlvigencias_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            var be = this;
+            be.forExport.fileName    = nombre + '.xlsx';
+            be.forExport.csvFileName = nombre + '.csv';
+            return [
+                {   title:'vigenciasExportarTitle',
+                    rows:(
+                        await context.client.query(`select periodo, informante, producto, nombreproducto, observacion, valor,
+                        cantdias, ultimodiadelmes, visitas, vigencias, comentarios, tipoprecio, cantnegativos, cantpositivos 
+                        FROM controlvigencias
+                        WHERE periodo =  $1`, [parameters.periodo]).fetchAll()
+                    ).rows
+                }
+            ]
+        }
+    },    
 ];
 
 module.exports = ProceduresIpcba;

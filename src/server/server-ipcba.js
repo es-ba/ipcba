@@ -915,6 +915,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
+                    {menuType:'proc' , name:'controlvigencias_exportar'               , label:'atributo vigencia exp', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
                     {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
