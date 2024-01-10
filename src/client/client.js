@@ -1358,3 +1358,40 @@ my.wScreens.planificar=function(addrParams){
     },50);
 }
 
+my.wScreens.planificar_envio=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var resultDiv=html.div({class:"result-div"}).create();
+        var divGrilla=html.div().create();
+        //Pestaña 5 de Propuesta Sistemas Planificación-Grillas
+        var botonEnvio=html.button("envio").create();
+        botonEnvio.onclick=function(){
+            var periodo = controlPeriodo.getTypedValue();
+            var fixedFields = [];
+            fixedFields.push({fieldName: 'periodo', value: periodo});
+            fixedFields.push({fieldName: 'visible', value: 'S'});
+            var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
+                hiddenColumns:['fechasalida','encuestador_titular','suplente','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
+            }, fixedFields: fixedFields});
+            grid.refresh();
+        };
+
+        TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"planificacion"),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonEnvio]), 
+                    ]),
+                ]),
+                resultDiv,
+                divGrilla,
+            ]).create()
+        );
+    },50);
+}
