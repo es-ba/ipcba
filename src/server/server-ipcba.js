@@ -6,7 +6,7 @@ var MiniTools = require('mini-tools');
 var uptime = new Date().toString();
 var fs = require("fs").promises;
 var cookieParser = require('cookie-parser')
-
+var getSqlPlanificacion = require("./planificacion").getSqlPlanificacion;
 var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
@@ -456,128 +456,89 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
-        /*
         mainApp.get(baseUrl+`/planificacion`, async function(req, res, next){
+            var {db}=be;
             var {user, useragent} = req;
-            var {periodo, encuestador, fechasalidadesde, fechasalidahasta} = req.query;
+            var {periodo, encuestador, minfechaplanificada, maxfechaplanificada} = req.query;
             if(!user){
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&fechasalidadesde=${fechasalidadesde}&fechasalidahasta=${fechasalidahasta}`)
-            }
-            await be.inDbClient(req, async function(client){
-                try{
-                    const result = (await client.query(`
-                        SELECT periodo, panel, tarea, modalidad, string_agg(submod_informantes, ';') informantes, encuestador, encuestadortitular,
-                        string_agg(direcciones, ',') direcciones, fechasalidadesde, fechasalidahasta 
-                            FROM (SELECT t.periodo, t.panel, t.tarea, t.modalidad, t.encuestador, i.tipoinformante||':'||count(distinct informante) as submod_informantes, 
-                                    i.tipoinformante||':'||count(*) as submod_formularios,
-                                    string_agg(distinct (CASE WHEN modalidad = 'PRESENCIAL' THEN direccion ELSE NULL END),', ') direcciones, p.fechasalida,
-                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
-                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida) fechasalidahasta,
-                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
-                                       concat(r.nombre, concat(' ', r.apellido))
-                                    ELSE 
-                                       concat(e.nombre, concat(' ', e.apellido))
-                                    END as encuestadortitular 
-                                    FROM reltar t
-                                    JOIN tareas a on t.tarea = a.tarea
-                                    JOIN personal e on t.encuestador = e.persona
-                                    JOIN personal r on a.encuestador = r.persona
-                                    JOIN relpan p using (periodo,panel)
-                                    JOIN relvis v on t.periodo= v.periodo and t.panel= v.panel and t.tarea = v.tarea 
-                                    JOIN informantes i using(informante)
-                                    GROUP BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador, p.fechasalida,
-                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
-                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
-                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
-                                      concat(r.nombre, concat(' ', r.apellido))
-                                    ELSE 
-                                      concat(e.nombre, concat(' ', e.apellido))
-                                    END
-                                    ORDER BY t.periodo, t.panel, t.tarea, t.modalidad, i.tipoinformante, t.encuestador, p.fechasalida,
-                                    coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
-                                    coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),
-                                    CASE WHEN t.encuestador is distinct from a.encuestador THEN
-                                       concat(r.nombre, concat(' ', r.apellido))
-                                    ELSE 
-                                       concat(e.nombre, concat(' ', e.apellido))
-                                    END) a
-                            WHERE periodo = $1 and encuestador = $2 and fechasalida >= $3 and fechasalida <= $4
-                            GROUP BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular
-                            ORDER BY periodo, panel, tarea, modalidad, encuestador, fechasalida, fechasalidadesde, fechasalidahasta, encuestadortitular`
-                            , [periodo, encuestador, fechasalidadesde, fechasalidahasta]
-                    ).fetchAll());
+                //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&minfechaplanificada=${minfechaplanificada}&maxfechaplanificada=${maxfechaplanificada}`)
+                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
+                //res.redirect(401, baseUrl+`/login`)
+            }else{
+                await be.inDbClient(req, async function(client){
+                    try{
+                        var sqlPlanificacion = getSqlPlanificacion({periodo,encuestador});
+                        const result = await client.query(sqlPlanificacion).fetchAll();
+                        var htmlBody = [];
+                        var rowTable = [];
+                        rowTable.push(html.tr([
+                            html.td(['periodo']),
+                            html.td(['panel']),
+                            html.td(['tarea']),
+                            html.td(['encuestador titular']),
+                            html.td(['modalidad']),
+                            html.td(['informantes']),
+                            //html.td(['encuestador']),
+                            html.td(['direcciones']),
+                            html.td(['fecha desde']),
+                            html.td(['fecha hasta']),
+                        ]));
+                        for (var j = 0; j < result.rowCount; j++) {
+                            rowTable.push(html.tr([
+                                html.td([result.rows[j].periodo]),
+                                html.td([result.rows[j].panel]),
+                                html.td([result.rows[j].tarea]),
+                                html.td([result.rows[j].titular]),
+                                html.td([result.rows[j].modalidad]),
+                                html.td([result.rows[j].submodalidad]),
+                                //html.td([result.rows[j].encuestador]),
+                                html.td([result.rows[j].direcciones]),
+                                html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
+                                html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
+                            ]))
+                        };
+                        var htmlNombreEncuestador = result.rowCount?result.rows[0].titular:null;
+                        var htmlMinfechaplanificada = result.rowCount?result.rows[0].minfechaplanificada.toLocaleDateString():null;
+                        var htmlMaxfechaplanificada = result.rowCount?result.rows[0].maxfechaplanificada.toLocaleDateString():null;
+                        htmlBody.push(html.table(rowTable));
+                        var htmlMain = html.html({},[
+                            html.head([
+                                html.title("planificacion"),
+                                html.meta({charset:"utf-8"}),
+                                html.meta({name:"format-detection", content:"telephone=no"}),
+                            ].concat(
+                                html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
+                            )),
+                            
+                            html.h1('Planificación'),
 
-                    var htmlBody = [];
-                    var rowTable = [];
-                    rowTable.push(html.tr([html.td(['periodo']),
-                                  html.td(['panel']),
-                                  html.td(['tarea']),
-                                  html.td(['encuestador titular']),
-                                  html.td(['modalidad']),
-                                  html.td(['informantes']),
-                                  //html.td(['encuestador']),
-                                  html.td(['direcciones']),
-                                  html.td(['fecha desde']),
-                                  html.td(['fecha hasta']),
-                                  ],)
-                    );
-                    for (var j = 0; j < result.rowCount; j++) {
-                       rowTable.push(html.tr([html.td([result.rows[j].periodo]),
-                                              html.td([result.rows[j].panel]),
-                                              html.td([result.rows[j].tarea]),
-                                              html.td([result.rows[j].encuestadortitular]),
-                                              html.td([result.rows[j].modalidad]),
-                                              html.td([result.rows[j].informantes]),
-                                              //html.td([result.rows[j].encuestador]),
-                                              html.td([result.rows[j].direcciones]),
-                                              html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
-                                              html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
-                                             ],
-                                            )
-                                    )
-                    };
-                    var htmlNombreEncuestador = result.rows[0].encuestadortitular;
-                    htmlBody.push(html.table(rowTable));
-                    var htmlMain = html.html({},[
-                        html.head([
-                            html.title("planificacion"),
-                            html.meta({charset:"utf-8"}),
-                            html.meta({name:"format-detection", content:"telephone=no"}),
-                        ].concat(
-                            html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
-                        )),
-                        
-                        html.h1('Planificación'),
-
-                        html.div({class:"container-plan"},[
-                            html.p({class:'titulos-plan'},'Fecha Desde: '),
-                            html.p({class:'container-fecha-1'}, fechasalidadesde),
-                            html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
-                            html.p({class:'container-fecha-2'}, fechasalidahasta),
-                        ]),
-
-                        html.div({class:"container-plan"},[                   
-                            html.p({class:'titulos-plan'},'Encuestador: '),
-                            html.p({class:'container-encuestador'}, encuestador),
-                            html.p(htmlNombreEncuestador),
-                        ]),
-
-                        html.body({},[
-                            html.div({id: "total-layout"},[
-                                html.pre({id:'resultado'},htmlBody)
+                            html.div({class:"container-plan"},[
+                                html.p({class:'titulos-plan'},'Fecha Desde: '),
+                                html.p({class:'container-fecha-1'}, htmlMinfechaplanificada),
+                                html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
+                                html.p({class:'container-fecha-2'}, htmlMaxfechaplanificada),
                             ]),
-                        ])
-                    ]);
 
-                    MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
-                
-                }catch(err){
-                    console.log(err);
-                    MiniTools.serveErr(req, res, next)(err);
-                }
-            })
+                            html.div({class:"container-plan"},[                   
+                                html.p({class:'titulos-plan'},'Encuestador: '),
+                                html.p({class:'container-encuestador'}, encuestador),
+                                html.p(htmlNombreEncuestador),
+                            ]),
+
+                            html.body({},[
+                                html.div({id: "total-layout"},[
+                                    html.pre({id:'resultado'},htmlBody)
+                                ]),
+                            ])
+                        ]);
+                        MiniTools.serveText(htmlMain.toHtmlDoc(), 'html')(req,res);
+                    }catch(err){
+                        console.log(err);
+                        MiniTools.serveErr(req, res, next)(err);
+                    }
+                })
+            }
         });
-        */
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
@@ -872,7 +833,7 @@ NETWORK:
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
-            //{menuType:'table', name:'planificacion', onlyVisibleFor:[programador, coordinador, analista]},
+            {menuType:'table', name:'planificacion', onlyVisibleFor:[programador, coordinador, analista]},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -931,6 +892,11 @@ NETWORK:
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
+                ]},
+                {menuType:'menu', name:'planificacion', menuContent:[
+                    {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'planificar',  name:'planificar', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 /*
                 //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
@@ -1451,7 +1417,10 @@ NETWORK:
             {name: 'periodos_submod', path: __dirname},
             {name: 'submod', path: __dirname},
             {name: 'precios_maximos_minimos_resumen', path: __dirname},
-            //{name: 'planificacion', path: __dirname},
+            {name: 'planificacion', path: __dirname},
+            {name: 'reltar_planificacion', path: __dirname},
+            {name: 'fechas', path: __dirname},
+            {name: 'licencias', path: __dirname},
         ]);
     }
 }
