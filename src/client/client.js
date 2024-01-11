@@ -1367,6 +1367,13 @@ my.wScreens.planificar_envio=function(addrParams){
         //Pestaña 5 de Propuesta Sistemas Planificación-Grillas
         var botonEnvio=html.button("envio").create();
         botonEnvio.onclick=function(){
+            if(controlPeriodo.getTypedValue()){
+                history.replaceState(null, '', `${location.origin+location.pathname}/../planificacion?periodo=${controlPeriodo.getTypedValue()}`);
+                location.reload();
+            }else{
+                throw Error('por favor ingrese un periodo');
+            }
+            /*
             var periodo = controlPeriodo.getTypedValue();
             var fixedFields = [];
             fixedFields.push({fieldName: 'periodo', value: periodo});
@@ -1375,6 +1382,7 @@ my.wScreens.planificar_envio=function(addrParams){
                 hiddenColumns:['fechasalida','encuestador_titular','suplente','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
             }, fixedFields: fixedFields});
             grid.refresh();
+            */
         };
 
         TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
