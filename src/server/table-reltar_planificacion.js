@@ -3,6 +3,7 @@ var getSqlPlanificacion = require("./planificacion").getSqlPlanificacion;
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
+    //console.log("url___: ", context.be.config.server["base-url"]);
     //console.log("sql desde la grilla: ",getSqlPlanificacion({usuario:context.user.usu_usu}));
     return context.be.tableDefAdapt({
         name:'reltar_planificacion',
@@ -46,7 +47,7 @@ module.exports = function(context){
         ],
         */        
         sql:{
-            from: getSqlPlanificacion({usuario:context.user.usu_usu})
+            from: getSqlPlanificacion({usuario:context.user.usu_usu,url_plan:context.be.config.server["base-url"]})
         }
     },context);
 }

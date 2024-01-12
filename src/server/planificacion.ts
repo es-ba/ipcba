@@ -1,8 +1,8 @@
 import * as sqlTools from 'sql-tools';
 
-export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string,usuario:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
+export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,usuario:string,url_plan:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
     modalidad, compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
-    minfechaplanificada, maxfechaplanificada, concat(s.planificacion_url,
+    minfechaplanificada, maxfechaplanificada, concat(${sqlTools.quoteLiteral(params.url_plan)},
     '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador) as url_plan,
     sobrecargado, supervisor, observaciones
    FROM (SELECT t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador encuestador_titular, r.nombre||' '||r.apellido as titular, t.encuestador, 
@@ -16,7 +16,7 @@ export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string,us
          nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0) as sobrecargado,
          t.supervisor, t.observaciones
            FROM 
-           (select * from personal per where per.username = ${sqlTools.quoteLiteral(params?.usuario)}) per
+           (select * from personal per where per.username = ${sqlTools.quoteLiteral(params.usuario)}) per
            JOIN reltar t on t.encuestador = per.persona or per.labor not in ('E','S') --pk:periodo, panel, tarea
            JOIN tareas a on t.tarea = a.tarea --pk: tarea, pk verificada
            JOIN personal e on t.encuestador = e.persona --pk: persona, pk verificada, encuestador suplente
@@ -50,12 +50,11 @@ export const getSqlPlanificacion= (params?:{encuestador:string,periodo:string,us
        f.minfechaplanificada, f.maxfechaplanificada,
        nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0),
        t.supervisor, t.observaciones) q
-       JOIN parametros s ON unicoregistro
-       where true ${params?.periodo? ` and periodo = ${sqlTools.quoteLiteral(params.periodo)} `:' '}
-       ${params?.encuestador? ` and encuestador = ${sqlTools.quoteLiteral(params.encuestador)} `:' '}
+       where true ${params.periodo? ` and periodo = ${sqlTools.quoteLiteral(params.periodo)} `:' '}
+       ${params.encuestador? ` and encuestador = ${sqlTools.quoteLiteral(params.encuestador)} `:' '}
    GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
      compartido, consulta, visible, minfechaplanificada, maxfechaplanificada, 
-     concat(planificacion_url, 
+     concat(${sqlTools.quoteLiteral(params.url_plan)}, 
      '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador),
      sobrecargado, supervisor, observaciones
 )`
