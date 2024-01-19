@@ -1273,33 +1273,31 @@ my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
 my.wScreens.planificar=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
-        var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        //var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
         var controlEncuestador=html.td({style:'min-width:70px', "typed-controls-direct-input":"true"}).create();
         var resultDiv=html.div({class:"result-div"}).create();
         var divGrilla=html.div().create();
         //Pestaña 2 y 3 de Propuesta Sistemas Planificación-Grillas
         var botonArmado=html.button("armado").create();
         botonArmado.onclick=function(){
-            var periodo = controlPeriodo.getTypedValue();
-            var fixedFields = [];
-            fixedFields.push({fieldName: 'periodo', value: periodo});
-            //fixedFields.push({fieldName: 'encuestador', value: '39'});
+            //var periodo = controlPeriodo.getTypedValue();
+            //var fixedFields = [];
+            //fixedFields.push({fieldName: 'periodo', value: periodo});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['sobrecargado','supervisor','observaciones'],
                 //filterColumns:[
                 //    {column:'periodo', operator:'=', value:periodo},
                 //    {column:'panel', operator:'<=' , value:17},
                 //],        
-            }, fixedFields: fixedFields});
+            } /*, fixedFields: fixedFields*/});
             grid.refresh();
         };
         //Pestaña 4 de Propuesta Sistemas Planificación-Grillas
         var botonRecepcion=html.button("recepcion").create();
         botonRecepcion.onclick=function(){
-            var periodo = controlPeriodo.getTypedValue();
+            //var periodo = controlPeriodo.getTypedValue();
             var fixedFields = [];
-            fixedFields.push({fieldName: 'periodo', value: periodo});
-            //fixedFields.push({fieldName: 'encuestador', value: '39'});
+            //fixedFields.push({fieldName: 'periodo', value: periodo});
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible'],
@@ -1313,10 +1311,10 @@ my.wScreens.planificar=function(addrParams){
         //Pestaña 5 de Propuesta Sistemas Planificación-Grillas
         var botonEnvio=html.button("envio").create();
         botonEnvio.onclick=function(){
-            var periodo = controlPeriodo.getTypedValue();
+            //var periodo = controlPeriodo.getTypedValue();
             var encuestador = controlEncuestador.getTypedValue();
             var fixedFields = [];
-            fixedFields.push({fieldName: 'periodo', value: periodo});
+            //fixedFields.push({fieldName: 'periodo', value: periodo});
             fixedFields.push({fieldName: 'encuestador', value: encuestador});
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
@@ -1329,15 +1327,15 @@ my.wScreens.planificar=function(addrParams){
             grid.refresh();
         };
 
-        TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
+        //TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
         TypedControls.adaptElement(controlEncuestador,{typeName:'text'});
         layout.appendChild(
             html.div([
                 html.div({class:'titulo-form'},"planificar"),
                 html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
-                    ]),
+                    //html.tr([
+                    //    html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
+                    //]),
                     html.tr([
                         html.td(), html.td([botonArmado]), 
                     ]),
@@ -1361,18 +1359,19 @@ my.wScreens.planificar=function(addrParams){
 my.wScreens.planificar_envio=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
-        var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        //var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
         var resultDiv=html.div({class:"result-div"}).create();
         var divGrilla=html.div().create();
         //Pestaña 5 de Propuesta Sistemas Planificación-Grillas
         var botonEnvio=html.button("envio").create();
         botonEnvio.onclick=function(){
-            if(controlPeriodo.getTypedValue()){
-                history.replaceState(null, '', `${location.origin+location.pathname}/../planificacion?periodo=${controlPeriodo.getTypedValue()}`);
+            //if(controlPeriodo.getTypedValue()){
+                //history.replaceState(null, '', `${location.origin+location.pathname}/../planificacion?periodo=${controlPeriodo.getTypedValue()}`);
+                history.replaceState(null, '', `${location.origin+location.pathname}/../planificacion`);
                 location.reload();
-            }else{
-                throw Error('por favor ingrese un periodo');
-            }
+            //}else{
+            //    throw Error('por favor ingrese un periodo');
+            //}
             /*
             var periodo = controlPeriodo.getTypedValue();
             var fixedFields = [];
@@ -1385,14 +1384,14 @@ my.wScreens.planificar_envio=function(addrParams){
             */
         };
 
-        TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
+        //TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
         layout.appendChild(
             html.div([
                 html.div({class:'titulo-form'},"planificacion"),
                 html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
-                    ]),
+                    //html.tr([
+                    //    html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
+                    //]),
                     html.tr([
                         html.td(), html.td([botonEnvio]), 
                     ]),
