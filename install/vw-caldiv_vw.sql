@@ -16,7 +16,7 @@ CREATE OR REPLACE VIEW caldiv_vw AS
     c.promrealesexcluidos, c.cantrealesdescartados, c.cantpreciostotales, 
     c.cantpreciosingresados, c.cantconprecioparacalestac, 
         CASE
-            WHEN c.promdiv > 0 AND c0.promdiv > 0 THEN round((c.promdiv / c0.promdiv * 100 - 100)::numeric, 1)
+            WHEN c.promdiv > 0 AND c0.promdiv > 0 AND c.periodo IS DISTINCT FROM t.pb_desde THEN round((c.promdiv / c0.promdiv * 100 - 100)::numeric, 1)
             ELSE NULL::numeric
         END AS variacion,
     c.promSinImpExt,
@@ -35,8 +35,9 @@ CREATE OR REPLACE VIEW caldiv_vw AS
             ELSE NULL::numeric
         END AS varSinAltasBajas,
     CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, r.responsable, p."cluster", c.promImputadosInactivos, c.cantimputadosinactivos,
-    CASE WHEN c.division = '0' THEN cg.variacion_indice ELSE NULL END as variacion_indice
+    CASE WHEN c.division = '0' AND c.periodo IS DISTINCT FROM t.pb_desde THEN cg.variacion_indice ELSE NULL END as variacion_indice
    FROM cvp.caldiv c
+   JOIN cvp.parametros t on unicoregistro
    LEFT JOIN cvp.productos p on c.producto = p.producto
    LEFT JOIN cvp.calculos l ON c.periodo = l.periodo and c.calculo = l.calculo  
    LEFT JOIN cvp.caldiv c0 ON c0.periodo = l.periodoanterior AND 
