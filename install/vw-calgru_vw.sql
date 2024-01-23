@@ -2,7 +2,7 @@ set search_path =cvp;
 CREATE OR REPLACE VIEW calgru_vw AS
 select c.periodo, c.calculo, c.agrupacion, c.grupo
        , COALESCE(g.nombregrupo,p.nombreproducto) AS nombre 
-       , CASE WHEN c.periodo = t.pb_desde THEN NULL ELSE c.variacion END as variacion, c.impgru, c.grupopadre, c.nivel, c.esproducto, c.ponderador, c.indice, c.indiceprel
+       , CASE WHEN c.periodo IS DISTINCT FROM t.pb_desde THEN c.variacion ELSE NULL END as variacion, c.impgru, c.grupopadre, c.nivel, c.esproducto, c.ponderador, c.indice, c.indiceprel
        , c.incidencia, c.indiceredondeado, c.incidenciaredondeada
        , (c.indice - cb.indice) * c.ponderador / pb.indice * 100 as incidenciainteranual --con todos los decimales
        , case when c.nivel = 0 then

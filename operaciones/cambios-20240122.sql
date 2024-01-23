@@ -2,7 +2,7 @@ set search_path =cvp;
 CREATE OR REPLACE VIEW calgru_vw AS
 select c.periodo, c.calculo, c.agrupacion, c.grupo
        , COALESCE(g.nombregrupo,p.nombreproducto) AS nombre 
-       , CASE WHEN c.periodo = t.pb_desde THEN NULL ELSE c.variacion END as variacion, c.impgru, c.grupopadre, c.nivel, c.esproducto, c.ponderador, c.indice, c.indiceprel
+       , CASE WHEN c.periodo IS DISTINCT FROM t.pb_desde THEN c.variacion ELSE NULL END as variacion, c.impgru, c.grupopadre, c.nivel, c.esproducto, c.ponderador, c.indice, c.indiceprel
        , c.incidencia, c.indiceredondeado, c.incidenciaredondeada
        , (c.indice - cb.indice) * c.ponderador / pb.indice * 100 as incidenciainteranual --con todos los decimales
        , case when c.nivel = 0 then
@@ -51,7 +51,7 @@ select c.periodo, c.calculo, c.agrupacion, c.grupo
 CREATE OR REPLACE VIEW caldiv_vw AS 
  SELECT c.periodo, c.calculo, c.producto, p.nombreproducto, c.division, c.prompriimpact, c.prompriimpant,
          CASE
-            WHEN c.prompriimpact > 0 AND c.prompriimpant > 0 THEN round((c.prompriimpact / c.prompriimpant * 100 - 100)::numeric, 1)
+            WHEN c.prompriimpact > 0 AND c.prompriimpant > 0 AND c.periodo IS DISTINCT FROM t.pb_desde THEN round((c.prompriimpact / c.prompriimpant * 100 - 100)::numeric, 1)
             ELSE NULL::numeric
         END AS varpriimp,
     c.cantpriimp, c.promprel, c.promdiv, c0.promdiv AS promdivant, c.promedioredondeado, c.impdiv,
@@ -71,17 +71,17 @@ CREATE OR REPLACE VIEW caldiv_vw AS
         END AS variacion,
     c.promSinImpExt,
         CASE
-            WHEN c.promSinImpExt > 0 AND c0.promdiv > 0 THEN round((c.promSinImpExt / c0.promdiv * 100 - 100)::numeric, 1)
+            WHEN c.promSinImpExt > 0 AND c0.promdiv > 0 AND c.periodo IS DISTINCT FROM t.pb_desde THEN round((c.promSinImpExt / c0.promdiv * 100 - 100)::numeric, 1)
             ELSE NULL::numeric
         END AS varSinImpExt,
     --cs.varSinCambio
         CASE
-            WHEN c.promrealessincambio > 0 AND c.promrealessincambioAnt > 0 THEN round((c.promrealessincambio / c.promrealessincambioAnt * 100 - 100)::numeric, 1)
+            WHEN c.promrealessincambio > 0 AND c.promrealessincambioAnt > 0 AND c.periodo IS DISTINCT FROM t.pb_desde THEN round((c.promrealessincambio / c.promrealessincambioAnt * 100 - 100)::numeric, 1)
             ELSE NULL::numeric
         END AS varSinCambio,
     --cs.varSinAltasBajas
         CASE
-            WHEN c.promsinaltasbajas > 0 AND c.promsinaltasbajasAnt > 0 THEN round((c.promsinaltasbajas / c.promsinaltasbajasAnt * 100 - 100)::numeric, 1)
+            WHEN c.promsinaltasbajas > 0 AND c.promsinaltasbajasAnt > 0 AND c.periodo IS DISTINCT FROM t.pb_desde THEN round((c.promsinaltasbajas / c.promsinaltasbajasAnt * 100 - 100)::numeric, 1)
             ELSE NULL::numeric
         END AS varSinAltasBajas,
     CASE WHEN gg.grupo IS NOT NULL THEN TRUE ELSE FALSE END AS publicado, r.responsable, p."cluster", c.promImputadosInactivos, c.cantimputadosinactivos,
