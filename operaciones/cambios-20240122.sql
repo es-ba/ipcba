@@ -58,7 +58,7 @@ CREATE OR REPLACE VIEW caldiv_vw AS
     --cantincluidos y cantrealesincluidos    
     CASE WHEN c.division = '0' and p.tipoexterno = 'D' THEN 1 ELSE c.cantincluidos END AS cantincluidos, 
     CASE WHEN c.division = '0' and p.tipoexterno = 'D' THEN 1 ELSE c.cantrealesincluidos END AS cantrealesincluidos, 
-    c.cantrealesexcluidos, c.promvar, c.cantaltas, 
+    c.cantrealesexcluidos, CASE WHEN c.periodo IS DISTINCT FROM t.pb_desde THEN c.promvar ELSE NULL END promvar, c.cantaltas, 
     c.promaltas, c.cantbajas, c.prombajas, c.cantimputados, c.ponderadordiv, 
     c.umbralpriimp, c.umbraldescarte, c.umbralbajaauto, c.cantidadconprecio, 
     c.profundidad, c.divisionpadre, c.tipo_promedio, c.raiz, c.cantexcluidos, 
