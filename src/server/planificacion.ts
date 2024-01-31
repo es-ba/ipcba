@@ -1,7 +1,7 @@
 import * as sqlTools from 'sql-tools';
 
 export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,usuario:string,url_plan:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
-    modalidad, compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
+    modalidad, string_agg(compartido, chr(10)) compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
     minfechaplanificada, maxfechaplanificada, concat(${sqlTools.quoteLiteral(params.url_plan)},
     '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador) as url_plan,
     sobrecargado, supervisor, observaciones
@@ -12,7 +12,7 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
          CASE WHEN l.persona is not null THEN 'No disponible' ELSE 'Disponible' END AS consulta,   
          i.tipoinformante||':'||count(distinct i.informante) as submodalidad_informantes,
          string_agg(distinct (CASE WHEN modalidad LIKE '%PRESENCIAL%' THEN direccion ELSE NULL END),chr(10)) direcciones,
-         o.compartido, fv.visible_planificacion visible, f.minfechaplanificada, f.maxfechaplanificada,
+         string_agg(distinct i.direccion||': '||chr(10)||o.compartido,' ') compartido, fv.visible_planificacion visible, f.minfechaplanificada, f.maxfechaplanificada,
          nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0) as sobrecargado,
          t.supervisor, t.observaciones
            FROM 
@@ -41,19 +41,20 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
            JOIN (SELECT MIN(fecha) minfechaplanificada, MAX(fecha) maxfechaplanificada 
                         FROM fechas
                         WHERE seleccionada_planificacion = 'S') f ON p.fechasalida between minfechaplanificada and maxfechaplanificada
+          WHERE CASE WHEN t.encuestador = per.persona THEN fv.visible_planificacion = 'S' ELSE true END
        GROUP BY 
        t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador, r.nombre||' '||r.apellido, t.encuestador, 
        case when t.encuestador=a.encuestador then null else nullif(concat_ws(' ', e.nombre, e.apellido),'') end,
        coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida),
        coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida),i.tipoinformante,
-       t.modalidad, o.compartido, CASE WHEN l.persona is not null THEN 'No disponible' ELSE 'Disponible' END, fv.visible_planificacion,
+       t.modalidad, CASE WHEN l.persona is not null THEN 'No disponible' ELSE 'Disponible' END, fv.visible_planificacion,
        f.minfechaplanificada, f.maxfechaplanificada,
        nullif(nullif((select count(*) from reltar x where x.periodo=t.periodo and x.panel=t.panel and x.encuestador=t.encuestador),1),0),
        t.supervisor, t.observaciones) q
        where true ${params.periodo? ` and periodo = ${sqlTools.quoteLiteral(params.periodo)} `:' '}
        ${params.encuestador? ` and encuestador = ${sqlTools.quoteLiteral(params.encuestador)} `:' '}
    GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
-     compartido, consulta, visible, minfechaplanificada, maxfechaplanificada, 
+     consulta, visible, minfechaplanificada, maxfechaplanificada, 
      concat(${sqlTools.quoteLiteral(params.url_plan)}, 
      '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador),
      sobrecargado, supervisor, observaciones
