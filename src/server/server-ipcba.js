@@ -473,6 +473,10 @@ class AppIpcba extends backendPlus.AppBackend{
                         const result = await client.query(sqlPlanificacion).fetchAll();
                         var htmlBody = [];
                         var rowTable = [];
+                        var htmlTituloEncuestador = null;
+                        var htmlNombreEncuestador = null;
+                        var htmlCodigoEncuestador = null;
+                        var htmlPuedeVerTodos = result.rowCount?result.rows[0].puedevertodos:true;
                         rowTable.push(html.tr([
                             html.td(['periodo']),
                             html.td(['panel']),
@@ -484,9 +488,16 @@ class AppIpcba extends backendPlus.AppBackend{
                             html.td(['direcciones']),
                             html.td(['fecha desde']),
                             html.td(['fecha hasta']),
+                            html.td(['sup']),
+                            html.td(['observaciones']),
                         ]));
                         for (var j = 0; j < result.rowCount; j++) {
-                            rowTable.push(html.tr([
+                                if (!htmlPuedeVerTodos||encuestador){
+                                    htmlTituloEncuestador = 'Encuestador: ';
+                                    htmlNombreEncuestador = result.rows[j].suplente?result.rows[j].suplente:result.rows[j].titular;
+                                    htmlCodigoEncuestador = result.rows[j].encuestador;
+                                }
+                                rowTable.push(html.tr([
                                 html.td([result.rows[j].periodo]),
                                 html.td([result.rows[j].panel]),
                                 html.td([result.rows[j].tarea]),
@@ -497,9 +508,10 @@ class AppIpcba extends backendPlus.AppBackend{
                                 html.td([result.rows[j].direcciones]),
                                 html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
                                 html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
+                                html.td([result.rows[j].supervisor]),
+                                html.td([result.rows[j].observaciones]),
                             ]))
                         };
-                        var htmlNombreEncuestador = result.rowCount?result.rows[0].titular:null;
                         var htmlMinfechaplanificada = result.rowCount?result.rows[0].minfechaplanificada.toLocaleDateString():null;
                         var htmlMaxfechaplanificada = result.rowCount?result.rows[0].maxfechaplanificada.toLocaleDateString():null;
                         htmlBody.push(html.table(rowTable));
@@ -522,8 +534,8 @@ class AppIpcba extends backendPlus.AppBackend{
                             ]),
 
                             html.div({class:"container-plan"},[                   
-                                html.p({class:'titulos-plan'},'Encuestador: '),
-                                html.p({class:'container-encuestador'}, encuestador),
+                                html.p({class:'titulos-plan'}, htmlTituloEncuestador),
+                                html.p({class:'container-encuestador'}, htmlCodigoEncuestador),
                                 html.p(htmlNombreEncuestador),
                             ]),
 

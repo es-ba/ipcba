@@ -1284,7 +1284,7 @@ my.wScreens.planificar=function(addrParams){
             //var fixedFields = [];
             //fixedFields.push({fieldName: 'periodo', value: periodo});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['sobrecargado','supervisor','observaciones'],
+                hiddenColumns:['supervisor'],
                 //filterColumns:[
                 //    {column:'periodo', operator:'=', value:periodo},
                 //    {column:'panel', operator:'<=' , value:17},
@@ -1318,7 +1318,8 @@ my.wScreens.planificar=function(addrParams){
             fixedFields.push({fieldName: 'encuestador', value: encuestador});
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['fechasalida','encuestador_titular','suplente','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
+                hiddenColumns:['fechasalida','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
+                //'encuestador_titular','suplente',
                 //filterColumns:[
                 //    {column:'panel', alias:'paneldesde', operator:'>=' , value:15},
                 //    {column:'panel', operator:'<=' , value:17},
@@ -1363,7 +1364,7 @@ my.wScreens.planificar_envio=function(addrParams){
         var resultDiv=html.div({class:"result-div"}).create();
         var divGrilla=html.div().create();
         //Pestaña 5 de Propuesta Sistemas Planificación-Grillas
-        var botonEnvio=html.button("envio").create();
+        var botonEnvio=html.button("planificación semanal").create();
         botonEnvio.onclick=function(){
             //if(controlPeriodo.getTypedValue()){
                 //history.replaceState(null, '', `${location.origin+location.pathname}/../planificacion?periodo=${controlPeriodo.getTypedValue()}`);

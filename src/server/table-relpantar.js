@@ -41,9 +41,17 @@ module.exports = function(context){
             from:`(select rt.periodo, rt.panel, rt.tarea, t.recepcionista, CASE WHEN verif like '%N%' THEN ' ' ELSE '✓' END verificado, 
                           t.encuestador encuestador_titular, te.nombre||' '||te.apellido as titular, rt.encuestador, 
                           case when rt.encuestador=t.encuestador then null else nullif(concat_ws(' ', tre.nombre, tre.apellido),'') end as suplente,
-                          nullif(nullif((select count(*) from reltar x where x.periodo=rt.periodo and x.panel=rt.panel and x.encuestador=rt.encuestador),1),0) as sobrecargado,
+                          nullif(nullif((select count(*) 
+                                         from reltar x join relpan y using(periodo,panel) 
+                                         where x.periodo=rt.periodo and ( 
+                                         coalesce(x.fechasalidadesde, y.fechasalidadesde, y.fechasalida)=coalesce(rt.fechasalidadesde, rp.fechasalidadesde, rp.fechasalida) 
+                                         or 
+                                         coalesce(x.fechasalidahasta, y.fechasalidahasta, y.fechasalida)=coalesce(rt.fechasalidahasta, rp.fechasalidahasta, rp.fechasalida)
+                                         )
+                                         and x.encuestador=rt.encuestador),1),0) as sobrecargado,
                           rt.fechasalidadesde, rt.fechasalidahasta, rt.modalidad, rt.visiblepararelevamiento, rt.supervisor, rt.observaciones
                      from reltar rt
+                       join relpan rp on rt.periodo = rp.periodo and rt.panel = rp.panel
                        left join tareas t on rt.tarea = t.tarea
                        left join pantar pt on rt.panel = pt.panel and rt.tarea = pt.tarea
                        left join personal te on t.encuestador = te.persona

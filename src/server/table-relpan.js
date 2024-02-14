@@ -27,7 +27,7 @@ module.exports = function(context){
             {references:'periodos', fields:['periodo']},
         ],
        detailTables:[
-            {table:'relpantar', abr:'TAR', label:'TAREAS', fields:['periodo','panel']},
+            {table:'relpantar', abr:'TAR', label:'TAREAS', fields:['periodo','panel'], refreshParent: true, refreshFromParent: true},
         ]
     },context);
 }

@@ -13,8 +13,11 @@ CREATE OR REPLACE FUNCTION cvp.generar_panel(
 AS $BODY$
 DECLARE
   f_hoy date= current_date;
+  vexiste integer;
 BEGIN
   /*
+   V240214
+       genera las filas para tabla fechas
    V230705
       genera filas para relpantarinf
    V190117
@@ -140,12 +143,20 @@ BEGIN
       AND i.periodo IS NULL;
 
   INSERT INTO cvp.relpantarinf(periodo, informante, visita, panel, tarea)
-    SELECT v.periodo, v.informante, v.visita, v.panel, v.tarea
+    SELECT DISTINCT v.periodo, v.informante, v.visita, v.panel, v.tarea
       FROM cvp.relvis v
       LEFT JOIN cvp.relpantarinf i on v.periodo = i.periodo and v.informante = i.informante and v.visita = i.visita and v.panel = i.panel and v.tarea = i.tarea 
     WHERE v.periodo = pPeriodo
       AND v.panel = ppanel
       AND i.periodo IS NULL;
+
+    SELECT 1 INTO vexiste 
+    FROM cvp.fechas 
+    WHERE fecha = pfechasalida;
+    IF vexiste IS DISTINCT FROM 1 THEN
+      INSERT INTO cvp.fechas(fecha, visible_planificacion, seleccionada_planificacion)
+      VALUES (pfechasalida, 'N','N');
+    END IF;
 
   RETURN NULL;
 END

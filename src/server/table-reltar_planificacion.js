@@ -4,7 +4,7 @@ var getSqlPlanificacion = require("./planificacion").getSqlPlanificacion;
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
     //console.log("url___: ", context.be.config.server["base-url"]);
-    //console.log("sql desde la grilla: ",getSqlPlanificacion({usuario:context.user.usu_usu}));
+    //console.log("sql desde la grilla: ",getSqlPlanificacion({usuario:context.user.usu_usu,url_plan:context.be.config.server["base-url"]}));
     return context.be.tableDefAdapt({
         name:'reltar_planificacion',
         tableName:'reltar',
@@ -24,8 +24,8 @@ module.exports = function(context){
             {name:'titular'               , typeName:'text'       , allow:{update:false}},
             {name:'encuestador'           , typeName:'text'       , allow:{update:puedeEditar}, title:'enc.r'},
             {name:'suplente'              , typeName:'text'       , allow:{update:false}},
-            {name:'fechasalidadesde'      , typeName:'date'       , allow:{update:false}},
-            {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:false}},
+            {name:'fechasalidadesde'      , typeName:'date'       , allow:{update:puedeEditar}},
+            {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:puedeEditar}},
             {name:'modalidad'             , typeName:'text'       , allow:{update:false}},
             {name:'consulta'              , typeName:'text'       , allow:{update:false}},
             {name:'submodalidad'          , typeName:'text'       , allow:{update:false}},
@@ -36,7 +36,7 @@ module.exports = function(context){
             {name:'maxfechaplanificada'   , typeName:'date'       , allow:{update:false}},
             {name:'sobrecargado'          , typeName:'integer'    , allow:{update:false}},
             {name:'supervisor'            , typeName:'text'       , allow:{update:false}},
-            {name:'observaciones'         , typeName:'text'       , allow:{update:false}},
+            {name:'observaciones'         , typeName:'text'       , allow:{update:puedeEditar}},
             {name:'url_plan'              , typeName:'text'       , allow:{update:false}, clientSide:'displayUrl', serverSide:true, width:600},
         ],
         primaryKey:['periodo','panel','tarea'],
