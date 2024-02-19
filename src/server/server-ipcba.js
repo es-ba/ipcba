@@ -17,6 +17,13 @@ class AppIpcba extends backendPlus.AppBackend{
         var be = this;
         return reqOrContext && (reqOrContext.forDump || reqOrContext.user && reqOrContext.user[be.config.login.rolFieldName] == 'programador');
     }
+    can(reqOrContext, what){
+        var be = this;
+        if (be.isAdmin(reqOrContext)) return true;
+        let puede = ('can' + what).toLowerCase()
+        return reqOrContext?.user?.[puede];
+        
+    }
     async postConfig(){
         await super.postConfig();
         this.fieldDomain.grupo={sortMethod:'codigo_ipc'};
@@ -81,7 +88,7 @@ class AppIpcba extends backendPlus.AppBackend{
             userFieldName: usu_usu
             passFieldName: usu_clave
             rolFieldName: usu_rol
-            infoFieldList: [usu_usu, usu_rol]
+            infoFieldList: [usu_usu, usu_rol, candownloadbackup]
             activeClausule: usu_activo
             double-dragon: true
             plus:
