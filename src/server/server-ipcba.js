@@ -73,7 +73,7 @@ class AppIpcba extends backendPlus.AppBackend{
             database: cvp_db
             schema: cvp
             user: cvpowner
-            search_path: [cvp, ipcba, precios_app]
+            search_path: [cvp, ipcba, precios_app, his]
             fkOnUpdate: false
           login:
             schema: ipcba
@@ -348,14 +348,6 @@ class AppIpcba extends backendPlus.AppBackend{
     - vw-valorizacion_canasta.sql
     - vw-valorizacion_canasta_cuadros.sql
     */
-    getManifestPaths(parameters){
-        const centralPart=`${parameters.periodo}p${parameters.panel}t${parameters.tarea}`;
-        return {
-            manifestPath: `carga-dm/${centralPart}_manifest.manifest`,
-            estructuraPath: `carga-dm/${centralPart}_estructura.js`,
-            hdrPath: `carga-dm/${centralPart}_hdr.json`,
-        }        
-    }
     addSchrödingerServices(mainApp, baseUrl){
         var be=this;
         mainApp.get(baseUrl+'/rescate',async function(req,res,_next){
@@ -459,12 +451,10 @@ class AppIpcba extends backendPlus.AppBackend{
         mainApp.get(baseUrl+`/planificacion`, async function(req, res, next){
             var {db}=be;
             var {user, useragent} = req;
-            var {periodo, encuestador, minfechaplanificada, maxfechaplanificada} = req.query;
+            var {periodo, encuestador} = req.query;
             //console.log ("usuario conectado: ",JSON.stringify(user));
             if(!user){
-                //res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}&minfechaplanificada=${minfechaplanificada}&maxfechaplanificada=${maxfechaplanificada}`)
-                res.redirect(401, baseUrl+`/login#w=path&path=/planificacion?periodo=${periodo}&encuestador=${encuestador}`)
-                //res.redirect(401, baseUrl+`/login`)
+                res.redirect(401, baseUrl+`/login`)
             }else{
                 await be.inDbClient(req, async function(client){
                     try{
@@ -523,25 +513,22 @@ class AppIpcba extends backendPlus.AppBackend{
                             ].concat(
                                 html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
                             )),
-                            
-                            html.h1('Planificación'),
-
-                            html.div({class:"container-plan"},[
-                                html.p({class:'titulos-plan'},'Fecha Desde: '),
-                                html.p({class:'container-fecha-1'}, htmlMinfechaplanificada),
-                                html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
-                                html.p({class:'container-fecha-2'}, htmlMaxfechaplanificada),
-                            ]),
-
-                            html.div({class:"container-plan"},[                   
-                                html.p({class:'titulos-plan'}, htmlTituloEncuestador),
-                                html.p({class:'container-encuestador'}, htmlCodigoEncuestador),
-                                html.p(htmlNombreEncuestador),
-                            ]),
-
                             html.body({},[
                                 html.div({id: "total-layout"},[
-                                    html.pre({id:'resultado'},htmlBody)
+                                    html.a({id:'volver', href:baseUrl},'volver'),
+                                    html.h1('Planificación'),
+                                    html.div({class:"container-plan"},[
+                                        html.p({class:'titulos-plan'},'Fecha Desde: '),
+                                        html.p({class:'container-fecha-1'}, htmlMinfechaplanificada),
+                                        html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
+                                        html.p({class:'container-fecha-2'}, htmlMaxfechaplanificada),
+                                    ]),
+                                    html.div({class:"container-plan"},[                   
+                                        html.p({class:'titulos-plan'}, htmlTituloEncuestador),
+                                        html.p({class:'container-encuestador'}, htmlCodigoEncuestador),
+                                        html.p(htmlNombreEncuestador),
+                                    ]),
+                                    htmlBody
                                 ]),
                             ])
                         ]);
@@ -562,8 +549,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {sufix:`manifest.manifest`     , fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
             {sufix:`estructura.js`         , fieldName:'archivo_estructura', mimeType:'application/javascript'},
             {sufix:`hdr.json`              , fieldName:'archivo_hdr'       , mimeType:'application/json'},
-            {sufix:`resources_cache.json`  , fieldName:'archivo_cache'     , mimeType:'application/json'},
-
+            {sufix:`resources_cache.json`  , fieldName:'archivo_cache'     , mimeType:'application/js'}
         ].forEach(function(def){
             be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
                 await be.inDbClient(req, async function(client){
@@ -582,15 +568,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 });
             })
         });
-        be.app.get(`/carga-dm/dm-manifest.manifest`, async function(req, res, next){
-            try{
-                const content = be.getManifestContent({});
-                MiniTools.serveText(content, 'text/cache-manifest')(req,res);
-            }catch(err){
-                console.log(err);
-                MiniTools.serveErr(req, res, next)(err);
-            }
-        });
         super.addLoggedServices(opts);
     }
     getProcedures(){
@@ -605,101 +582,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 return procedureDef;
             });
         });
-    }
-    getManifestContent(parameters){
-        var be = this;
-        if(parameters.periodo){
-            var {manifestPath, estructuraPath, hdrPath} = be.getManifestPaths(parameters);
-        }
-        const especifico=parameters.periodo?`
-../${estructuraPath}
-../${hdrPath}
-../dm
-`:'';
-        const version=parameters.periodo?`${parameters.periodo}p${parameters.panel}t${parameters.tarea} ${datetime.now().toYmdHms()}`:uptime;
-        return (
-`CACHE MANIFEST
-#${version}
-
-CACHE:
-#--------------------------- JS ------------------------------------
-../lib/react.production.min.js
-../lib/react-dom.production.min.js
-../lib/material-ui.production.min.js
-../lib/material-styles.production.min.js
-../lib/clsx.min.js
-../lib/redux.min.js
-../lib/react-redux.min.js
-../lib/index-prod.umd.js
-../lib/memoize-one.js
-../lib/require-bro.js
-../lib/like-ar.js
-../lib/best-globals.js
-../lib/json4all.js
-../lib/js-to-html.js
-../lib/redux-typed-reducer.js
-../adapt.js
-../dm-tipos.js
-../dm-funciones.js
-../dm-react.js
-../ejemplo-precios.js
-../unlogged.js
-../lib/js-yaml.js
-../lib/xlsx.core.min.js
-../lib/lazy-some.js
-../lib/sql-tools.js
-../dialog-promise/dialog-promise.js
-../moment/min/moment.js
-../pikaday/pikaday.js
-../lib/polyfills-bro.js
-../lib/big.js
-../lib/type-store.js
-../lib/typed-controls.js
-../lib/ajax-best-promise.js
-../my-ajax.js
-../my-start.js
-../lib/my-localdb.js
-../lib/my-websqldb.js
-../lib/my-localdb.js.map
-../lib/my-websqldb.js.map
-../lib/my-things.js
-../lib/my-tables.js
-../lib/my-inform-net-status.js
-../lib/my-menu.js
-../lib/my-skin.js
-../lib/cliente-en-castellano.js
-../client/client.js
-../client/menu.js
-../client/hoja-de-ruta.js
-../client/hoja-de-ruta-react.js
-${especifico}
-
-#------------------------------ CSS ---------------------------------
-../dialog-promise/dialog-promise.css
-../pikaday/pikaday.css
-../css/my-things.css
-../css/my-tables.css
-../css/my-menu.css
-../css/menu.css
-../css/offline-mode.css
-../css/hoja-de-ruta.css
-../default/css/my-things.css
-../default/css/my-tables.css
-../default/css/my-menu.css
-../css/ejemplo-precios.css
-../default/css/ejemplo-precios.css
-
-#------------------------------ IMAGES ---------------------------------
-../img/logo.png
-../img/logo-dm.png
-../img/main-loading.gif
-
-FALLBACK:
-../menu* ../dm
-
-NETWORK:
-*`
-        );
     }
     async getResourcesForCacheJson(params){
         var be=this;
@@ -718,9 +600,6 @@ NETWORK:
         
         jsonResult.version = APP_DM_VERSION;
         jsonResult.appName = 'ipcba';
-        if(parameters.periodo){
-            var {estructuraPath, hdrPath} = be.getManifestPaths(parameters);
-        }
         const especifico=[];
         jsonResult.cache=[
             "dm",
