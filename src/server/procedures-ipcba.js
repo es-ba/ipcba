@@ -2608,7 +2608,49 @@ ProceduresIpcba = [
                 }
             ]
         }
-    },    
+    },
+    {
+        action:'relpre_control_atr2_diccionario_atributos_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'      , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista','recepcionista','jefeCampo'],
+        forExport:{
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            var nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            var be = this;
+            be.forExport.fileName    = nombre + '.xlsx';
+            be.forExport.csvFileName = nombre + '.csv';
+            return [
+                {   title:'relpre_control_atr2_dicatrTitle',
+                    rows:(
+                        await context.client.query(`select a.periodo, vis.panel, vis.tarea, a.producto, 
+                        o.nombreproducto productos__nombreproducto, o.cluster productos__cluster,
+                        a.informante, i.nombreinformante informantes__nombreinformante, i.tipoinformante informantes__tipoinformante,
+                        i.cluster informantes__cluster, pre.formulario, a.visita, a.observacion, 
+                        a.atributo, a1.nombreatributo atributos__nombreatributo, a.valor, aa.atributo atributo_2, a2.nombreatributo atr__nombreatributo,
+                        aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm  
+                              from relpre pre
+                              join informantes i on pre.informante = i.informante
+                              join relatr a on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
+                              join atributos a1 on a.atributo = a1.atributo
+                              join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                              join productos o on a.producto = o.producto
+                              join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
+                              left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
+                              left join tipopre t on pre.tipoprecio = t.tipoprecio
+                              left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion 
+                                                 and a.visita = aa.visita and aa.atributo = p.atributo_2  
+                              left join atributos a2 on aa.atributo = a2.atributo
+                              where coalesce(pa.validaropciones, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
+                              and case when p.valor_2 ~ aa.valor then 1 else 0 end = 0
+                              and pre.periodo =  $1`, [parameters.periodo]).fetchAll()
+                    ).rows
+                }
+            ]
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;

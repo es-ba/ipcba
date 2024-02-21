@@ -708,6 +708,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                     {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                     {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:asignadores},
+                    //{menuType:'planificar_envio', name:'planificar_envio', label:'planificacion', showInOfflineMode: false},
                 ]},
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
@@ -773,6 +774,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_atr1_diccionario_atributos', label:'inconsistencia (atr1) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
+                    {menuType:'proc' , name:'relpre_control_atr2_diccionario_atributos_exportar', label:'inconsistencia (atr2) de diccionario exp', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},

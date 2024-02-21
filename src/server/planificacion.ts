@@ -72,4 +72,5 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
      concat(${sqlTools.quoteLiteral(params.url_plan)}, 
      '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador),
      sobrecargado, supervisor, observaciones, puedevertodos
+   ORDER BY fechasalidadesde, fechasalidahasta, periodo, panel, tarea
 )`

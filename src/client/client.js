@@ -1285,6 +1285,7 @@ my.wScreens.planificar=function(addrParams){
             //fixedFields.push({fieldName: 'periodo', value: periodo});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['supervisor'],
+                sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'}],
                 //filterColumns:[
                 //    {column:'periodo', operator:'=', value:periodo},
                 //    {column:'panel', operator:'<=' , value:17},
@@ -1301,6 +1302,7 @@ my.wScreens.planificar=function(addrParams){
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible'],
+                sortColumns:[{column:'fechasalidadesde'},{column:'fechasalidahasta'},{column:'periodo'},{column:'panel'},{column:'tarea'}],
                 //filterColumns:[
                 //    {column:'panel', alias:'paneldesde', operator:'>=' , value:15},
                 //    {column:'panel', operator:'<=' , value:17},
@@ -1319,6 +1321,7 @@ my.wScreens.planificar=function(addrParams){
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
                 hiddenColumns:['fechasalida','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
+                sortColumns:[{column:'fechasalidadesde'},{column:'fechasalidahasta'},{column:'periodo'},{column:'panel'},{column:'tarea'}],
                 //'encuestador_titular','suplente',
                 //filterColumns:[
                 //    {column:'panel', alias:'paneldesde', operator:'>=' , value:15},

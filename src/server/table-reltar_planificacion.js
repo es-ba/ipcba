@@ -40,12 +40,6 @@ module.exports = function(context){
             {name:'url_plan'              , typeName:'text'       , allow:{update:false}, clientSide:'displayUrl', serverSide:true, width:600},
         ],
         primaryKey:['periodo','panel','tarea'],
-        /*
-        detailTables:[
-            {table:'relvis', abr:'VIS', label:'visitas', fields:['periodo','panel','tarea']},
-            {table:'relinf_fechassalida', abr:'INF', label:'informantes', fields:['periodo','panel','tarea']},
-        ],
-        */        
         sql:{
             from: getSqlPlanificacion({usuario:context.user.usu_usu,url_plan:context.be.config.server["base-url"]})
         }
