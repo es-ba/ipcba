@@ -9,6 +9,8 @@ var TypedControls=require('typed-controls');
 
 var my = myOwn;
 
+const ABRIR_TAB = "_abrir";
+
 my.tableAction.showImg={
     img: my.path.img+'picture.png',
     actionRow: function(depot){
@@ -1364,3 +1366,17 @@ my.wScreens.planificar_envio=function(addrParams){
     history.replaceState(null, '', `${location.origin+location.pathname}/../planificacion`);
     location.reload();
 }
+
+my.clientSides.mostrarBotonPlanificacion = {
+    update: function (depot, fieldName) {
+    },
+    prepare: function (depot, fieldName) {
+        var td = depot.rowControls[fieldName];
+        td.innerHTML='';
+        var boton = html.button('ver planificación').create();
+        td.appendChild(boton);
+        boton.onclick=function(){
+            window.open(depot.row.url_plan, ABRIR_TAB)
+        }
+    },
+};

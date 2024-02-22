@@ -37,7 +37,7 @@ module.exports = function(context){
             {name:'sobrecargado'          , typeName:'integer'    , allow:{update:false}},
             {name:'supervisor'            , typeName:'text'       , allow:{update:false}},
             {name:'observaciones'         , typeName:'text'       , allow:{update:puedeEditar}},
-            {name:'url_plan'              , typeName:'text'       , allow:{update:false}, clientSide:'displayUrl', serverSide:true, width:600},
+            {name:'url_plan'              , typeName:'text'       , allow:{update:false}, clientSide:'mostrarBotonPlanificacion', serverSide:true,},
         ],
         primaryKey:['periodo','panel','tarea'],
         sql:{

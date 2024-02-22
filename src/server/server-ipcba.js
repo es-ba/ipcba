@@ -708,7 +708,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'preparar_instalacion2', name:'instalar_dm2', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                     {menuType:'sincronizar_dm2', name:'sincronizar_dm2', label:'sincronizar', showInOfflineMode: false, onlyVisibleFor:asignadores},
                     {menuType:'vaciar_dm2', name:'vaciar_dm2', label:'vaciar', showInOfflineMode: false, onlyVisibleFor:asignadores},
-                    //{menuType:'planificar_envio', name:'planificar_envio', label:'planificacion', showInOfflineMode: false},
+                    {menuType:'planificar_envio', name:'planificar_envio', label:'planificacion', showInOfflineMode: false, onlyVisibleFor:asignadores},
                 ]},
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
