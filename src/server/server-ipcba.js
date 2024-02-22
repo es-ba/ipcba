@@ -459,13 +459,11 @@ class AppIpcba extends backendPlus.AppBackend{
             var {db}=be;
             var {user, useragent} = req;
             var {periodo, encuestador} = req.query;
-            //console.log ("usuario conectado: ",JSON.stringify(user));
             if(!user){
                 res.redirect(401, baseUrl+`/login`)
             }else{
                 await be.inDbClient(req, async function(client){
                     try{
-                        //console.log("planificacion importada:", getSqlPlanificacion({periodo,encuestador,usuario:user.usu_usu}));
                         var sqlPlanificacion = getSqlPlanificacion({periodo,encuestador,usuario:user.usu_usu});
                         const result = await client.query(sqlPlanificacion).fetchAll();
                         var htmlBody = [];
@@ -481,7 +479,6 @@ class AppIpcba extends backendPlus.AppBackend{
                             html.td(['encuestador titular']),
                             html.td(['modalidad']),
                             html.td(['informantes']),
-                            //html.td(['encuestador']),
                             html.td(['direcciones']),
                             html.td(['fecha desde']),
                             html.td(['fecha hasta']),
@@ -501,7 +498,6 @@ class AppIpcba extends backendPlus.AppBackend{
                                 html.td([result.rows[j].titular]),
                                 html.td([result.rows[j].modalidad]),
                                 html.td([result.rows[j].submodalidad]),
-                                //html.td([result.rows[j].encuestador]),
                                 html.td([result.rows[j].direcciones]),
                                 html.td([result.rows[j].fechasalidadesde.toLocaleDateString()]),
                                 html.td([result.rows[j].fechasalidahasta.toLocaleDateString()]),
@@ -734,7 +730,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
-            {menuType:'planificar_envio', name:'planificar_envio', label:'planificacion' /*, onlyVisibleFor:[programador, coordinador, analista]*/},
+            {menuType:'planificar_envio', name:'planificar_envio', label:'planificacion'},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -1320,7 +1316,6 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_submod', path: __dirname},
             {name: 'submod', path: __dirname},
             {name: 'precios_maximos_minimos_resumen', path: __dirname},
-            {name: 'planificacion', path: __dirname},
             {name: 'reltar_planificacion', path: __dirname},
             {name: 'fechas', path: __dirname},
             {name: 'licencias', path: __dirname},
