@@ -464,7 +464,7 @@ class AppIpcba extends backendPlus.AppBackend{
             }else{
                 await be.inDbClient(req, async function(client){
                     try{
-                        var sqlPlanificacion = getSqlPlanificacion({periodo,encuestador,usuario:user.usu_usu});
+                        var sqlPlanificacion = getSqlPlanificacion({encuestador,usuario:user.usu_usu});
                         const result = await client.query(sqlPlanificacion).fetchAll();
                         var htmlBody = [];
                         var rowTable = [];

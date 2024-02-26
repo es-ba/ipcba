@@ -16,12 +16,13 @@ module.exports = function(context){
         sql:{
             from: `(select per.persona, per.fecha, per.labor 
                      from (select persona, fecha, labor 
-                            from personal p 
+                            from personal p
+                            join tareas t on p.persona = t.encuestador 
                             join ipcba.usuarios u on p.username = u.usu_usu 
                             cross join (select fecha from fechas f 
                                         join relpan rp on f.fecha = rp.fechasalida 
                                         where seleccionada_planificacion = 'S') s
-                            where labor in ('E', 'S') and activo = 'S' and usu_activo) per
+                            where operativo = 'C' and labor in ('E', 'S') and activo = 'S' and usu_activo) per
                     left join (select fecha, encuestador as persona
                                  from fechas f
                                  join relpan rp on f.fecha = rp.fechasalida

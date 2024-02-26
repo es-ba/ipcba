@@ -3,7 +3,7 @@ import * as sqlTools from 'sql-tools';
 export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,usuario:string,url_plan:string})=>`(SELECT periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, 
     modalidad, string_agg(compartido, chr(10)) compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
     minfechaplanificada, maxfechaplanificada, concat(${sqlTools.quoteLiteral(params.url_plan)},
-    '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador) as url_plan,
+    '/planificacion'||'?encuestador='||encuestador) as url_plan,
     sobrecargado, supervisor, observaciones, puedevertodos
    FROM (SELECT t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador encuestador_titular, r.nombre||' '||r.apellido as titular, t.encuestador, 
          case when t.encuestador=a.encuestador then null else nullif(concat_ws(' ', e.nombre, e.apellido),'') end as suplente,
@@ -70,7 +70,7 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
    GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
      consulta, visible, minfechaplanificada, maxfechaplanificada, 
      concat(${sqlTools.quoteLiteral(params.url_plan)}, 
-     '/planificacion'||'?periodo='||periodo||'&encuestador='||encuestador),
+     '/planificacion'||'?encuestador='||encuestador),
      sobrecargado, supervisor, observaciones, puedevertodos
    ORDER BY fechasalidadesde, fechasalidahasta, periodo, panel, tarea
 )`
