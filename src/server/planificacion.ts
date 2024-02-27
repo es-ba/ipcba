@@ -48,7 +48,7 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
            JOIN (SELECT MIN(fecha) minfechaplanificada, MAX(fecha) maxfechaplanificada 
                         FROM fechas
                         WHERE seleccionada_planificacion = 'S') f ON coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) between minfechaplanificada and maxfechaplanificada
-          WHERE CASE WHEN t.encuestador = per.persona THEN fv.visible_planificacion = 'S' ELSE true END and a.operativo = 'C'
+          WHERE CASE WHEN per.labor in ('E','S','R') THEN fv.visible_planificacion = 'S' ELSE true END and a.operativo = 'C'
        GROUP BY 
        t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador, r.nombre||' '||r.apellido, t.encuestador, 
        case when t.encuestador=a.encuestador then null else nullif(concat_ws(' ', e.nombre, e.apellido),'') end,

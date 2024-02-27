@@ -795,7 +795,8 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table'     ,  name:'personal_sin_carga', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'planificar',  name:'planificar', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'planificar_recepcion',  name:'recepcion', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo]},
                 ]},
                 /*
                 //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},

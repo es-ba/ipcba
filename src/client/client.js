@@ -1272,10 +1272,9 @@ my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
     my.agregar_json(backupDiv, result.backup)
 }
 
-my.wScreens.planificar=function(addrParams){
+my.wScreens.planificar_armado=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
-        var controlEncuestador=html.td({style:'min-width:70px', "typed-controls-direct-input":"true"}).create();
         var resultDiv=html.div({class:"result-div"}).create();
         var divGrilla=html.div().create();
         var botonArmado=html.button("armado").create();
@@ -1286,6 +1285,28 @@ my.wScreens.planificar=function(addrParams){
             }});
             grid.refresh();
         };
+
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"planificar"),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td(), html.td([botonArmado]), 
+                    ]),
+                ]),
+                resultDiv,
+                divGrilla,
+            ]).create()
+        );
+    },50);
+}
+
+my.wScreens.planificar_recepcion=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var controlEncuestador=html.td({style:'min-width:70px', "typed-controls-direct-input":"true"}).create();
+        var resultDiv=html.div({class:"result-div"}).create();
+        var divGrilla=html.div().create();
         var botonRecepcion=html.button("recepcion").create();
         botonRecepcion.onclick=function(){
             var fixedFields = [];
@@ -1312,11 +1333,8 @@ my.wScreens.planificar=function(addrParams){
         TypedControls.adaptElement(controlEncuestador,{typeName:'text'});
         layout.appendChild(
             html.div([
-                html.div({class:'titulo-form'},"planificar"),
+                html.div({class:'titulo-form'},"planificar recepción"),
                 html.table({class:'table-param-screen'},[
-                    html.tr([
-                        html.td(), html.td([botonArmado]), 
-                    ]),
                     html.tr([
                         html.td(), html.td([botonRecepcion]), 
                     ]),
