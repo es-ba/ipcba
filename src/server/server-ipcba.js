@@ -486,12 +486,12 @@ class AppIpcba extends backendPlus.AppBackend{
                             html.td(['observaciones']),
                         ]));
                         for (var j = 0; j < result.rowCount; j++) {
-                                if (!htmlPuedeVerTodos||encuestador){
-                                    htmlTituloEncuestador = 'Encuestador: ';
-                                    htmlNombreEncuestador = result.rows[j].suplente?result.rows[j].suplente:result.rows[j].titular;
-                                    htmlCodigoEncuestador = result.rows[j].encuestador;
-                                }
-                                rowTable.push(html.tr([
+                            if (!htmlPuedeVerTodos||encuestador){
+                                htmlTituloEncuestador = 'Encuestador: ';
+                                htmlNombreEncuestador = result.rows[j].suplente?result.rows[j].suplente:result.rows[j].titular;
+                                htmlCodigoEncuestador = result.rows[j].encuestador;
+                            }
+                            rowTable.push(html.tr([
                                 html.td([result.rows[j].periodo]),
                                 html.td([result.rows[j].panel]),
                                 html.td([result.rows[j].tarea]),
