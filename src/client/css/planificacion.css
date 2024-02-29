@@ -1,84 +1,65 @@
-*   {
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;  
+.navbar{
+    padding:0px;
 }
-
-table, th, td{
-    border: 1px solid rgb(196, 196, 196);
-    Border-collapse: collapse;
+.container-fluid  {
+    background-color: rgb(63, 81, 181);
+    padding: 10px 20px 10px 20px;
+    margin: 0px;
 }
-
-tbody{
-    border-style: solid;
+.navbar-brand{
+    color: #ffffff;
+    padding-left: 20px;
+}     
+.navbar-brand:hover{
+    color: #ffffff        
 }
-
-table{
-    table-layout:unset
+.btn-toolbar {
+    color: #fff;
+    background-color: transparent;
+    border-color: #ffffff;
+    svg{
+        fill:#ffffff
+    };
 }
-
-body{
-    padding-left: 30px;  
-    font-size: 120%;
-    /*font-family: arial, sans-serif;*/
+.btn-toolbar:hover, .btn-toolbar:focus, .btn-toolbar:active, .btn-toolbar.active, .open>.dropdown-toggle.btn-toolbar {
+    color: rgb(63, 81, 181);
+    background-color: #fff;
+    border-color: rgb(63, 81, 181);
+    svg{
+        fill:rgb(63, 81, 181)
+    };
 }
-
-input{
-    font-size: 100%;
+.col{
+    margin: 20px 0px -20px 0px;
 }
-
-td{
-    padding: 8px;
-    word-wrap: break-word;
-    white-space: pre;
-    font-size: 15px;
+.encuyfecha{
+    display:flex;
+    justify-content: center;
+    align-items:center;
 }
+.encuestador{
+    margin-right: auto;
+    margin-left: 30px;}    
+.fecha{
+    margin-left: auto;
+    margin-right: 30px;}
+hr {
+    height: 2px;
+    background-color: #000000    
+    }    
+.tablavista{
+    margin: 0px 25px 0px 25px ;
+    }  
 
-.formtd input{
-    width: 200px;
+@media print {
+.btn{display: none;}
+.navbar-brand{font-size: 30px;
+              color:#000000 !important;}
+.table-striped{border-color: #000000 ;
+               border-width: 1px;
+               box-shadow: unset;
+       }
+td{box-shadow: unset !important;
+        }       
 }
-
-.logintableImgRow{
-    display: none;
-}
-
-.iconostd{
-    display: none;
-}
-
-#loginFormRightImg{
-    height: 120px;
-}
-
-.container-plan{
-    display: flex;
-}
-
-.container-fecha-1{
-    margin-left: 8px;
-    margin-right: 24px;
-}
-
-.container-fecha-2 {
-    margin-left: 8px;
-    margin-right: 8px;
-}
-
-.container-encuestador{
-    margin-left: 8px;
-    margin-right: 8px;
-}
-
-.titulos-plan{
-    font-weight: bold;
-}
-
-@media print{
-  td {
-    font-size: 10px;
-    }
-  body {
-    padding-left: 0px;
-    }
-}
-
-
-
+    

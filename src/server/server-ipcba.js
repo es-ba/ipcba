@@ -514,9 +514,16 @@ class AppIpcba extends backendPlus.AppBackend{
                                 html.meta({charset:"utf-8"}),
                                 html.meta({name:"format-detection", content:"telephone=no"}),
                             ].concat(
-                                html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
+                                html.link({rel:"stylesheet", href:`${baseUrl}/css/bootstrap.min.css`}),
+                                html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}) 
                             )),
                             html.body({},[
+                                html.nav({class: "navbar bg-body-tertiary"},[
+                                    html.div({class:'container-fluid'},[
+                                        html.span({class:'navbar-brand mb-0 h1'},'Planificacion'),
+                                        html.a({class:"btn btn-toolbar btn-outlined", href:baseUrl}),
+                                    ]),
+                                ]),
                                 html.div({id: "total-layout"},[
                                     html.a({id:'volver', href:baseUrl},'volver'),
                                     html.h1('Planificación'),
