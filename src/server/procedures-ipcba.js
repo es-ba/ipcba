@@ -2327,7 +2327,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-                var nombre = 'unificacionDeMarcas_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+                const nombre = 'unificacionDeMarcas_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
                 return [
                 /*{
                     title:'agrupaciones',
@@ -2407,7 +2407,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            var nombre = 'calobsAmpliado_' + parameters.periododesde + '_' + parameters.periodohasta + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const nombre = 'calobsAmpliado_' + parameters.periododesde + '_' + parameters.periodohasta + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
             return [
                 {   title:'calobsAmpliadoTitle',
                     fileName: nombre + '.xlsx',
@@ -2448,7 +2448,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            var nombre = 'relpre_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const nombre = 'relpre_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             return [
                 {   title:'relpreExportarTitle',
                     fileName: nombre + '.xlsx',
@@ -2516,7 +2516,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            var nombre = 'controlAjustes_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const nombre = 'controlAjustes_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             return [
                 {   title:'controlAjustesExportarTitle',
                     fileName: nombre  + '.xlsx',
@@ -2547,7 +2547,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            var nombre = 'revisor_' + parameters.periododesde + '_'+ parameters.periodohasta + '_' + parameters.producto + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const nombre = 'revisor_' + parameters.periododesde + '_'+ parameters.periodohasta + '_' + parameters.producto + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
             try{
                 var previusResult = await context.client.query(
                     `select * from revisorFilasPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
@@ -2590,7 +2590,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            var nombre = 'controlvigencias_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const nombre = 'controlvigencias_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             return [
                 {   title:'vigenciasExportarTitle',
                     fileName: nombre + '.xlsx',
@@ -2614,7 +2614,7 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            var nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             return [
                 {   title:'relpre_control_atr2_dicatrTitle',
                     fileName: nombre + '.xlsx',
