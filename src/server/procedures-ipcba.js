@@ -2328,9 +2328,6 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
                 var nombre = 'unificacionDeMarcas_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
-                var be = this;
-                be.forExport.fileName    = nombre + '.xlsx';
-                be.forExport.csvFileName = nombre + '.csv';
                 return [
                 /*{
                     title:'agrupaciones',
@@ -2345,6 +2342,8 @@ ProceduresIpcba = [
                     ).rows
                 }*/
                 {   title:'unificacionDeMarcasTitle',
+                    fileName: nombre + '.xlsx',
+                    csvFileName: nombre + '.csv',
                     rows:(
                         await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto, 
                         rm.informante, rm.visita, rm.observacion, rm.formulario,
@@ -2409,11 +2408,10 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             var nombre = 'calobsAmpliado_' + parameters.periododesde + '_' + parameters.periodohasta + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            var be = this;
-            be.forExport.fileName    = nombre + '.xlsx';
-            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'calobsAmpliadoTitle',
+                    fileName: nombre + '.xlsx',
+                    csvFileName: nombre + '.csv',
                     rows:(
                         await context.client.query(`select c.periodo, c.calculo, c.producto, p.cluster, c.informante, i.nombreinformante, i.tipoinformante,c.observacion, c.division, c.promobs, 
                         c.impobs, c.antiguedadconprecio, c.antiguedadsinprecio, c.antiguedadexcluido, c.antiguedadincluido, c.sindatosestacional, v.panel, v.encuestador
@@ -2451,11 +2449,10 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             var nombre = 'relpre_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            var be = this;
-            be.forExport.fileName    = nombre + '.xlsx';
-            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'relpreExportarTitle',
+                    fileName: nombre + '.xlsx',
+                    csvFileName: nombre + '.csv',
                     rows:(
                         await context.client.query(`select r.periodo, 
                         r.producto,
@@ -2520,11 +2517,10 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             var nombre = 'controlAjustes_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            var be = this;
-            be.forExport.fileName    = nombre + '.xlsx';
-            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'controlAjustesExportarTitle',
+                    fileName: nombre  + '.xlsx',
+                    csvFileName: nombre  + '.csv',
                     rows:(
                         await context.client.query(`select periodo, panel, tarea, informante, tipoinformante, visita, formulario, grupo_padre_1, 
                         nombregrupo_1, grupo_padre_2, nombregrupo_2, grupo_padre_3, nombregrupo_3, c.producto, p.nombreproducto, p.cluster, observacion, 
@@ -2552,9 +2548,6 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             var nombre = 'revisor_' + parameters.periododesde + '_'+ parameters.periodohasta + '_' + parameters.producto + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            var be = this;
-            be.forExport.fileName    = nombre + '.xlsx';
-            be.forExport.csvFileName = nombre + '.csv';
             try{
                 var previusResult = await context.client.query(
                     `select * from revisorFilasPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
@@ -2565,12 +2558,16 @@ ProceduresIpcba = [
                 return [
                     {
                         title:'revisorResumen '+parameters.producto,
+                        fileName: nombre + '.xlsx',
+                        csvFileName: nombre + '.csv',
                         rows: (
                             await context.client.query(`select * from revisorResumenCrear()`).fetchAll()
                         ).rows
                     },
                     {
                         title:'revisorFilas '+parameters.producto,
+                        fileName: nombre + '.xlsx',
+                        csvFileName: nombre + '.csv',
                         rows: (
                             await context.client.query(`select * from revisorFilasCrear()`).fetchAll()
                         ).rows
@@ -2594,11 +2591,10 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             var nombre = 'controlvigencias_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            var be = this;
-            be.forExport.fileName    = nombre + '.xlsx';
-            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'vigenciasExportarTitle',
+                    fileName: nombre + '.xlsx',
+                    csvFileName: nombre + '.csv',
                     rows:(
                         await context.client.query(`select periodo, informante, producto, nombreproducto, observacion, valor,
                         cantdias, ultimodiadelmes, visitas, vigencias, comentarios, tipoprecio, cantnegativos, cantpositivos 
@@ -2619,11 +2615,10 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             var nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            var be = this;
-            be.forExport.fileName    = nombre + '.xlsx';
-            be.forExport.csvFileName = nombre + '.csv';
             return [
                 {   title:'relpre_control_atr2_dicatrTitle',
+                    fileName: nombre + '.xlsx',
+                    csvFileName: nombre + '.csv',
                     rows:(
                         await context.client.query(`select a.periodo, vis.panel, vis.tarea, a.producto, 
                         o.nombreproducto productos__nombreproducto, o.cluster productos__cluster,
