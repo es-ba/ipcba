@@ -1271,7 +1271,7 @@ my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
     );
     my.agregar_json(backupDiv, result.backup)
 }
-
+/*
 my.wScreens.planificar_armado=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');
@@ -1370,3 +1370,4 @@ my.clientSides.mostrarBotonPlanificacion = {
         }
     },
 };
+*/
