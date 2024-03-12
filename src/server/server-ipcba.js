@@ -455,7 +455,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req, res, next)(err);
             }
         });
-        /*
         mainApp.get(baseUrl+`/planificacion`, async function(req, res, next){
             var {db}=be;
             var {user, useragent} = req;
@@ -544,7 +543,6 @@ class AppIpcba extends backendPlus.AppBackend{
                 })
             }
         });
-        */
         super.addSchrödingerServices(mainApp, baseUrl);
     }
     addLoggedServices(opts){
@@ -732,7 +730,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var menuPrincipal = [
             {menuType:'table', name:'bienvenida', selectedByDefault:true},
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
-            //{menuType:'planificar_envio', name:'planificar_envio', label:'planificacion'},
+            {menuType:'planificar_envio', name:'planificar_envio', label:'planificacion'},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
             {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
@@ -793,7 +791,6 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
                 ]},
-                /*
                 {menuType:'menu', name:'planificacion', menuContent:[
                     {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista]},
@@ -801,7 +798,6 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'planificar_recepcion',  name:'recepcion', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo]},
                 ]},
-                */
                 /*
                 //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
                 //{menuType:'table', name:'calculos'              , label:'Cálculos', onlyVisibleFor:[programador,coordinador,analista]},
@@ -1321,10 +1317,10 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_submod', path: __dirname},
             {name: 'submod', path: __dirname},
             {name: 'precios_maximos_minimos_resumen', path: __dirname},
-            //{name: 'reltar_planificacion', path: __dirname},
-            //{name: 'fechas', path: __dirname},
-            //{name: 'licencias', path: __dirname},
-            //{name: 'personal_sin_carga', path: __dirname},
+            {name: 'reltar_planificacion', path: __dirname},
+            {name: 'fechas', path: __dirname},
+            {name: 'licencias', path: __dirname},
+            {name: 'personal_sin_carga', path: __dirname},
         ]);
     }
 }
