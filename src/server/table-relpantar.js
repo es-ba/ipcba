@@ -2,16 +2,16 @@
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo';
-    var puedeEditarSup = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='supervisor' || context.user.usu_rol ==='recepcionista';
+    var puedeEditarAnalisis = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='supervisor';
     return context.be.tableDefAdapt({
         name:'relpantar',
         tableName:'reltar',
         title:'relpantar',
-        editable:puedeEditar||puedeEditarSup,
+        editable:puedeEditar||puedeEditarAnalisis,
         allow:{
             insert:false,
             delete:false,
-            update:puedeEditar||puedeEditarSup,
+            update:puedeEditar||puedeEditarAnalisis,
         },        
         fields:[
             {name:'periodo'               , typeName:'text'       , allow:{update:false}},
@@ -28,8 +28,8 @@ module.exports = function(context){
             {name:'fechasalidahasta'      , typeName:'date'       , allow:{update:puedeEditar}},
             {name:'modalidad'             , typeName:'text'       , allow:{update:false}},
             {name:'visiblepararelevamiento',typeName:'text'       , postInput:'upperSpanish', allow:{update:puedeEditar}, title:'visible'},
-            {name:'supervisor'             , typeName:'text'      , allow:{update:puedeEditarSup}},
-            {name:'observaciones'          , typeName:'text'      , allow:{update:puedeEditarSup}},
+            {name:'supervisor'             , typeName:'text'      , allow:{update:puedeEditarAnalisis}},
+            {name:'observaciones'          , typeName:'text'      , allow:{update:puedeEditarAnalisis}},
         ],
         primaryKey:['periodo','panel','tarea'],
         detailTables:[
