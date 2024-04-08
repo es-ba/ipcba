@@ -11,15 +11,16 @@ module.exports = function(context){
             {name:'fecha'                      , typeName:'date' , allow:{update:false}},
             {name:'visible_planificacion'      , typeName:'text' , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'seleccionada_planificacion' , typeName:'text' , allow:{update:puedeEditar}, postInput:'upperSpanish'},
-            {name:'panel'                      , typeName:'integer', allow:{update:false}},
+            {name:'panel'                      , typeName:'text' , allow:{update:false}},
         ],
         primaryKey:['fecha'],
         sql:{
             isTable: true,
-            from:`(select f.*, rp.panel
+            from:`(select f.*, string_agg(rp.panel::text,',') panel
                      from fechas f left join relpan rp on f.fecha = rp.fechasalida
                      left join periodos p on rp.periodo = p.periodo 
                      where rp.panel is not null and ingresando = 'S'
+                     group by fecha, visible_planificacion, seleccionada_planificacion
                    )`
         }
 
