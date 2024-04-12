@@ -1280,7 +1280,7 @@ my.wScreens.planificar_armado=function(addrParams){
         var botonArmado=html.button("armado").create();
         botonArmado.onclick=function(){
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['supervisor'],
+                hiddenColumns:['supervisor','minfechavisible','maxfechavisible'],
                 sortColumns:[{column:'periodo'},{column:'panel'},{column:'tarea'}],
             }});
             grid.refresh();
@@ -1312,7 +1312,7 @@ my.wScreens.planificar_recepcion=function(addrParams){
             var fixedFields = [];
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible'],
+                hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible','minfechaplanificada','maxfechaplanificada','minfechavisible','maxfechavisible'],
                 sortColumns:[{column:'fechasalidadesde'},{column:'fechasalidahasta'},{column:'periodo'},{column:'panel'},{column:'tarea'}],
             }, fixedFields: fixedFields});
             grid.refresh();
@@ -1324,7 +1324,7 @@ my.wScreens.planificar_recepcion=function(addrParams){
             fixedFields.push({fieldName: 'encuestador', value: encuestador});
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['fechasalida','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada'],
+                hiddenColumns:['fechasalida','compartido', 'consulta','visible', 'sobrecargado', 'minfechaplanificada','maxfechaplanificada','minfechavisible','maxfechavisible'],
                 sortColumns:[{column:'fechasalidadesde'},{column:'fechasalidahasta'},{column:'periodo'},{column:'panel'},{column:'tarea'}],
             }, fixedFields: fixedFields});
             grid.refresh();

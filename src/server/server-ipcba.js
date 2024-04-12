@@ -505,8 +505,12 @@ class AppIpcba extends backendPlus.AppBackend{
                                 html.td([result.rows[j].observaciones]),
                             ]))
                         };
-                        var htmlMinfechaplanificada = result.rowCount?result.rows[0].minfechaplanificada.toLocaleDateString():null;
-                        var htmlMaxfechaplanificada = result.rowCount?result.rows[0].maxfechaplanificada.toLocaleDateString():null;
+                        var htmlMinfechaplanificada = result.rowCount?(result.rows[0].minfechaplanificada?result.rows[0].minfechaplanificada.toLocaleDateString():null):null;
+                        var htmlMaxfechaplanificada = result.rowCount?(result.rows[0].maxfechaplanificada?result.rows[0].maxfechaplanificada.toLocaleDateString():null):null;
+                        var htmlMinfechavisible     = result.rowCount?(result.rows[0].minfechavisible?result.rows[0].minfechavisible.toLocaleDateString():null):null;
+                        var htmlMaxfechavisible     = result.rowCount?(result.rows[0].maxfechavisible?result.rows[0].maxfechavisible.toLocaleDateString():null):null;
+                        var htmlMinfecha = htmlPuedeVerTodos?htmlMinfechaplanificada:htmlMinfechavisible;
+                        var htmlMaxfecha = htmlPuedeVerTodos?htmlMaxfechaplanificada:htmlMaxfechavisible;
                         htmlBody.push(html.table(rowTable));
                         var htmlMain = html.html({},[
                             html.head([
@@ -522,9 +526,9 @@ class AppIpcba extends backendPlus.AppBackend{
                                     html.h1('Planificación'),
                                     html.div({class:"container-plan"},[
                                         html.p({class:'titulos-plan'},'Fecha Desde: '),
-                                        html.p({class:'container-fecha-1'}, htmlMinfechaplanificada),
+                                        html.p({class:'container-fecha-1'}, htmlMinfecha),
                                         html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
-                                        html.p({class:'container-fecha-2'}, htmlMaxfechaplanificada),
+                                        html.p({class:'container-fecha-2'}, htmlMaxfecha),
                                     ]),
                                     html.div({class:"container-plan"},[                   
                                         html.p({class:'titulos-plan'}, htmlTituloEncuestador),

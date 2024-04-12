@@ -4,7 +4,7 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
     modalidad, string_agg(compartido, chr(10)) compartido, string_agg(submodalidad_informantes, ';') submodalidad, string_agg(direcciones, chr(10)) direcciones, consulta, visible,
     minfechaplanificada, maxfechaplanificada, concat(${sqlTools.quoteLiteral(params.url_plan)},
     '/planificacion'||'?encuestador='||encuestador) as url_plan,
-    sobrecargado, supervisor, observaciones, puedevertodos
+    sobrecargado, supervisor, observaciones, puedevertodos, minfechavisible, maxfechavisible
    FROM (SELECT t.periodo, p.fechasalida, t.panel, t.tarea, a.encuestador encuestador_titular, r.nombre||' '||r.apellido as titular, t.encuestador, 
          case when t.encuestador=a.encuestador then null else nullif(concat_ws(' ', e.nombre, e.apellido),'') end as suplente,
          coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) fechasalidadesde,
@@ -21,7 +21,7 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
          coalesce(x.fechasalidahasta, y.fechasalidahasta, y.fechasalida)=coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida)
          )
          and x.encuestador=t.encuestador),1),0) as sobrecargado,
-         t.supervisor, t.observaciones, t.encuestador is distinct from per.persona puedevertodos
+         t.supervisor, t.observaciones, t.encuestador is distinct from per.persona puedevertodos, minfechavisible, maxfechavisible
            FROM 
            (select * from personal per where per.username = ${sqlTools.quoteLiteral(params.usuario)}) per
            JOIN reltar t on t.encuestador = per.persona or per.labor not in ('E','S') --pk:periodo, panel, tarea
@@ -45,7 +45,9 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
                 FROM licencias) l
            ON l.persona = t.encuestador and (t.periodo = l.periododesde OR t.periodo = l.periodohasta) and p.fechasalida between l.fechadesde and l.fechahasta
            LEFT JOIN fechas fv ON coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) = fv.fecha 
-           JOIN (SELECT MIN(fecha) minfechaplanificada, MAX(fecha) maxfechaplanificada 
+           JOIN (SELECT MIN(fecha) minfechaplanificada, MAX(fecha) maxfechaplanificada,
+                   MIN(CASE WHEN visible_planificacion = 'S' THEN fecha ELSE NULL END) minfechavisible,
+                   MAX(CASE WHEN visible_planificacion = 'S' THEN fecha ELSE NULL END) maxfechavisible 
                         FROM fechas
                         WHERE seleccionada_planificacion = 'S') f ON coalesce(t.fechasalidadesde, p.fechasalidadesde, p.fechasalida) between minfechaplanificada and maxfechaplanificada
           WHERE CASE WHEN per.labor in ('E','S','R') THEN fv.visible_planificacion = 'S' ELSE true END and a.operativo = 'C'
@@ -64,13 +66,13 @@ export const getSqlPlanificacion= (params:{encuestador?:string,periodo?:string,u
        coalesce(x.fechasalidahasta, y.fechasalidahasta, y.fechasalida)=coalesce(t.fechasalidahasta, p.fechasalidahasta, p.fechasalida)
        )
        and x.encuestador=t.encuestador),1),0),
-       t.supervisor, t.observaciones, t.encuestador is distinct from per.persona) q
+       t.supervisor, t.observaciones, t.encuestador is distinct from per.persona, minfechavisible, maxfechavisible) q
        where true ${params.periodo? ` and periodo = ${sqlTools.quoteLiteral(params.periodo)} `:' '}
        ${params.encuestador? ` and encuestador = ${sqlTools.quoteLiteral(params.encuestador)} `:' '}
    GROUP BY periodo, fechasalida, panel, tarea, encuestador_titular, titular, encuestador, suplente, fechasalidadesde, fechasalidahasta, modalidad, 
      consulta, visible, minfechaplanificada, maxfechaplanificada, 
      concat(${sqlTools.quoteLiteral(params.url_plan)}, 
      '/planificacion'||'?encuestador='||encuestador),
-     sobrecargado, supervisor, observaciones, puedevertodos
+     sobrecargado, supervisor, observaciones, puedevertodos, minfechavisible, maxfechavisible
    ORDER BY fechasalidadesde, fechasalidahasta, periodo, panel, tarea
 )`

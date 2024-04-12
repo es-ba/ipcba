@@ -38,6 +38,8 @@ module.exports = function(context){
             {name:'supervisor'            , typeName:'text'       , allow:{update:false}},
             {name:'observaciones'         , typeName:'text'       , allow:{update:puedeEditar}},
             {name:'url_plan'              , typeName:'text'       , allow:{update:false}, clientSide:'mostrarBotonPlanificacion', serverSide:true,},
+            {name:'minfechavisible'       , typeName:'date'       , allow:{update:false}},
+            {name:'maxfechavisible'       , typeName:'date'       , allow:{update:false}},
         ],
         primaryKey:['periodo','panel','tarea'],
         sql:{
