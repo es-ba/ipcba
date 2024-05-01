@@ -1364,7 +1364,7 @@ my.wScreens.planificar_recepcion=function(addrParams){
             var fixedFields = [];
             fixedFields.push({fieldName: 'visible', value: 'S'});
             var grid=my.tableGrid("reltar_planificacion", divGrilla, {tableDef:{
-                hiddenColumns:['fechasalida','url_plan','encuestador_titular','suplente','compartido', 'consulta','visible','minfechaplanificada','maxfechaplanificada','minfechavisible','maxfechavisible'],
+                hiddenColumns:['fechasalida','url_plan','encuestador_titular','compartido','consulta','visible','minfechaplanificada','maxfechaplanificada','minfechavisible','maxfechavisible'],
                 sortColumns:[{column:'fechasalidadesde'},{column:'fechasalidahasta'},{column:'periodo'},{column:'panel'},{column:'tarea'}],
             }, fixedFields: fixedFields});
             grid.refresh();

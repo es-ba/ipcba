@@ -746,6 +746,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'parametros', label:'parametros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'cuadros', label: 'textos de los cuadros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'ipcba_usuarios', label: 'usuarios', onlyVisibleFor:[programador,coordinador,analista]},
+                {menuType:'table', name:'tareas', label: 'tareas', onlyVisibleFor:[programador,coordinador,analista]},
             ], onlyVisibleFor:[programador,coordinador,analista,recepGabinete, recepcionista, jefeCampo]},
             {menuType:'menu', name:'salida_campo', label:'salida a campo', menuContent:[
                 {menuType:'table', name:'relenc', label:'titulares de panel-tarea', selectedByDefault:true},
