@@ -1,5 +1,6 @@
 --res_cuadro_piivvi
-create or replace function res_cuadro_piivvi(parametro1 text, p_periodo text, parametro3 integer, parametro4 text, pponercodigos boolean, p_cuadro text, p_separador text)
+create or replace function res_cuadro_piivvi(parametro1 text, p_periodo text, parametro3 integer, parametro4 text, pponercodigos boolean, p_cuadro text, 
+                                             pempalmedesde boolean, pempalmehasta boolean, pperiodoempalme text, p_separador text)
   returns SETOF res_col9
   language plpgsql
 as
@@ -49,7 +50,7 @@ begin
                         else replace(round((cg.indiceRedondeado/cb.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,    
                       replace(cg.incidenciaredondeada::text,'.',p_separador)::text
                  from calGru cg
-                 inner join calculos_def cd on cg.calculo = cd.calculo				 
+                 inner join calculos_def cd on cg.calculo = cd.calculo
                  inner join grupos g on g.agrupacion=cg.agrupacion and g.grupo=cg.grupo
                  left join calgru co on co.agrupacion=cg.agrupacion and co.grupo=cg.grupo and co.calculo=vCalculoAnterior and co.periodo=vMesAnterior
                  left join calgru ca on ca.agrupacion=cg.agrupacion and ca.grupo=cg.grupo and ca.calculo=cg.calculo 
@@ -61,10 +62,12 @@ begin
                    and cg.nivel <= parametro3
                    and cd.principal
                    and cg.periodo=p_Periodo
-                   ; 
+                   and ((pempalmehasta and cg.periodo <= pperiodoempalme) or 
+                        (pempalmedesde and cg.periodo >  pperiodoempalme))
+                 ; 
 end;
 $BODY$;
 
 --test
---SELECT * from cvp.res_cuadro_piivvi('Nivel general, bienes y servicios', 'a2022m04'::text, 1, 'S'::text, true, '2_pi',',');  --cuadro 2_pi
---SELECT * from cvp.res_cuadro_piivvi('Nivel general, bienes y servicios', 'a2022m04'::text, 1, 'R'::text, true, '8_pi',',');  --cuadro 8_pi
+--SELECT * from cvp.res_cuadro_piivvi('Nivel general, bienes y servicios', 'a2022m01', 1, 'S', true, '2_pi', true, false, 'a2022m02', ',');  --cuadro 2_pi
+--SELECT * from cvp.res_cuadro_piivvi('Nivel general, bienes y servicios', 'a2022m02', 1, 'R', true, '8_pi', true, false, 'a2022m02', ',');  --cuadro 8_pi

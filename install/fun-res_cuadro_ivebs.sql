@@ -1,6 +1,7 @@
 --res_cuadro_ivebs
 --UTF8=Sí
-create or replace function res_cuadro_ivebs(parametro1 text, p_periodo_hasta text, parametro3 integer, parametro4 text, p_periodo_desde text, p_separador text) 
+create or replace function res_cuadro_ivebs(parametro1 text, p_periodo_hasta text, parametro3 integer, parametro4 text, p_periodo_desde text,
+                                            pempalmedesde boolean, pempalmehasta boolean, pperiodoempalme text, p_separador text) 
   returns setof res_col10
   language plpgsql
 as
@@ -40,7 +41,7 @@ begin
                  case when ro.indiceRedondeado=0 or c.periodo=v_periodo_desde then '...' 
                       else replace(round((r.indiceRedondeado/ro.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end  end 
                  from calgru c --nivel general
-				 join calculos_def cd on c.calculo = cd.calculo
+                 join calculos_def cd on c.calculo = cd.calculo
                  join calgru b on c.agrupacion=b.agrupacion and c.calculo=b.calculo and c.periodo=b.periodo  
                  join calgru s on c.agrupacion=s.agrupacion and c.calculo=s.calculo and c.periodo=s.periodo
                  join calgru r on c.agrupacion=r.agrupacion and c.calculo=r.calculo and c.periodo=r.periodo
@@ -52,9 +53,12 @@ begin
                  where c.agrupacion=parametro4 and cd.principal and c.periodo <= p_periodo_hasta and c.periodo >= v_periodo_desde and c.nivel=parametro3  
                    and b.grupo=parametro4||'1' 
                    and s.grupo=parametro4||'2'
-                   and (case when c.agrupacion='S' then r.grupo='S1' else r.grupo='R3' end) ;    
+                   and (case when c.agrupacion='S' then r.grupo='S1' else r.grupo='R3' end) 
+                   and ((pempalmehasta and c.periodo <= pperiodoempalme) or 
+                        (pempalmedesde and c.periodo >  pperiodoempalme))
+;    
 end;
 $BODY$;
 
 --test
---SELECT * from cvp.res_cuadro_ivebs('Mes', 'a2022m05'::text, 0, 'S'::text, 'a2022m01'::text,',');  --cuadro A1
+--SELECT * from cvp.res_cuadro_ivebs('Mes', 'a2022m05', 0, 'S', 'a2022m01', true, false, 'a2022m02', ',');  --cuadro A1

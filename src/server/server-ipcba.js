@@ -207,6 +207,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-res_cuadro_pp.sql
                 - fun-res_cuadro_up.sql
                 - fun-res_cuadro_vc.sql
+                - fun-actualizar_esquema_expo.sql
+                - fun-calculo_borrarcopia.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
                 - trg-adm_blanqueo_precios_trg.sql

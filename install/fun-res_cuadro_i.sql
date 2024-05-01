@@ -1,6 +1,7 @@
 --res_cuadro_i
 --UTF8=Sí
-create or replace function res_cuadro_i(parametro1 text, p_periodo text, parametro3 integer, parametro4 text, pPonerCodigos boolean, pCantDecimales integer, p_separador text) 
+create or replace function res_cuadro_i(parametro1 text, p_periodo text, parametro3 integer, parametro4 text, pPonerCodigos boolean, pCantDecimales integer,
+                                        pempalmedesde boolean, pempalmehasta boolean, pperiodoempalme text, p_separador text) 
   returns setof res_col3
   language plpgsql
 as
@@ -24,16 +25,18 @@ begin
           replace(round(i.incidenciaredondeada::numeric,case when i.nivel=0 then 1 else pCantDecimales end)::text,'.',p_separador)::text
           --replace(round(i.incidencia::numeric,case when i.nivel=0 then 1 else case when parametro4 in ('S', 'R')then 1 else 2 end end)::text,'.',',')::text
                  from calgru i
-				 inner join calculos_def cd on i.calculo = cd.calculo
+                 inner join calculos_def cd on i.calculo = cd.calculo
                  inner join grupos g on i.agrupacion=g.agrupacion and i.grupo=g.grupo
                  where i.agrupacion= parametro4  --vAgrupacionPrincipal
                    and i.nivel <= parametro3
                    and cd.principal
-                   and i.periodo=p_Periodo;
+                   and i.periodo=p_Periodo
+                   and ((pempalmehasta and i.periodo <= pperiodoempalme) or 
+                        (pempalmedesde and i.periodo >  pperiodoempalme));
 end;
 $BODY$;
 
 --test:
---SELECT * from cvp.res_cuadro_i('Nivel general y capítulos', 'a2022m05'::text, 1, 'Z', true, 2,',');           --Cuadro3 IPCBA. Incidencia de los capítulos en el nivel general
---SELECT * from cvp.res_cuadro_i('Nivel general, bienes y servicios', 'a2022m05'::text, 1, 'S', false, 1,',');  --Cuadro4a IPCBA. Incidencia de los bienes y servicios en el nivel general con un decimal
---SELECT * from cvp.res_cuadro_i('Nivel general, bienes y servicios', 'a2022m05'::text, 1, 'S', false, 2,',');  --Cuadro4b IPCBA. Incidencia de los bienes y servicios en el nivel general con dos decimales
+--SELECT * from cvp.res_cuadro_i('Nivel general y capítulos'        , 'a2022m01', 1, 'Z', true , 2, true, false, 'a2022m02',',');  --Cuadro3 IPCBA. Incidencia de los capítulos en el nivel general
+--SELECT * from cvp.res_cuadro_i('Nivel general, bienes y servicios', 'a2022m01', 1, 'S', false, 1, true, false, 'a2022m02',',');  --Cuadro4a IPCBA. Incidencia de los bienes y servicios en el nivel general con un decimal
+--SELECT * from cvp.res_cuadro_i('Nivel general, bienes y servicios', 'a2022m01', 1, 'S', false, 2, true, false, 'a2022m02',',');  --Cuadro4b IPCBA. Incidencia de los bienes y servicios en el nivel general con dos decimales

@@ -1,5 +1,6 @@
 --res_cuadro_up
-create or replace function res_cuadro_up(parametro1 text, p_periodo text, parametro4 text, pPonercodigos boolean, p_separador text) 
+create or replace function res_cuadro_up(parametro1 text, p_periodo text, parametro4 text, pPonercodigos boolean, pempalmedesde boolean, 
+                                         pempalmehasta boolean, pperiodoempalme text, p_separador text) 
   returns setof res_col4
   language plpgsql
 as
@@ -36,6 +37,8 @@ begin
                  where gruponivel1 = parametro4
                    and cd.principal
                    and periodo=p_Periodo
+                   and ((pempalmehasta and periodo <= pperiodoempalme) or 
+                        (pempalmedesde and periodo >  pperiodoempalme))
                
                  union
                  select distinct --row_number() over (ordenpor)+100, 
@@ -51,11 +54,13 @@ begin
                  where gruponivel1 = parametro4
                    and cd.principal
                    and periodo=p_periodo
+                   and ((pempalmehasta and periodo <= pperiodoempalme) or 
+                        (pempalmedesde and periodo >  pperiodoempalme))
                 ) as q
                ;
 end;
 $BODY$;
 
 --test
---SELECT * from cvp.res_cuadro_up(null, 'a2022m03'::text, 'C2',true, ',');  --Invocacion cuadros Cuadro I. Precios medios relevados de bienes y servicios. Ciudad de Buenos Aires
---SELECT * from cvp.res_cuadro_up(null, 'a2022m03'::text, 'C1',true, ',');  --Invocacion cuadros: Cuadro II. Precios medios relevados de productos alimenticios. Ciudad de Buenos Aires
+--SELECT * from cvp.res_cuadro_up(null, 'a2022m03'::text, 'C2',true, true, false , 'a2022m02',',');  --Invocacion cuadros Cuadro I. Precios medios relevados de bienes y servicios. Ciudad de Buenos Aires
+--SELECT * from cvp.res_cuadro_up(null, 'a2022m03'::text, 'C1',true, true, false , 'a2022m02',',');  --Invocacion cuadros: Cuadro II. Precios medios relevados de productos alimenticios. Ciudad de Buenos Aires

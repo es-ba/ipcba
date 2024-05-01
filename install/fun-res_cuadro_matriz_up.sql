@@ -1,5 +1,6 @@
 --res_cuadro_matriz_up
-create or replace function res_cuadro_matriz_up(parametro1 text, p_periodo text, parametro4 text, pPonerCodigos boolean, pdesde text, porden text, p_separador text) 
+create or replace function res_cuadro_matriz_up(parametro1 text, p_periodo text, parametro4 text, pPonerCodigos boolean, pdesde text, porden text,
+                                                pempalmedesde boolean, pempalmehasta boolean, pperiodoempalme text, p_separador text) 
   returns setof res_mat2
   language plpgsql
 as
@@ -52,6 +53,8 @@ begin
                  where (gruponivel1 = parametro4 or g.grupo_padre = parametro4)
                    and cd.principal and coalesce(u.nivel,1) = 1
                    and periodo between v_periodo_desde and p_Periodo
+                   and ((pempalmehasta and periodo <= pperiodoempalme) or 
+                        (pempalmedesde and periodo >  pperiodoempalme))
                
                  union
                  select distinct  
@@ -70,15 +73,17 @@ begin
                  where (gruponivel1 = parametro4 or g.grupo_padre = parametro4)
                    and cd.principal
                    and periodo between v_periodo_desde and p_Periodo
-                ) as d order by d.grupopadre, d.orden, d.producto, periodo) as q) as x
+                   and ((pempalmehasta and periodo <= pperiodoempalme) or 
+                        (pempalmedesde and periodo >  pperiodoempalme))
+               ) as d order by d.grupopadre, d.orden, d.producto, periodo) as q) as x
                ;
 end;
 $BODY$;
 --test 
---SELECT * from cvp.res_cuadro_matriz_up('Precios Medios Bienes y Servicios','a2022m05'::text, 'C2',true,'a2022m01','asc',',');  
---SELECT * from cvp.res_cuadro_matriz_up('Precios medios Alimentos','a2022m05'::text, 'C1',true,'a2022m01','asc',',');  
---SELECT * from cvp.res_cuadro_matriz_up('Precios Medios Bienes y Servicios','a2022m05'::text, 'C2',false,'a2022m01','desc',',');  
---SELECT * from cvp.res_cuadro_matriz_up('Precios medios Alimentos','a2022m05'::text, 'C1',false,'a2022m01','desc',',');  
+--SELECT * from cvp.res_cuadro_matriz_up('Precios Medios Bienes y Servicios','a2022m05'::text, 'C2',true,'a2022m01','asc', true, false , 'a2022m02',',');  
+--SELECT * from cvp.res_cuadro_matriz_up('Precios medios Alimentos','a2022m05'::text, 'C1',true,'a2022m01','asc', true, false , 'a2022m02',',');  
+--SELECT * from cvp.res_cuadro_matriz_up('Precios Medios Bienes y Servicios','a2022m05'::text, 'C2',false,'a2022m01','desc', true, false , 'a2022m02',',');  
+--SELECT * from cvp.res_cuadro_matriz_up('Precios medios Alimentos','a2022m05'::text, 'C1',false,'a2022m01','desc', true, false , 'a2022m02',',');  
 
---SELECT * from cvp.res_cuadro_matriz_up('Precios Medios Bienes y Servicios','a2022m05'::text, 'E2',false,'a2022m01','desc',',');  
---SELECT * from cvp.res_cuadro_matriz_up('Precios medios Alimentos','a2022m05'::text, 'E1',false,'a2022m01','desc',',');  
+--SELECT * from cvp.res_cuadro_matriz_up('Precios Medios Bienes y Servicios','a2022m05'::text, 'E2',false,'a2022m01','desc', true, false , 'a2022m02',',');  
+--SELECT * from cvp.res_cuadro_matriz_up('Precios medios Alimentos','a2022m05'::text, 'E1',false,'a2022m01','desc', true, false , 'a2022m02',',');  

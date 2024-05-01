@@ -6,7 +6,10 @@ CREATE OR REPLACE FUNCTION cvp.res_cuadro_ii(
     parametro3 integer,
     parametro4 text,
     pponercodigos boolean,
-    p_cuadro text,
+    p_cuadro text, 
+    pempalmedesde boolean,
+    pempalmehasta boolean,
+    pperiodoempalme text,
     p_separador text)
   RETURNS SETOF cvp.res_col4 
   language plpgsql
@@ -52,17 +55,18 @@ begin
                            else null end as grupo, 
                       overlay(lower(nombregrupo) placing upper(substr(nombregrupo,1,1)) from 1 for 1)::text,
                       replace(cg.incidenciaredondeada::text,'.',p_separador)::text, 
-                      replace(cg.incidenciainteranualredondeada::text,'.',p_separador)::text                      
+                      replace(cg.incidenciainteranualredondeada::text,'.',p_separador)::text
                  from calGru_vw cg
-                 inner join calculos_def cd on cg.calculo = cd.calculo				 
+                 inner join calculos_def cd on cg.calculo = cd.calculo
                  inner join grupos g on g.agrupacion=cg.agrupacion and g.grupo=cg.grupo
-                 left join cuagru on cg.agrupacion = cuagru.agrupacion and cg.grupo = cuagru.grupo and cuagru.cuadro = p_cuadro                                     
+                 left join cuagru on cg.agrupacion = cuagru.agrupacion and cg.grupo = cuagru.grupo and cuagru.cuadro = p_cuadro
                  where cg.agrupacion= parametro4
                    and cg.nivel <= parametro3
                    and cd.principal
-                   and cg.periodo=p_Periodo; 
+                   and cg.periodo=p_Periodo
+                   and ((pempalmehasta and cg.periodo <= pperiodoempalme) or 
+                        (pempalmedesde and cg.periodo >  pperiodoempalme));
 end;
 $BODY$;
-
 --test
---SELECT * from cvp.res_cuadro_ii('Nivel general y capitulos', 'a2022m05'::text, 1, 'Z'::text, true, '1a',',');  --cuadro 1a
+--SELECT * from cvp.res_cuadro_ii('Nivel general y capitulos', 'a2022m05', 1, 'Z', true, '1a', true, false, 'a2022m02', ',');  --cuadro 1a
