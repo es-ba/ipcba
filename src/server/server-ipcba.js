@@ -716,6 +716,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'table'        , name:'calculos_novprod'  , label:'administración de externos', onlyVisibleFor:[programador,coordinador,analista]},
             {menuType:'table'        , name:'proddivestimac'    , label:'umbrales para estimaciones', onlyVisibleFor:[programador,coordinador,analista]},
             {menuType:'copia_calculo', name:'copias'            , label:'copias', onlyVisibleFor:[programador,coordinador,analista]},
+            {menuType:'calculo_borrar_copia', name:'borrar copias', label:'borrar copias', onlyVisibleFor:[programador]},
         ]
         if(this.config.server.esAppParaCambioDeBase){
             subMenuCalculos.push({menuType:'proc'         , name:'periodobase_correr', label:'periodobase', onlyVisibleFor:[programador,migracion,coordinador,analista]})

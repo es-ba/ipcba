@@ -495,7 +495,59 @@ my.wScreens.copia_calculo=function(addrParams){
         );
     },50);
 }
-    
+
+my.wScreens.calculo_borrar_copia=function(addrParams){
+    setTimeout(function(){
+        var layout = document.getElementById('main_layout');
+        var controlPeriodo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var controlCalculo=html.td({style:'min-width:100px', "typed-controls-direct-input":"true"}).create();
+        var resultDiv=html.div({class:"result-div"}).create();
+        var divGrilla=html.div().create();
+        var botonBorrar=html.button("borrar").create();
+        var grid=my.tableGrid("calculos",divGrilla,{tableDef:{
+            hiddenColumns:['periodoanterior','calculoanterior','esperiodobase','pb_calculobase','agrupacionprincipal','valido'],
+            filterColumns:[
+                {column:'periodo', operator:'>=', value:'a2018m05'.replace(/\d\d\d\d/,function(annio){ return annio-1;})},
+                {column:'calculo', operator:'>' ,value:0},
+            ],        
+        }})
+        botonBorrar.onclick=function(){
+            const miperiodo = controlPeriodo.getTypedValue();
+            const micalculo = controlCalculo.getTypedValue();
+            var message = 'confirma el borrado de la copia Periodo: ' + miperiodo + ', calculo: ' + micalculo + '?';
+            confirmPromise(message).then(function(){
+                my.ajax.calculo_borrar_copia({
+                    periodo:miperiodo,
+                    calculo:micalculo,
+                }).then(function(result){
+                resultDiv.textContent=result;
+                grid.refresh();
+                })
+            })
+        }
+        TypedControls.adaptElement(controlPeriodo,{typeName:'text', references:'periodos'});
+        TypedControls.adaptElement(controlCalculo,{typeName:'integer'});
+        layout.appendChild(
+            html.div([
+                html.div({class:'titulo-form'},"borrar una copia del cálculo"),
+                html.table({class:'table-param-screen'},[
+                    html.tr([
+                        html.td("periodo"), controlPeriodo, html.td({style:'min-width:200px'})
+                    ]),
+                    html.tr([
+                        html.td("calculo"), controlCalculo
+                    ]),
+                    html.tr([
+                        html.td(), html.td([botonBorrar]), 
+                    ])
+                ]),
+                resultDiv,
+                divGrilla,
+            ]).create()
+        );
+    },50);
+}
+
 my.wScreens.filtravarios_caldiv=function(addrParams){
     setTimeout(function(){
         var layout = document.getElementById('main_layout');

@@ -2646,6 +2646,27 @@ ProceduresIpcba = [
             ]
         }
     },
+    {
+        action:'calculo_borrar_copia',
+        parameters:[
+            {name:'periodo'    , typeName:'text', references:'periodos'},
+            {name:'calculo'    , typeName:'integer'                    },
+        ],
+        roles:['programador'],
+        coreFunction: async function(context, parameters){
+            try{
+            var result = await context.client.query(
+                `SELECT calculo_borrarcopia($1, $2)`,
+                [parameters.periodo,parameters.calculo]
+            ).fetchUniqueValue();
+            return 'borrado '+result.value;
+            }catch(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            };
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
