@@ -53,11 +53,11 @@ module.exports = function(context){
             {references:'personal'   , fields:[{source:'encuestador'  , target:'persona'  }]},
             //{references:'personal'   , fields:[{source:'ingresador'   , target:'persona'  }], alias:'pering'},
             {references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'},
-            {references:'tokens'     , fields:[{source:'token_relevamiento', target:'token'  }]},
             //{references:'personal'   , fields:[{source:'supervisor'   , target:'persona'  }], alias:'persup'},
         ],
         softForeignKeys:[
             {references:'razones', fields:['razon'], displayFields:['escierredefinitivoinf','escierredefinitivofor'], alias:'raz'},
+            {references:'tokens' , fields:[{source:'token_relevamiento', target:'token'  }]},
         ],
         detailTables:[
             {table:'relpre', abr:'PRE', label:'precios', fields:['periodo','informante','visita','formulario']},
