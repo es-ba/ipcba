@@ -3,13 +3,14 @@
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='analista'|| context.user.usu_rol ==='recepcionista'|| context.user.usu_rol ==='supervisor';
     var puedeEditarMigracion = context.user.usu_rol ==='programador' || context.user.usu_rol ==='migracion';
+    var puedeEditarJefeCampo = context.user.usu_rol ==='jefe_campo';
     return context.be.tableDefAdapt({
         name:'especificaciones',
         editable:puedeEditar||puedeEditarMigracion,
         allow:{
             insert:puedeEditar||puedeEditarMigracion,
             delete:puedeEditar||puedeEditarMigracion,
-            update:puedeEditar||puedeEditarMigracion,
+            update:puedeEditar||puedeEditarMigracion||puedeEditarJefeCampo,
         },
         fields:[
             {name:'producto'                  , typeName:'text'   , nullable:false            , allow:{update:puedeEditarMigracion}, inTable:true},
@@ -25,7 +26,7 @@ module.exports = function(context){
             {name:'destacada'                 , typeName:'boolean'                            , allow:{update:puedeEditar||puedeEditarMigracion}, inTable:true},
             {name:'mostrar_cant_um'           , typeName:'text'                               , allow:{update:puedeEditarMigracion}, inTable:true},
             {name:'especificacioncompleta'    , typeName:'text'                               , allow:{select:puedeEditarMigracion||puedeEditar}, inTable:false},
-            {name:'observaciones'             , typeName:'text'                               , allow:{update:puedeEditarMigracion||puedeEditar}, inTable:true},
+            {name:'observaciones'             , typeName:'text'                               , allow:{update:puedeEditarMigracion||puedeEditar||puedeEditarJefeCampo}, inTable:true},
         ],
         primaryKey:['producto','especificacion'],
         foreignKeys:[

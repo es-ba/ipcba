@@ -746,7 +746,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'parametros', label:'parametros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'cuadros', label: 'textos de los cuadros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'ipcba_usuarios', label: 'usuarios', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'tareas', label: 'tareas', onlyVisibleFor:[programador,coordinador,analista]},
+                {menuType:'table', name:'tareas', label: 'tareas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
             ], onlyVisibleFor:[programador,coordinador,analista,recepGabinete, recepcionista, jefeCampo]},
             {menuType:'menu', name:'salida_campo', label:'salida a campo', menuContent:[
                 {menuType:'table', name:'relenc', label:'titulares de panel-tarea', selectedByDefault:true},
@@ -755,10 +755,10 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'menu', name:'ingreso', menuContent:[
                     {menuType:'table', name:'periodos_ingreso', selectedByDefault:true},
                     {menuType:'buscar_informante', name:'Informante', label:'Buscar Informante'},
-                    {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table', name:'periodos_cambiopantar_hist', label:'Historico de cambios de Panel Tarea', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'cambiar_paneltarea', name:'paneltarea', label:'Cambiar Panel Tarea', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table', name:'cambiopantar_lote', label:'Cambiar Panel Tarea por Lotes', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table', name:'periodos_cambiopantar_hist', label:'Historico de cambios de Panel Tarea', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table', name:'pantar', label:'panel tarea', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
                 ]},
                 {menuType:'menu', name:'recepcion', menuContent:[
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
@@ -777,12 +777,13 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
                     {menuType:'proc' , name:'relpre_control_atr2_diccionario_atributos_exportar', label:'inconsistencia (atr2) de diccionario exp', onlyVisibleFor:[programador,coordinador,recepcionista,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
-                    {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,jefeCampo,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'proc' , name:'controlvigencias_exportar'               , label:'atributo vigencia exp', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
                     {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
+                    {menuType:'table', name:'periodos_precios_inconsistentes'         , label:'incompletitud', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                     {menuType:'table', name:'periodos_control_comentariosrelpre'      , label:'comentarios por producto', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                 ]},
@@ -797,10 +798,10 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
                 ]},
                 {menuType:'menu', name:'planificacion', menuContent:[
-                    {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table'     ,  name:'personal_sin_carga', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table'     ,  name:'personal_sin_carga', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
                     {menuType:'planificar_recepcion',  name:'recepcion', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo]},
                 ]},
                 /*
@@ -816,9 +817,9 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'informantes', menuContent:[
 
                 {menuType:'menu', name:'alta manual', menuContent:[
-                   {menuType:'table', name:'informantes_altamanual'                , label:'informantes', onlyVisibleFor:[programador,coordinador, analista]},
-                   {menuType:'table', name:'forinf'                                , label:'formularios', onlyVisibleFor:[programador,coordinador, analista]},
-                ]},
+                   {menuType:'table', name:'informantes_altamanual'                , label:'informantes'},
+                   {menuType:'table', name:'forinf'                                , label:'formularios'},
+                ], onlyVisibleFor:[programador,coordinador, analista]},
 
 
                 {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,supervisor]},
@@ -862,7 +863,6 @@ class AppIpcba extends backendPlus.AppBackend{
                     ]},
                     {menuType:'menu', name:'precios'  , label:'precios'  , onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                         {menuType:'table', name:'periodos_relpre_control_rangos_analisis'         , label:'inconsistencias de precios analisis'},
-                        {menuType:'table', name:'periodos_precios_inconsistentes'                 , label:'incompletitud'},
                         {menuType:'table', name:'periodos_precios_porcentaje_positivos_y_anulados', label:'porcentajes de potenciales y positivos por formulario'},
                         {menuType:'table', name:'periodos_control_ajustes'                        , label:'ajustes de precios'},
                         {menuType:'proc' , name:'control_ajustes_exportar'                        , label:'ajustes de precios exp'},

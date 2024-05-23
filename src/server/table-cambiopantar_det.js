@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(context){
-    var puedeEditar = context.user.usu_rol ==='programador'||context.user.usu_rol ==='coordinador'||context.user.usu_rol ==='analista';
+    var puedeEditar = context.user.usu_rol ==='programador'||context.user.usu_rol ==='coordinador'||context.user.usu_rol ==='analista'||context.user.usu_rol ==='jefe_campo';
     return context.be.tableDefAdapt({
         name:'cambiopantar_det',
         editable:puedeEditar,
