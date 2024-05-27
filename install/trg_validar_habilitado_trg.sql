@@ -9,29 +9,17 @@ DECLARE
   vescoordinacion integer;
 BEGIN
 
-SELECT 1 INTO vesadministrador
-  FROM pg_roles p,  
-    (SELECT r.rolname, r.oid,m.member, m.roleid  
-       FROM pg_auth_members m, pg_roles r
-       WHERE m.member=r.oid 
-         AND r.rolname=current_user
-    )a
-  WHERE a.roleid=p.oid AND p.rolname='cvp_administrador' ; 
-SELECT 1 INTO vescoordinacion
-  FROM pg_roles p,  
-    (SELECT r.rolname, r.oid,m.member, m.roleid  
-       FROM pg_auth_members m, pg_roles r
-       WHERE m.member=r.oid 
-         AND r.rolname=current_user
-    )a
-  WHERE a.roleid=p.oid AND p.rolname='cvp_coordinacion' ;    
+SELECT CASE WHEN usu_rol = 'analista' THEN 1 END, CASE WHEN usu_rol in ('coordinador','programador') THEN 1 END INTO vesadministrador, vescoordinacion
+  FROM ipcba.usuarios
+  WHERE usu_usu=current_user; 
   
 IF OLD.habilitado IS DISTINCT FROM NEW.habilitado THEN
   IF vesadministrador=1 OR vescoordinacion=1 THEN
     IF NEW.habilitado='S' THEN -- estoy abriendo la habilitación
       SELECT  abierto INTO vabierto
-      FROM cvp.calculos
-      WHERE periodo=NEW.Periodo AND calculo=0 ;
+      FROM cvp.calculos c 
+      JOIN cvp.calculos_def cd on c.calculo = cd.calculo 
+      WHERE periodo=NEW.Periodo AND principal ;
       IF vabierto='N' THEN
           RAISE EXCEPTION 'ERROR no se puede habilitar el ingreso del periodo "%" porque el calculo esta cerrado', new.periodo;
       END IF; 
@@ -49,7 +37,7 @@ END IF;
 RETURN NEW;
 END;
 $BODY$
-  LANGUAGE 'plpgsql' VOLATILE SECURITY INVOKER;
+  LANGUAGE 'plpgsql';
 
 CREATE TRIGGER periodos_controlar_habilitado_trg
     BEFORE UPDATE
