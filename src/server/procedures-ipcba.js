@@ -2652,7 +2652,7 @@ ProceduresIpcba = [
             {name:'periodo'    , typeName:'text', references:'periodos'},
             {name:'calculo'    , typeName:'integer'                    },
         ],
-        roles:['programador'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction: async function(context, parameters){
             try{
             var result = await context.client.query(

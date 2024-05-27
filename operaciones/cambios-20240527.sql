@@ -1,3 +1,5 @@
+set search_path = cvp;
+
 CREATE or replace FUNCTION cal_copiar(pperiodo text, pcalculo integer) RETURNS void
     LANGUAGE plpgsql SECURITY DEFINER
     AS $$
