@@ -21,9 +21,9 @@ begin
 
   return query select /*1::bigint,*/
                       'E1111'::text,
-                      'Código de Producto'::text,
+                      'Código de producto'::text,
                       'Descripción'::text,
-                      'Unidad de Medida'::text,
+                      'Unidad de medida'::text,
                       null::text,
                       'Precio relevado'::text;
   return query select /*row_number() over (order by q.ordenpor)+100,*/

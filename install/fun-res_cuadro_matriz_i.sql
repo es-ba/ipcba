@@ -14,6 +14,9 @@ declare
     --v_formato_renglon_cabezal text:=case when pPonerCodigos then 'E111'::text else 'E1.21'::text end;   
     v_formato_renglon text:=case when pPonerCodigos then 'DW1n'::text else 'D.Wn'::text end;
     v_formato_renglon_cabezal text:=case when pPonerCodigos then 'E2.1'::text else 'E2.1'::text end;
+    v_periodo_tope_inf text:= case when p_cuadro = '3h_ia' then moverperiodos(pperiodoempalme, 12) 
+                                   when p_cuadro in ('3h', '4bh','9b') then moverperiodos(pperiodoempalme, 1)
+                                   else pperiodoempalme end;
 
     
 begin
@@ -55,7 +58,7 @@ begin
                         and i.periodo between v_periodo_desde and p_Periodo
                         and (p_cuadro not in ('A2bish', 'A2bish_con') or cuagru.cuadro is not null)
                    and ((pempalmehasta and i.periodo <= pperiodoempalme) or 
-                        (pempalmedesde and i.periodo >  pperiodoempalme))
+                        (pempalmedesde and i.periodo >=  v_periodo_tope_inf))
                         order by i.periodo, CASE WHEN p_cuadro = 'A2bish_con' THEN cuagru.orden::text ELSE i.grupo END) 
                 as q) as x;
 end;

@@ -55,7 +55,7 @@ begin
                            else null end as grupo, 
                       overlay(lower(nombregrupo) placing upper(substr(nombregrupo,1,1)) from 1 for 1)::text,
                       replace(cg.incidenciaredondeada::text,'.',p_separador)::text, 
-                      replace(cg.incidenciainteranualredondeada::text,'.',p_separador)::text
+                      case when pempalmedesde and cg.periodo <= moverperiodos(pperiodoempalme,11) then '...' else replace(cg.incidenciainteranualredondeada::text,'.',p_separador)::text end
                  from calGru_vw cg
                  inner join calculos_def cd on cg.calculo = cd.calculo
                  inner join grupos g on g.agrupacion=cg.agrupacion and g.grupo=cg.grupo

@@ -31,14 +31,14 @@ begin
                  replace(round(s.indiceRedondeado::numeric,2)::text,'.',p_separador)::text  as indiceRedondeadoserv,
                  case when parametro4='S' then null::text else  
                    replace(round(r.indiceRedondeado::numeric,2)::text,'.',p_separador)::text  end as indiceRedondeadoresto,  
-                 case when co.indiceRedondeado=0 or c.periodo=v_periodo_desde then '...' 
+                 case when co.indiceRedondeado=0 /*or c.periodo=v_periodo_desde*/ or c.periodo=pperiodoempalme then '...' 
                       else replace(round((c.indiceRedondeado/co.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,  
-                 case when bo.indiceRedondeado=0 or c.periodo=v_periodo_desde then '...' 
+                 case when bo.indiceRedondeado=0 /*or c.periodo=v_periodo_desde*/ or c.periodo=pperiodoempalme then '...' 
                       else replace(round((b.indiceRedondeado/bo.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,
-                 case when so.indiceRedondeado=0 or c.periodo=v_periodo_desde then '...' 
+                 case when so.indiceRedondeado=0 /*or c.periodo=v_periodo_desde*/ or c.periodo=pperiodoempalme then '...' 
                       else replace(round((s.indiceRedondeado/so.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,
                  case when parametro4='S' then null::text else    
-                 case when ro.indiceRedondeado=0 or c.periodo=v_periodo_desde then '...' 
+                 case when ro.indiceRedondeado=0 /*or c.periodo=v_periodo_desde*/ or c.periodo=pperiodoempalme then '...' 
                       else replace(round((r.indiceRedondeado/ro.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end  end 
                  from calgru c --nivel general
                  join calculos_def cd on c.calculo = cd.calculo
@@ -55,7 +55,7 @@ begin
                    and s.grupo=parametro4||'2'
                    and (case when c.agrupacion='S' then r.grupo='S1' else r.grupo='R3' end) 
                    and ((pempalmehasta and c.periodo <= pperiodoempalme) or 
-                        (pempalmedesde and c.periodo >  pperiodoempalme))
+                        (pempalmedesde and c.periodo >=  pperiodoempalme))
 ;    
 end;
 $BODY$;

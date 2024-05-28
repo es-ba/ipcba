@@ -29,7 +29,7 @@ begin
   return query select 2::bigint,'P...RRRRR.'::text,null::text,null::text, null::text
                  , devolver_mes_anio(p_periodo) 
                  , devolver_mes_anio(vMesAnterior),'Respecto del mes anterior'::text
-                 , 'Acumulado Anual'::text, 'Interanual'::text, null::text;
+                 , 'Acumulado anual'::text, 'Interanual'::text, null::text;
   return query select row_number() over (order by cg.grupo)+100,
                       case when cg.nivel=0 then 'N.3.nnnnnn'
                            when pPonerCodigos then 'D11nnnnnnn' 
@@ -41,14 +41,19 @@ begin
                       overlay(lower(nombregrupo) placing upper(substr(nombregrupo,1,1)) from 1 for 1)::text,
                       replace(round((g.ponderador*100)::numeric,2)::text,'.',',')::text||' %'::text,
                       replace(round(cg.indiceRedondeado::numeric,2)::text,'.',p_separador)::text,
-                      replace(round(co.indiceRedondeado::numeric,2)::text,'.',p_separador)::text,
+                      case when co.periodo < pperiodoempalme then '...'
+                         else replace(round(co.indiceRedondeado::numeric,2)::text,'.',p_separador)::text end,
                       case when co.indiceRedondeado=0 then null 
+                        when co.periodo < pperiodoempalme then '...'
                         else replace(round((cg.indiceRedondeado/co.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,
                       case when ca.indiceRedondeado=0 then null 
+                        when ca.periodo < pperiodoempalme then '...'
                         else replace(round((cg.indiceRedondeado/ca.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,
                       case when cb.indiceRedondeado=0 then null 
-                        else replace(round((cg.indiceRedondeado/cb.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,    
-                      replace(cg.incidenciaredondeada::text,'.',p_separador)::text
+                        when cb.periodo < pperiodoempalme then '...'
+                        else replace(round((cg.indiceRedondeado/cb.indiceRedondeado*100-100)::numeric,1)::text,'.',p_separador)::text end,
+                      case when co.periodo < pperiodoempalme then '...'
+                        else replace(cg.incidenciaredondeada::text,'.',p_separador)::text end
                  from calGru cg
                  inner join calculos_def cd on cg.calculo = cd.calculo
                  inner join grupos g on g.agrupacion=cg.agrupacion and g.grupo=cg.grupo
@@ -63,7 +68,7 @@ begin
                    and cd.principal
                    and cg.periodo=p_Periodo
                    and ((pempalmehasta and cg.periodo <= pperiodoempalme) or 
-                        (pempalmedesde and cg.periodo >  pperiodoempalme))
+                        (pempalmedesde and cg.periodo >=  pperiodoempalme))
                  ; 
 end;
 $BODY$;
