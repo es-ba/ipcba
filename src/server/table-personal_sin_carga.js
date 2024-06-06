@@ -25,15 +25,17 @@ module.exports = function(context){
                             where operativo = 'C' and labor in ('E', 'S') and activo = 'S' and usu_activo) per
                     left join (select fecha, encuestador as persona
                                  from fechas f
-                                 join relpan rp on f.fecha = rp.fechasalida
-                                 join reltar rt on rp.periodo = rt.periodo and rp.panel = rt.panel
-                                where f.seleccionada_planificacion = 'S'
-                               union
-                                select fecha, l.persona
-                                  from fechas f
-                                  join relpan rp on f.fecha = rp.fechasalida
-                                  join licencias l on f.fecha between l.fechadesde and l.fechahasta
-                                  where f.seleccionada_planificacion = 'S') q 
+                                 left join (select rt.periodo, rt.panel, rt.tarea, rt.encuestador, rp.fechasalida, rt.fechasalidadesde, rt.fechasalidahasta 
+                                              from reltar rt 
+                                              join relpan rp on rp.periodo = rt.periodo and rp.panel = rt.panel) e
+                                 on f.fecha = e.fechasalidadesde or f.fecha = e.fechasalidahasta or f.fecha = e.fechasalida
+                                 where f.seleccionada_planificacion = 'S'
+                                union
+                                 select fecha, l.persona
+                                   from fechas f
+                                   join relpan rp on f.fecha = rp.fechasalida
+                                   join licencias l on f.fecha between l.fechadesde and l.fechahasta
+                                   where f.seleccionada_planificacion = 'S') q 
                     on per.persona = q.persona and per.fecha = q.fecha
                     where q.fecha is null)`,                  
         }  
