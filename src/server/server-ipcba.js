@@ -933,6 +933,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'agrupaciones'                                       },
                 {menuType:'table', name:'atributos'                                          },
                 {menuType:'table', name:'barrios'                                            },
+                {menuType:'table', name:'calles'                                             },
+                {menuType:'table', name:'provincias'                                         },
                 {menuType:'table', name:'calculos_def'                                       },
                 {menuType:'table', name:'conjuntomuestral'                                   },
                 {menuType:'table', name:'divisiones'                                         },
@@ -1326,6 +1328,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'fechas', path: __dirname},
             {name: 'licencias', path: __dirname},
             {name: 'personal_sin_carga', path: __dirname},
+            {name: 'calles', path: __dirname},
+            {name: 'provincias', path: __dirname},
         ]);
     }
 }
