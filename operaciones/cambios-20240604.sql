@@ -1,7 +1,7 @@
 set search_path = cvp;
 ALTER TABLE cvp.informantes ADD COLUMN calle INTEGER;
 ALTER TABLE cvp.informantes ADD COLUMN provincia TEXT;
-ALTER TABLE cvp.informantes ADD COLUMN circunselectoral TEXT;
+ALTER TABLE cvp.informantes ADD COLUMN circunselectoral INTEGER;
 --ALTER TABLE cvp.informantes DROP COLUMN nombrecalle;
 --alter table cvp.informantes drop constraint nombrecalle
 ALTER TABLE cvp.informantes ADD constraint informantes_calle_fkey FOREIGN KEY (calle)
@@ -127,7 +127,7 @@ AS $BODY$
                      VALUES ('cvp','informantes','cluster','I',new.informante,new.informante,'I:'||comun.a_texto(new."cluster"),new."cluster");
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_number)
                      VALUES ('cvp','informantes','calle','I',new.informante,new.informante,'I:'||comun.a_texto(new."calle"),new."calle");
-                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_number)
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_text)
                      VALUES ('cvp','informantes','provincia','I',new.informante,new.informante,'I:'||comun.a_texto(new."provincia"),new."provincia");
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_number)
                      VALUES ('cvp','informantes','circunselectoral','I',new.informante,new.informante,'I:'||comun.a_texto(new."circunselectoral"),new."circunselectoral");
@@ -291,21 +291,9 @@ AS $BODY$
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
                      VALUES ('cvp','informantes','barrio','U',new.informante,new.informante,comun.A_TEXTO(old.barrio)||'->'||comun.a_texto(new.barrio),old.barrio,new.barrio);
             END IF;
-            IF new.calle IS DISTINCT FROM old.calle THEN
-                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
-                     VALUES ('cvp','informantes','calle','U',new.informante,new.informante,comun.A_TEXTO(old.calle)||'->'||comun.a_texto(new.calle),old.calle,new.calle);
-            END IF;
-            IF new.provincia IS DISTINCT FROM old.provincia THEN
-                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
-                     VALUES ('cvp','informantes','provincia','U',new.informante,new.informante,comun.A_TEXTO(old.provincia)||'->'||comun.a_texto(new.provincia),old.provincia,new.provincia);
-            END IF;
             IF new.comuna IS DISTINCT FROM old.comuna THEN
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
                      VALUES ('cvp','informantes','comuna','U',new.informante,new.informante,comun.A_TEXTO(old.comuna)||'->'||comun.a_texto(new.comuna),old.comuna,new.comuna);
-            END IF;
-            IF new.circunselectoral IS DISTINCT FROM old.circunselectoral THEN
-                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
-                     VALUES ('cvp','informantes','circunselectoral','U',new.informante,new.informante,comun.A_TEXTO(old.circunselectoral)||'->'||comun.a_texto(new.circunselectoral),old.circunselectoral,new.circunselectoral);
             END IF;
             IF new.fraccion IS DISTINCT FROM old.fraccion THEN
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
@@ -347,6 +335,18 @@ AS $BODY$
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
                      VALUES ('cvp','informantes','cluster','U',new.informante,new.informante,comun.A_TEXTO(old."cluster")||'->'||comun.a_texto(new."cluster"),old."cluster",new."cluster");
             END IF;    
+            IF new.calle IS DISTINCT FROM old.calle THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
+                     VALUES ('cvp','informantes','calle','U',new.informante,new.informante,comun.A_TEXTO(old.calle)||'->'||comun.a_texto(new.calle),old.calle,new.calle);
+            END IF;
+            IF new.provincia IS DISTINCT FROM old.provincia THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text,new_text)
+                     VALUES ('cvp','informantes','provincia','U',new.informante,new.informante,comun.A_TEXTO(old.provincia)||'->'||comun.a_texto(new.provincia),old.provincia,new.provincia);
+            END IF;
+            IF new.circunselectoral IS DISTINCT FROM old.circunselectoral THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number,new_number)
+                     VALUES ('cvp','informantes','circunselectoral','U',new.informante,new.informante,comun.A_TEXTO(old.circunselectoral)||'->'||comun.a_texto(new.circunselectoral),old.circunselectoral,new.circunselectoral);
+            END IF;
       END IF;
       IF v_operacion='D' THEN
         
@@ -452,10 +452,10 @@ AS $BODY$
                      VALUES ('cvp','informantes','cluster','D',old.informante,old.informante,'D:'||comun.a_texto(old."cluster"),old."cluster");
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number)
                      VALUES ('cvp','informantes','calle','D',old.informante,old.informante,'D:'||comun.a_texto(old."calle"),old."calle");
-                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number)
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text)
                      VALUES ('cvp','informantes','provincia','D',old.informante,old.informante,'D:'||comun.a_texto(old."provincia"),old."provincia");
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number)
-                     VALUES ('cvp','informantes','circunselectoral','D',old.informante,old.informante,'D:'||comun.a_texto(old."circunselectoral"),old."circunselectoral");
+                     VALUES ('cvp','informantes','circunselectoral','D',old.informante,old.informante,'D:'||comun.a_texto(old."circunsselectoral"),old."circunselectoral");
       END IF;
       
         IF v_operacion<>'D' THEN

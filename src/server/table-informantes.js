@@ -62,7 +62,7 @@ module.exports = function(context){
             {name:'grupo_prioridad'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cluster'              , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , isName:true                                               },
             {name:'calle'                , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código calle'                                     },
-            {name:'circunselectoral'     , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'circunscripción electoral'                        },
+            {name:'circunselectoral'     , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'circunscripción electoral'                        },
             {name:'provincia'            , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código provincia'                                 },
         ],
         primaryKey:['informante'],
