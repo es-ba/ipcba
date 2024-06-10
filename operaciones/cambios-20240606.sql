@@ -5,7 +5,7 @@ CREATE OR REPLACE VIEW cvp.control_relev_telef
     r.tarea,
     r.informante,
     i.nombreinformante,
-    COALESCE((((((i.calle::text || ' '::text) || i.altura::text) || ' '::text) || i.piso::text) || ' '::text) || i.departamento::text, i.direccion::text) AS direccion,
+    COALESCE((((((c.nombrecalle::text || ' '::text) || i.altura::text) || ' '::text) || i.piso::text) || ' '::text) || i.departamento::text, i.direccion::text) AS direccion,
     r.visita,
     (((r.encuestador::text || ':'::text) || p.nombre::text) || ' '::text) || p.apellido::text AS encuestador,
     i.rubro,
@@ -16,8 +16,9 @@ CREATE OR REPLACE VIEW cvp.control_relev_telef
      LEFT JOIN cvp.personal p ON r.encuestador::text = p.persona::text
      LEFT JOIN cvp.informantes i ON r.informante = i.informante
      LEFT JOIN cvp.rubros u ON i.rubro = u.rubro
+     LEFT JOIN CVP.calles c ON i.calle = c.calle
   WHERE u.telefonico::text = 'S'::text
-  GROUP BY r.periodo, r.panel, r.tarea, r.informante, i.nombreinformante, (COALESCE((((((i.calle::text || ' '::text) || i.altura::text) || ' '::text) || i.piso::text) || ' '::text) || i.departamento::text, i.direccion::text)), r.visita, ((((r.encuestador::text || ':'::text) || p.nombre::text) || ' '::text) || p.apellido::text), i.rubro, u.nombrerubro
+  GROUP BY r.periodo, r.panel, r.tarea, r.informante, i.nombreinformante, (COALESCE((((((c.nombrecalle::text || ' '::text) || i.altura::text) || ' '::text) || i.piso::text) || ' '::text) || i.departamento::text, i.direccion::text)), r.visita, ((((r.encuestador::text || ':'::text) || p.nombre::text) || ' '::text) || p.apellido::text), i.rubro, u.nombrerubro
   ORDER BY r.periodo, r.panel, r.tarea, r.informante;
 
 CREATE OR REPLACE FUNCTION cvp.generar_direccion_informante_trg()
