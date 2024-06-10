@@ -29,7 +29,6 @@ module.exports = function(context){
             {name:'rubro'                     , typeName:'integer' , allow:{update:puedeEditar}},
             //{name:'periodo'                   , typeName:'text'     , editable:false, title:'ultimoPeriodo'},
             {name:'direccion'                 , typeName:'text'    , editable:false},           
-            {name:'nombrecalle'               , typeName:'text'    , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'calle'                     , typeName:'integer' , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'distrito'                  , typeName:'integer' , allow:{update:puedeEditar}},
