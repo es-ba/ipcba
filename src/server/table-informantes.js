@@ -11,7 +11,7 @@ module.exports = function(context){
             delete:false,
             update:puedeEditar||puedeEditarMigracion,
         },
-
+        
         fields:[
             {name:'informante'           , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , nullable:false                                            },
             {name:'nombreinformante'     , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , isName:true                                               },
@@ -19,7 +19,9 @@ module.exports = function(context){
             {name:'tipoinformante'       , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , nullable:false                , isName:true, title:'TI'   },
             {name:'rubroclanae'          , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cadena'               , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
-            {name:'direccion'            , typeName:'text'       , allow:{update:false}                             , allowEmptyText:true                                       },
+            {name:'calle'                , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código calle'                                     },
+            {name:'direccion'            , typeName:'text'       , allow:{import:false, update:false}               , inTable: false                , allowEmptyText:true       },
+            {name:'provincia'            , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código provincia'                                 },
             {name:'altamanualperiodo'    , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'altamanualpanel'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'altamanualtarea'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
@@ -61,9 +63,7 @@ module.exports = function(context){
             {name:'pc_anio'              , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'grupo_prioridad'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cluster'              , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , isName:true                                               },
-            {name:'calle'                , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código calle'                                     },
             {name:'circunselectoral'     , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'circunscripción electoral'                        },
-            {name:'provincia'            , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código provincia'                                 },
         ],
         primaryKey:['informante'],
         detailTables:[
@@ -79,10 +79,11 @@ module.exports = function(context){
             {references:'provincias'      , fields:['provincia']        , displayFields:['nombreprovincia'] }
         ],
         sql:{
-            from:`(select i.*, ie.estado
-                   from informantes i left join informantes_estado ie on i.informante = ie.informante 
+            from:`(select i.informante, TRIM(COALESCE(c.nombrecalle||' ','')||COALESCE(i.altura||' ','')||COALESCE('PISO '||i.piso||' ','')||COALESCE('DPTO '||i.departamento,'')) as direccion, i.nombreinformante, i.tipoinformante, i.rubroclanae, i.cadena, i.altamanualperiodo, i.altamanualpanel, i.altamanualtarea, i.altamanualconfirmar, i.razonsocial, i.altura, i.piso, i.departamento, i.cuit, i.naecba, i.totalpers, i.cp, i.distrito, i.fraccion_ant, i.radio_ant, i.manzana_ant, i.lado, i.obs_listador, i.nr_listador, i.fecha_listado, i.grupo_listado, i.conjuntomuestral, i.rubro, i.ordenhdr, i.cue, i.idlocal, i.muestra, i.contacto, i.telcontacto, i.web, i.email, i.modi_fec, i.barrio, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.pc_anio, i.grupo_prioridad, i.cluster, i.calle, i.circunselectoral, i.provincia, ie.estado
+                   from informantes i left join informantes_estado ie on i.informante = ie.informante left join calles c on i.calle = c.calle
                 )`,
                 isTable: true,
             },    
     },context);
 }
+

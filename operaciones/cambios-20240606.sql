@@ -15,26 +15,6 @@ CREATE OR REPLACE VIEW control_relev_telef AS
     GROUP BY 1,2,3,4,5,6,7,8,9,10
     ORDER BY periodo, panel, tarea, informante;
 
-CREATE FUNCTION generar_direccion_informante_trg() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-vnombrecalle TEXT;
-BEGIN
-SELECT nombrecalle INTO vnombrecalle
-FROM cvp.calles
-WHERE calle = NEW.calle;
-IF TG_OP = 'INSERT' THEN 
-  NEW.direccion := TRIM(COALESCE(vnombrecalle||' ','')||COALESCE(NEW.altura||' ','')||COALESCE('PISO '||NEW.piso||' ','')||COALESCE('DPTO '||NEW.departamento,''));
-  ELSIF TG_OP = 'UPDATE' THEN
-   IF COALESCE(NEW.calle,'') <> COALESCE(OLD.calle,'') 
-     OR COALESCE(NEW.altura,'') <> COALESCE(OLD.altura,'') 
-     OR COALESCE(NEW.piso,'') <> COALESCE(OLD.piso,'') 
-     OR COALESCE(NEW.departamento,'') <> COALESCE(OLD.departamento,'') THEN
-     NEW.direccion := TRIM(COALESCE(vnombrecalle||' ','')||COALESCE(NEW.altura||' ','')||COALESCE('PISO '||NEW.piso||' ','')||COALESCE('DPTO '||NEW.departamento,''));
-   END IF;
-END IF;
-RETURN NEW;
-END;
-$$;
+
+drop function generar_direccion_informante_trg();
 
