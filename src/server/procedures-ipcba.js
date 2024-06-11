@@ -2346,50 +2346,46 @@ ProceduresIpcba = [
                     csvFileName: nombre + '.csv',
                     rows:(
                         await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto, 
-                        rm.informante, rm.visita, rm.observacion, rm.formulario,
+                        rm.informante, rm.visita, rm.observacion, rm.formulario, rm.tipoprecio,
                         rm.atributo, rm.nombreatributo, rm.valor, 
                         r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2, 
                         rn.atributo as atributo_3, rn.nombreatributo as nombreatributo_3, rn.valor as valor_3,
                         rs.atributo as atributo_4, rs.nombreatributo as nombreatributo_4, rs.valor as valor_4,
                         rm.comentariosrelpre as comentarios
-                        from (select rp.formulario, ra.*, rp.comentariosrelpre, a2.nombreatributo 
+                        from (select rp.formulario, rp.tipoprecio, ra.*, rp.comentariosrelpre, a2.nombreatributo 
                                 from cvp.relpre rp 
-                                join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
                                 join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
                                         and rp.visita = ra.visita and rp.observacion = ra.observacion 
                                 join cvp.atributos a2 on ra.atributo = a2.atributo 
-                                where a2.nombreatributo = 'Marca' and rp.periodo = $1 and t.espositivo = 'S') rm
+                                where a2.nombreatributo = 'Marca' and rp.periodo = $1 and rp.tipoprecio is not null) rm
                              join cvp.relvis v on v.periodo = rm.periodo and v.informante = rm.informante and v.visita = rm.visita and v.formulario = rm.formulario  
                              join cvp.productos p on rm.producto = p.producto
                              left join 
                              (select rp.formulario, ra.* , a1.nombreatributo
                                 from cvp.relpre rp 
-                                join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
                                 join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
                                                   and rp.visita = ra.visita and rp.observacion = ra.observacion
                                 join cvp.atributos a1 on ra.atributo = a1.atributo
                                 join cvp.prodatr pa on rp.producto = pa.producto and ra.atributo = pa.atributo
-                                where pa.normalizable = 'S' and rp.periodo = $1 and t.espositivo = 'S') r 
+                                where pa.normalizable = 'S' and rp.periodo = $1) r 
                                 on r.periodo = rm.periodo and r.informante = rm.informante and r.producto = rm.producto 
                                 and r.observacion = rm.observacion and r.visita = rm.visita
                             left join 
                             (select rp.formulario, ra.* , a2.nombreatributo
                                 from cvp.relpre rp 
-                                join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
                                 join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
                                                   and rp.visita = ra.visita and rp.observacion = ra.observacion
                                 join cvp.atributos a2 on ra.atributo = a2.atributo
-                                where a2.nombreatributo = 'Nombre' and rp.periodo = $1 and t.espositivo = 'S') rn 
+                                where a2.nombreatributo = 'Nombre' and rp.periodo = $1) rn 
                                    on rm.periodo = rn.periodo and rm.informante = rn.informante and rm.producto = rn.producto 
                                    and rm.observacion = rn.observacion and rm.visita = rn.visita
                             left join 
                             (select rp.formulario, ra.* , a3.nombreatributo
                                from cvp.relpre rp 
-                               join cvp.tipopre t on rp.tipoprecio = t.tipoprecio
                                join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
                                                   and rp.visita = ra.visita and rp.observacion = ra.observacion
                                join cvp.atributos a3 on ra.atributo = a3.atributo
-                               where a3.nombreatributo = 'Sabor' and rp.periodo = $1 and t.espositivo = 'S') rs 
+                               where a3.nombreatributo = 'Sabor' and rp.periodo = $1) rs 
                                   on rm.periodo = rs.periodo and rm.informante = rs.informante and rm.producto = rs.producto 
                                   and rm.observacion = rs.observacion and rm.visita = rs.visita`, [parameters.periodo]).fetchAll()
                     ).rows
