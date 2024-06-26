@@ -56,7 +56,7 @@ module.exports = function(context){
             {references:'calles'          , fields:['calle']            , displayFields:['nombrecalle']     },
         ],
         sql:{
-            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, direccion, rubro, altamanualperiodo, 
+            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, calle, direccion, rubro, altamanualperiodo, 
                        altamanualpanel, case when cantpantar = 1 then r.panelselec else null end::integer as ultimopanel, 
                        altamanualtarea, case when cantpantar = 1 then r.tareaselec else null end::integer as ultimatarea,
                        case when cantpantar > 1 then varias else null end as masdeunpaneltarea, nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, 

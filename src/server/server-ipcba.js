@@ -829,6 +829,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_reemplazosexportar'       , label:'titulares-reemplazos', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 {menuType:'table', name:'conjuntomuestral'                      , label:'conjuntos muestrales', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
+                {menuType:'table', name:'calles'                                , onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'informantes'                           , onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
                 {menuType:'table', name:'periodos_informantesactivos'           , label:'activos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesaltasbajas'        , label:'altas y bajas', onlyVisibleFor:[programador,coordinador,analista]},

@@ -27,6 +27,7 @@ module.exports = function(context){
             {name:'altamanualtarea'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'altamanualconfirmar'  , typeName:'timestamp'  , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'razonsocial'          , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
+            {name:'nombrecalle'          , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'altura'               , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'piso'                 , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'departamento'         , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
@@ -79,8 +80,8 @@ module.exports = function(context){
             {references:'provincias'      , fields:['provincia']        , displayFields:['nombreprovincia'] }
         ],
         sql:{
-            from:`(select i.informante, TRIM(COALESCE(c.nombrecalle||' ','')||COALESCE(i.altura||' ','')||COALESCE('PISO '||i.piso||' ','')||COALESCE('DPTO '||i.departamento,'')) as direccion, i.nombreinformante, i.tipoinformante, i.rubroclanae, i.cadena, i.altamanualperiodo, i.altamanualpanel, i.altamanualtarea, i.altamanualconfirmar, i.razonsocial, i.altura, i.piso, i.departamento, i.cuit, i.naecba, i.totalpers, i.cp, i.distrito, i.fraccion_ant, i.radio_ant, i.manzana_ant, i.lado, i.obs_listador, i.nr_listador, i.fecha_listado, i.grupo_listado, i.conjuntomuestral, i.rubro, i.ordenhdr, i.cue, i.idlocal, i.muestra, i.contacto, i.telcontacto, i.web, i.email, i.modi_fec, i.barrio, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.pc_anio, i.grupo_prioridad, i.cluster, i.calle, i.circunselectoral, i.provincia, ie.estado
-                   from informantes i left join informantes_estado ie on i.informante = ie.informante left join calles c on i.calle = c.calle
+            from:`(select i.*, ie.estado
+                   from informantes i left join informantes_estado ie on i.informante = ie.informante
                 )`,
                 isTable: true,
             },    
