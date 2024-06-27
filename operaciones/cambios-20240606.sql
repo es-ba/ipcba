@@ -16,7 +16,7 @@ $$;
 ALTER FUNCTION cvp.actualizar_nombrecalle_informante_trg()
     OWNER TO cvpowner;
 
-CREATE OR REPLACE TRIGGER calles_actualizar_nombrecalle_informante_trg
+CREATE TRIGGER calles_actualizar_nombrecalle_informante_trg
     AFTER UPDATE 
     ON cvp.calles
     FOR EACH ROW

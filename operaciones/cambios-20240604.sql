@@ -30,6 +30,8 @@ AS $BODY$
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_text)
                      VALUES ('cvp','informantes','nombreinformante','I',new.informante,new.informante,'I:'||comun.a_texto(new.nombreinformante),new.nombreinformante);
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_text)
+                     VALUES ('cvp','informantes','nombrecalle','I',new.informante,new.informante,'I:'||comun.a_texto(new.nombrecalle),new.nombrecalle);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_text)
                      VALUES ('cvp','informantes','tipoinformante','I',new.informante,new.informante,'I:'||comun.a_texto(new.tipoinformante),new.tipoinformante);
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,new_text)
                      VALUES ('cvp','informantes','rubroclanae','I',new.informante,new.informante,'I:'||comun.a_texto(new.rubroclanae),new.rubroclanae);
@@ -141,6 +143,10 @@ AS $BODY$
             IF new.nombreinformante IS DISTINCT FROM old.nombreinformante THEN
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text,new_text)
                      VALUES ('cvp','informantes','nombreinformante','U',new.informante,new.informante,comun.A_TEXTO(old.nombreinformante)||'->'||comun.a_texto(new.nombreinformante),old.nombreinformante,new.nombreinformante);
+            END IF;    
+            IF new.nombrecalle IS DISTINCT FROM old.nombrecalle THEN
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text,new_text)
+                     VALUES ('cvp','informantes','nombrecalle','U',new.informante,new.informante,comun.A_TEXTO(old.nombrecalle)||'->'||comun.a_texto(new.nombrecalle),old.nombrecalle,new.nombrecalle);
             END IF;    
             IF new.tipoinformante IS DISTINCT FROM old.tipoinformante THEN
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text,new_text)
@@ -354,6 +360,8 @@ AS $BODY$
                      VALUES ('cvp','informantes','informante','D',old.informante,old.informante,'D:'||comun.a_texto(old.informante),old.informante);
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text)
                      VALUES ('cvp','informantes','nombreinformante','D',old.informante,old.informante,'D:'||comun.a_texto(old.nombreinformante),old.nombreinformante);
+                INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text)
+                     VALUES ('cvp','informantes','nombrecalle','D',old.informante,old.informante,'D:'||comun.a_texto(old.nombrecalle),old.nombrecalle);
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text)
                      VALUES ('cvp','informantes','tipoinformante','D',old.informante,old.informante,'D:'||comun.a_texto(old.tipoinformante),old.tipoinformante);
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text)
