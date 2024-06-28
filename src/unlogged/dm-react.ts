@@ -494,7 +494,7 @@ export function getCacheVersion(){
 }
 
 export function hdrEstaDescargada(){
-    return my.getLocalVar('ipc2.0-descargado')||false;
+    return !!(my.getLocalVar('ipc2.0-descargado')||false);
 }
 
 export async function hacerBackup(hdr:HojaDeRuta){
