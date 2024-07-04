@@ -830,6 +830,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_reemplazosexportar'       , label:'titulares-reemplazos', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
                 {menuType:'table', name:'conjuntomuestral'                      , label:'conjuntos muestrales', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
+                {menuType:'table', name:'calles'                                , onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'informantes'                           , onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
                 {menuType:'table', name:'periodos_informantesactivos'           , label:'activos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesaltasbajas'        , label:'altas y bajas', onlyVisibleFor:[programador,coordinador,analista]},
@@ -933,6 +934,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'agrupaciones'                                       },
                 {menuType:'table', name:'atributos'                                          },
                 {menuType:'table', name:'barrios'                                            },
+                {menuType:'table', name:'calles'                                             },
+                {menuType:'table', name:'provincias'                                         },
                 {menuType:'table', name:'calculos_def'                                       },
                 {menuType:'table', name:'conjuntomuestral'                                   },
                 {menuType:'table', name:'divisiones'                                         },
@@ -1326,6 +1329,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'fechas', path: __dirname},
             {name: 'licencias', path: __dirname},
             {name: 'personal_sin_carga', path: __dirname},
+            {name: 'calles', path: __dirname},
+            {name: 'provincias', path: __dirname},
         ]);
     }
 }

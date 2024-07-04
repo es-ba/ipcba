@@ -29,7 +29,7 @@ module.exports = function(context){
             {name:'rubro'                     , typeName:'integer' , allow:{update:puedeEditar}},
             //{name:'periodo'                   , typeName:'text'     , editable:false, title:'ultimoPeriodo'},
             {name:'direccion'                 , typeName:'text'    , editable:false},           
-            {name:'nombrecalle'               , typeName:'text'    , allow:{update:puedeEditar}, postInput:'upperSpanish'},
+            {name:'calle'                     , typeName:'integer' , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'distrito'                  , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'fraccion'                  , typeName:'integer' , allow:{update:puedeEditar}},
@@ -52,10 +52,11 @@ module.exports = function(context){
         ],
         foreignKeys:[
             {references:'rubros'          , fields:['rubro']           },
-            {references:'tipoinf'         , fields:['tipoinformante']  }
+            {references:'tipoinf'         , fields:['tipoinformante']  },
+            {references:'calles'          , fields:['calle']            , displayFields:['nombrecalle']     },
         ],
         sql:{
-            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, direccion, rubro, altamanualperiodo, 
+            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, calle, direccion, rubro, altamanualperiodo, 
                        altamanualpanel, case when cantpantar = 1 then r.panelselec else null end::integer as ultimopanel, 
                        altamanualtarea, case when cantpantar = 1 then r.tareaselec else null end::integer as ultimatarea,
                        case when cantpantar > 1 then varias else null end as masdeunpaneltarea, nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, 
