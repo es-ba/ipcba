@@ -52,6 +52,9 @@ END;
 $$;
 ---------------------------------------------------------------
 
+set search_path = cvp;
 
-
-
+UPDATE informantes set nombrecalle = null where calle is not null;
+ALTER TABLE IF EXISTS informantes
+    ADD CONSTRAINT "Sólo puede guardar un nombrecalle o un código calle" CHECK 
+	(calle IS NULL OR nombrecalle is null);
