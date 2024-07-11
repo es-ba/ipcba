@@ -236,16 +236,14 @@ const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     </div>
 }
 const Button = (props:{
-    variant?:string,
-    color?:string,
+    variant?:string = 'contained',
+    color?:string = 'light',
     onClick?:(event:React.MouseEvent)=>void,
     disabled?:boolean
     fullwidth?:boolean
     children:any,
     size?:'lg'|'md'
 }&CommonAttributes)=>{
-    props.variant = props.variant || 'contained';
-    props.color = props.color || 'light';
     const {...other} = props;
     return <button 
         {...other}
@@ -2569,6 +2567,7 @@ function PantallaHojaDeRuta(_props:{}){
             </AppBar>
             <main>
                 <Paper className={classes.root}>
+                    {hdrEstaDescargada()?<Chip label={'Tablet descargada, para hacer una nueva carga comuníquese con su recepcionista'} style={{backgroundColor: 'red', fontSize: '1.5em'}}></Chip>:null}
                     <Typography component="p" style={{fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"}}>
                         Panel: {panel} Tarea: {tarea} Enc: {apellidoencuestador}, {nombreencuestador} ({encuestador}) Modalidad: {modalidad ||'-'}
                     </Typography>
