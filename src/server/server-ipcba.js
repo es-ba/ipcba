@@ -252,6 +252,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - trg-validar_recepcion_trg.sql
                 - trg-validar_transmitir_canasta_trg.sql
                 - trg-verificar_act_promedio.sql
+                - trg-verificar_borrado_ext_def.sql
                 - trg-verificar_calcularprerep.sql
                 - trg-verificar_cargado_dm.sql
                 - trg-verificar_generar_externos.sql
