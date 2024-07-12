@@ -463,7 +463,7 @@ AS $BODY$
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_text)
                      VALUES ('cvp','informantes','provincia','D',old.informante,old.informante,'D:'||comun.a_texto(old."provincia"),old."provincia");
                 INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_number_1,change_value,old_number)
-                     VALUES ('cvp','informantes','circunselectoral','D',old.informante,old.informante,'D:'||comun.a_texto(old."circunsselectoral"),old."circunselectoral");
+                     VALUES ('cvp','informantes','circunselectoral','D',old.informante,old.informante,'D:'||comun.a_texto(old."circunselectoral"),old."circunselectoral");
       END IF;
       
         IF v_operacion<>'D' THEN
