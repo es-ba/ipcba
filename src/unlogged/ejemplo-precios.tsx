@@ -22,7 +22,6 @@ import * as likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
-
 //@ts-ignore el módulo memoize-one no tiene bien puesto los tipos en su .d.ts
 var memoize:typeof memoizeBadTyped.default = memoizeBadTyped;
 
@@ -37,6 +36,8 @@ type CommonAttributes = {className?:string,style?:React.CSSProperties,id?:string
 type BootstrapColors = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark';
 
 const TOOLBAR_STYLE=hdrEstaDescargada()?{backgroundColor:'red'}:{backgroundColor:"#3f51b5"};
+
+const controlarDisabled = (miCondicion:boolean) => miCondicion || hdrEstaDescargada()
 
 function useLockBodyScroll() {
   useLayoutEffect(() => {
@@ -235,16 +236,14 @@ const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     </div>
 }
 const Button = (props:{
-    variant?:string,
-    color?:string,
+    variant?:string = 'contained',
+    color?:string = 'light',
     onClick?:(event:React.MouseEvent)=>void,
     disabled?:boolean
     fullwidth?:boolean
     children:any,
     size?:'lg'|'md'
 }&CommonAttributes)=>{
-    props.variant = props.variant || 'contained';
-    props.color = props.color || 'light';
     const {...other} = props;
     return <button 
         {...other}
@@ -1133,7 +1132,7 @@ function EditableTd<T extends string|number|null>(props:{
                     color={color}
                     inputId={props.inputId}
                     value={props.value}
-                    disabled={props.disabled}
+                    disabled={controlarDisabled(props.disabled || false)}
                     readOnly={editaEnLista}
                     dataType={props.dataType}
                     idProximo={props.idProximo||null}
@@ -1245,7 +1244,7 @@ const AtributosRow = function(props:{
                 <div className="flechaAtributos" button-container="yes" style={{gridRow:"span "+relPre.atributos.length}}>
                     {props.razonPositiva?(
                         muestraFlechaCopiarAtributos(estructura, relPre)?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ () => {
+                            <Button disabled={controlarDisabled(!props.razonPositiva)} color="primary" variant="outline" onClick={ () => {
                                 props.onSelection();
                                 dispatch(dispatchers.BLANQUEAR_ATRIBUTOS({
                                     forPk:relAtr, 
@@ -1256,14 +1255,14 @@ const AtributosRow = function(props:{
                                 {FLECHAATRIBUTOS}
                             </Button>
                         :(relPre.cambio=='C' && puedeCopiarAtributos(estructura, relPre))?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
+                            <Button disabled={controlarDisabled(!props.razonPositiva)} color="primary" variant="outline" onClick={ (event) => {
                                 props.onSelection();
                                 setMenuCambioAtributos(event.currentTarget)                            
                             }}>
                                 C
                             </Button>
                         :(relPre.cambio=='=' && precioTieneAtributosCargados(relPre))?
-                            <Button disabled={!props.razonPositiva} color="primary" variant="outline" onClick={ (event) => {
+                            <Button disabled={controlarDisabled(!props.razonPositiva)} color="primary" variant="outline" onClick={ (event) => {
                                 props.onSelection();
                                 setMenuCambioAtributos(event.currentTarget)                            
                             }}>
@@ -1376,7 +1375,7 @@ var ObsPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, raz
     const [dialogoObservaciones, setDialogoObservaciones] = useState<boolean>(false);
     const [observacionAConfirmar, setObservacionAConfirmar] = useState<string|null>(relPre.comentariosrelpre);
     return <>
-        <Button disabled={!razonPositiva} color="primary" variant="outline" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
+        <Button disabled={controlarDisabled(!razonPositiva)} color="primary" variant="outline" tiene-observaciones={relPre.comentariosrelpre?'si':'no'} onClick={()=>{
             props.onSelection();
             setDialogoObservaciones(true)
         }}>
@@ -1456,7 +1455,7 @@ var TipoPrecio = (props:{inputIdPrecio:string, relPre:RelPre, iRelPre:number, ra
             }
         </div>
         <div className="tipo-precio" button-container="yes">
-            <Button disabled={!razonPositiva} color={esNegativo?"danger":"primary"} variant="outline" onClick={event=>{
+            <Button disabled={controlarDisabled(!razonPositiva)} color={esNegativo?"danger":"primary"} variant="outline" onClick={event=>{
                 props.onSelection();
                 setMenuTipoPrecio(event.currentTarget)
             }}>
@@ -1963,7 +1962,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
                 <Button 
                     onClick={event=>setMenuRazon(event.currentTarget)} 
                     color={relVis.razon && !estructura.razones[relVis.razon].espositivoformulario?"danger":"primary"} 
-                    disabled={Boolean(relVis.razon && !estructura.razones[relVis.razon].visibleparaencuestador)} 
+                    disabled={controlarDisabled(Boolean(relVis.razon && !estructura.razones[relVis.razon].visibleparaencuestador))} 
                     variant="outline"
                     style={{width:'90%', maxWidth:70}}
                 >
@@ -2568,6 +2567,7 @@ function PantallaHojaDeRuta(_props:{}){
             </AppBar>
             <main>
                 <Paper className={classes.root}>
+                    {hdrEstaDescargada()?<Chip label={'Tablet descargada, para hacer una nueva carga comuníquese con su recepcionista'} style={{backgroundColor: 'red', fontSize: '1.5em'}}></Chip>:null}
                     <Typography component="p" style={{fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"}}>
                         Panel: {panel} Tarea: {tarea} Enc: {apellidoencuestador}, {nombreencuestador} ({encuestador}) Modalidad: {modalidad ||'-'}
                     </Typography>

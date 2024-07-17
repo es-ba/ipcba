@@ -11,7 +11,7 @@ var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
 
-const APP_DM_VERSION="#23-04-21";
+const APP_DM_VERSION="#24-07-17";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
