@@ -1,6 +1,6 @@
 "use strict";
 import { TableDefinition } from "backend-plus";
-export const periodos_control_diccionario_atributos_val = (param_name:string, param_table:string, param_label:string):TableDefinition =>{
+export const periodos_control = (param_name:string, param_table:string, param_abr:string, param_label:string):TableDefinition =>{
     return {
         name:param_name,
         tableName:'periodos',
@@ -16,7 +16,7 @@ export const periodos_control_diccionario_atributos_val = (param_name:string, pa
         ],
         primaryKey:['periodo'],
         detailTables:[
-            {table: param_table , fields:['periodo'], abr:'DA' , label: param_label},
+            {table: param_table , fields:['periodo'], abr:param_abr , label: param_label},
         ],
         sortColumns: [
             {
