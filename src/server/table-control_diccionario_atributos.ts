@@ -36,6 +36,7 @@ export const control_diccionario_atributos = (context:Context):TableDefinition =
             {references:'productos', fields:['producto']},
             {references:'atributos', fields:['atributo']},
             {references:'informantes', fields:['informante']},
+            {references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'   },
         ],
         filterColumns:[
             {column:'inconsistente', operator:'=' , value:'S'}
