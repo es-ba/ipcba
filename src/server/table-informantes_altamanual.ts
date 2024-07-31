@@ -33,6 +33,7 @@ export const informantes_altamanual = (context:Context):TableDefinition=>{
             {name:'provincia'                 , typeName:'text'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código provincia'},
             {name:'direccion'                 , typeName:'text'    , editable:false},           
             {name:'calle'                     , typeName:'integer' , allow:{update:puedeEditar}, postInput:'upperSpanish'},
+            {name:'nombrecalle'               , typeName:'text'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'comuna'                    , typeName:'integer' , allow:{update:puedeEditarMigracion} , visible:puedeEditarMigracion                              },
             {name:'fraccion'                  , typeName:'integer' , allow:{update:puedeEditar}},
