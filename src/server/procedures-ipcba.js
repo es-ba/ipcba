@@ -1,6 +1,7 @@
 "use strict";
 
 const SOLO_PARA_DEMO_DM=false;
+const NO_RESULTS="No se encontraron resultados"
 
 var likeAr = require('like-ar');
 var pg = require('pg-promise-strict');
@@ -2328,6 +2329,54 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
                 const nombre = 'unificacionDeMarcas_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+                const resultQuery = (
+                    await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto, 
+                    rm.informante, rm.visita, rm.observacion, rm.formulario, rm.tipoprecio,
+                    rm.atributo, rm.nombreatributo, rm.valor, 
+                    r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2, 
+                    rn.atributo as atributo_3, rn.nombreatributo as nombreatributo_3, rn.valor as valor_3,
+                    rs.atributo as atributo_4, rs.nombreatributo as nombreatributo_4, rs.valor as valor_4,
+                    rm.comentariosrelpre as comentarios
+                    from (select rp.formulario, rp.tipoprecio, ra.*, rp.comentariosrelpre, a2.nombreatributo 
+                            from cvp.relpre rp 
+                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                    and rp.visita = ra.visita and rp.observacion = ra.observacion 
+                            join cvp.atributos a2 on ra.atributo = a2.atributo 
+                            where a2.nombreatributo = 'Marca' and rp.periodo = $1 and rp.tipoprecio is not null) rm
+                         join cvp.relvis v on v.periodo = rm.periodo and v.informante = rm.informante and v.visita = rm.visita and v.formulario = rm.formulario  
+                         join cvp.productos p on rm.producto = p.producto
+                         left join 
+                         (select rp.formulario, ra.* , a1.nombreatributo
+                            from cvp.relpre rp 
+                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                              and rp.visita = ra.visita and rp.observacion = ra.observacion
+                            join cvp.atributos a1 on ra.atributo = a1.atributo
+                            join cvp.prodatr pa on rp.producto = pa.producto and ra.atributo = pa.atributo
+                            where pa.normalizable = 'S' and rp.periodo = $1) r 
+                            on r.periodo = rm.periodo and r.informante = rm.informante and r.producto = rm.producto 
+                            and r.observacion = rm.observacion and r.visita = rm.visita
+                        left join 
+                        (select rp.formulario, ra.* , a2.nombreatributo
+                            from cvp.relpre rp 
+                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                              and rp.visita = ra.visita and rp.observacion = ra.observacion
+                            join cvp.atributos a2 on ra.atributo = a2.atributo
+                            where a2.nombreatributo = 'Nombre' and rp.periodo = $1) rn 
+                               on rm.periodo = rn.periodo and rm.informante = rn.informante and rm.producto = rn.producto 
+                               and rm.observacion = rn.observacion and rm.visita = rn.visita
+                        left join 
+                        (select rp.formulario, ra.* , a3.nombreatributo
+                           from cvp.relpre rp 
+                           join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                                              and rp.visita = ra.visita and rp.observacion = ra.observacion
+                           join cvp.atributos a3 on ra.atributo = a3.atributo
+                           where a3.nombreatributo = 'Sabor' and rp.periodo = $1) rs 
+                              on rm.periodo = rs.periodo and rm.informante = rs.informante and rm.producto = rs.producto 
+                              and rm.observacion = rs.observacion and rm.visita = rs.visita`, [parameters.periodo]).fetchAll()
+                ).rows;
+                if(resultQuery.length === 0){
+                    throw new Error(NO_RESULTS);
+                }
                 return [
                 /*{
                     title:'agrupaciones',
@@ -2344,51 +2393,7 @@ ProceduresIpcba = [
                 {   title:'unificacionDeMarcasTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows:(
-                        await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto, 
-                        rm.informante, rm.visita, rm.observacion, rm.formulario, rm.tipoprecio,
-                        rm.atributo, rm.nombreatributo, rm.valor, 
-                        r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2, 
-                        rn.atributo as atributo_3, rn.nombreatributo as nombreatributo_3, rn.valor as valor_3,
-                        rs.atributo as atributo_4, rs.nombreatributo as nombreatributo_4, rs.valor as valor_4,
-                        rm.comentariosrelpre as comentarios
-                        from (select rp.formulario, rp.tipoprecio, ra.*, rp.comentariosrelpre, a2.nombreatributo 
-                                from cvp.relpre rp 
-                                join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
-                                        and rp.visita = ra.visita and rp.observacion = ra.observacion 
-                                join cvp.atributos a2 on ra.atributo = a2.atributo 
-                                where a2.nombreatributo = 'Marca' and rp.periodo = $1 and rp.tipoprecio is not null) rm
-                             join cvp.relvis v on v.periodo = rm.periodo and v.informante = rm.informante and v.visita = rm.visita and v.formulario = rm.formulario  
-                             join cvp.productos p on rm.producto = p.producto
-                             left join 
-                             (select rp.formulario, ra.* , a1.nombreatributo
-                                from cvp.relpre rp 
-                                join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
-                                                  and rp.visita = ra.visita and rp.observacion = ra.observacion
-                                join cvp.atributos a1 on ra.atributo = a1.atributo
-                                join cvp.prodatr pa on rp.producto = pa.producto and ra.atributo = pa.atributo
-                                where pa.normalizable = 'S' and rp.periodo = $1) r 
-                                on r.periodo = rm.periodo and r.informante = rm.informante and r.producto = rm.producto 
-                                and r.observacion = rm.observacion and r.visita = rm.visita
-                            left join 
-                            (select rp.formulario, ra.* , a2.nombreatributo
-                                from cvp.relpre rp 
-                                join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
-                                                  and rp.visita = ra.visita and rp.observacion = ra.observacion
-                                join cvp.atributos a2 on ra.atributo = a2.atributo
-                                where a2.nombreatributo = 'Nombre' and rp.periodo = $1) rn 
-                                   on rm.periodo = rn.periodo and rm.informante = rn.informante and rm.producto = rn.producto 
-                                   and rm.observacion = rn.observacion and rm.visita = rn.visita
-                            left join 
-                            (select rp.formulario, ra.* , a3.nombreatributo
-                               from cvp.relpre rp 
-                               join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
-                                                  and rp.visita = ra.visita and rp.observacion = ra.observacion
-                               join cvp.atributos a3 on ra.atributo = a3.atributo
-                               where a3.nombreatributo = 'Sabor' and rp.periodo = $1) rs 
-                                  on rm.periodo = rs.periodo and rm.informante = rs.informante and rm.producto = rs.producto 
-                                  and rm.observacion = rs.observacion and rm.visita = rs.visita`, [parameters.periodo]).fetchAll()
-                    ).rows
+                    rows: resultQuery
                 }
             ]
         }
@@ -2404,33 +2409,37 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'calobsAmpliado_' + parameters.periododesde + '_' + parameters.periodohasta + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (
+                await context.client.query(`select c.periodo, c.calculo, c.producto, p.cluster, c.informante, i.nombreinformante, i.tipoinformante,c.observacion, c.division, c.promobs, 
+                c.impobs, c.antiguedadconprecio, c.antiguedadsinprecio, c.antiguedadexcluido, c.antiguedadincluido, c.sindatosestacional, v.panel, v.encuestador
+                , r.visita, r.precio, r.tipoprecio, r.cambio, case when c.antiguedadexcluido>0 then 'X' else null end as excluido
+                , case when ((z.escierredefinitivoinf = 'S' or z.escierredefinitivofor = 'S') or v.informante is null and c.promobs is not null and vv.informante is null) then 'Inactivo ' else null end as inactivo
+                , v.razon, ra.valor as marca, r.comentariosrelpre, rt.modalidad
+                from calobs c
+                join calculos_def cd on c.calculo = cd.calculo
+                join productos p on c.producto = p.producto
+                join informantes i on c.informante = i.informante
+                LEFT join relpre r on c.periodo = r.periodo and c.informante = r.informante and c.producto = r.producto and c.observacion = r.observacion
+                LEFT join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
+                LEFT join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea 
+                LEFT JOIN razones z ON v.razon = z.razon 
+                LEFT JOIN forprod fp ON c.producto = fp.producto 
+                LEFT JOIN formularios formu ON formu.formulario = fp.formulario 
+                JOIN cvp.forinf fi ON fp.formulario = fi.formulario and c.informante = fi.informante 
+                LEFT JOIN cvp.relvis vv on c.periodo = vv.periodo and fi.informante = vv.informante and fi.formulario = vv.formulario and vv.ultima_visita
+                LEFT JOIN (SELECT * from relatr r join atributos a using(atributo) where nombreatributo = 'Marca') ra 
+                on r.periodo = ra.periodo and r.informante = ra.informante and r.visita = ra.visita and r.observacion = ra.observacion and r.producto = ra.producto
+                where cd.principal and c.periodo >= $1 and c.periodo <= $2 and p.cluster is distinct from 3 and formu.activo = 'S'
+                order by c.periodo, c.calculo, c.producto, c.informante, c.observacion, r.visita`, [parameters.periododesde, parameters.periodohasta]).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
             return [
                 {   title:'calobsAmpliadoTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows:(
-                        await context.client.query(`select c.periodo, c.calculo, c.producto, p.cluster, c.informante, i.nombreinformante, i.tipoinformante,c.observacion, c.division, c.promobs, 
-                        c.impobs, c.antiguedadconprecio, c.antiguedadsinprecio, c.antiguedadexcluido, c.antiguedadincluido, c.sindatosestacional, v.panel, v.encuestador
-                        , r.visita, r.precio, r.tipoprecio, r.cambio, case when c.antiguedadexcluido>0 then 'X' else null end as excluido
-                        , case when ((z.escierredefinitivoinf = 'S' or z.escierredefinitivofor = 'S') or v.informante is null and c.promobs is not null and vv.informante is null) then 'Inactivo ' else null end as inactivo
-                        , v.razon, ra.valor as marca, r.comentariosrelpre, rt.modalidad
-                        from calobs c
-                        join calculos_def cd on c.calculo = cd.calculo
-                        join productos p on c.producto = p.producto
-                        join informantes i on c.informante = i.informante
-                        LEFT join relpre r on c.periodo = r.periodo and c.informante = r.informante and c.producto = r.producto and c.observacion = r.observacion
-                        LEFT join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
-                        LEFT join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea 
-                        LEFT JOIN razones z ON v.razon = z.razon 
-                        LEFT JOIN forprod fp ON c.producto = fp.producto 
-                        LEFT JOIN formularios formu ON formu.formulario = fp.formulario 
-                        JOIN cvp.forinf fi ON fp.formulario = fi.formulario and c.informante = fi.informante 
-                        LEFT JOIN cvp.relvis vv on c.periodo = vv.periodo and fi.informante = vv.informante and fi.formulario = vv.formulario and vv.ultima_visita
-                        LEFT JOIN (SELECT * from relatr r join atributos a using(atributo) where nombreatributo = 'Marca') ra 
-                        on r.periodo = ra.periodo and r.informante = ra.informante and r.visita = ra.visita and r.observacion = ra.observacion and r.producto = ra.producto
-                        where cd.principal and c.periodo >= $1 and c.periodo <= $2 and p.cluster is distinct from 3 and formu.activo = 'S'
-                        order by c.periodo, c.calculo, c.producto, c.informante, c.observacion, r.visita`, [parameters.periododesde, parameters.periodohasta]).fetchAll()
-                    ).rows
+                    rows: resultQuery
                 }
             ]
         }
@@ -2445,60 +2454,62 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'relpre_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (await context.client.query(`select r.periodo, 
+                r.producto,
+                o.nombreproducto as productos__nombreproducto,
+                o.cluster as productos__cluster,
+                r.informante,
+                i.nombreinformante as informantes__nombreinformante,
+                i.tipoinformante as informantes__tipoinformante,
+                i.cluster as informantes__cluster,
+                r.formulario, 
+                r.visita, 
+                r.observacion, 
+                r.precio, 
+                r.tipoprecio, 
+                r.cambio, 
+                CASE WHEN p.periodo is not null THEN 'R' ELSE null END as repregunta,
+                CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as excluido, 
+                CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 
+                     THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
+                     ELSE NULL 
+                END as cantidadperiodossinprecio,	   
+                r_1.precio_1 as precioanterior, 
+                r_1.tipoprecio_1 as tipoprecioanterior, 
+                CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio 
+                     THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
+                     ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null 
+                               THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
+                               ELSE NULL 
+                          END 
+                END AS masdatos,
+                r.comentariosrelpre, 
+                r.esvisiblecomentarioendm,
+                r_1.comentariosrelpre_1 as comentariosanterior,                  
+                r.precionormalizado,
+                case when r.ultima_visita is true then null else true end as agregarvisita,
+                v.panel
+         from relpre r
+              inner join productos o on r.producto = o.producto
+              inner join informantes i on r.informante = i.informante
+              inner join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
+              inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario                      left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
+              left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
+              left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
+              left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
+              , lateral (select max(periodo) ultimoperiodoconprecio 
+                       from relpre
+                       where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita 
+                       and periodo < r.periodo) re
+                where r.periodo = $1 order by fp.orden, r.observacion`, [parameters.periodo]).fetchAll()).rows
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
             return [
                 {   title:'relpreExportarTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows:(
-                        await context.client.query(`select r.periodo, 
-                        r.producto,
-                        o.nombreproducto as productos__nombreproducto,
-                        o.cluster as productos__cluster,
-                        r.informante,
-                        i.nombreinformante as informantes__nombreinformante,
-                        i.tipoinformante as informantes__tipoinformante,
-                        i.cluster as informantes__cluster,
-                        r.formulario, 
-                        r.visita, 
-                        r.observacion, 
-                        r.precio, 
-                        r.tipoprecio, 
-                        r.cambio, 
-                        CASE WHEN p.periodo is not null THEN 'R' ELSE null END as repregunta,
-                        CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as excluido, 
-                        CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 
-                             THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
-                             ELSE NULL 
-                        END as cantidadperiodossinprecio,	   
-                        r_1.precio_1 as precioanterior, 
-                        r_1.tipoprecio_1 as tipoprecioanterior, 
-                        CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio 
-                             THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
-                             ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null 
-                                       THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
-                                       ELSE NULL 
-                                  END 
-                        END AS masdatos,
-                        r.comentariosrelpre, 
-                        r.esvisiblecomentarioendm,
-                        r_1.comentariosrelpre_1 as comentariosanterior,                  
-                        r.precionormalizado,
-                        case when r.ultima_visita is true then null else true end as agregarvisita,
-                        v.panel
-                 from relpre r
-                      inner join productos o on r.producto = o.producto
-                      inner join informantes i on r.informante = i.informante
-                      inner join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
-                      inner join forprod fp on r.producto = fp.producto and r.formulario = fp.formulario                      left join relpre_1 r_1 on r.periodo=r_1.periodo and r.producto = r_1.producto and r.informante=r_1.informante and r.visita = r_1.visita and r.observacion = r_1.observacion
-                      left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
-                      left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
-                      left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
-                      , lateral (select max(periodo) ultimoperiodoconprecio 
-                               from relpre
-                               where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita 
-                               and periodo < r.periodo) re
-                        where r.periodo = $1 order by fp.orden, r.observacion`, [parameters.periodo]).fetchAll()
-                    ).rows
+                    rows: resultQuery                        
                 }
             ]
         }
@@ -2513,19 +2524,23 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'controlAjustes_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (
+                await context.client.query(`select periodo, panel, tarea, informante, tipoinformante, visita, formulario, grupo_padre_1, 
+                nombregrupo_1, grupo_padre_2, nombregrupo_2, grupo_padre_3, nombregrupo_3, c.producto, p.nombreproducto, p.cluster, observacion, 
+                precionormalizado, tipoprecio, cambio, variacion_1, varia_1, precionormalizado_1, 
+                tipoprecio_1, cambio_1, variacion_2, varia_2, precionormalizado_2, tipoprecio_2, cambio_2, varia_ambos 
+                from control_ajustes c 
+                join productos p on c.producto = p.producto
+                where c.periodo = $1`, [parameters.periodo]).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
             return [
                 {   title:'controlAjustesExportarTitle',
                     fileName: nombre  + '.xlsx',
                     csvFileName: nombre  + '.csv',
-                    rows:(
-                        await context.client.query(`select periodo, panel, tarea, informante, tipoinformante, visita, formulario, grupo_padre_1, 
-                        nombregrupo_1, grupo_padre_2, nombregrupo_2, grupo_padre_3, nombregrupo_3, c.producto, p.nombreproducto, p.cluster, observacion, 
-                        precionormalizado, tipoprecio, cambio, variacion_1, varia_1, precionormalizado_1, 
-                        tipoprecio_1, cambio_1, variacion_2, varia_2, precionormalizado_2, tipoprecio_2, cambio_2, varia_ambos 
-                        from control_ajustes c 
-                        join productos p on c.producto = p.producto
-                        where c.periodo = $1`, [parameters.periodo]).fetchAll()
-                    ).rows
+                    rows: resultQuery
                 }
             ]
         }
@@ -2587,16 +2602,20 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'controlvigencias_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (
+                await context.client.query(`select periodo, informante, producto, nombreproducto, observacion, valor,
+                cantdias, ultimodiadelmes, visitas, vigencias, comentarios, tipoprecio, cantnegativos, cantpositivos 
+                FROM controlvigencias
+                WHERE periodo =  $1`, [parameters.periodo]).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
             return [
                 {   title:'vigenciasExportarTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows:(
-                        await context.client.query(`select periodo, informante, producto, nombreproducto, observacion, valor,
-                        cantdias, ultimodiadelmes, visitas, vigencias, comentarios, tipoprecio, cantnegativos, cantpositivos 
-                        FROM controlvigencias
-                        WHERE periodo =  $1`, [parameters.periodo]).fetchAll()
-                    ).rows
+                    rows: resultQuery
                 }
             ]
         }
@@ -2611,37 +2630,40 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (await context.client.query(`
+                select a.periodo, vis.panel, vis.tarea, a.producto, 
+                o.nombreproducto productos__nombreproducto, o.cluster productos__cluster,
+                a.informante, i.nombreinformante informantes__nombreinformante, i.tipoinformante informantes__tipoinformante,
+                i.cluster informantes__cluster, vis.recepcionista, per.nombre as perrec__nombre, per.apellido as perrec__apellido, pre.formulario, a.visita, a.observacion, 
+                a.atributo, a1.nombreatributo atributos__nombreatributo, a.valor, aa.atributo atributo_2, a2.nombreatributo atr__nombreatributo,
+                aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm  
+                from relpre pre
+                join informantes i on pre.informante = i.informante
+                join relatr a on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
+                join atributos a1 on a.atributo = a1.atributo
+                join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                join productos o on a.producto = o.producto
+                join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
+                join personal per on per.persona = vis.recepcionista
+                left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
+                left join tipopre t on pre.tipoprecio = t.tipoprecio
+                left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion 
+                and a.visita = aa.visita and aa.atributo = p.atributo_2  
+                left join atributos a2 on aa.atributo = a2.atributo
+                where coalesce(pa.validaropciones, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
+                and case when p.valor_2 ~ aa.valor then 1 else 0 end = 0
+                and pre.periodo =  $1`, [parameters.periodo]).fetchAll()).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
             return [
                 {   title:'relpre_control_atr2_dicatrTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows:(
-                        await context.client.query(`
-                            select a.periodo, vis.panel, vis.tarea, a.producto, 
-                            o.nombreproducto productos__nombreproducto, o.cluster productos__cluster,
-                            a.informante, i.nombreinformante informantes__nombreinformante, i.tipoinformante informantes__tipoinformante,
-                            i.cluster informantes__cluster, vis.recepcionista, per.nombre as perrec__nombre, per.apellido as perrec__apellido, pre.formulario, a.visita, a.observacion, 
-                            a.atributo, a1.nombreatributo atributos__nombreatributo, a.valor, aa.atributo atributo_2, a2.nombreatributo atr__nombreatributo,
-                            aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm  
-                            from relpre pre
-                            join informantes i on pre.informante = i.informante
-                            join relatr a on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
-                            join atributos a1 on a.atributo = a1.atributo
-                            join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
-                            join productos o on a.producto = o.producto
-                            join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
-                            join personal per on per.persona = vis.recepcionista
-                            left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
-                            left join tipopre t on pre.tipoprecio = t.tipoprecio
-                            left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion 
-                            and a.visita = aa.visita and aa.atributo = p.atributo_2  
-                            left join atributos a2 on aa.atributo = a2.atributo
-                            where coalesce(pa.validaropciones, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
-                            and case when p.valor_2 ~ aa.valor then 1 else 0 end = 0
-                            and pre.periodo =  $1`, [parameters.periodo]).fetchAll()
-                    ).rows
+                    rows: resultQuery
                 }
             ]
+            
         }
     },
     {
