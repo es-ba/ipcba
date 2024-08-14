@@ -2629,6 +2629,14 @@ ProceduresIpcba = [
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            if(!context.be.config.server['base-link']){
+                throw new Error('No hay dominio para la columna link_relpre');
+            }
+            const urlComplete = (parameters) => {                
+                const domain = `/menu#w=table&table=relpre&ff=${JSON4all.stringify(parameters)}`;
+                const link = `${context.be.config.server['base-link']}${context.be.config.server['base-url']}${domain}`;
+                return link;
+            }
             const nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             const resultQuery = (await context.client.query(`
                 select a.periodo, vis.panel, vis.tarea, a.producto, 
@@ -2656,11 +2664,20 @@ ProceduresIpcba = [
             if(resultQuery.length === 0){
                 throw new Error(NO_RESULTS);
             }
+            const queryUpdate = resultQuery.map((v)=>{
+                const rqParameters = {
+                    "periodo":v.periodo,
+                    "informante":v.informante,
+                    "producto":v.producto,
+                    "observacion":v.observacion,
+                }
+                return {...v, link_relpre: urlComplete(rqParameters)}
+            })
             return [
                 {   title:'relpre_control_atr2_dicatrTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows: resultQuery
+                    rows: queryUpdate
                 }
             ]
             
