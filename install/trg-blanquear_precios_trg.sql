@@ -7,7 +7,7 @@ DECLARE
   v_precio double precision;
   v_cambio character varying(1);
 BEGIN
-if new.confirma is distinct from old.confirma then
+if TG_OP='UPDATE' AND new.confirma is distinct from old.confirma OR TG_OP='INSERT' then
     if new.confirma then 
         SELECT precio, cambio INTO v_precio, v_cambio
         FROM cvp.relpre
@@ -31,6 +31,6 @@ END;
 $BODY$;
 
 CREATE TRIGGER novpre_blanquea_trg
-  BEFORE UPDATE
+  BEFORE INSERT OR UPDATE
   ON novpre
   FOR EACH ROW EXECUTE PROCEDURE blanquear_precios_trg();

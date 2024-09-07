@@ -28,8 +28,9 @@ module.exports = function(context){
             {name:'infopre'                          , typeName:'text'                     , allow:{update:false}, inTable:false},
             {name:'infopreant'                       , typeName:'text'                     , allow:{update:false}, inTable:false},
             {name:'confirma'                         , typeName:'boolean' , nullable:false , allow:{update:puedeEditar}, inTable:true},
+            {name:'comentariosrelpre'                , typeName:'text'                     , allow:{update:puedeEditar}, table:'relpre'},
+            {name:'esvisiblecomentarioendm'          , typeName:'boolean'                  , allow:{update:puedeEditar}, table:'relpre'},
             {name:'revisar_recep'   ,title:'Rev'     , typeName:'boolean'                  , allow:{update:puedeEditar}, inTable:true},
-            {name:'comentarios'                      , typeName:'text'                     , allow:{update:puedeEditar}, inTable:true},
             {name:'comentarios_recep', title:'Recepcion', typeName:'text'                  , allow:{update:puedeEditar||puedeEditarRecep}, inTable:true},
         ],
         /*
@@ -63,9 +64,11 @@ module.exports = function(context){
                            NULLIF((coalesce(rpa.precio::text||';','')||coalesce(rpa.tipoprecio||';','')||coalesce(rpa.cambio,'')),'') as infopre,
                            NULLIF((coalesce(rpa.precio_1::text||';','')||coalesce(rpa.tipoprecio_1||';','')||coalesce(rpa.cambio_1,'')),'') as infopreant,
                            n.confirma,
-                           n.comentarios, n.revisar_recep, n.comentarios_recep
+                           r.comentariosrelpre, r.esvisiblecomentarioendm, n.revisar_recep, n.comentarios_recep
                     from 
                         novpre n
+                        join relpre r on n.periodo = r.periodo and n.producto = r.producto and n.observacion = r.observacion and
+                                                  n.informante = r.informante and n.visita = r.visita
                         left join parametros par on unicoregistro
                         left join relpre_1 rpa on n.periodo = rpa.periodo and n.producto = rpa.producto and n.observacion = rpa.observacion and
                                                   n.informante = rpa.informante and n.visita = rpa.visita

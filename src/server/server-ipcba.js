@@ -835,7 +835,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'informantes'                           , onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
                 {menuType:'table', name:'periodos_informantesactivos'           , label:'activos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesaltasbajas'        , label:'altas y bajas', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'calculos_novobs_recep'                 , label:'altas y bajas (recep)', onlyVisibleFor:[programador,recepcionista,recepGabinete]},
+                {menuType:'table', name:'calculos_novobs_recep'                 , label:'altas y bajas (recep)', onlyVisibleFor:[programador,recepcionista,recepGabinete,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesrubro'             , label:'por rubro', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesrazon'             , label:'por razón', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesformulario'        , label:'por formulario', onlyVisibleFor:[programador,coordinador,analista]},
