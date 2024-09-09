@@ -1,7 +1,7 @@
 "use strict";
 import { Context, TableDefinition } from "backend-plus";
 export const control_diccionario_atributos = (context:Context):TableDefinition =>{
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' || context.user.usu_rol ==='jefe_campo'  || context.user.usu_rol ==='recepcionista';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador' /*|| context.user.usu_rol ==='jefe_campo'  || context.user.usu_rol ==='recepcionista'*/;
     return {
         name:'control_diccionario_atributos',
         tableName:'relatr',
