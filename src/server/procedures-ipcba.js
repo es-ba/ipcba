@@ -2633,7 +2633,7 @@ ProceduresIpcba = [
                 throw new Error('No hay dominio para la columna link_relpre');
             }
             const urlComplete = (parameters) => {                
-                const domain = `/menu#w=table&table=relpre&ff=${JSON4all.stringify(parameters)}`;
+                const domain = `/menu#w=table&table=relpre&ff=${JSON4all.toUrl(parameters)}`;
                 const link = `${context.be.config.server['base-link']}${context.be.config.server['base-url']}${domain}`;
                 return link;
             }
