@@ -2104,7 +2104,7 @@ ProceduresIpcba = [
             {name:'tarea'    , typeName:'integer' },
         ],
         resultOk:'mostrar_datos_backup',
-        roles:['programador'],
+        roles:['programador','analista','coordinador'],
         coreFunction:async function(context, params){
             try{
                 var reltarRecord = (await context.client.query(
@@ -2123,7 +2123,7 @@ ProceduresIpcba = [
             {name:'id_instalacion'  , typeName:'integer' },
             {name:'hoja_de_ruta'    , typeName:'jsonb'},
         ],
-        roles:['programador'],
+        roles:['programador','analista','coordinador'],
         coreFunction:async function(context, params){
             var be = context.be;
             var {hoja_de_ruta, id_instalacion} = params;

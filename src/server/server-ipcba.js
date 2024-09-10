@@ -796,7 +796,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
                     {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
-                    {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador]},
+                    {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador,analista,coordinador]},
                 ]},
                 {menuType:'menu', name:'planificacion', menuContent:[
                     {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
