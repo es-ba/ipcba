@@ -654,7 +654,7 @@ ProceduresIpcba = [
             {name:'informante' , typeName:'integer'},
             {name:'visita'     , typeName:'integer'},
         ],
-        roles:['programador','coordinador','analista','recepcionista'],
+        roles:['programador','coordinador','analista','recepcionista','jefe_recepcion'],
         coreFunction: async function(context, parameters){
             try{
                 var result = await context.client.query(
@@ -879,7 +879,7 @@ ProceduresIpcba = [
             {name:'periodo'    , typeName:'text', references:'periodos'},
             {name:'panel'      , typeName:'integer'                    },
         ],
-        roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista'],
+        roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista','jefe_recepcion'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 //`SELECT generar_para_supervisiones($1,$2);`,
@@ -901,7 +901,7 @@ ProceduresIpcba = [
             {name:'periodo'    , typeName:'text', references:'periodos'},
             {name:'panel'      , typeName:'integer'                    },
         ],
-        roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista'],
+        roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista','jefe_recepcion'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `select CASE WHEN max(disponible) is null THEN 'Debe especificar al menos un supervisor disponible'::text 
@@ -1124,7 +1124,7 @@ ProceduresIpcba = [
         ],
         policy:'web',
         progress:true,
-        roles:['programador','coordinador','analista','jefe_campo','recepcionista','supervisor', 'encuestador', 'recep_gabinete'],
+        roles:['programador','coordinador','analista','jefe_campo','recepcionista','jefe_recepcion','supervisor', 'encuestador', 'recep_gabinete'],
         coreFunction:async function(context, params){
             var be = context.be;
             var informantesArray = await context.client.query(
@@ -1506,7 +1506,7 @@ ProceduresIpcba = [
             {name:'periodo'    , typeName:'text'   , references:'periodos'   },
             {name:'informante' , typeName:'integer', references:'informantes'},
         ],
-        roles:['programador','coordinador','analista','jefe_campo','supervisor','ingresador','recep_gabinete','recepcionista'],
+        roles:['programador','coordinador','analista','jefe_campo','supervisor','ingresador','recep_gabinete','recepcionista','jefe_recepcion'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `SELECT *
@@ -2625,7 +2625,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'periodo'     , typeName:'text'      , references:'periodos'   },
         ],
-        roles:['programador','coordinador','analista','recepcionista','jefe_campo'],
+        roles:['programador','coordinador','analista','recepcionista','jefe_recepcion','jefe_campo'],
         forExport:{
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){

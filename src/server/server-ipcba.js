@@ -694,8 +694,9 @@ class AppIpcba extends backendPlus.AppBackend{
         var recepGabinete = {role:'recep_gabinete'};
         var migracion = {role:'migracion'};
         var encuestador = {role:'encuestador'};
+        var jefeRecepcion = {role:'jefe_recepcion'};
         if(this.config.server.policy=='web'){
-            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, recepGabinete, supervisor, encuestador]
+            var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, jefeRecepcion, recepGabinete, supervisor, encuestador]
             return {menu:[
                 //{menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta DM 1', showInOfflineMode: true, selectedByDefault: true},
                 //{menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
@@ -737,18 +738,18 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'relevamiento', name:'relevamiento'/*, onlyVisibleFor:[programador]*/},
             {menuType:'planificar_envio', name:'planificar_envio', label:'planificacion'},
             {menuType:'demo_dm', name:'demo_dm', label: 'demo', showInOfflineMode: true, onlyVisibleFor:[programador]},
-            {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista], policy:'web', menuContent:[
+            {menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:[programador, analista, coordinador, jefeCampo, recepcionista,jefeRecepcion], policy:'web', menuContent:[
                 {menuType:'table', name:'personal', showInOfflineMode: false},
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
             ], showInOfflineMode: true},
             {menuType:'menu', name:'administracion', label:'administración', menuContent:[
-                {menuType:'table', name:'prodatrval', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
+                {menuType:'table', name:'prodatrval', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                 //{menuType:'table', name:'cierre_periodos', label:'cierre de períodos'},
                 {menuType:'table', name:'parametros', label:'parametros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'cuadros', label: 'textos de los cuadros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'ipcba_usuarios', label: 'usuarios', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'tareas', label: 'tareas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
-            ], onlyVisibleFor:[programador,coordinador,analista,recepcionista, jefeCampo]},
+            ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion, jefeCampo]},
             {menuType:'menu', name:'salida_campo', label:'salida a campo', menuContent:[
                 {menuType:'table', name:'relenc', label:'titulares de panel-tarea', selectedByDefault:true},
             ], onlyVisibleFor:[programador,coordinador,jefeCampo]},
@@ -765,37 +766,37 @@ class AppIpcba extends backendPlus.AppBackend{
                 //{menuType:'table', name:'revision'   , label:'revisión'                    },
                 //{menuType:'table', name:'infreempdir', label:'administración de reemplazos'},
                 {menuType:'table', name:'periodos_precios_maximos_minimos', label:'precios maximos-mínimos'},
-                ], onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
+                ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                 {menuType:'menu', name:'controles', menuContent:[
-                    {menuType:'table', name:'periodos_relpre_control_rangos_recepcion', label:'inconsistencias de precios Rec', onlyVisibleFor:[programador,recepcionista,supervisor,coordinador,analista]},
-                    {menuType:'table', name:'periodos_control_anulados_recep'         , label:'anulados en recepción', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor]},
-                    {menuType:'table', name:'periodos_hdrexportarefectivossinprecio'  , label:'efectivos sin precio', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,recepGabinete]},
-                    {menuType:'table', name:'periodos_control_normalizables_sindato'  , label:'normalizables sin dato', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,recepGabinete]},
-                    {menuType:'table', name:'periodos_precios_positivos'              , label:'precios positivos periodo referente', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
-                    {menuType:'table', name:'periodos_control_cambios'                , label:'cambios de atributos', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
-                    {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,recepGabinete]},
-                    {menuType:'table', name:'periodos_control_atr1_diccionario_atributos', label:'inconsistencia (atr1) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista]},
-                    {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,analista]},
-                    {menuType:'proc' , name:'relpre_control_atr2_diccionario_atributos_exportar', label:'inconsistencia (atr2) de diccionario exp', onlyVisibleFor:[programador,coordinador,recepcionista,analista]},
-                    {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
+                    {menuType:'table', name:'periodos_relpre_control_rangos_recepcion', label:'inconsistencias de precios Rec', onlyVisibleFor:[programador,recepcionista,jefeRecepcion,supervisor,coordinador,analista]},
+                    {menuType:'table', name:'periodos_control_anulados_recep'         , label:'anulados en recepción', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor]},
+                    {menuType:'table', name:'periodos_hdrexportarefectivossinprecio'  , label:'efectivos sin precio', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
+                    {menuType:'table', name:'periodos_control_normalizables_sindato'  , label:'normalizables sin dato', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
+                    {menuType:'table', name:'periodos_precios_positivos'              , label:'precios positivos periodo referente', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
+                    {menuType:'table', name:'periodos_control_cambios'                , label:'cambios de atributos', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
+                    {menuType:'table', name:'periodos_control_atributos'              , label:'inconsistencias de atributos', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
+                    {menuType:'table', name:'periodos_control_atr1_diccionario_atributos', label:'inconsistencia (atr1) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,jefeRecepcion,analista]},
+                    {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,jefeRecepcion,analista]},
+                    {menuType:'proc' , name:'relpre_control_atr2_diccionario_atributos_exportar', label:'inconsistencia (atr2) de diccionario exp', onlyVisibleFor:[programador,coordinador,recepcionista,jefeRecepcion,analista]},
+                    {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'proc' , name:'controlvigencias_exportar'               , label:'atributo vigencia exp', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
-                    {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista]},
-                    {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
+                    {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista,jefeRecepcion]},
+                    {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_precios_inconsistentes'         , label:'incompletitud', onlyVisibleFor:[programador,coordinador,analista]},
-                    {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
-                    {menuType:'table', name:'periodos_control_comentariosrelpre'      , label:'comentarios por producto', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
-                ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,recepGabinete,supervisor]},
-                {menuType:'table', name:'periodos_novpre_recep', label:'anulación de precios (recep)', onlyVisibleFor:[programador,recepcionista,recepGabinete]},
+                    {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
+                    {menuType:'table', name:'periodos_control_comentariosrelpre'      , label:'comentarios por producto', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
+                ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,recepGabinete,supervisor]},
+                {menuType:'table', name:'periodos_novpre_recep', label:'anulación de precios (recep)', onlyVisibleFor:[programador,recepcionista,jefeRecepcion,recepGabinete]},
                 {menuType:'menu', name:'supervisiones', menuContent:[
-                    {menuType:'table', name:'periodos_hojaderutasupervisor'  , label:'hoja de ruta del supervisor', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
+                    {menuType:'table', name:'periodos_hojaderutasupervisor'  , label:'hoja de ruta del supervisor', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_reltar', label:'observaciones de paneles-tareas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
-                    {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
+                    {menuType:'seleccion_supervision', name:'seleccion', label:'selección', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'pantar', label:'tamaño de supervisiones', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor]},
-                    {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
-                    {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista]},
+                    {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista,jefeRecepcion]},
+                    {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista,jefeRecepcion]},
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador,analista,coordinador]},
                 ]},
                 {menuType:'menu', name:'planificacion', menuContent:[
@@ -803,10 +804,10 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
                     {menuType:'table'     ,  name:'personal_sin_carga', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
                     {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
-                    {menuType:'planificar_recepcion',  name:'recepcion', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo]},
+                    {menuType:'planificar_recepcion',  name:'recepcion', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,jefeCampo]},
                 ]},
                 /*
-                //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
+                //{menuType:'table', name:'periodos_control_altas_bajas_anulados'  , label:'control de altas/bajas/anulados', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
                 //{menuType:'table', name:'calculos'              , label:'Cálculos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_precios_maximos_vw'            , label:'precios máximos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_precios_minimos_vw'            , label:'precios mínimos', onlyVisibleFor:[programador,coordinador,analista]},
@@ -814,7 +815,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'periodos_variaciones_minimas_vw'        , label:'variaciones mínimas', onlyVisibleFor:[programador,coordinador,analista]},
                 //{menuType:'table', name:'periodos_control_observaciones'         , label:'vista de control de observaciones', onlyVisibleFor:[programador,coordinador,analista]},
                 */
-            ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
+            ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
             {menuType:'menu', name:'informantes', menuContent:[
 
                 {menuType:'menu', name:'alta manual', menuContent:[
@@ -823,29 +824,29 @@ class AppIpcba extends backendPlus.AppBackend{
                 ], onlyVisibleFor:[programador,coordinador, analista]},
 
 
-                {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,supervisor]},
+                {menuType:'table', name:'periodos_relinf'                       , label:'comentarios de la hoja de ruta', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,jefeRecepcion,supervisor]},
                 {menuType:'menu', name:'hoja de ruta', menuContent:[
-                    {menuType:'table', name:'periodos_hdrexportarteorica'       , label:'teórica'             , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete,supervisor]},
-                    {menuType:'table', name:'periodos_hdrexportar'              , label:'efectiva'            , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},
-                    {menuType:'table', name:'periodos_hdrexportarcierretemporal', label:'cierre temporal'     , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,recepGabinete]},
+                    {menuType:'table', name:'periodos_hdrexportarteorica'       , label:'teórica'             , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,jefeRecepcion,recepGabinete,supervisor]},
+                    {menuType:'table', name:'periodos_hdrexportar'              , label:'efectiva'            , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,jefeRecepcion,recepGabinete]},
+                    {menuType:'table', name:'periodos_hdrexportarcierretemporal', label:'cierre temporal'     , onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista,jefeRecepcion,recepGabinete]},
                     {menuType:'table', name:'periodos_reemplazosexportar'       , label:'titulares-reemplazos', onlyVisibleFor:[programador,coordinador,analista]},
                 ]},
-                {menuType:'table', name:'conjuntomuestral'                      , label:'conjuntos muestrales', onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
+                {menuType:'table', name:'conjuntomuestral'                      , label:'conjuntos muestrales', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,jefeCampo]},
                 {menuType:'table', name:'calles'                                , onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'informantes'                           , onlyVisibleFor:[programador,coordinador,analista,recepcionista,supervisor,jefeCampo]},
+                {menuType:'table', name:'informantes'                           , onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,jefeCampo]},
                 {menuType:'table', name:'periodos_informantesactivos'           , label:'activos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesaltasbajas'        , label:'altas y bajas', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'calculos_novobs_recep'                 , label:'altas y bajas (recep)', onlyVisibleFor:[programador,recepcionista,recepGabinete,coordinador,analista]},
+                {menuType:'table', name:'calculos_novobs_recep'                 , label:'altas y bajas (recep)', onlyVisibleFor:[programador,recepcionista,jefeRecepcion,recepGabinete,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesrubro'             , label:'por rubro', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesrazon'             , label:'por razón', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesformulario'        , label:'por formulario', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_control_hojas_ruta'           , label:'control de hoja de ruta', onlyVisibleFor:[programador,coordinador,analista]},
-            ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,supervisor,recepGabinete]},
+            ], onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
             {menuType:'menu', name:'canasta_ipcba', label:'canasta de IPCBA', menuContent:[
                 {menuType:'table', name:'grupos'   , onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'productos', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo,recepGabinete,supervisor]},
+                {menuType:'table', name:'productos', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,jefeCampo,recepGabinete,supervisor]},
                 //{menuType:'table', name:'periodos_vista_control_diccionario', label:'diccionario valores de atributos', onlyVisibleFor:[programador,coordinador,analista]},
-            ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeCampo,recepGabinete,supervisor]},
+            ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,jefeCampo,recepGabinete,supervisor]},
             {menuType:'menu', name:'analisis', label:'análisis', menuContent:[
                 {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:subMenuCalculos},
                 {menuType:'table', name:'calculos_novobs', label:'altas y bajas manuales del cálculo', onlyVisibleFor:[programador,coordinador,analista]},

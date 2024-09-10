@@ -2,7 +2,7 @@
 
 module.exports = function(context){
     var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='coordinador';
-    var puedeEditarRecep = context.user.usu_rol ==='recepcionista';
+    var puedeEditarRecep = context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='jefe_recepcion';
     return context.be.tableDefAdapt({
         name:'novobs',
         //title:'Altas y bajas manuales del cálculo',
