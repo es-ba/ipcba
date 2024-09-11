@@ -800,10 +800,10 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador,analista,coordinador]},
                 ]},
                 {menuType:'menu', name:'planificacion', menuContent:[
-                    {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
-                    {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
-                    {menuType:'table'     ,  name:'personal_sin_carga', onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
-                    {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista,jefeCampo]},
+                    {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,jefeRecepcion]},
+                    {menuType:'table'     ,  name:'fechas', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,jefeRecepcion]},
+                    {menuType:'table'     ,  name:'personal_sin_carga', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,jefeRecepcion]},
+                    {menuType:'planificar_armado'   ,  name:'armado'   , onlyVisibleFor:[programador,coordinador,analista,jefeCampo,jefeRecepcion]},
                     {menuType:'planificar_recepcion',  name:'recepcion', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,jefeCampo]},
                 ]},
                 /*
