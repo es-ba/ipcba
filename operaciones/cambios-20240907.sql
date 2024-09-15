@@ -44,4 +44,6 @@ CREATE TRIGGER novpre_blanquea_trg
   ON novpre
   FOR EACH ROW EXECUTE PROCEDURE blanquear_precios_trg();
   
-GRANT INSERT, SELECT, UPDATE ON TABLE cvp.fechas TO cvp_recepcionista;  
+GRANT INSERT, SELECT, UPDATE ON TABLE cvp.fechas TO cvp_recepcionista;
+
+GRANT DELETE, INSERT, SELECT, UPDATE ON TABLE cvp.licencias TO cvp_recepcionista;
