@@ -31,6 +31,8 @@ module.exports = function(context){
             {name:'masdatos'             ,typeName:'text'   },
             {name:'valor'                ,typeName:'text'   },
             {name:'valor_1'              ,typeName:'text'   },
+            {name:'comentariosrelpre'    ,typeName:'text'   },
+            {name:'comentariosrelpre_1'  ,typeName:'text'   },
         ],
         primaryKey:['periodo','informante','producto','observacion','visita'],
         foreignKeys:[
@@ -42,7 +44,8 @@ module.exports = function(context){
             `(SELECT periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
             precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
             string_agg(concat(atributo,'(',nombreatributo,')',':',valor), chr(10)) as valor,
-            string_agg(concat(atributo,'(',nombreatributo,')',':',valor_1), chr(10)) as valor_1
+            string_agg(concat(atributo,'(',nombreatributo,')',':',valor_1), chr(10)) as valor_1,
+            comentariosrelpre,comentariosrelpre_1 
             FROM (SELECT p.*, r_1.precio precio_1, r_1.tipoprecio tipoprecio_1, r_1.precionormalizado precionormalizado_1, c_1.promobs promobs_1, a_1.valor as valor_1,
                     CASE WHEN r_1.precio > 0 and r_1.precio <> p.precio 
                          THEN round((p.precio/r_1.precio*100-100)::decimal,1)::TEXT||'%' 
@@ -50,10 +53,10 @@ module.exports = function(context){
                               THEN round((p.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
                               ELSE NULL 
                               END 
-                    END AS masdatos
+                    END AS masdatos, r_1.comentariosrelpre comentariosrelpre_1
                   FROM (SELECT r.periodo, v.panel, v.tarea, rt.modalidad, r.informante, r.formulario, 
                           r.cambio, r.producto, r.observacion, r.visita, 
-                          r.precio, r.tipoprecio, r.precionormalizado, t.atributo, t.nombreatributo, a.valor
+                          r.precio, r.tipoprecio, r.precionormalizado, t.atributo, t.nombreatributo, a.valor, r.comentariosrelpre
                         FROM relpre r
                         JOIN relvis v ON r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita and r.formulario = v.formulario
                         JOIN reltar rt ON r.periodo = rt.periodo and v.panel= rt.panel and v.tarea = rt.tarea
@@ -78,9 +81,11 @@ module.exports = function(context){
                   WHERE p.valor is distinct from a_1.valor
                  ) Q
             GROUP BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
-            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos
+            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
+            comentariosrelpre, comentariosrelpre_1
             ORDER BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
-            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos)`
+            precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
+            comentariosrelpre, comentariosrelpre_1)`
             },
     },context);
 }
