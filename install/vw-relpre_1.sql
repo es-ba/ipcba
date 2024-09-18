@@ -18,7 +18,8 @@ CREATE OR REPLACE VIEW cvp.relpre_1 AS
     r.precionormalizado,
     r_1.precionormalizado AS precionormalizado_1,
     r_1.comentariosrelpre AS comentariosrelpre_1,
-    r_1.esvisiblecomentarioendm AS esvisiblecomentarioendm_1
+    r_1.esvisiblecomentarioendm AS esvisiblecomentarioendm_1,
+    r.esvisiblecomentarioendm
    FROM cvp.relpre r
      LEFT JOIN cvp.periodos p ON r.periodo::text = p.periodo::text
      LEFT JOIN cvp.relpre r_1 ON r_1.periodo::text =

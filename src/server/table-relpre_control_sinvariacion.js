@@ -30,6 +30,7 @@ module.exports = function(context){
             {name:'web'                          ,typeName:'text'   , allow:{update:false}}, 
             {name:'comentariosrelpre'            ,typeName:'text'   , allow:{update:puedeEditar}},
             {name:'esvisiblecomentarioendm'      ,typeName:'boolean', title:'Ver', allow:{update:puedeEditar}},
+            {name:'comentariosrelpre_1'          ,typeName:'text'   , allow:{update:false}},
             {name:'observaciones'                ,typeName:'text'   , allow:{update:esAnalista}},
             {name:'cantprecios'                  ,title:'cantperiodosconigualprecio',typeName:'integer', allow:{update:false}},
         ],
@@ -41,8 +42,8 @@ module.exports = function(context){
         sql:{
             from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.panel, cv.tarea,
                 cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
-                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario, rp.observaciones 
-                FROM relpre rp 
+                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario, rp.observaciones, rp.comentariosrelpre_1 
+                FROM relpre_1 rp 
                 LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
                 cv.visita = rp.visita and cv.observacion = rp.observacion
                 LEFT JOIN tareas t on cv.tarea = t.tarea
