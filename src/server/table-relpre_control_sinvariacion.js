@@ -40,9 +40,9 @@ module.exports = function(context){
         //    {references:'productos'  , fields:['producto']},
         //],        
         sql:{
-            from:`(SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.panel, cv.tarea,
-                cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
-                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario, rp.observaciones, rp.comentariosrelpre_1 
+            from:`(SELECT cv.periodo, cv.panel, cv.tarea, cv.informante, cv.formulario, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.precionormalizado, 
+                cv.tipoprecio, cv.modalidad, cv.nombreinformante, cv.direccion, cv.telcontacto, cv.web, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
+                rp.comentariosrelpre_1, rp.observaciones, cv.cantprecios 
                 FROM relpre_1 rp 
                 LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
                 cv.visita = rp.visita and cv.observacion = rp.observacion
