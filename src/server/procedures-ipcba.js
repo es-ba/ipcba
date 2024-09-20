@@ -2684,6 +2684,107 @@ ProceduresIpcba = [
         }
     },
     {
+        action:'control_cambios_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista','recepcionista','jefe_recepcion'],
+        forExport:{
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            const nombre = 'controlCambios_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (
+                await context.client.query(`SELECT periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
+                precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
+                string_agg(concat(atributo,'(',nombreatributo,')',':',valor), chr(10)) as valor,
+                string_agg(concat(atributo,'(',nombreatributo,')',':',valor_1), chr(10)) as valor_1,
+                comentariosrelpre,comentariosrelpre_1 
+                FROM (SELECT p.*, r_1.precio precio_1, r_1.tipoprecio tipoprecio_1, r_1.precionormalizado precionormalizado_1, c_1.promobs promobs_1, a_1.valor as valor_1,
+                        CASE WHEN r_1.precio > 0 and r_1.precio <> p.precio 
+                             THEN round((p.precio/r_1.precio*100-100)::decimal,1)::TEXT||'%' 
+                             ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> p.precionormalizado and r_1.precio is null 
+                                  THEN round((p.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
+                                  ELSE NULL 
+                                  END 
+                        END AS masdatos, r_1.comentariosrelpre comentariosrelpre_1
+                      FROM (SELECT r.periodo, v.panel, v.tarea, rt.modalidad, r.informante, r.formulario, 
+                              r.cambio, r.producto, r.observacion, r.visita, 
+                              r.precio, r.tipoprecio, r.precionormalizado, t.atributo, t.nombreatributo, a.valor, r.comentariosrelpre
+                            FROM relpre r
+                            JOIN relvis v ON r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita and r.formulario = v.formulario
+                            JOIN reltar rt ON r.periodo = rt.periodo and v.panel= rt.panel and v.tarea = rt.tarea
+                            JOIN relatr a on r.periodo = a.periodo and  r.informante = a.informante  and  r.producto = a.producto 
+                                 and r.visita = a.visita and r.observacion = a.observacion
+                            JOIN atributos t ON  a.atributo = t.atributo
+                            WHERE r.cambio = 'C' and t.es_vigencia is null
+                           ) p 
+                      JOIN periodos per ON p.periodo = per.periodo
+                      LEFT JOIN (SELECT c.* 
+                                 FROM calobs c JOIN calculos_def cd on c.calculo = cd.calculo 
+                                 WHERE principal) c_1 on per.periodoanterior = c_1.periodo and p.producto = c_1.producto and 
+                                 p.observacion = c_1.observacion and p.informante = c_1.informante
+                      LEFT JOIN relpre r_1 ON r_1.periodo =
+                        CASE
+                            WHEN p.visita > 1 THEN p.periodo
+                            ELSE per.periodoanterior
+                        END AND (r_1.ultima_visita = true AND p.visita = 1 OR p.visita > 1 AND r_1.visita = (p.visita - 1)) 
+                          AND r_1.informante = p.informante AND r_1.producto = p.producto AND r_1.observacion = p.observacion
+                      LEFT JOIN relatr a_1 on a_1.periodo = r_1.periodo and a_1.informante = r_1.informante and 
+                            r_1.visita = a_1.visita and r_1.observacion = a_1.observacion and r_1.producto = a_1.producto and p.atributo = a_1.atributo
+                      WHERE p.valor is distinct from a_1.valor and p.periodo = $1
+                     ) Q
+                GROUP BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
+                precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
+                comentariosrelpre, comentariosrelpre_1
+                ORDER BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
+                precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
+                comentariosrelpre, comentariosrelpre_1`, [parameters.periodo]).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
+            return [
+                {   title:'controlCambiosExportarTitle',
+                    fileName: nombre  + '.xlsx',
+                    csvFileName: nombre  + '.csv',
+                    rows: resultQuery
+                }
+            ]
+        }
+    },
+    {
+        action:'control_sinvariacion_exportar',
+        parameters:[
+            {name:'periodo'     , typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador','coordinador','analista'],
+        forExport:{
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            const nombre = 'controlSinVariacion_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const resultQuery = (
+                await context.client.query(`SELECT cv.periodo, cv.informante, cv.nombreinformante, cv.producto, cv.nombreproducto, cv.visita, cv.observacion, cv.panel, cv.tarea,
+                cv.precionormalizado, cv.cantprecios, cv.tipoprecio, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
+                cv.direccion, cv.telcontacto, cv.web, cv.modalidad, cv.formulario, rp.observaciones, rp.comentariosrelpre_1 
+                FROM relpre_1 rp 
+                LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
+                cv.visita = rp.visita and cv.observacion = rp.observacion
+                LEFT JOIN tareas t on cv.tarea = t.tarea
+                WHERE t.activa = 'S' and t.operativo = 'C' and rp.periodo = $1`, [parameters.periodo]).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
+            return [
+                {   title:'controlSinVariacExportarTitle',
+                    fileName: nombre  + '.xlsx',
+                    csvFileName: nombre  + '.csv',
+                    rows: resultQuery
+                }
+            ]
+        }
+    },
+    {
         action:'calculo_borrar_copia',
         parameters:[
             {name:'periodo'    , typeName:'text', references:'periodos'},
