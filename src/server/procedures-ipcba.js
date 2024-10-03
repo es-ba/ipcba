@@ -2805,6 +2805,52 @@ ProceduresIpcba = [
             };
         }
     },
+    {
+        action:'exportar_general',
+        parameters:[
+            {name:'periodo'   , typeName:'text'        , references:'periodos'},
+            {name:'tabla'     , typeName:'text'        , references:'tablas_custom'},
+        ],
+        forExport:{
+        },
+        roles:['programador'],
+        coreFunction:async function(context, parameters){
+            const nombre = parameters.tabla + '_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
+            const be = context.be;
+            const defTable = be.tableStructures[parameters.tabla](context);
+            const where = defTable.sql.where?`${defTable.sql.where} and ${defTable.tableName}.periodo = ${be.db.quoteLiteral(parameters.periodo)}`:`${defTable.tableName}.periodo = ${be.db.quoteLiteral(parameters.periodo)}`
+            let sql="SELECT "+[...defTable.sql.select].join(', ')+
+                "\n FROM "+defTable.sql.from+
+                "\n WHERE "+where+
+                "\n ORDER BY "+(defTable.sql.orderBy||defTable.primaryKey).map(function(fieldName){ return be.db.quoteIdent(fieldName); }).join(',')
+            const resultQuery = (                
+                await context.client.query(sql).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
+            return [
+                {   title:'hoja 1',
+                    fileName: nombre + '.xlsx',
+                    csvFileName: nombre + '.csv',
+                    rows: resultQuery
+                }
+            ]
+        }
+    },
+    {
+        action:'mostrar_tablas_pesadas',
+        parameters:[
+            {name:'periodo'   , typeName:'text'        , references:'periodos'},
+            {name:'tabla'     , typeName:'text'        , references:'tablas_custom'},
+        ],
+        bitacora:{always: true, error: true},
+        resultOk:'showGrid',
+        roles:['programador'],
+        coreFunction:async function(_context, parameters){
+            return {tableName:parameters.tabla, fixedFields:[{fieldName:'periodo',value:parameters.periodo}]};
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;

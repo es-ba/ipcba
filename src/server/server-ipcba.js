@@ -973,6 +973,9 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'unidades'                                           },
                 {menuType:'table', name:'valvalatr'                                          },
             ], onlyVisibleFor:[programador,migracion]},
+            {menuType:'proc' , name:'exportar_general', label:'exportaciones', onlyVisibleFor:[programador]},
+            {menuType:'proc' , name:'mostrar_tablas_pesadas', onlyVisibleFor:[programador]},
+            {menuType:'table' , name:'tablas_custom', onlyVisibleFor:[programador]},
         ];
         if(this.config.ipc && this.config.ipc.calculando_periodo_base){
             menuPrincipal.push({menuType:'menu', name:'perbase', label:'periodo base', menuContent:[
@@ -1335,6 +1338,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'personal_sin_carga', path: __dirname},
             {name: 'calles', path: __dirname},
             {name: 'provincias', path: __dirname},
+            {name: 'tablas_custom', path: __dirname},
         ]);
     }
 }
