@@ -1144,7 +1144,6 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_control_atributos', path: __dirname},
             {name: 'periodos_control_atr1_diccionario_atributos', path: __dirname},
             {name: 'periodos_control_atr2_diccionario_atributos', path: __dirname},
-            {name: 'periodos_control_diccionario_atributos_val', path: __dirname},
             {name: 'periodos_control_ajustes', path: __dirname},
             {name: 'periodos_control_cambios', path: __dirname},
             //{name: 'periodos_relpre_control_rangos', path: __dirname},
