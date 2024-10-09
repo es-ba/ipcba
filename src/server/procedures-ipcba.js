@@ -2805,6 +2805,18 @@ ProceduresIpcba = [
             };
         }
     },
+    {
+        action:'periodos_control_diccionario_atributos_val',
+        parameters:[
+            {name:'periodo'   , typeName:'text'        , references:'periodos'},
+        ],
+        bitacora:{always: true, error: true},
+        resultOk:'showGrid',
+        roles:['programador'],
+        coreFunction:async function(_context, parameters){
+            return {tableName:'control_diccionario_atributos', fixedFields:[{fieldName:'periodo',value:parameters.periodo}]};
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
