@@ -779,7 +779,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_control_atr1_diccionario_atributos', label:'inconsistencia (atr1) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,jefeRecepcion,analista]},
                     {menuType:'table', name:'periodos_control_atr2_diccionario_atributos', label:'inconsistencia (atr2) de diccionario', onlyVisibleFor:[programador,coordinador,recepcionista,jefeRecepcion,analista]},
                     {menuType:'proc' , name:'relpre_control_atr2_diccionario_atributos_exportar', label:'inconsistencia (atr2) de diccionario exp', onlyVisibleFor:[programador,coordinador,recepcionista,jefeRecepcion,analista]},
-                    {menuType:'proc' , name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador]},
+                    {menuType:'table' , name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'proc' , name:'controlvigencias_exportar'               , label:'atributo vigencia exp', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
@@ -1334,6 +1334,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'personal_sin_carga', path: __dirname},
             {name: 'calles', path: __dirname},
             {name: 'provincias', path: __dirname},
+            {name: 'periodos_control_diccionario_atributos_val', path: __dirname},
         ]);
     }
 }
