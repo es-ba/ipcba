@@ -236,8 +236,8 @@ const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     </div>
 }
 const Button = (props:{
-    variant?:string = 'contained',
-    color?:string = 'light',
+    variant?:string,
+    color?:string,
     onClick?:(event:React.MouseEvent)=>void,
     disabled?:boolean
     fullwidth?:boolean
@@ -245,12 +245,14 @@ const Button = (props:{
     size?:'lg'|'md'
 }&CommonAttributes)=>{
     const {...other} = props;
+    const variant = props.variant || 'contained';
+    const color = props.color || 'light';
     return <button 
         {...other}
         id={props.id}
         className={`
             btn 
-            btn${props.variant=='contained'?'':'-'+props.variant}${props.color?'-'+props.color:''} 
+            btn${variant=='contained'?'':'-'+variant}${color?'-'+color:''} 
             ${props.className || ''} 
             ${props.size?`btn-${props.size}`:''}
         `}
