@@ -17,6 +17,7 @@ module.exports = function(context){
             {name:'motivo'       , typeName:'text' , allow:{update:puedeEditar}},
         ],
         primaryKey:['persona','fechadesde','fechahasta'],
+        sortColumns:[{column:'fechahasta', order:-1}, {column:'persona'}],
         foreignKeys:[
             {references:'personal', fields:['persona']},
         ],
