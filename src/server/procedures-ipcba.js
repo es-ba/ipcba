@@ -2197,7 +2197,7 @@ ProceduresIpcba = [
             {name:'otropanel'  , typeName:'integer'                          },
             {name:'otratarea'  , typeName:'integer'                          },
         ],
-        roles:['programador', 'coordinador', 'analista','jefe_campo'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `SELECT rv.periodo, rv.informante, rv.visita, rv.formulario, rv.panel, rv.tarea, rt.panel otropanel, rt.tarea otratarea
@@ -2224,7 +2224,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
-        roles:['programador', 'coordinador', 'analista', 'jefe_campo'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction: async function(context, parameters){
             var be=context.be;
             var esIntercambiar = false;
@@ -2242,7 +2242,7 @@ ProceduresIpcba = [
             {name:'otropanel'   , typeName:'integer'                          },
             {name:'otratarea'   , typeName:'integer', references:'tareas'     },
         ],
-        roles:['programador','coordinador', 'analista', 'jefe_campo'],
+        roles:['programador','coordinador', 'analista'],
         coreFunction: async function(context, parameters){
             var be=context.be;
             var esIntercambiar = true;
@@ -2263,7 +2263,7 @@ ProceduresIpcba = [
             {name:'panel'       , typeName:'integer'                          },
             {name:'tarea'       , typeName:'integer'                          },
         ],
-        roles:['programador','coordinador', 'analista', 'jefe_campo'],
+        roles:['programador','coordinador', 'analista'],
         coreFunction: async function(context, parameters){
             var be=context.be;
             var esIntercambiar = false;
@@ -2300,7 +2300,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'id_lote'       , typeName:'integer'  , references:'cambiopantar_lote'}
         ],
-        roles:['programador','coordinador','analista','jefe_campo'],
+        roles:['programador','coordinador','analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
                 `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
