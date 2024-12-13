@@ -14,7 +14,6 @@ module.exports = function(context){
             {name:'ti'                           , typeName:'text'    },
             {name:'encuestadores'                , typeName:'text'    },
             {name:'recepcionistas'               , typeName:'text'    },
-            {name:'ingresadores'                 , typeName:'text'    },
             {name:'razon'                        , typeName:'text'    },
             {name:'visita'                       , typeName:'integer' },
             {name:'nombreinformante'             , typeName:'text'    },
@@ -34,9 +33,17 @@ module.exports = function(context){
             {name:'maxperiodoinformado'          , typeName:'text'    },
             {name:'minperiodoinformado'          , typeName:'text'    },
             {name:'periodoalta'                  , typeName:'text'    },
+            {name:'modalidad'                    , typeName:'text'    },
+            {name:'cadena'                       , typeName:'text'    },
+            {name:'telcontacto'                  , typeName:'text'    },
+            {name:'web'                          , typeName:'text'    },
+            {name:'email'                        , typeName:'text'    },
         ],
         primaryKey:['periodo','informante','visita'],
         //sortColumns:[{column:'valor'}],
+        filterColumns:[
+            {column:'visita', operator:'=', value:1},
+        ],        
         sql:{
             from:`(SELECT c.periodo,
                 c.panel,
@@ -45,7 +52,6 @@ module.exports = function(context){
                 i.tipoinformante AS ti,
                 COALESCE(string_agg(DISTINCT (c.encuestador::text || ':'::text) || c.nombreencuestador, '|'::text), NULL::text) AS encuestadores,
                 COALESCE(string_agg(DISTINCT (c.recepcionista::text || ':'::text) || c.nombrerecepcionista, '|'::text), NULL::text) AS recepcionistas,
-                COALESCE(string_agg(DISTINCT (c.ingresador::text || ':'::text) || c.nombreingresador, '|'::text), NULL::text) AS ingresadores,
                 COALESCE(string_agg(DISTINCT (c.supervisor::text || ':'::text) || c.nombresupervisor, '|'::text), NULL::text) AS supervisores,
                     CASE
                         WHEN min(c.razon) <> max(c.razon) THEN (min(c.razon) || '~'::text) || max(c.razon)
@@ -73,8 +79,14 @@ module.exports = function(context){
                 a.maxperiodoinformado,
                 a.minperiodoinformado,
                 c.fechasalida,
-                a.periodoalta
+                a.periodoalta,
+                rt.modalidad,
+                i.cadena,
+                i.telcontacto,
+                i.web,
+                i.email
             FROM cvp.control_hojas_ruta c
+                LEFT JOIN cvp.reltar rt ON c.periodo = rt.periodo and c.panel = rt.panel and c.tarea = rt.tarea
                 LEFT JOIN cvp.tareas t ON c.tarea = t.tarea
                 LEFT JOIN cvp.personal p ON p.persona::text = t.encuestador::text
                 LEFT JOIN cvp.informantes i ON c.informante = i.informante
@@ -86,7 +98,8 @@ module.exports = function(context){
                            GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
             GROUP BY c.periodo, c.panel, c.informante, i.tipoinformante, c.visita, c.nombreinformante, c.direccion, 
             ((COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text), c.conjuntomuestral, c.ordenhdr, i.distrito,
-            i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, a.periodoalta
+            i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, a.periodoalta,
+            rt.modalidad, i.cadena, i.telcontacto, i.web, i.email
             )`
         }
     },context);
