@@ -19,7 +19,7 @@ SELECT r_1.periodo periodoanterior, r_1.informante informanteanterior, i.rubro, 
   LEFT JOIN cvp.razones zr_1 ON r_1.razon = zr_1.razon
   LEFT JOIN cvp.informantes i ON r.informante = i.informante   
   LEFT JOIN cvp.rubros ru ON i.rubro = ru.rubro
-  LEFT JOIN cvp.formularios f ON r_1.formulario = f.formulario  
+  LEFT JOIN cvp.formularios f ON r.formulario = f.formulario  
 UNION
 SELECT r_1.periodo periodoanterior, r_1.informante informanteanterior, i.rubro, ru.nombrerubro, r_1.formulario formularioanterior, f.nombreformulario, r_1.visita visitaanterior, 
        r_1.panel panelanterior, r_1.tarea tareaanterior, r_1.razon razONanterior, zr_1.nombrerazon nombrerazONanterior,
@@ -44,7 +44,7 @@ LEFT JOIN (SELECT periodo, informante, visita, count(*)::integer cantformactivos
              LEFT JOIN cvp.razones s ON v.razon = s.razon 
              WHERE not (s.escierredefinitivoinf = 'S' or s.escierredefinitivofor = 'S')
              GROUP BY periodo, informante, visita) ca ON X.periodo = ca.periodo AND X.informante = ca.informante AND X.visita = ca.visita
-WHERE tipo <> 'Continuo' and tipo <> ('No ingresado '||x.periodo)::text
+WHERE tipo <> 'Continuo' and tipo <> ('No ingresado '||x.periodo)::text and x.visita = 1
 ORDER BY periodoanterior, informanteanterior, visitaanterior, formularioanterior;
 
 GRANT SELECT ON TABLE informantesaltasbajas TO cvp_usuarios;
