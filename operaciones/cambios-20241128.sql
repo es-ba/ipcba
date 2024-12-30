@@ -4,7 +4,7 @@ ALTER TABLE prodatrval ADD COLUMN modi_usu character varying(30);
 ALTER TABLE prodatrval ADD COLUMN modi_fec timestamp without time zone;
 ALTER TABLE prodatrval ADD COLUMN modi_ope character varying(1);
 
-CREATE OR REPLACE TRIGGER prodatrval_modi_trg
+CREATE TRIGGER prodatrval_modi_trg
     BEFORE INSERT OR DELETE OR UPDATE 
     ON cvp.prodatrval
     FOR EACH ROW
@@ -107,7 +107,7 @@ $BODY$;
 ALTER FUNCTION hisc_prodatrval_trg()
     OWNER TO cvpowner;
 
-CREATE OR REPLACE TRIGGER hisc_trg
+CREATE TRIGGER hisc_trg
     BEFORE INSERT OR DELETE OR UPDATE 
     ON cvp.prodatrval
     FOR EACH ROW
@@ -161,6 +161,8 @@ LEFT JOIN (SELECT periodo, informante, visita, count(*)::integer cantformactivos
              GROUP BY periodo, informante, visita) ca ON X.periodo = ca.periodo AND X.informante = ca.informante AND X.visita = ca.visita
 WHERE tipo <> 'Continuo' and tipo <> ('No ingresado '||x.periodo)::text and x.visita = 1
 ORDER BY periodoanterior, informanteanterior, visitaanterior, formularioanterior;
+
+--update ipcba.usuarios set usu_activo = true where usu_usu = 'pru_jefecampo';
 
 DROP VIEW IF EXISTS informantesrazon;
 CREATE OR REPLACE VIEW informantesrazon AS
