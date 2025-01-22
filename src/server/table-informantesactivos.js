@@ -33,7 +33,7 @@ module.exports = function(context){
             {name:'maxperiodoinformado'          , typeName:'text'    },
             {name:'minperiodoinformado'          , typeName:'text'    },
             {name:'periodoalta'                  , typeName:'text'    },
-            {name:'modalidad'                    , typeName:'text'    },
+            {name:'modalidades'                  , typeName:'text'    },
             {name:'cadena'                       , typeName:'text'    },
             {name:'telcontacto'                  , typeName:'text'    },
             {name:'web'                          , typeName:'text'    },
@@ -52,20 +52,15 @@ module.exports = function(context){
                 i.tipoinformante AS ti,
                 COALESCE(string_agg(DISTINCT (c.encuestador::text || ':'::text) || c.nombreencuestador, '|'::text), NULL::text) AS encuestadores,
                 COALESCE(string_agg(DISTINCT (c.recepcionista::text || ':'::text) || c.nombrerecepcionista, '|'::text), NULL::text) AS recepcionistas,
-                COALESCE(string_agg(DISTINCT (c.supervisor::text || ':'::text) || c.nombresupervisor, '|'::text), NULL::text) AS supervisores,
                     CASE
                         WHEN min(c.razon) <> max(c.razon) THEN (min(c.razon) || '~'::text) || max(c.razon)
                         ELSE COALESCE(min(c.razon) || ''::text, NULL::text)
                     END AS razon,
-                string_agg((c.formulario::text || ' '::text) || c.nombreformulario::text, chr(10) ORDER BY c.formulario) AS formularioshdr,
-                lpad(' '::text, count(*)::integer, chr(10)) AS espacio,
                 c.visita,
                 c.nombreinformante,
                 c.direccion,
                 string_agg((c.formulario::text || ':'::text) || c.nombreformulario::text, '|'::text) AS formularios,
                 (COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text AS contacto,
-                c.conjuntomuestral,
-                c.ordenhdr,
                 i.distrito,
                 i.fraccion_ant,
                 i.comuna,
@@ -78,9 +73,8 @@ module.exports = function(context){
                 r.nombrerubro,
                 a.maxperiodoinformado,
                 a.minperiodoinformado,
-                c.fechasalida,
                 a.periodoalta,
-                rt.modalidad,
+                string_agg(distinct coalesce(rt.modalidad,''),'~' order by coalesce(rt.modalidad,'')) modalidades,
                 i.cadena,
                 i.telcontacto,
                 i.web,
@@ -97,9 +91,9 @@ module.exports = function(context){
                            LEFT JOIN cvp.razones z using(razon)
                            GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
             GROUP BY c.periodo, c.informante, i.tipoinformante, c.visita, c.nombreinformante, c.direccion, 
-            ((COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text), c.conjuntomuestral, c.ordenhdr, i.distrito,
-            i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, a.periodoalta,
-            rt.modalidad, i.cadena, i.telcontacto, i.web, i.email
+            ((COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text), i.distrito,
+            i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, a.periodoalta,
+            i.cadena, i.telcontacto, i.web, i.email
             )`
         }
     },context);
