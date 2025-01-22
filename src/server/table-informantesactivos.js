@@ -8,7 +8,7 @@ module.exports = function(context){
         editable:false,
         fields:[
             {name:'periodo'                      , typeName:'text'    },
-            {name:'panel'                        , typeName:'integer' },
+            {name:'paneles'                      , typeName:'text'    },
             {name:'tareas'                       , typeName:'text'    },
             {name:'informante'                   , typeName:'integer' },
             {name:'ti'                           , typeName:'text'    },
@@ -46,7 +46,7 @@ module.exports = function(context){
         ],        
         sql:{
             from:`(SELECT c.periodo,
-                c.panel,
+                string_agg(distinct c.panel::text,'~' order by c.panel::text) as paneles,
                 string_agg(distinct c.tarea::text,'~' order by c.tarea::text) as tareas,
                 c.informante,
                 i.tipoinformante AS ti,
@@ -96,7 +96,7 @@ module.exports = function(context){
                            FROM cvp.control_hojas_ruta cr 
                            LEFT JOIN cvp.razones z using(razon)
                            GROUP BY cr.informante, cr.visita) a ON c.informante = a.informante AND c.visita = a.visita
-            GROUP BY c.periodo, c.panel, c.informante, i.tipoinformante, c.visita, c.nombreinformante, c.direccion, 
+            GROUP BY c.periodo, c.informante, i.tipoinformante, c.visita, c.nombreinformante, c.direccion, 
             ((COALESCE(i.contacto, ''::character varying)::text || ' '::text) || COALESCE(i.telcontacto, ''::character varying)::text), c.conjuntomuestral, c.ordenhdr, i.distrito,
             i.fraccion_ant, i.comuna, i.fraccion, i.radio, i.manzana, i.depto, i.barrio, i.rubro, r.nombrerubro, a.maxperiodoinformado, a.minperiodoinformado, c.fechasalida, a.periodoalta,
             rt.modalidad, i.cadena, i.telcontacto, i.web, i.email
