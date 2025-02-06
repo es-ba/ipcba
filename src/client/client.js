@@ -115,6 +115,10 @@ my.esValidoAtributo = function esValidoAtributo(atributo){
     return !((atributo.prodatr__rangodesde && atributo.valor<atributo.prodatr__rangodesde) || (atributo.prodatr__rangohasta && atributo.valor>atributo.prodatr__rangohasta))
 }
 
+my.enListaDeValores = function enListaDeValores(atributo){
+    return atributo.valor == atributo.prodatr__lista_prodatrval.find(function (elemento){return elemento == atributo.valor})
+}
+
 my.esValorNormal = function(atributo){
     return (atributo.especificaciones__mostrar_cant_um==='N' && atributo.prodatr__valornormal && atributo.valor==atributo.prodatr__valornormal)
 }
@@ -150,6 +154,7 @@ my.clientSides.control_rangos = {
             td.autoExpander=true;
             td.contentEditable=false;
         }
+        //TODO 
         td.style.backgroundColor='';
         //Atributo fuera de rango: #FFCE33 (amarillo
         if(my.esValidoAtributo(depot.row)||my.esValorNormal(depot.row)){
@@ -192,6 +197,11 @@ my.clientSides.control_rangos = {
                 td.style.backgroundColor='#FF9333';    
             }
         }
+        my.ajax.table_data({table: 'prodatrval'})
+        console.log(depot.row);
+        
+        console.log(my.enListaDeValores(depot.row));
+        
     }
 };
 
