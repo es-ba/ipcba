@@ -21,7 +21,7 @@ module.exports = function(context){
             {name:'formulario'                       , typeName:'integer'                  , allow:{update:false}, inTable:false},
             {name:'observacion'                      , typeName:'integer' , nullable:false , allow:{update:false}, inTable:true},
             {name:'visita'                           , typeName:'integer' , nullable:false , allow:{update:false}, inTable:true},
-            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}, inTable:true},
+            {name:'modi_usu'        ,title:'usuario' , typeName:'text'                     , allow:{update:false}, inTable:true, description: 'Usuario que modificó por última vez alguna variable de relpre'},
             {name:'encuestador'                      , typeName:'text'                     , allow:{update:false}, inTable:false},
             {name:'recepcionista'                    , typeName:'text'                     , allow:{update:false}, inTable:false},
             {name:'infopre'                          , typeName:'text'                     , allow:{update:false}, inTable:false},

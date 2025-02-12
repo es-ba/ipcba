@@ -851,8 +851,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {menuType:'menu', name:'analisis', label:'análisis', menuContent:[
                 {menuType:'menu', name:'calculos', label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], menuContent:subMenuCalculos},
                 {menuType:'table', name:'calculos_novobs', label:'altas y bajas manuales del cálculo', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'periodos_novpre', label:'anulación de precios', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'periodos_anulanapre', label:'anulación de precios (ana)', onlyVisibleFor:[programador,coordinador,analista]},
+                {menuType:'table', name:'periodos_novpre', label:'M - Importación', onlyVisibleFor:[programador,coordinador,analista]},
+                {menuType:'table', name:'periodos_anulanapre', label:'M - Ingreso', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'menu', name:'listados', label:'listados', onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                     {menuType:'menu', name:'grupos'   , label:'grupos'   , onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                         {menuType:'table', name:'periodos_control_grupos_para_cierre'     , label:'control de grupos'},
