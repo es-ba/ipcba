@@ -4,7 +4,9 @@ $BODY$
 DECLARE
   vblanqueonew  cvp.tipopre.registrablanqueo%type;
   vblanqueoold  cvp.tipopre.registrablanqueo%type;
+  vUsuario VARCHAR(30);
 BEGIN
+  vUsuario:=SESSION_USER;
   SELECT registrablanqueo INTO vblanqueonew
     FROM  cvp.tipopre
     WHERE tipoprecio=NEW.tipoprecio;
@@ -17,10 +19,10 @@ BEGIN
         INSERT INTO cvp.blapre(
             periodo, producto, observacion, informante, formulario, precio, 
             tipoprecio, visita, modi_usu, modi_fec, modi_ope, comentariosrelpre, 
-            cambio, precionormalizado, especificacion, ultima_visita)
+            cambio, precionormalizado, especificacion, ultima_visita, registrablanqueo_usu)
         VALUES (OLD.periodo, OLD.producto, OLD.observacion, OLD.informante, OLD.formulario, OLD.precio, 
             OLD.tipoprecio, OLD.visita, OLD.modi_usu, OLD.modi_fec, OLD.modi_ope, OLD.comentariosrelpre, 
-            OLD.cambio, OLD.precionormalizado, OLD.especificacion, OLD.ultima_visita);
+            OLD.cambio, OLD.precionormalizado, OLD.especificacion, OLD.ultima_visita, vUsuario);
         --
         INSERT INTO cvp.blaatr 
             SELECT * FROM cvp.relatr 

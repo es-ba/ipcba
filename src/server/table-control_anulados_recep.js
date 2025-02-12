@@ -22,7 +22,7 @@ module.exports = function(context){
             {name:'visita'                       ,typeName:'integer',   allow:{update:false}, title:'Vis'},
             {name:'panel'                        ,typeName:'integer',   allow:{update:false}},
             {name:'tarea'                        ,typeName:'integer',   allow:{update:false}},
-            {name:'modi_usu'                     ,typeName:'text'   ,   allow:{update:false}, title:'usuario'},
+            {name:'registrablanqueo_usu'         ,typeName:'text'   ,   allow:{update:false}, title:'usuario', description: 'Usuario que anuló el precio en recepción'},
             {name:'encuestador'                  ,typeName:'text'   ,   allow:{update:false}, title:'Enc'},
             {name:'recepcionista'                ,typeName:'text'   ,   allow:{update:false}, title:'Rec'},
             {name:'formulario'                   ,typeName:'integer',   allow:{update:false}, title:'For'},
@@ -58,7 +58,7 @@ module.exports = function(context){
                           THEN round((b.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
                           ELSE NULL 
                           END 
-                     END AS masdatos, r.modi_usu
+                     END AS masdatos, b.registrablanqueo_usu
                   from relpre r left join relvis v USING (periodo,informante,visita,formulario)
                   left join blapre b USING (periodo,producto,informante,observacion,visita)
                   left join relpre_1 r_1 USING (periodo,producto,informante,visita,observacion)
