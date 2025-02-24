@@ -15,11 +15,14 @@ module.exports = function(context){
             {name:'fechadesde'   , typeName:'date' , allow:{update:puedeEditar}},
             {name:'fechahasta'   , typeName:'date' , allow:{update:puedeEditar}},
             {name:'motivo'       , typeName:'text' , allow:{update:puedeEditar}},
+            {name:'modi_fec'     , typeName:'timestamp' , allow:{update:false}, defaultDbValue: 'current_date'},
+            {name:'modi_usu'   , typeName:'text' , allow:{update:false}, defaultValue: context.user.usuario},
         ],
         primaryKey:['persona','fechadesde','fechahasta'],
         sortColumns:[{column:'fechahasta', order:-1}, {column:'persona'}],
         foreignKeys:[
             {references:'personal', fields:['persona']},
+            {references: "ipcba_usuarios", fields: [{source:'modi_usu' , target:'usu_usu'}], alias: 'modi_usu'},
         ],
     },context);
 }
