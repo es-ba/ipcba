@@ -194,12 +194,13 @@ my.clientSides.control_rangos = {
             }
         }
 
-        my.ajax.table_data({table: 'prodatrval'}).then((prodatrval)=>{
-            const buscarAtributo = (atributo)=>prodatrval.some(atr => atr.valor === atributo.valor && atr.producto === atributo.producto && atr.atributo === atributo.atributo);
-            if(buscarAtributo(depot.row) && !depot.row.atributo){
+        my.ajax.table_data({table: 'prodatrval'}).then((pav)=>{
+            const atributo = depot.row;
+            const enListaDeValores = pav.find(function (elemento){return elemento.valor == atributo.valor && elemento.producto == atributo.producto && atributo.atributo == elemento.atributo})
+            if (enListaDeValores?.valor == atributo.valor && !atributo.valor){
                 td.style.backgroundColor='#FF9333';
-            }       
-        })
+            }
+        });
 
     }
 };
