@@ -5,7 +5,6 @@
 
 var html=require('js-to-html').html;
 
-const { log } = require('console');
 var TypedControls=require('typed-controls');
 
 var my = myOwn;
@@ -193,14 +192,6 @@ my.clientSides.control_rangos = {
                 td.style.backgroundColor='#FF9333';
             }
         }
-
-        my.ajax.table_data({table: 'prodatrval'}).then((prodatrval)=>{
-            const buscarAtributo = (atributo)=>prodatrval.some(atr => atr.valor === atributo.valor && atr.producto === atributo.producto && atr.atributo === atributo.atributo);
-            if(buscarAtributo(depot.row) && !depot.row.atributo){
-                td.style.backgroundColor='#FF9333';
-            }       
-        })
-
     }
 };
 
