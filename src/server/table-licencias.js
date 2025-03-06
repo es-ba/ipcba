@@ -16,7 +16,9 @@ module.exports = function(context){
             {name:'fechahasta'   , typeName:'date' , allow:{update:puedeEditar}},
             {name:'motivo'       , typeName:'text' , allow:{update:puedeEditar}},
             {name:'modi_fec'     , typeName:'timestamp' , allow:{update:false}, defaultDbValue: 'current_date'},
-            {name:'modi_usu'   , typeName:'text' , allow:{update:false}, defaultValue: context.user.usuario},
+            {name:'modi_usu'     , typeName:'text' , allow:{update:false}, defaultValue: context.user.usuario},
+            {name:'usuario'      , typeName:'text' , allow:{update:false}},
+            {name:'fecha'        , typeName:'date' , allow:{update:false}},
         ],
         primaryKey:['persona','fechadesde','fechahasta'],
         sortColumns:[{column:'fechahasta', order:-1}, {column:'persona'}],
@@ -24,5 +26,10 @@ module.exports = function(context){
             {references:'personal', fields:['persona']},
             {references: "ipcba_usuarios", fields: [{source:'modi_usu' , target:'usu_usu'}], alias: 'modi_usu'},
         ],
-    },context);
+        hiddenColumns:['modi_usu','modi_fec'],
+        sql:{
+            from:`(SELECT persona, fechadesde, fechahasta, motivo, modi_fec, modi_usu, modi_usu usuario, modi_fec::date fecha
+                    FROM licencias)`,  
+        }
+   },context);
 }
