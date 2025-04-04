@@ -60,7 +60,7 @@ module.exports = function(context){
                         'valor', pav.valor
                     )) 
                     FROM prodatrval pav  
-                    WHERE pav.producto = relatr.producto and pav.atributo = relatr.atributo)` },
+                    WHERE pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.valido)` },
             },
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,
