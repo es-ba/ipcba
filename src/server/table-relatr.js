@@ -31,6 +31,8 @@ module.exports = function(context){
             {name:'especificaciones__mostrar_cant_um', typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
             {name:'validar_con_valvalatr'            , typeName:'boolean' , allow:{update:false}, visible:false, inTable:true},
             {name:'impobs'                           , typeName:'text'    , allow:{update:false}, inTable:false},
+            {name:'prodatrval'                       , typeName:'jsonb'   , visible:false, inTable:false, editable:false},
+            {name:'prodatr__validaropciones'         , typeName:'boolean' , visible:false, editable:false},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
         sortColumns:[{column:'prodatr__orden'}],
@@ -39,18 +41,10 @@ module.exports = function(context){
             {references:'informantes', fields:['informante']},
             {references:'periodos', fields:['periodo']},
             {references:'productos', fields:['producto']},
-            {references:'relpre', fields:['periodo', 'producto', 'observacion', 'informante', 'visita']},
-            /*            
-            {references:'valvalatr', fields:[
-                {source:'producto'                    , target:'producto'    },
-                {source:'atributo'                    , target:'atributo'    },
-                {source:'valor'                       , target:'valor'       },
-                {source:'validar_con_valvalatr'       , target:'validar'     },
-            ]},
-            */            
+            {references:'relpre', fields:['periodo', 'producto', 'observacion', 'informante', 'visita']},        
         ],
         softForeignKeys:[
-            {references:'prodatr', fields:['producto','atributo'], displayFields:['rangodesde','rangohasta','orden', 'valornormal']},
+            {references:'prodatr', fields:['producto','atributo'], displayFields:['rangodesde','rangohasta','orden', 'valornormal', 'validaropciones']},
             {references:'especificaciones', fields:['producto'], displayFields:['mostrar_cant_um']},
         ],
         detailTables:[
@@ -58,6 +52,16 @@ module.exports = function(context){
         ],
         hiddenColumns:['impobs'],
         sql:{
+            fields:{ 
+                prodatrval:{ expr: `( 
+                    select json_agg (json_build_object(
+                        'producto', pav.producto,
+                        'atributo', pav.atributo,
+                        'valor', pav.valor
+                    )) 
+                    FROM prodatrval pav  
+                    WHERE pav.producto = relatr.producto and pav.atributo = relatr.atributo)` },
+            },
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,
                   n.normalizable, pa.opciones, a.validar_con_valvalatr, c.impobs

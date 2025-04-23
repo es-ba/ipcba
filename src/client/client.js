@@ -192,6 +192,20 @@ my.clientSides.control_rangos = {
                 td.style.backgroundColor='#FF9333';    
             }
         }
+
+        let pav = depot.row.prodatrval;
+	
+        if(pav?.length > 0 && depot.row.prodatr__validaropciones){  
+			if(depot.row.valor){
+				const estaEnProdAtrVal = (atributo)=>pav.some(atr => atr.valor === atributo.valor);
+				if (!estaEnProdAtrVal(depot.row)){
+					td.style.backgroundColor='#FF9333';
+				}
+			}else{
+				td.style.backgroundColor='#FF9333';
+			}			
+        }
+
     }
 };
 
