@@ -120,7 +120,7 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
     var enListaDeValores = function enListaDeValores(relAtr:RelAtr, prodAtr:ProdAtr){
         return relAtr.valor == prodAtr.lista_prodatrval.find(function (elemento){return elemento == relAtr.valor})
     }
-    var esValidoAtributoPorListaDeValores = !prodAtr.validaropciones || enListaDeValores(relAtr,prodAtr); 
+    var esValidoAtributoPorListaDeValores = !prodAtr.validaropciones || enListaDeValores(relAtr,prodAtr) || !relAtr.valor; 
     var esValidoAtributo = function esValidoAtributo(relAtr:RelAtr, prodAtr:ProdAtr){
         return !((prodAtr.rangodesde && Number(relAtr.valor)<prodAtr.rangodesde) || (prodAtr.rangohasta && Number(relAtr.valor)>prodAtr.rangohasta))
     }
@@ -146,6 +146,11 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
             tieneAdvertencia = true;
             color='#FF9333';
         }
+        if(enListaDeValores(relAtr,prodAtr) && !relAtr.valor && prodAtr.validaropciones && relPre.precio){
+            tieneAdvertencia = true;
+            color='#FF9333';
+        }
+        
     }
     return {tieneAdv: tieneAdvertencia, color}
 }

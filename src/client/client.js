@@ -189,7 +189,7 @@ my.clientSides.control_rangos = {
             })
         }else{
             if(depot.row.normalizable==='S'){
-                td.style.backgroundColor='#FF9333';    
+                td.style.backgroundColor='#FF9333';
             }
         }
     }
