@@ -146,9 +146,12 @@ export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estru
             tieneAdvertencia = true;
             color='#FF9333';
         }
-        if(enListaDeValores(relAtr,prodAtr) && !relAtr.valor && prodAtr.validaropciones && relPre.precio){
-            tieneAdvertencia = true;
-            color='#FF9333';
+        
+        if(prodAtr.validaropciones){
+            if(!enListaDeValores(relAtr,prodAtr) || !relAtr.valor){
+                tieneAdvertencia = true;
+                color='#FF9333';
+            }
         }
         
     }
