@@ -1,9 +1,16 @@
 set search_path = cvp;
 alter table prodatrval add column valido boolean;
+
+ALTER TABLE prodatrval DISABLE TRIGGER prodatrval_modi_trg;
+ALTER TABLE prodatrval DISABLE TRIGGER hisc_trg;
+
 UPDATE
     prodatrval
 SET
     valido = true;
+
+ALTER TABLE prodatrval ENABLE TRIGGER prodatrval_modi_trg;
+ALTER TABLE prodatrval ENABLE TRIGGER hisc_trg;
 
 CREATE OR REPLACE FUNCTION hisc_prodatrval_trg()
     RETURNS trigger
