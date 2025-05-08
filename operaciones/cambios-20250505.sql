@@ -3,7 +3,7 @@ alter table prodatrval add column valido boolean;
 UPDATE
     prodatrval
 SET
-    valido = true
+    valido = true;
 
 CREATE OR REPLACE FUNCTION hisc_prodatrval_trg()
     RETURNS trigger
