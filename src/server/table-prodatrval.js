@@ -19,6 +19,7 @@ module.exports = function(context){
             {name:'valor_2'                   , typeName:'text'     , postInput:'upperSpanish'},
             {name:'usuario'                   , typeName:'text'     , allow:{update:false}    },
             {name:'fecha'                     , typeName:'date'     , allow:{update:false}    },
+            {name:'valido'                    , typeName:'boolean'  },
         ],
         primaryKey:['producto','atributo','valor'],
         foreignKeys:[
@@ -34,8 +35,8 @@ module.exports = function(context){
             {references:'productos', fields:['producto']},
         ],
         sql:{
-            from:`(SELECT producto, atributo, valor, orden, atributo_2, valor_2, modi_usu usuario, modi_fec::date fecha
-                    FROM prodatrval)`,  
+            from:`(SELECT producto, atributo, valor, orden, atributo_2, valor_2, valido, modi_usu usuario, modi_fec::date fecha
+                    FROM prodatrval)`,
         }
     },context);
 }
