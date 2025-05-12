@@ -48,6 +48,7 @@ module.exports = function(context){
             {name:'agregarvisita'                , typeName:'boolean'                              , allow:{select:puedeAgregarVisita, update:puedeAgregarVisita}, serverSide:true, inTable:false, clientSide:'agregar_visita'},
             {name:'modi_fec'                     , typeName:'timestamp'                            , visible:false, inTable: true                         },
             {name:'panel'                        , typeName:'integer'                              , inTable: false    },
+            {name:'validar_pav_y_o'              , typeName:'boolean'                              , visible:false          , inTable: false},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita'],
         foreignKeys:[
@@ -64,6 +65,14 @@ module.exports = function(context){
             {table:'precios_maximos_minimos_resumen', abr:'PMM', label:'precios max min', fields:['periodo','producto']},
         ],
         sql:{
+            fields:{ 
+                validar_pav_y_o:{ expr: `(select bool_or(validaropciones and validar_con_prodatrval) validar_pav_y_o from (
+                select ra.*, pa.validaropciones , exists( select 1
+                                    FROM prodatrval pav  
+                                    WHERE pav.producto = ra.producto and pav.atributo = ra.atributo and pav.valido and pav.valor = ra.valor) validar_con_prodatrval
+                from relatr ra inner join prodatr pa on pa.producto = ra.producto and ra.atributo = pa.atributo
+                where ra.periodo = relpre.periodo and ra.producto = relpre.producto and ra.observacion = relpre.observacion and ra.informante = relpre.informante and ra.visita = relpre.visita))`},
+            },
             from:`(select r.periodo, r.producto, r.informante, r.formulario, r.visita, r.observacion, r.precio, r.tipoprecio, r.cambio, 
                     CASE WHEN p.periodo is not null THEN 'R' ELSE null END as repregunta,
                     CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as excluido, r_1.precio_1 as precioanterior, 

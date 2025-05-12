@@ -31,7 +31,7 @@ module.exports = function(context){
             {name:'especificaciones__mostrar_cant_um', typeName:'text'    , allow:{update:false}, visible:false, inTable:false},
             {name:'validar_con_valvalatr'            , typeName:'boolean' , allow:{update:false}, visible:false, inTable:true},
             {name:'impobs'                           , typeName:'text'    , allow:{update:false}, inTable:false},
-            {name:'prodatrval'                       , typeName:'jsonb'   , visible:false, inTable:false, editable:false},
+            {name:'validar_con_prodatrval'           , typeName:'boolean' , visible:false, inTable:false, editable:false},
             {name:'prodatr__validaropciones'         , typeName:'boolean' , visible:false, editable:false},
         ],
         primaryKey:['periodo','producto','observacion','informante','visita', 'atributo'],
@@ -53,14 +53,10 @@ module.exports = function(context){
         hiddenColumns:['impobs'],
         sql:{
             fields:{ 
-                prodatrval:{ expr: `( 
-                    select json_agg (json_build_object(
-                        'producto', pav.producto,
-                        'atributo', pav.atributo,
-                        'valor', pav.valor
-                    )) 
-                    FROM prodatrval pav  
-                    WHERE pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.valido)` },
+                validar_con_prodatrval:{ expr: `(exists(
+                    select 1                    
+                    from prodatrval pav 
+                    where pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.valido and pav.valor = relatr.valor))` },
             },
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,
