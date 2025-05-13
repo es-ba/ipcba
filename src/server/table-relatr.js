@@ -41,7 +41,7 @@ module.exports = function(context){
             {references:'informantes', fields:['informante']},
             {references:'periodos', fields:['periodo']},
             {references:'productos', fields:['producto']},
-            {references:'relpre', fields:['periodo', 'producto', 'observacion', 'informante', 'visita']},        
+            {references:'relpre', fields:['periodo', 'producto', 'observacion', 'informante', 'visita']},
         ],
         softForeignKeys:[
             {references:'prodatr', fields:['producto','atributo'], displayFields:['rangodesde','rangohasta','orden', 'valornormal', 'validaropciones']},
@@ -52,11 +52,11 @@ module.exports = function(context){
         ],
         hiddenColumns:['impobs'],
         sql:{
-            fields:{ 
+            fields:{
                 validar_con_prodatrval:{ expr: `(exists(
-                    select 1                    
-                    from prodatrval pav 
-                    where pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.valido and pav.valor = relatr.valor))` },
+                    select 1
+                    from prodatrval pav
+                    where pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.activo and pav.valor = relatr.valor))` },
             },
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,
@@ -67,8 +67,8 @@ module.exports = function(context){
                   a.informante = a_1.informante and a.visita = a_1.visita and a.atributo = a_1.atributo
                   left join control_normalizables_sindato n on a.periodo = n.periodo and a.informante = n.informante and
                   a.observacion = n.observacion and a.visita = n.visita and a.producto = n.producto and a.atributo = n.atributo
-                  left join (select o.* from calobs o join calculos_def cd on o.calculo = cd.calculo and cd.principal) c 
-                  on a.periodo = c.periodo and a.informante = c.informante and a.producto = c.producto and a.observacion = c.observacion           
+                  left join (select o.* from calobs o join calculos_def cd on o.calculo = cd.calculo and cd.principal) c
+                  on a.periodo = c.periodo and a.informante = c.informante and a.producto = c.producto and a.observacion = c.observacion
                   )`,
             isTable: true,
         }

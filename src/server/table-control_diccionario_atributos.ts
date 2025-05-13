@@ -46,10 +46,10 @@ export const control_diccionario_atributos = (context:Context):TableDefinition =
             from:`(select a.periodo,vis.panel, vis.recepcionista, vis.tarea, a.producto, a.atributo , a.informante, pre.formulario, a.visita, a.observacion, a.valor, pre.comentariosrelpre,
                     pre.esvisiblecomentarioendm, case when p.valor is null then 'S' else 'N' end as inconsistente
                     from cvp.relatr a
-                    join cvp.prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                    join cvp.prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                     join cvp.relpre pre on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
-                    join cvp.relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
-                    left join cvp.prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.valido
+                    join cvp.relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario
+                    left join cvp.prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.activo
                     left join cvp.tipopre t on pre.tipoprecio = t.tipoprecio
                     where coalesce(pa.validaropciones, true) and t.activo ='S' and t.espositivo = 'S')`,
             },

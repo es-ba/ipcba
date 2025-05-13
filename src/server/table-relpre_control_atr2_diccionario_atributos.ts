@@ -39,17 +39,17 @@ export const relpre_control_atr2_diccionario_atributos = (context:Context):Table
         ],
         sql:{
             isTable: false,
-            from:`(select a.periodo, vis.panel, vis.tarea, a.producto, a.informante, vis.recepcionista, pre.formulario, a.visita, a.observacion, 
-                   a.atributo, a.valor, aa.atributo atributo_2, aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm  
+            from:`(select a.periodo, vis.panel, vis.tarea, a.producto, a.informante, vis.recepcionista, pre.formulario, a.visita, a.observacion,
+                   a.atributo, a.valor, aa.atributo atributo_2, aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm
                          from relpre pre
                          join relatr a on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
-                         join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                         join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                          join productos o on a.producto = o.producto
-                         join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
-                         left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.valido
+                         join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario
+                         left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.activo
                          left join tipopre t on pre.tipoprecio = t.tipoprecio
-                         left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion 
-                                            and a.visita = aa.visita and aa.atributo = p.atributo_2  
+                         left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion
+                                            and a.visita = aa.visita and aa.atributo = p.atributo_2
                          where coalesce(pa.validaropciones, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
                          and case when p.valor_2 ~ aa.valor then 1 else 0 end = 0)`,
             },

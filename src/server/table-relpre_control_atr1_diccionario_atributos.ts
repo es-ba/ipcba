@@ -33,18 +33,18 @@ export const relpre_control_atr1_diccionario_atributos = (context:Context):Table
         ],
         sql:{
             isTable: false,
-            from:`(select a.periodo, vis.panel, vis.tarea, a.producto, a.informante, pre.formulario, a.visita, a.observacion, 
+            from:`(select a.periodo, vis.panel, vis.tarea, a.producto, a.informante, pre.formulario, a.visita, a.observacion,
             string_agg (concat(a.atributo,' (',at.nombreatributo,'): ',a.valor),';') as valor, pre.comentariosrelpre, pre.esvisiblecomentarioendm, vis.recepcionista
                   from relpre pre
                   join relatr a on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
                   join atributos at on a.atributo = at.atributo
-                  join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                  join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                   join productos o on a.producto = o.producto
-                  join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
-                  left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.valido
+                  join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario
+                  left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.activo
                   left join tipopre t on pre.tipoprecio = t.tipoprecio
                   where coalesce(pa.validaropciones, true) and p.valor is null and t.activo ='S' and t.espositivo = 'S'
-                  group by a.periodo, vis.panel, vis.tarea, a.producto, a.informante, pre.formulario, a.visita, a.observacion, 
+                  group by a.periodo, vis.panel, vis.tarea, a.producto, a.informante, pre.formulario, a.visita, a.observacion,
                   pre.comentariosrelpre, pre.esvisiblecomentarioendm, vis.recepcionista)`,
             },
     };

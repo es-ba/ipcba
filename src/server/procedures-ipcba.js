@@ -35,13 +35,13 @@ const ESPECIFICACION_COMPLETA=`
             CASE WHEN e.mostrar_cant_um='N' THEN ''
             ELSE COALESCE(e.cantidad::text||' ','')||COALESCE(e.UnidadDeMedida,'') END),'')|| '.',
         (SELECT string_agg(
-                    CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN 
+                    CASE WHEN a.tipodato='N' AND a.visible = 'S' AND t.rangodesde IS NOT NULL AND t.rangohasta IS NOT NULL THEN
                         CASE WHEN t.visiblenombreatributo = 'S' THEN a.nombreatributo||' ' ELSE '' END||
                             'de '||t.rangodesde||' a '||t.rangohasta||' '||COALESCE(a.unidaddemedida, a.nombreatributo, '')
                         ||CASE WHEN t.alterable = 'S' AND t.normalizable = 'S' AND NOT(t.rangodesde <= t.valornormal AND t.valornormal <= t.rangohasta) THEN ' ó '||t.valornormal||' '||a.unidaddemedida ELSE '' END||'. '
                     ELSE ''
                     END,
-                    '' 
+                    ''
                     ORDER BY t.orden
                 )
             FROM prodatr t INNER JOIN atributos a USING (atributo)
@@ -204,13 +204,13 @@ function enviar_a_procesar(params){
 
 function proceso_formulario_boton_ejecutar(proceso,id_boton,campos,cuando_ok,cuando_error,impresion,cuando_un_paso){
     enviar_a_procesar({
-        proceso:proceso, 
-        elemento_boton:elemento_existente(id_boton), 
-        campos:campos, 
-        cuando_ok:cuando_ok, 
-        cuando_error:cuando_error, 
-        cuando_un_paso:cuando_un_paso, 
-        impresion:impresion 
+        proceso:proceso,
+        elemento_boton:elemento_existente(id_boton),
+        campos:campos,
+        cuando_ok:cuando_ok,
+        cuando_error:cuando_error,
+        cuando_un_paso:cuando_un_paso,
+        impresion:impresion
     });
 }
 
@@ -321,7 +321,7 @@ function simplificateText(text){
 
 function dm2CrearQueries(parameters, context){
     var sqlEstructura=`
-      SELECT 
+      SELECT
             ${jsono(`
                 SELECT moneda, valor_pesos
                     FROM relmon
@@ -332,22 +332,22 @@ function dm2CrearQueries(parameters, context){
                 SELECT informante, direccion, contacto, telcontacto, web, email
                     FROM informantes INNER JOIN (
                         SELECT informante
-                            FROM relvis 
+                            FROM relvis
                             WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
                             GROUP BY informante
-                    ) lista_informantes USING (informante)`, 
+                    ) lista_informantes USING (informante)`,
                     'informante'
             )} as informantes
             , ${jsono(`
                 SELECT atributo, tipodato, nombreatributo, escantidad='S' as escantidad
                     FROM atributos INNER JOIN (
                         SELECT atributo
-                            FROM relvis 
+                            FROM relvis
                                 INNER JOIN forprod USING (formulario)
                                 INNER JOIN prodatr USING (producto)
                             WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
                             GROUP BY atributo
-                    ) lista_atributos USING (atributo)`, 
+                    ) lista_atributos USING (atributo)`,
                     'atributo'
             )} as atributos
             , ${jsono(`
@@ -359,68 +359,68 @@ function dm2CrearQueries(parameters, context){
                                         FROM prodatrval
                                         WHERE producto=pa.producto
                                         AND atributo=pa.atributo
-                                        AND valido`, 
+                                        AND valido`,
                                     'orden, valor'
                                 )} as x_prodatrval
                                 FROM prodatr pa inner join especificaciones e using(producto)
-                                WHERE producto=p.producto`, 
+                                WHERE producto=p.producto`,
                             'orden, atributo'
                         )} as x_atributos
                     FROM productos p INNER JOIN (
                         SELECT producto
-                            FROM relvis 
+                            FROM relvis
                                 INNER JOIN forprod USING (formulario)
                             WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
                             GROUP BY producto
                     ) lista_productos USING (producto)
                         INNER JOIN especificaciones e ON p.producto=e.producto AND e.especificacion=1
-                    `, 
+                    `,
                 'producto'
             )} as productos
             , ${jsono(`
-                SELECT formulario, nombreformulario, orden, 
+                SELECT formulario, nombreformulario, orden,
                         ${json(`SELECT producto, COALESCE(pr.cantobs,CASE WHEN despacho = 'A' THEN 2 ELSE 1 END) as observaciones, orden
-                                    FROM forprod INNER JOIN productos pr using (producto) 
+                                    FROM forprod INNER JOIN productos pr using (producto)
                                     WHERE formulario=f.formulario`, 'orden, producto')} as x_productos
                     FROM formularios f INNER JOIN (
                         SELECT formulario
                             FROM relvis
                             WHERE periodo=rt.periodo AND panel=rt.panel AND tarea=rt.tarea
                             GROUP BY formulario
-                    ) lista_productos USING (formulario)`, 
+                    ) lista_productos USING (formulario)`,
                 'formulario'
             )} as formularios
             , ${json(`
-                SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden, visibleparaencuestador = 'S' as visibleparaencuestador 
-                    FROM tipopre`, 
+                SELECT tipoprecio, nombretipoprecio, espositivo='S' as espositivo, tipoprecio='P' as predeterminado, puedecopiar='S' as puedecopiar, orden, visibleparaencuestador = 'S' as visibleparaencuestador
+                    FROM tipopre`,
                 'orden'
             )} as "tiposPrecioDef"
             , ${jsono(`
                 SELECT razon, nombrerazon, visibleparaencuestador='S' as visibleparaencuestador, espositivoformulario='S' as espositivoformulario, escierredefinitivoinf='S' as escierredefinitivoinf, escierredefinitivofor='S' as escierredefinitivofor
                     FROM razones
-                `, 
+                `,
                 'razon'
             )} as razones
         FROM reltar rt
         WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
     `;
     var sqlAtributos=`
-        SELECT ra.periodo, ra.visita, ra.informante, rp.formulario, ra.producto, ra.observacion, ra.atributo, 
+        SELECT ra.periodo, ra.visita, ra.informante, rp.formulario, ra.producto, ra.observacion, ra.atributo,
                 ra.valor, ra.valor_1 as valoranterior, pa.orden, ba.valor as valoranteriorblanqueado
             FROM relatr_1 ra
                 INNER JOIN prodatr pa on ra.producto=pa.producto and ra.atributo = pa.atributo
                 left join blaatr ba on ra.periodo_1 = ba.periodo and ra.informante = ba.informante and ra.visita = ba.visita and
                   ra.producto = ba.producto and ra.observacion = ba.observacion and ra.atributo = ba.atributo
-            WHERE ra.periodo=rp.periodo 
-                AND ra.visita=rp.visita 
-                AND ra.informante=rp.informante 
+            WHERE ra.periodo=rp.periodo
+                AND ra.visita=rp.visita
+                AND ra.informante=rp.informante
                 AND ra.producto=rp.producto
                 AND ra.observacion=rp.observacion`
-    var sqlObservaciones=`                
-        SELECT rp.periodo, rp.visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior, 
-                case when rp.tipoprecio='L' then null else rp.tipoprecio end as tipoprecio, 
+    var sqlObservaciones=`
+        SELECT rp.periodo, rp.visita, rp.informante, rp.formulario, rp.producto, rp.observacion, rp.precio, precio_1 as precioanterior,
+                case when rp.tipoprecio='L' then null else rp.tipoprecio end as tipoprecio,
                 tipoprecio_1 as tipoprecioanterior,
-                rp.cambio, rp.comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, rp.precionormalizado, rp.precionormalizado_1, 
+                rp.cambio, rp.comentariosrelpre, comentariosrelpre_1, esvisiblecomentarioendm_1, rp.precionormalizado, rp.precionormalizado_1,
                 f.orden as orden_formulario,
                 fp.orden as orden_producto,
                 p.periodo is not null as repregunta,
@@ -434,7 +434,7 @@ function dm2CrearQueries(parameters, context){
                 bp.precio as precioanteriorblanqueado,
                 bp.tipoprecio as tipoprecioanteriorblanqueado
             FROM relvis rv inner join relpre_1 rp using(periodo, informante, visita, formulario)
-                left join tipopre tp using(tipoprecio) 
+                left join tipopre tp using(tipoprecio)
                 inner join forprod fp using(formulario, producto)
                 inner join formularios f using (formulario)
                 left join blapre bp on rp.periodo_1 = bp.periodo and rp.informante = bp.informante and rp.visita = bp.visita and
@@ -443,9 +443,9 @@ function dm2CrearQueries(parameters, context){
                     and c.informante = rp.informante and c.producto = rp.producto
                     and c.observacion = rp.observacion
                 left join prerep p on rp.periodo = p.periodo and rp.producto = p.producto and rp.informante = p.informante,
-                lateral (select max(periodo||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio 
+                lateral (select max(periodo||' '||round(precio::decimal,2)::text) ultimoperiodoconprecio
                     from relpre
-                    where precio is not null and rp.informante = informante and rp.producto = producto and rp.observacion = observacion and rp.visita = visita 
+                    where precio is not null and rp.informante = informante and rp.producto = producto and rp.observacion = observacion and rp.visita = visita
                     and periodo < rp.periodo
                 ) re,
                 lateral(
@@ -453,14 +453,14 @@ function dm2CrearQueries(parameters, context){
                     from relpre rp_2_3
                     where moverperiodos(rp.periodo,-1) >= rp_2_3.periodo and moverperiodos(rp.periodo,-4) <= rp_2_3.periodo and rp.producto = rp_2_3.producto and rp.observacion = rp_2_3.observacion and rp.informante = rp_2_3.informante and rp.visita = rp_2_3.visita and rp_2_3.tipoprecio in ('S',null)
                 ) r_his
-            WHERE rv.periodo=rvi.periodo 
+            WHERE rv.periodo=rvi.periodo
                 AND rv.panel=rvi.panel
                 AND rv.tarea=rvi.tarea
                 AND rv.informante=rvi.informante`;
     var sqlFormularios=`
         SELECT periodo, visita, informante, formulario, CASE WHEN razon is null or razon=0 THEN 1 ELSE razon END as razon, comentarios, visita, orden
             FROM relvis rv inner join formularios using (formulario)
-            WHERE periodo=rvi.periodo 
+            WHERE periodo=rvi.periodo
                 AND tarea=rvi.tarea
                 AND panel=rvi.panel
                 AND informante=rvi.informante
@@ -475,12 +475,12 @@ function dm2CrearQueries(parameters, context){
                 ri.observaciones_campo
             FROM relvis rvi INNER JOIN informantes USING (informante) LEFT JOIN relpantarinf ri USING (periodo, informante, visita, panel, tarea),
             lateral(
-                SELECT 
+                SELECT
                     CASE WHEN COUNT(*) > 0 THEN max(periodo) ELSE null END AS maxperiodoinformado
                         FROM relvis rvis
                         WHERE razon = 1 and rvis.informante = rvi.informante
                     ) as max_periodos
-            WHERE periodo=rt.periodo 
+            WHERE periodo=rt.periodo
                 AND panel=rt.panel
                 ${parameters.informante?`AND informante=${context.be.db.quoteLiteral(parameters.informante)} `:' '}
                  AND tarea=rt.tarea
@@ -494,8 +494,8 @@ function dm2CrearQueries(parameters, context){
                 rt.modalidad,
                 ${json(sqlInformantes,'direccion, informante')} as informantes
             FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
-            WHERE rt.periodo=$1 
-                AND rt.panel=$2 
+            WHERE rt.periodo=$1
+                AND rt.panel=$2
                 AND rt.tarea=$3
     `;
     return {sqlEstructura, sqlHdR}
@@ -506,7 +506,7 @@ async function paneltarea_mover(context, parameters, intercambiar){
     var paramsArray = [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea];
     try{
         var firstResult = await context.client.query(
-            `INSERT INTO cambiopantar_lote (fecha_lote, formulario) 
+            `INSERT INTO cambiopantar_lote (fecha_lote, formulario)
               VALUES (current_date, $1) returning id_lote`,
               [parameters.formulario]
         ).fetchUniqueRow();
@@ -517,7 +517,7 @@ async function paneltarea_mover(context, parameters, intercambiar){
         }
         var secondResult = await context.client.query(
             `INSERT INTO cambiopantar_det
-             (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva 
+             (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $4::integer panel_nuevo, $5::integer tarea_nueva
                 FROM relvis
                 WHERE periodo = $1 AND panel = $2 AND tarea = $3 ${condicionExtra})`,
                 paramsArray
@@ -525,14 +525,14 @@ async function paneltarea_mover(context, parameters, intercambiar){
         if (intercambiar) {
            var secondOtherResult = await context.client.query(
             `INSERT INTO cambiopantar_det
-             (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $2::integer panel_nuevo, $3::integer tarea_nueva 
+             (SELECT DISTINCT $6::integer id_lote, periodo, informante, panel, tarea, $2::integer panel_nuevo, $3::integer tarea_nueva
                 FROM relvis
                 WHERE periodo = $1 AND panel = $4 AND tarea = $5)`,
             [parameters.periodo,parameters.panel,parameters.tarea,parameters.otropanel,parameters.otratarea,firstResult.row.id_lote]
            ).execute();
         }
         var thirdResult =  await context.client.query(
-            `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
+            `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp
              WHERE id_lote = $1
              RETURNING id_lote, fechaprocesado`,
              [firstResult.row.id_lote]
@@ -558,8 +558,8 @@ ProceduresIpcba = [
         roles:['programador','coordinador','analista','jefe_campo'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE periodos SET fechageneracionperiodo = current_timestamp(0) 
-                   WHERE periodo=$1 
+                `UPDATE periodos SET fechageneracionperiodo = current_timestamp(0)
+                   WHERE periodo=$1
                      AND ingresando='S'
                    RETURNING fechageneracionperiodo`,
                 [parameters.periodo]
@@ -584,8 +584,8 @@ ProceduresIpcba = [
         roles:['programador','coordinador','analista','jefe_campo'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE relpan SET fechageneracionpanel = current_timestamp(0) 
-                   WHERE periodo=$1 
+                `UPDATE relpan SET fechageneracionpanel = current_timestamp(0)
+                   WHERE periodo=$1
                      AND panel=$2
                    RETURNING fechageneracionpanel`,
                 [parameters.periodo,parameters.panel]
@@ -615,8 +615,8 @@ ProceduresIpcba = [
             const BITACORA_TABLENAME = context.be.config.server.bitacoraTableName || 'bitacora';
             //preguntar si hay alguien corriendo 'periodobase_correr' o mismo periodo dentro del calculo actual
             var result = await context.client.query(
-                `select * 
-                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)} 
+                `select *
+                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
                     where procedure_name = $1 and end_date is null or
                         procedure_name = $2 and parameters = $3 and end_date is null`,
                 [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION,JSON.stringify(parameters)]
@@ -626,7 +626,7 @@ ProceduresIpcba = [
             }else{
                 return context.client.query(
                     `UPDATE calculos SET fechageneracionexternos = COALESCE(fechageneracionexternos,current_timestamp), fechacalculo = current_timestamp
-                    WHERE periodo=$1 
+                    WHERE periodo=$1
                         AND calculo=$2 AND abierto='S'
                     RETURNING fechageneracionexternos, fechacalculo`,
                     [parameters.periodo,parameters.calculo]
@@ -665,7 +665,7 @@ ProceduresIpcba = [
                             comentariosrelpre comentariosrelpreblanqueado
                             FROM blapre
                             WHERE periodo=$1 AND producto=$2 AND observacion=$3 AND informante=$4 AND visita=$5
-                            ) b 
+                            ) b
                        WHERE periodo=$1 AND producto=$2 AND observacion=$3 AND informante=$4 AND visita=$5
                        RETURNING producto, precio`,
                     [parameters.periodo,parameters.producto,parameters.observacion,parameters.informante,parameters.visita]
@@ -702,12 +702,12 @@ ProceduresIpcba = [
             try{
                 var result = await context.client.query(
                     `UPDATE relpre p SET ultima_visita = null
-                       FROM (SELECT ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita, 
-                                string_agg(distinct CASE WHEN es_vigencia THEN 'S' ELSE 'N' END,'') as puedeagregarvisita   
-                                FROM cvp.relatr ra join cvp.atributos at on ra.atributo = at.atributo 
-                                GROUP BY ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita) aa					
-                       WHERE aa.periodo = p.periodo and aa.producto = p.producto and aa.observacion = p.observacion	and aa.informante = p.informante 
-                       and aa.visita = p.visita and p.periodo=$1 AND p.producto=$2 AND p.observacion=$3 AND p.informante=$4 AND p.visita=$5 
+                       FROM (SELECT ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita,
+                                string_agg(distinct CASE WHEN es_vigencia THEN 'S' ELSE 'N' END,'') as puedeagregarvisita
+                                FROM cvp.relatr ra join cvp.atributos at on ra.atributo = at.atributo
+                                GROUP BY ra.periodo, ra.producto, ra.observacion, ra.informante, ra.visita) aa
+                       WHERE aa.periodo = p.periodo and aa.producto = p.producto and aa.observacion = p.observacion	and aa.informante = p.informante
+                       and aa.visita = p.visita and p.periodo=$1 AND p.producto=$2 AND p.observacion=$3 AND p.informante=$4 AND p.visita=$5
                        and p.ultima_visita and aa.puedeagregarvisita like '%S%'
                        RETURNING p.producto, precio`,
                     [parameters.periodo,parameters.producto,parameters.observacion,parameters.informante,parameters.visita]
@@ -733,8 +733,8 @@ ProceduresIpcba = [
             try{
                 var result = await context.client.query(
                     `UPDATE relpre p SET ultima_visita = null
-                       FROM parametros par					
-                       WHERE par.unicoregistro AND p.periodo=$1 AND p.informante=$2 AND p.visita=$3 AND p.formulario=$4 
+                       FROM parametros par
+                       WHERE par.unicoregistro AND p.periodo=$1 AND p.informante=$2 AND p.visita=$3 AND p.formulario=$4
                        AND p.ultima_visita AND par.puedeagregarvisita='S'`,
                     [parameters.periodo,parameters.informante,parameters.visita,parameters.formulario]
                 ).execute();
@@ -757,12 +757,12 @@ ProceduresIpcba = [
             try{
             var previusResult = await context.client.query(
                 `INSERT INTO calculos_def (calculo,definicion, agrupacionprincipal, para_rellenado_de_base, grupo_raiz)
-                 SELECT m.calculo,'Copia del Calculo' definicion, dp.agrupacionprincipal, dp.para_rellenado_de_base, dp.grupo_raiz 
-                   from 
+                 SELECT m.calculo,'Copia del Calculo' definicion, dp.agrupacionprincipal, dp.para_rellenado_de_base, dp.grupo_raiz
+                   from
                     (select periodo,max(calculo)+1 calculo
-                        from calculos 
+                        from calculos
                         where periodo=$1
-                        group by periodo) m 
+                        group by periodo) m
                     LEFT JOIN calculos_def d USING (calculo)
                     CROSS JOIN (SELECT * FROM calculos_def WHERE principal) dp
                     WHERE d.calculo is null`,
@@ -799,29 +799,29 @@ ProceduresIpcba = [
         coreFunction: async function(context, parameters){
             try{
             var previusResult = await context.client.query(
-                `select c.funcion as funcion_a_llamar, CASE WHEN f.usa_parametro1    THEN ''''||c.parametro1|| '''' ELSE '' END 
-                || CASE WHEN f.usa_periodo       THEN  ', '''||$1||'''' ELSE '' END 
-                || CASE WHEN f.usa_nivel         THEN ','||c.nivel::text ELSE '' END 
-                || CASE WHEN f.usa_grupo         THEN ','''||c.grupo|| '''' ELSE '' END 
-                || CASE WHEN f.usa_agrupacion    THEN ','||CASE WHEN $2 in ('HC','H1','HH','HC_var','HH_var','X1','X2','LH','LH_var') THEN ''''||$6||'''' ELSE ''''||c.agrupacion|| '''' END ELSE '' END 
-                || CASE WHEN f.usa_ponercodigos  THEN ','||c.ponercodigos::text ELSE '' END 
-                || CASE WHEN f.usa_agrupacion2   THEN ','''||c.agrupacion2|| '''' ELSE '' END 
-                || CASE WHEN f.usa_cuadro        THEN ','''||c.cuadro|| '''' ELSE '' END 
-                || CASE WHEN f.usa_hogares       THEN ','||CASE WHEN $2 in ('HC','HC_var','I') THEN ''''||$5||'''' ELSE c.hogares::text END ELSE '' END 
-                || CASE WHEN f.usa_cantdecimales THEN ','||c.cantdecimales::text ELSE '' END 
-                || CASE WHEN f.usa_desde         THEN ','''||CASE WHEN $2 in ('X1','X2','HC','HC_var','HH_var','5','10','P','LH_var','9b','CC','I') OR $2 like '%h%' THEN $4 ELSE '' END|| '''' ELSE '' END 
+                `select c.funcion as funcion_a_llamar, CASE WHEN f.usa_parametro1    THEN ''''||c.parametro1|| '''' ELSE '' END
+                || CASE WHEN f.usa_periodo       THEN  ', '''||$1||'''' ELSE '' END
+                || CASE WHEN f.usa_nivel         THEN ','||c.nivel::text ELSE '' END
+                || CASE WHEN f.usa_grupo         THEN ','''||c.grupo|| '''' ELSE '' END
+                || CASE WHEN f.usa_agrupacion    THEN ','||CASE WHEN $2 in ('HC','H1','HH','HC_var','HH_var','X1','X2','LH','LH_var') THEN ''''||$6||'''' ELSE ''''||c.agrupacion|| '''' END ELSE '' END
+                || CASE WHEN f.usa_ponercodigos  THEN ','||c.ponercodigos::text ELSE '' END
+                || CASE WHEN f.usa_agrupacion2   THEN ','''||c.agrupacion2|| '''' ELSE '' END
+                || CASE WHEN f.usa_cuadro        THEN ','''||c.cuadro|| '''' ELSE '' END
+                || CASE WHEN f.usa_hogares       THEN ','||CASE WHEN $2 in ('HC','HC_var','I') THEN ''''||$5||'''' ELSE c.hogares::text END ELSE '' END
+                || CASE WHEN f.usa_cantdecimales THEN ','||c.cantdecimales::text ELSE '' END
+                || CASE WHEN f.usa_desde         THEN ','''||CASE WHEN $2 in ('X1','X2','HC','HC_var','HH_var','5','10','P','LH_var','9b','CC','I') OR $2 like '%h%' THEN $4 ELSE '' END|| '''' ELSE '' END
                 || CASE WHEN f.usa_orden         THEN ','''||c.orden|| '''' ELSE '' END
-                as str_paramfun 
+                as str_paramfun
                 , f.usa_periodo
                 , $3::text as separador_decimal
-                , CASE WHEN $6 = 'D' THEN c.encabezado2 ELSE c.encabezado END 
-                || CASE WHEN $2 = '6' OR $2 = '7' THEN '. '||cvp.devolver_mes_anio($1) 
+                , CASE WHEN $6 = 'D' THEN c.encabezado2 ELSE c.encabezado END
+                || CASE WHEN $2 = '6' OR $2 = '7' THEN '. '||cvp.devolver_mes_anio($1)
                 WHEN $2 like 'HC%' THEN '. '|| cvp.devolver_mes_anio($4)||CASE WHEN $4 <> $1 THEN '/'||cvp.devolver_mes_anio($1) ELSE '' END||'. Evolución de su valor en '||CASE WHEN $2 like '%var' THEN '%. ' ELSE 'pesos. ' END || $5 ||'*'
                 WHEN $2 like 'I%' THEN  '. '|| cvp.devolver_mes_anio($4)||CASE WHEN $4 <> $1 THEN '/'||cvp.devolver_mes_anio($1) ELSE '' END||'. En pesos. '|| $5 ||'*'
-                ELSE '' END 
+                ELSE '' END
                 as encabezado
-                , c.pie1, c.pie, '(*)'||h.nombrehogar as piehogar 
-                from cvp.cuadros c join cvp.cuadros_funciones f on c.funcion= f.funcion  
+                , c.pie1, c.pie, '(*)'||h.nombrehogar as piehogar
+                from cvp.cuadros c join cvp.cuadros_funciones f on c.funcion= f.funcion
                , (SELECT nombrehogar FROM cvp.hogares WHERE hogar = $5) h WHERE cuadro=$2`,
                 [parameters.tra_periodo, parameters.tra_cuadro, parameters.tra_separador_decimal, parameters.tra_periodo_desde, parameters.tra_hogar, parameters.tra_agrupacion]
             ).fetchUniqueRow();
@@ -839,7 +839,7 @@ ProceduresIpcba = [
                 //las filas resultado de la funcion_a_llamar
                 var parte1 = poner_parte('encabezado','b',encabezado);
                 var tipox=(funcion_a_llamar=='res_cuadro_matriz_hogar_var'||funcion_a_llamar=='res_cuadro_matriz_hogar'||funcion_a_llamar=='res_cuadro_matriz_linea'||funcion_a_llamar=='res_cuadro_matriz_up'||funcion_a_llamar=='res_cuadro_matriz_canasta'||funcion_a_llamar=='res_cuadro_matriz_canasta_var'||funcion_a_llamar=='res_cuadro_matriz_i'||funcion_a_llamar=='res_cuadro_vc'||funcion_a_llamar=='res_cuadro_pp'||funcion_a_llamar=='res_cuadro_matriz_linea_var'||funcion_a_llamar=='res_cuadro_matriz_hogar_per'||funcion_a_llamar=='res_cuadro_matriz_ingreso')?'cuadro_cpm':'cuadro_cp';
-                cuadro.push({'tipox':tipox,'className':'cuadro','filas':result.rows});                
+                cuadro.push({'tipox':tipox,'className':'cuadro','filas':result.rows});
                 if (parameters.tra_cuadro == 'HC'||parameters.tra_cuadro == 'HC_var'||parameters.tra_cuadro == 'I'){
                   var parte2 = poner_parte('piehogar','span', piehogar);
                 }
@@ -905,7 +905,7 @@ ProceduresIpcba = [
         roles:['programador','coordinador','analista','jefe_campo','supervisor','recepcionista','jefe_recepcion'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `select CASE WHEN max(disponible) is null THEN 'Debe especificar al menos un supervisor disponible'::text 
+                `select CASE WHEN max(disponible) is null THEN 'Debe especificar al menos un supervisor disponible'::text
                         ELSE seleccionar_supervisiones_aleatorias($1,$2)::text END
                  FROM relsup WHERE periodo = $1 and panel = $2 and disponible = 'S';`,
                 [parameters.periodo,parameters.panel]
@@ -969,18 +969,18 @@ ProceduresIpcba = [
                             return des.query('delete from '+esquema+'.'+nombre_tabla).execute();
                         })
                     }, Promise.resolve());
-                    await cadenaPromesas; 
+                    await cadenaPromesas;
                     var data={};
                     data.periodos = await oriquery(`
                         select p.periodo, ano as annio,mes from periodos p inner join calculos using (periodo)
-                        inner join calculos_def using(calculo) 
+                        inner join calculos_def using(calculo)
                         where p.periodo >= '${periodo_inicial}' and abierto='N' and calculos_def.principal
                         order by periodo;
-                    `);                   
+                    `);
                     await bulkInsert('periodos',esquema);
                     data.agrupaciones = await oriquery(`
                     select agrupacion, CASE WHEN agrupacion= 'Z' THEN 'Agrupación 12 divisiones' ELSE nombreagrupacion END AS nombreagrupacion
-                        from agrupaciones 
+                        from agrupaciones
                         where agrupacion in ('Z', 'R', 'S')
                         order by agrupacion;
                     `);
@@ -989,7 +989,7 @@ ProceduresIpcba = [
                     select agrupacion, grupo, nombregrupo, nivel, grupopadre
                         from grupos
                         where agrupacion in ('Z', 'R', 'S') and nivel in (0,1)
-                        order by agrupacion, grupo; 
+                        order by agrupacion, grupo;
                     `);
                     await bulkInsert('grupos',esquema);
                     data.grupos_producto = await oriquery(`
@@ -1022,7 +1022,7 @@ ProceduresIpcba = [
                         select periodo,agrupacion,grupo,indiceredondeado
                         from calgru g inner join calculos c using (periodo,calculo)
                         inner join calculos_def cd using (calculo)
-                        where agrupacion in ('Z', 'R', 'S') and nivel in (0,1) and cd.principal  and periodo >= '${periodo_inicial}' 
+                        where agrupacion in ('Z', 'R', 'S') and nivel in (0,1) and cd.principal  and periodo >= '${periodo_inicial}'
                         and abierto='N'
                         order by periodo, agrupacion, grupo;
                     `);
@@ -1055,7 +1055,7 @@ ProceduresIpcba = [
             try{
                 var persona = await context.client.query(
                     `select *
-                        from personal 
+                        from personal
                         where id_instalacion = (select id_instalacion from instalaciones where token_instalacion = $1)`
                     ,
                     [parameters.token_instalacion]
@@ -1065,8 +1065,8 @@ ProceduresIpcba = [
                         from reltar r
                         left join instalaciones i using (id_instalacion)
                         left join personal p on p.persona = i.encuestador
-                        where r.encuestador = $1 and 
-                              vencimiento_sincronizacion is not null and 
+                        where r.encuestador = $1 and
+                              vencimiento_sincronizacion is not null and
                               vencimiento_sincronizacion > current_timestamp`
                     ,
                     [persona.row.persona]
@@ -1089,7 +1089,7 @@ ProceduresIpcba = [
             try{
                 var persona = await context.client.query(
                     `select *
-                        from personal 
+                        from personal
                         where id_instalacion = (select id_instalacion from instalaciones where token_instalacion = $1)`
                     ,
                     [parameters.token_instalacion]
@@ -1099,10 +1099,10 @@ ProceduresIpcba = [
                         from reltar r
                         left join instalaciones i using (id_instalacion)
                         left join personal p on p.persona = i.encuestador
-                        where r.encuestador = $1 and 
-                              vencimiento_sincronizacion2 is not null and 
+                        where r.encuestador = $1 and
+                              vencimiento_sincronizacion2 is not null and
                               vencimiento_sincronizacion2 > current_timestamp
-                        order by vencimiento_sincronizacion2 desc 
+                        order by vencimiento_sincronizacion2 desc
                         limit 1`
                     ,
                     [persona.row.persona]
@@ -1129,8 +1129,8 @@ ProceduresIpcba = [
         coreFunction:async function(context, params){
             var be = context.be;
             var informantesArray = await context.client.query(
-                `select distinct informante 
-                    from relvis 
+                `select distinct informante
+                    from relvis
                     where periodo = $1 and panel = $2 and tarea = $3`
                 ,
                 [params.periodo, params.panel, params.tarea]
@@ -1167,7 +1167,7 @@ ProceduresIpcba = [
                     promiseChain = promiseChain.then(async function(){
                         var result = await be.procedure.table_data.coreFunction(
                             context,{
-                                table: tableName, 
+                                table: tableName,
                                 fixedFields:fixedFields.concat({fieldName: 'informante', value: informante.informante})
                             }
                         )
@@ -1178,10 +1178,10 @@ ProceduresIpcba = [
             });
             promiseChain = promiseChain.then(async function(){
                 var result = await context.client.query(
-                    `select pa.* 
-                      from relvis v join relpre p using(periodo, informante, visita, formulario) 
+                    `select pa.*
+                      from relvis v join relpre p using(periodo, informante, visita, formulario)
                         join prodatrval pa on p.producto = pa.producto
-                      where periodo = $1 and panel = $2 and tarea = $3 and pa.valido`
+                      where periodo = $1 and panel = $2 and tarea = $3 and pa.activo`
                     ,
                     [params.periodo, params.panel, params.tarea]
                 ).fetchAll();
@@ -1282,11 +1282,11 @@ ProceduresIpcba = [
                 ).fetchAll();
                 result.tiene_otro_ipad = tiene_otro_ipad.rows;
                 var tiene_ipad_sin_descargar = await context.client.query(
-                    `select rt.panel, rt.tarea, rt.cargado, p.nombre as nombre_encuestador, 
+                    `select rt.panel, rt.tarea, rt.cargado, p.nombre as nombre_encuestador,
                             p.apellido as apellido_encuestador, i.ipad
-                        from reltar rt 
+                        from reltar rt
                             join instalaciones i using (id_instalacion)
-                            join personal p on rt.encuestador = p.persona 
+                            join personal p on rt.encuestador = p.persona
                         where rt.encuestador = $1 and rt.cargado is not null and rt.descargado is null`
                     ,
                     [params.numero_encuestador]
@@ -1320,7 +1320,7 @@ ProceduresIpcba = [
             var token = params.numero_encuestador + params.numero_ipad + now;
             try{
                 var result = await context.client.query(
-                    `insert into instalaciones (token_instalacion, fecha_hora, encuestador, ipad, version_sistema, token_original) 
+                    `insert into instalaciones (token_instalacion, fecha_hora, encuestador, ipad, version_sistema, token_original)
                         values (md5($1), $2, $3, $4, $5, coalesce($6,md5($1)))
                         returning id_instalacion, token_instalacion, fecha_hora, encuestador, ipad`
                     ,
@@ -1418,17 +1418,17 @@ ProceduresIpcba = [
                                 await context.client.query(`
                                     update relpre
                                     set tipoprecio = $1, precio = $2, cambio = $3, comentariosrelpre = $9
-                                    where periodo = $4 and informante = $5 and visita = $6 and 
+                                    where periodo = $4 and informante = $5 and visita = $6 and
                                             producto = $7 and observacion = $8
                                             --pk verificada`
                                 ,[
-                                    row.tipoprecio, 
-                                    row.precio, 
+                                    row.tipoprecio,
+                                    row.precio,
                                     row.cambio,
-                                    row.periodo, 
-                                    row.informante, 
-                                    row.visita, 
-                                    row.producto, 
+                                    row.periodo,
+                                    row.informante,
+                                    row.visita,
+                                    row.producto,
                                     row.observacion,
                                     row.comentariosrelpre
                                 ]).execute()
@@ -1439,11 +1439,11 @@ ProceduresIpcba = [
                     });
                     data.mobile_atributos.forEach(function(row){
                         var precioDeAtributo = data.mobile_precios.find(function(price){
-                            return row.periodo == price.periodo && 
-                                   row.informante == price.informante && 
-                                   row.visita == price.visita && 
-                                   row.formulario == price.formulario && 
-                                   row.producto == price.producto && 
+                            return row.periodo == price.periodo &&
+                                   row.informante == price.informante &&
+                                   row.visita == price.visita &&
+                                   row.formulario == price.formulario &&
+                                   row.producto == price.producto &&
                                    row.observacion == price.observacion
                         })
                         //solo actualizo atributo si el tipoprecio es positivo
@@ -1453,15 +1453,15 @@ ProceduresIpcba = [
                                     await context.client.query(`
                                         update relatr
                                         set valor = $1
-                                        where periodo = $2 and informante = $3 and visita = $4 and 
+                                        where periodo = $2 and informante = $3 and visita = $4 and
                                             producto = $5 and observacion = $6 and atributo = $7
                                             --pk verificada`
                                     ,[
-                                        row.valor.trim(), 
-                                        row.periodo, 
-                                        row.informante, 
-                                        row.visita, 
-                                        row.producto, 
+                                        row.valor.trim(),
+                                        row.periodo,
+                                        row.informante,
+                                        row.visita,
+                                        row.producto,
                                         row.observacion,
                                         row.atributo
                                     ]).execute()
@@ -1470,7 +1470,7 @@ ProceduresIpcba = [
                                 }
                             })
                         }
-                    });              
+                    });
                     await promiseChain;
                     return 'descarga completa';
                 }else{
@@ -1493,8 +1493,8 @@ ProceduresIpcba = [
         resultOk:'imprimir_formulario_con_precios',
         coreFunction:async function(context, params){
             var result = await context.client.query(
-                `select * 
-                    from paraImpresionFormulariosPrecios 
+                `select *
+                    from paraImpresionFormulariosPrecios
                     where periodo = $1 and panel = $2 and tarea = $3`,
                 [params.periodo, params.panel, params.tarea]
             ).fetchAll();
@@ -1535,8 +1535,8 @@ ProceduresIpcba = [
             const BITACORA_TABLENAME = context.be.config.server.bitacoraTableName || 'bitacora';
             //preguntar si hay alguien corriendo 'periodobase_correr' o fechacalculo_touch
             var result = await context.client.query(
-                `select * 
-                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)} 
+                `select *
+                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
                     where procedure_name in ($1,$2) and end_date is null`,
                 [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION]
             ).fetchAll();
@@ -1559,7 +1559,7 @@ ProceduresIpcba = [
                     console.log(err);
                     console.log(err.code);
                     throw err;
-                }            
+                }
             }
         }
     },
@@ -1669,7 +1669,7 @@ ProceduresIpcba = [
                 var {estructura, hdr} = await be.procedure.dm2_estructura_hdr_preparar.coreFunction(context, parameters)
                 var resourcesForCache = be.createResourcesForCacheJson(parameters);
                 await client.query(`
-                    UPDATE reltar 
+                    UPDATE reltar
                         SET archivo_estructura = $1, archivo_hdr = $2, archivo_cache = $3
                         WHERE periodo = $4 AND panel=$5 AND tarea = $6`,
                     [
@@ -1774,7 +1774,7 @@ ProceduresIpcba = [
                     ,
                     [parameters.periodo, parameters.panel, parameters.tarea]
                 ).fetchUniqueValue();
-                
+
                 var vencimientoSincronizacion2 = null;
                 var result;
                 var token;
@@ -1786,7 +1786,7 @@ ProceduresIpcba = [
                     if(parameters.informante){
                         //pido token
                         var myToken = await be.procedure.token_get.coreFunction(context, {
-                            useragent: context.session.req.useragent, 
+                            useragent: context.session.req.useragent,
                             username: context.user.usu_usu
                         });
                         token = myToken.token;
@@ -1848,7 +1848,7 @@ ProceduresIpcba = [
                 if(params.custom_data){
                     //saco token antes de actualizar
                     var result = await context.client.query(`
-                        update relvis 
+                        update relvis
                             set token_relevamiento = null
                             where token_relevamiento = $1
                             returning 1 as ok`
@@ -1872,7 +1872,7 @@ ProceduresIpcba = [
                     }
                     var result = await context.client.query(
                         `update reltar
-                            set descargado = current_timestamp, vencimiento_sincronizacion2 = null, 
+                            set descargado = current_timestamp, vencimiento_sincronizacion2 = null,
                                 datos_descarga = $2
                             where id_instalacion = $1 and descargado is null
                             returning *`
@@ -1928,7 +1928,7 @@ ProceduresIpcba = [
                         try{
                             console.log("informante", informante)
                             await context.client.query(`
-                                update relpantarinf 
+                                update relpantarinf
                                     set observaciones_campo = $1
                                     where periodo = $2 and informante = $3 and visita = $4 and panel = $5 and tarea= $6 --pk verificada
                                     returning true`
@@ -1943,12 +1943,12 @@ ProceduresIpcba = [
                             var actualizarRelVis=async function(){
                                 try{
                                     await context.client.query(`
-                                        update relvis 
+                                        update relvis
                                             set razon = $1, comentarios = $6, fechaingreso = current_date, recepcionista = $7, encuestador = $8
                                             where periodo = $2 and informante = $3 and visita = $4 and formulario = $5 --pk verificada
                                             returning true`
-                                        ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario, 
-                                            simplificateText(formulario.comentarios), 
+                                        ,[formulario.razon, hoja_de_ruta.periodo, formulario.informante, formulario.visita, formulario.formulario,
+                                            simplificateText(formulario.comentarios),
                                             persona.row.persona, hoja_de_ruta.encuestador
                                         ]
                                     ).fetchUniqueRow()
@@ -1979,11 +1979,11 @@ ProceduresIpcba = [
                                                 returning true`
                                         ,[
                                             filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo && !observacion.precio?null:observacion.tipoprecio),
-                                            filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo?observacion.precio:null), 
-                                            observacion.periodo, 
-                                            observacion.informante, 
-                                            observacion.visita, 
-                                            observacion.producto, 
+                                            filtroValoresPrecioAtributo && observacion.tipoprecio && (tiposDePrecio[observacion.tipoprecio].espositivo?observacion.precio:null),
+                                            observacion.periodo,
+                                            observacion.informante,
+                                            observacion.visita,
+                                            observacion.producto,
                                             observacion.observacion,
                                             simplificateText(filtroValoresPrecioAtributo && observacion.comentariosrelpre),
                                         ]).fetchUniqueRow()
@@ -2008,7 +2008,7 @@ ProceduresIpcba = [
                                                 var valor = !razonNegativa && atributo.valor != atributo.valoranterior?
                                                     atributo.valor?simplificateText(atributo.valor.toString().trim().toUpperCase()):null
                                                 :
-                                                    atributo.valoranterior?atributo.valoranterior:null    
+                                                    atributo.valoranterior?atributo.valoranterior:null
                                                 await context.client.query(`
                                                     update relatr
                                                         set valor = $1
@@ -2016,11 +2016,11 @@ ProceduresIpcba = [
                                                           and upper(trim(valor)) is distinct from $8
                                                         returning true`
                                                 ,[
-                                                    valor, 
-                                                    atributo.periodo, 
-                                                    atributo.informante, 
-                                                    atributo.visita, 
-                                                    atributo.producto, 
+                                                    valor,
+                                                    atributo.periodo,
+                                                    atributo.informante,
+                                                    atributo.visita,
+                                                    atributo.producto,
                                                     atributo.observacion,
                                                     atributo.atributo,
                                                     valor // para solo hacer update si hubo cambio
@@ -2044,11 +2044,11 @@ ProceduresIpcba = [
                                 await actualizarObservacionesYAtributos(observaciones);
                             }
                         };
-                    };              
+                    };
                     return 'descarga completa';
                 }else{
-                    return `No se pudo descargar. 
-                        Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo. 
+                    return `No se pudo descargar.
+                        Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo.
                         ${params.custom_data?'Token: ' + params.current_token:'ID instalacion: ' + idInstalacion.value}`
                 }
             }catch(err){
@@ -2089,14 +2089,14 @@ ProceduresIpcba = [
                     if(err.code=='54011!'){
                         throw new Error(`No se encuentra el la instalación ${idInstalacion} en reltar`);
                     }
-                }   
+                }
                 return 'backup completado';
             }catch(err){
                 console.log('ERROR',err);
                 throw err;
             }
         }
-    },   
+    },
     {
         action: 'dm2_backup_pre_recuperar',
         parameters:[
@@ -2280,7 +2280,7 @@ ProceduresIpcba = [
         roles:['programador','analista','coordinador'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE informantes SET altamanualconfirmar = current_timestamp 
+                `UPDATE informantes SET altamanualconfirmar = current_timestamp
                    WHERE informante = $1
                    RETURNING altamanualperiodo,altamanualpanel,altamanualtarea, altamanualconfirmar`,
                 [parameters.informante]
@@ -2304,7 +2304,7 @@ ProceduresIpcba = [
         roles:['programador','coordinador','analista'],
         coreFunction:function(context, parameters){
             return context.client.query(
-                `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp 
+                `UPDATE cambiopantar_lote SET fechaprocesado = current_timestamp
                    WHERE id_lote = $1 and fechaprocesado is null
                    RETURNING fechaprocesado`,
                 [parameters.id_lote]
@@ -2331,48 +2331,48 @@ ProceduresIpcba = [
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
                 const nombre = 'unificacionDeMarcas_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
                 const resultQuery = (
-                    await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto, 
+                    await context.client.query(`select rm.periodo, v.panel, v.tarea, rm.producto, p.nombreproducto,
                     rm.informante, rm.visita, rm.observacion, rm.formulario, rm.tipoprecio,
-                    rm.atributo, rm.nombreatributo, rm.valor, 
-                    r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2, 
+                    rm.atributo, rm.nombreatributo, rm.valor,
+                    r.atributo as atributo_2, r.nombreatributo as nombreatributo_2, r.valor as valor_2,
                     rn.atributo as atributo_3, rn.nombreatributo as nombreatributo_3, rn.valor as valor_3,
                     rs.atributo as atributo_4, rs.nombreatributo as nombreatributo_4, rs.valor as valor_4,
                     rm.comentariosrelpre as comentarios
-                    from (select rp.formulario, rp.tipoprecio, ra.*, rp.comentariosrelpre, a2.nombreatributo 
-                            from cvp.relpre rp 
-                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
-                                    and rp.visita = ra.visita and rp.observacion = ra.observacion 
-                            join cvp.atributos a2 on ra.atributo = a2.atributo 
+                    from (select rp.formulario, rp.tipoprecio, ra.*, rp.comentariosrelpre, a2.nombreatributo
+                            from cvp.relpre rp
+                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto
+                                    and rp.visita = ra.visita and rp.observacion = ra.observacion
+                            join cvp.atributos a2 on ra.atributo = a2.atributo
                             where a2.nombreatributo = 'Marca' and rp.periodo = $1 and rp.tipoprecio is not null) rm
-                         join cvp.relvis v on v.periodo = rm.periodo and v.informante = rm.informante and v.visita = rm.visita and v.formulario = rm.formulario  
+                         join cvp.relvis v on v.periodo = rm.periodo and v.informante = rm.informante and v.visita = rm.visita and v.formulario = rm.formulario
                          join cvp.productos p on rm.producto = p.producto
-                         left join 
+                         left join
                          (select rp.formulario, ra.* , a1.nombreatributo
-                            from cvp.relpre rp 
-                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                            from cvp.relpre rp
+                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto
                                               and rp.visita = ra.visita and rp.observacion = ra.observacion
                             join cvp.atributos a1 on ra.atributo = a1.atributo
                             join cvp.prodatr pa on rp.producto = pa.producto and ra.atributo = pa.atributo
-                            where pa.normalizable = 'S' and rp.periodo = $1) r 
-                            on r.periodo = rm.periodo and r.informante = rm.informante and r.producto = rm.producto 
+                            where pa.normalizable = 'S' and rp.periodo = $1) r
+                            on r.periodo = rm.periodo and r.informante = rm.informante and r.producto = rm.producto
                             and r.observacion = rm.observacion and r.visita = rm.visita
-                        left join 
+                        left join
                         (select rp.formulario, ra.* , a2.nombreatributo
-                            from cvp.relpre rp 
-                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                            from cvp.relpre rp
+                            join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto
                                               and rp.visita = ra.visita and rp.observacion = ra.observacion
                             join cvp.atributos a2 on ra.atributo = a2.atributo
-                            where a2.nombreatributo = 'Nombre' and rp.periodo = $1) rn 
-                               on rm.periodo = rn.periodo and rm.informante = rn.informante and rm.producto = rn.producto 
+                            where a2.nombreatributo = 'Nombre' and rp.periodo = $1) rn
+                               on rm.periodo = rn.periodo and rm.informante = rn.informante and rm.producto = rn.producto
                                and rm.observacion = rn.observacion and rm.visita = rn.visita
-                        left join 
+                        left join
                         (select rp.formulario, ra.* , a3.nombreatributo
-                           from cvp.relpre rp 
-                           join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto 
+                           from cvp.relpre rp
+                           join cvp.relatr ra on rp.periodo = ra.periodo and rp.informante = ra.informante and rp.producto = ra.producto
                                               and rp.visita = ra.visita and rp.observacion = ra.observacion
                            join cvp.atributos a3 on ra.atributo = a3.atributo
-                           where a3.nombreatributo = 'Sabor' and rp.periodo = $1) rs 
-                              on rm.periodo = rs.periodo and rm.informante = rs.informante and rm.producto = rs.producto 
+                           where a3.nombreatributo = 'Sabor' and rp.periodo = $1) rs
+                              on rm.periodo = rs.periodo and rm.informante = rs.informante and rm.producto = rs.producto
                               and rm.observacion = rs.observacion and rm.visita = rs.visita`, [parameters.periodo]).fetchAll()
                 ).rows;
                 if(resultQuery.length === 0){
@@ -2411,7 +2411,7 @@ ProceduresIpcba = [
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'calobsAmpliado_' + parameters.periododesde + '_' + parameters.periodohasta + '_'+ datetime.now().toYmdHms().replace(/[: -/]/g,'');
             const resultQuery = (
-                await context.client.query(`select c.periodo, c.calculo, c.producto, p.cluster, c.informante, i.nombreinformante, i.tipoinformante,c.observacion, c.division, c.promobs, 
+                await context.client.query(`select c.periodo, c.calculo, c.producto, p.cluster, c.informante, i.nombreinformante, i.tipoinformante,c.observacion, c.division, c.promobs,
                 c.impobs, c.antiguedadconprecio, c.antiguedadsinprecio, c.antiguedadexcluido, c.antiguedadincluido, c.sindatosestacional, v.panel, v.encuestador
                 , r.visita, r.precio, r.tipoprecio, r.cambio, case when c.antiguedadexcluido>0 then 'X' else null end as excluido
                 , case when ((z.escierredefinitivoinf = 'S' or z.escierredefinitivofor = 'S') or v.informante is null and c.promobs is not null and vv.informante is null) then 'Inactivo ' else null end as inactivo
@@ -2422,13 +2422,13 @@ ProceduresIpcba = [
                 join informantes i on c.informante = i.informante
                 LEFT join relpre r on c.periodo = r.periodo and c.informante = r.informante and c.producto = r.producto and c.observacion = r.observacion
                 LEFT join relvis v on r.periodo = v.periodo and r.informante = v.informante and r.formulario = v.formulario and r.visita = v.visita
-                LEFT join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea 
-                LEFT JOIN razones z ON v.razon = z.razon 
-                LEFT JOIN forprod fp ON c.producto = fp.producto 
-                LEFT JOIN formularios formu ON formu.formulario = fp.formulario 
-                JOIN cvp.forinf fi ON fp.formulario = fi.formulario and c.informante = fi.informante 
+                LEFT join reltar rt on v.periodo = rt.periodo and v.panel = rt.panel and v.tarea = rt.tarea
+                LEFT JOIN razones z ON v.razon = z.razon
+                LEFT JOIN forprod fp ON c.producto = fp.producto
+                LEFT JOIN formularios formu ON formu.formulario = fp.formulario
+                JOIN cvp.forinf fi ON fp.formulario = fi.formulario and c.informante = fi.informante
                 LEFT JOIN cvp.relvis vv on c.periodo = vv.periodo and fi.informante = vv.informante and fi.formulario = vv.formulario and vv.ultima_visita
-                LEFT JOIN (SELECT * from relatr r join atributos a using(atributo) where nombreatributo = 'Marca') ra 
+                LEFT JOIN (SELECT * from relatr r join atributos a using(atributo) where nombreatributo = 'Marca') ra
                 on r.periodo = ra.periodo and r.informante = ra.informante and r.visita = ra.visita and r.observacion = ra.observacion and r.producto = ra.producto
                 where cd.principal and c.periodo >= $1 and c.periodo <= $2 and p.cluster is distinct from 3 and formu.activo = 'S'
                 order by c.periodo, c.calculo, c.producto, c.informante, c.observacion, r.visita`, [parameters.periododesde, parameters.periodohasta]).fetchAll()
@@ -2455,7 +2455,7 @@ ProceduresIpcba = [
         },
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'relpre_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
-            const resultQuery = (await context.client.query(`select r.periodo, 
+            const resultQuery = (await context.client.query(`select r.periodo,
                 r.producto,
                 o.nombreproducto as productos__nombreproducto,
                 o.cluster as productos__cluster,
@@ -2463,30 +2463,30 @@ ProceduresIpcba = [
                 i.nombreinformante as informantes__nombreinformante,
                 i.tipoinformante as informantes__tipoinformante,
                 i.cluster as informantes__cluster,
-                r.formulario, 
-                r.visita, 
-                r.observacion, 
-                r.precio, 
-                r.tipoprecio, 
-                r.cambio, 
+                r.formulario,
+                r.visita,
+                r.observacion,
+                r.precio,
+                r.tipoprecio,
+                r.cambio,
                 CASE WHEN p.periodo is not null THEN 'R' ELSE null END as repregunta,
-                CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as excluido, 
-                CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0 
-                     THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1 
-                     ELSE NULL 
-                END as cantidadperiodossinprecio,	   
-                r_1.precio_1 as precioanterior, 
-                r_1.tipoprecio_1 as tipoprecioanterior, 
-                CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio 
-                     THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%' 
-                     ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null 
-                               THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
-                               ELSE NULL 
-                          END 
+                CASE WHEN c.antiguedadexcluido>0 and r.precio>0 THEN 'x' ELSE null END as excluido,
+                CASE WHEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1>0
+                     THEN distanciaperiodos(r.periodo,re.ultimoperiodoconprecio)-1
+                     ELSE NULL
+                END as cantidadperiodossinprecio,
+                r_1.precio_1 as precioanterior,
+                r_1.tipoprecio_1 as tipoprecioanterior,
+                CASE WHEN r_1.precio_1 > 0 and r_1.precio_1 <> r.precio
+                     THEN round((r.precio/r_1.precio_1*100-100)::decimal,1)::TEXT||'%'
+                     ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> r.precionormalizado and r_1.precio_1 is null
+                               THEN round((r.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%'
+                               ELSE NULL
+                          END
                 END AS masdatos,
-                r.comentariosrelpre, 
+                r.comentariosrelpre,
                 r.esvisiblecomentarioendm,
-                r_1.comentariosrelpre_1 as comentariosanterior,                  
+                r_1.comentariosrelpre_1 as comentariosanterior,
                 r.precionormalizado,
                 case when r.ultima_visita is true then null else true end as agregarvisita,
                 v.panel
@@ -2498,9 +2498,9 @@ ProceduresIpcba = [
               left join prerep p on r.periodo = p.periodo and r.producto = p.producto and r.informante = p.informante
               left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r.periodo = c.periodo and r.producto = c.producto and r.informante = c.informante and r.observacion = c.observacion
               left join calobs c_1 on r_1.periodo_1 = c_1.periodo and r.producto = c_1.producto and r.informante = c_1.informante and r.observacion = c_1.observacion and c_1.calculo = c.calculo
-              , lateral (select max(periodo) ultimoperiodoconprecio 
+              , lateral (select max(periodo) ultimoperiodoconprecio
                        from relpre
-                       where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita 
+                       where precio is not null and r.informante = informante and r.producto = producto and r.observacion = observacion and r.visita = visita
                        and periodo < r.periodo) re
                 where r.periodo = $1 order by fp.orden, r.observacion`, [parameters.periodo]).fetchAll()).rows
             if(resultQuery.length === 0){
@@ -2510,11 +2510,11 @@ ProceduresIpcba = [
                 {   title:'relpreExportarTitle',
                     fileName: nombre + '.xlsx',
                     csvFileName: nombre + '.csv',
-                    rows: resultQuery                        
+                    rows: resultQuery
                 }
             ]
         }
-    },    
+    },
     {
         action:'control_ajustes_exportar',
         parameters:[
@@ -2526,11 +2526,11 @@ ProceduresIpcba = [
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'controlAjustes_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             const resultQuery = (
-                await context.client.query(`select periodo, panel, tarea, informante, tipoinformante, visita, formulario, grupo_padre_1, 
-                nombregrupo_1, grupo_padre_2, nombregrupo_2, grupo_padre_3, nombregrupo_3, c.producto, p.nombreproducto, p.cluster, observacion, 
-                precionormalizado, tipoprecio, cambio, variacion_1, varia_1, precionormalizado_1, 
-                tipoprecio_1, cambio_1, variacion_2, varia_2, precionormalizado_2, tipoprecio_2, cambio_2, varia_ambos 
-                from control_ajustes c 
+                await context.client.query(`select periodo, panel, tarea, informante, tipoinformante, visita, formulario, grupo_padre_1,
+                nombregrupo_1, grupo_padre_2, nombregrupo_2, grupo_padre_3, nombregrupo_3, c.producto, p.nombreproducto, p.cluster, observacion,
+                precionormalizado, tipoprecio, cambio, variacion_1, varia_1, precionormalizado_1,
+                tipoprecio_1, cambio_1, variacion_2, varia_2, precionormalizado_2, tipoprecio_2, cambio_2, varia_ambos
+                from control_ajustes c
                 join productos p on c.producto = p.producto
                 where c.periodo = $1`, [parameters.periodo]).fetchAll()
             ).rows;
@@ -2563,10 +2563,10 @@ ProceduresIpcba = [
             try{
                 var previusResult = await context.client.query(
                     `select * from revisorFilasPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
-                ).execute(); 
+                ).execute();
                 var result = await context.client.query(
                     `select * from revisorResumenPreparar($1,$2,$3,$4)`, [parameters.periododesde, parameters.periodohasta, parameters.producto, parameters.proceso]
-                ).execute(); 
+                ).execute();
                 return [
                     {
                         title:'revisorResumen '+parameters.producto,
@@ -2584,7 +2584,7 @@ ProceduresIpcba = [
                             await context.client.query(`select * from revisorFilasCrear()`).fetchAll()
                         ).rows
                     }
-    
+
                 ]
                 }catch(err){
                     console.log(err);
@@ -2605,7 +2605,7 @@ ProceduresIpcba = [
             const nombre = 'controlvigencias_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             const resultQuery = (
                 await context.client.query(`select periodo, informante, producto, nombreproducto, observacion, valor,
-                cantdias, ultimodiadelmes, visitas, vigencias, comentarios, tipoprecio, cantnegativos, cantpositivos 
+                cantdias, ultimodiadelmes, visitas, vigencias, comentarios, tipoprecio, cantnegativos, cantpositivos
                 FROM controlvigencias
                 WHERE periodo =  $1`, [parameters.periodo]).fetchAll()
             ).rows;
@@ -2633,31 +2633,31 @@ ProceduresIpcba = [
             if(!context.be.config.server['base-link']){
                 throw new Error('No hay dominio para la columna link_relpre');
             }
-            const urlComplete = (parameters) => {                
+            const urlComplete = (parameters) => {
                 const domain = `/menu#w=table&table=relpre&ff=${JSON4all.toUrl(parameters)}`;
                 const link = `${context.be.config.server['base-link']}${context.be.config.server['base-url']}${domain}`;
                 return link;
             }
             const nombre = 'relpre_control_atr2_diccionario_atributos_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             const resultQuery = (await context.client.query(`
-                select a.periodo, vis.panel, vis.tarea, a.producto, 
+                select a.periodo, vis.panel, vis.tarea, a.producto,
                 o.nombreproducto productos__nombreproducto, o.cluster productos__cluster,
                 a.informante, i.nombreinformante informantes__nombreinformante, i.tipoinformante informantes__tipoinformante,
-                i.cluster informantes__cluster, vis.recepcionista, per.nombre as perrec__nombre, per.apellido as perrec__apellido, pre.formulario, a.visita, a.observacion, 
+                i.cluster informantes__cluster, vis.recepcionista, per.nombre as perrec__nombre, per.apellido as perrec__apellido, pre.formulario, a.visita, a.observacion,
                 a.atributo, a1.nombreatributo atributos__nombreatributo, a.valor, aa.atributo atributo_2, a2.nombreatributo atr__nombreatributo,
-                aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm  
+                aa.valor valor_2, p.valor_2 valido_2, pre.comentariosrelpre, pre.esvisiblecomentarioendm
                 from relpre pre
                 join informantes i on pre.informante = i.informante
                 join relatr a on a.periodo = pre.periodo and a.informante = pre.informante and a.producto = pre.producto and a.visita = pre.visita and a.observacion = pre.observacion
                 join atributos a1 on a.atributo = a1.atributo
-                join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo 
+                join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                 join productos o on a.producto = o.producto
-                join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario   
+                join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario
                 join personal per on per.persona = vis.recepcionista
-                left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.valido
+                left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.activo
                 left join tipopre t on pre.tipoprecio = t.tipoprecio
-                left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion 
-                and a.visita = aa.visita and aa.atributo = p.atributo_2  
+                left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion
+                and a.visita = aa.visita and aa.atributo = p.atributo_2
                 left join atributos a2 on aa.atributo = a2.atributo
                 where coalesce(pa.validaropciones, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
                 and case when p.valor_2 ~ aa.valor then 1 else 0 end = 0
@@ -2681,7 +2681,7 @@ ProceduresIpcba = [
                     rows: queryUpdate
                 }
             ]
-            
+
         }
     },
     {
@@ -2695,49 +2695,49 @@ ProceduresIpcba = [
         coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
             const nombre = 'controlCambios_' + parameters.periodo + '_' + datetime.now().toYmdHms().replace(/[: -/]/g,'');
             const resultQuery = (
-                await context.client.query(`SELECT periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
+                await context.client.query(`SELECT periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita,
                 precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
                 string_agg(concat(atributo,'(',nombreatributo,')',':',valor), chr(10)) as valor,
                 string_agg(concat(atributo,'(',nombreatributo,')',':',valor_1), chr(10)) as valor_1,
-                comentariosrelpre,comentariosrelpre_1 
+                comentariosrelpre,comentariosrelpre_1
                 FROM (SELECT p.*, r_1.precio precio_1, r_1.tipoprecio tipoprecio_1, r_1.precionormalizado precionormalizado_1, c_1.promobs promobs_1, a_1.valor as valor_1,
-                        CASE WHEN r_1.precio > 0 and r_1.precio <> p.precio 
-                             THEN round((p.precio/r_1.precio*100-100)::decimal,1)::TEXT||'%' 
-                             ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> p.precionormalizado and r_1.precio is null 
-                                  THEN round((p.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%' 
-                                  ELSE NULL 
-                                  END 
+                        CASE WHEN r_1.precio > 0 and r_1.precio <> p.precio
+                             THEN round((p.precio/r_1.precio*100-100)::decimal,1)::TEXT||'%'
+                             ELSE CASE WHEN c_1.promobs > 0 and c_1.promobs <> p.precionormalizado and r_1.precio is null
+                                  THEN round((p.precionormalizado/c_1.promobs*100-100)::decimal,1)::TEXT||'%'
+                                  ELSE NULL
+                                  END
                         END AS masdatos, r_1.comentariosrelpre comentariosrelpre_1
-                      FROM (SELECT r.periodo, v.panel, v.tarea, rt.modalidad, r.informante, r.formulario, 
-                              r.cambio, r.producto, r.observacion, r.visita, 
+                      FROM (SELECT r.periodo, v.panel, v.tarea, rt.modalidad, r.informante, r.formulario,
+                              r.cambio, r.producto, r.observacion, r.visita,
                               r.precio, r.tipoprecio, r.precionormalizado, t.atributo, t.nombreatributo, a.valor, r.comentariosrelpre
                             FROM relpre r
                             JOIN relvis v ON r.periodo = v.periodo and r.informante = v.informante and r.visita = v.visita and r.formulario = v.formulario
                             JOIN reltar rt ON r.periodo = rt.periodo and v.panel= rt.panel and v.tarea = rt.tarea
-                            JOIN relatr a on r.periodo = a.periodo and  r.informante = a.informante  and  r.producto = a.producto 
+                            JOIN relatr a on r.periodo = a.periodo and  r.informante = a.informante  and  r.producto = a.producto
                                  and r.visita = a.visita and r.observacion = a.observacion
                             JOIN atributos t ON  a.atributo = t.atributo
                             WHERE r.cambio = 'C' and t.es_vigencia is null
-                           ) p 
+                           ) p
                       JOIN periodos per ON p.periodo = per.periodo
-                      LEFT JOIN (SELECT c.* 
-                                 FROM calobs c JOIN calculos_def cd on c.calculo = cd.calculo 
-                                 WHERE principal) c_1 on per.periodoanterior = c_1.periodo and p.producto = c_1.producto and 
+                      LEFT JOIN (SELECT c.*
+                                 FROM calobs c JOIN calculos_def cd on c.calculo = cd.calculo
+                                 WHERE principal) c_1 on per.periodoanterior = c_1.periodo and p.producto = c_1.producto and
                                  p.observacion = c_1.observacion and p.informante = c_1.informante
                       LEFT JOIN relpre r_1 ON r_1.periodo =
                         CASE
                             WHEN p.visita > 1 THEN p.periodo
                             ELSE per.periodoanterior
-                        END AND (r_1.ultima_visita = true AND p.visita = 1 OR p.visita > 1 AND r_1.visita = (p.visita - 1)) 
+                        END AND (r_1.ultima_visita = true AND p.visita = 1 OR p.visita > 1 AND r_1.visita = (p.visita - 1))
                           AND r_1.informante = p.informante AND r_1.producto = p.producto AND r_1.observacion = p.observacion
-                      LEFT JOIN relatr a_1 on a_1.periodo = r_1.periodo and a_1.informante = r_1.informante and 
+                      LEFT JOIN relatr a_1 on a_1.periodo = r_1.periodo and a_1.informante = r_1.informante and
                             r_1.visita = a_1.visita and r_1.observacion = a_1.observacion and r_1.producto = a_1.producto and p.atributo = a_1.atributo
                       WHERE p.valor is distinct from a_1.valor and p.periodo = $1
                      ) Q
-                GROUP BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
+                GROUP BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita,
                 precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
                 comentariosrelpre, comentariosrelpre_1
-                ORDER BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita, 
+                ORDER BY periodo, panel, tarea, modalidad, informante, formulario, cambio, producto, observacion, visita,
                 precio, tipoprecio, precionormalizado, precio_1, tipoprecio_1, precionormalizado_1, promobs_1, masdatos,
                 comentariosrelpre, comentariosrelpre_1`, [parameters.periodo]).fetchAll()
             ).rows;
@@ -2766,9 +2766,9 @@ ProceduresIpcba = [
             const resultQuery = (
                 await context.client.query(`SELECT cv.periodo, cv.panel, cv.tarea, cv.informante, cv.formulario, cv.producto, cv.nombreproducto, cv.visita, cv.observacion,
                 cv.precionormalizado, cv.tipoprecio, cv.modalidad, cv.nombreinformante, cv.direccion, cv.telcontacto, cv.web, rp.comentariosrelpre, rp.esvisiblecomentarioendm,
-                rp.comentariosrelpre_1, rp.observaciones, cv.cantprecios 
-                FROM relpre_1 rp 
-                LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and 
+                rp.comentariosrelpre_1, rp.observaciones, cv.cantprecios
+                FROM relpre_1 rp
+                LEFT JOIN control_sinvariacion cv on cv.periodo = rp.periodo and cv.informante = rp.informante and cv.producto = rp.producto and
                 cv.visita = rp.visita and cv.observacion = rp.observacion
                 LEFT JOIN tareas t on cv.tarea = t.tarea
                 WHERE t.activa = 'S' and t.operativo = 'C' and rp.periodo = $1`, [parameters.periodo]).fetchAll()
