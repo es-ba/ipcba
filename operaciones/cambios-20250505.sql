@@ -1,5 +1,6 @@
 set search_path = cvp;
-alter table prodatrval add column valido boolean;
+--alter table prodatrval drop column if exists valido;
+alter table prodatrval add column activo boolean;
 
 ALTER TABLE prodatrval DISABLE TRIGGER prodatrval_modi_trg;
 ALTER TABLE prodatrval DISABLE TRIGGER hisc_trg;
@@ -7,7 +8,7 @@ ALTER TABLE prodatrval DISABLE TRIGGER hisc_trg;
 UPDATE
     prodatrval
 SET
-    valido = true;
+    activo = true;
 
 ALTER TABLE prodatrval ENABLE TRIGGER prodatrval_modi_trg;
 ALTER TABLE prodatrval ENABLE TRIGGER hisc_trg;
@@ -40,7 +41,7 @@ BEGIN
          INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_text_1,pk_number_2,pk_text_3,change_value,new_text)
               VALUES ('cvp','prodatrval','modi_ope','I',new.producto||'|'||new.atributo||'|'||new.valor,new.producto,new.atributo,new.valor,'I:'||comun.a_texto(new.modi_ope),new.modi_ope);
          INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_text_1,pk_number_2,pk_text_3,change_value,new_bool)
-              VALUES ('cvp','prodatrval','valido','I',new.producto||'|'||new.atributo||'|'||new.valor,new.producto,new.atributo,new.valor,'I:'||comun.a_texto(new.valido),new.valido);
+              VALUES ('cvp','prodatrval','activo','I',new.producto||'|'||new.atributo||'|'||new.valor,new.producto,new.atributo,new.valor,'I:'||comun.a_texto(new.activo),new.activo);
       END IF;
       IF v_operacion='U' THEN
         IF new.producto IS DISTINCT FROM old.producto THEN
@@ -79,9 +80,9 @@ BEGIN
             INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_text_1,pk_number_2,pk_text_3,change_value,old_text,new_text)
                  VALUES ('cvp','prodatrval','modi_ope','U',new.producto||'|'||new.atributo||'|'||new.valor,new.producto,new.atributo,new.valor,comun.A_TEXTO(old.modi_ope)||'->'||comun.a_texto(new.modi_ope),old.modi_ope,new.modi_ope);
         END IF;
-        IF new.valido IS DISTINCT FROM old.valido THEN
+        IF new.activo IS DISTINCT FROM old.activo THEN
             INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_text_1,pk_number_2,pk_text_3,change_value,old_bool,new_bool)
-                 VALUES ('cvp','prodatrval','valido','U',new.producto||'|'||new.atributo||'|'||new.valor,new.producto,new.atributo,new.valor,comun.A_TEXTO(old.valido)||'->'||comun.a_texto(new.valido),old.valido,new.valido);
+                 VALUES ('cvp','prodatrval','activo','U',new.producto||'|'||new.atributo||'|'||new.valor,new.producto,new.atributo,new.valor,comun.A_TEXTO(old.activo)||'->'||comun.a_texto(new.activo),old.activo,new.activo);
         END IF;
       END IF;
       IF v_operacion='D' THEN
@@ -104,7 +105,7 @@ BEGIN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_text_1,pk_number_2,pk_text_3,change_value,old_text)
              VALUES ('cvp','prodatrval','modi_ope','D',old.producto||'|'||old.atributo||'|'||old.valor,old.producto,old.atributo,old.valor,'D:'||comun.a_texto(old.modi_ope),old.modi_ope);
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_text_1,pk_number_2,pk_text_3,change_value,old_bool)
-             VALUES ('cvp','prodatrval','valido','D',old.producto||'|'||old.atributo||'|'||old.valor,old.producto,old.atributo,old.valor,'D:'||comun.a_texto(old.valido),old.valido);
+             VALUES ('cvp','prodatrval','activo','D',old.producto||'|'||old.atributo||'|'||old.valor,old.producto,old.atributo,old.valor,'D:'||comun.a_texto(old.activo),old.activo);
       END IF;
       IF v_operacion<>'D' THEN
         RETURN new;

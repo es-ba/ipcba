@@ -7,7 +7,7 @@ module.exports = function(context){
         policy:'web',
         allow:{
             insert:puedeEditar,
-            delete:puedeEditar,
+            delete:false,
             update:puedeEditar,
         },
         fields:[
@@ -19,9 +19,12 @@ module.exports = function(context){
             {name:'valor_2'                   , typeName:'text'     , postInput:'upperSpanish'},
             {name:'usuario'                   , typeName:'text'     , allow:{update:false}    },
             {name:'fecha'                     , typeName:'date'     , allow:{update:false}    },
-            {name:'valido'                    , typeName:'boolean'  },
+            {name:'activo'                    , typeName:'boolean'  },
         ],
         primaryKey:['producto','atributo','valor'],
+        filterColumns:[
+            {column:'activo', operator:'=', value:true}
+        ],
         foreignKeys:[
             {references:'prodatr', fields:['producto','atributo']},
             {references:'prodatr', fields:[
@@ -35,7 +38,7 @@ module.exports = function(context){
             {references:'productos', fields:['producto']},
         ],
         sql:{
-            from:`(SELECT producto, atributo, valor, orden, atributo_2, valor_2, valido, modi_usu usuario, modi_fec::date fecha
+            from:`(SELECT producto, atributo, valor, orden, atributo_2, valor_2, activo, modi_usu usuario, modi_fec::date fecha
                     FROM prodatrval)`,
         }
     },context);
