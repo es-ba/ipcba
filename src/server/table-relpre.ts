@@ -73,7 +73,7 @@ export const relpre = (context:Context):TableDefinition => {
                                     FROM prodatrval pav
                                     WHERE pav.producto = ra.producto and pav.atributo = ra.atributo and pav.activo and pav.valor = ra.valor) validar_con_prodatrval
                 from relatr ra inner join prodatr pa on pa.producto = ra.producto and ra.atributo = pa.atributo
-                where ra.periodo = relpre.periodo and ra.producto = relpre.producto and ra.observacion = relpre.observacion and ra.informante = relpre.informante and ra.visita = relpre.visita))`},
+                where ra.periodo = relpre.periodo and ra.producto = relpre.producto and ra.observacion = relpre.observacion and ra.informante = relpre.informante and ra.visita = relpre.visita) validar_pav_y_o)`},
             },
             from:`(select r.periodo, r.producto, r.informante, r.formulario, r.visita, r.observacion, r.precio, r.tipoprecio, r.cambio,
                     CASE WHEN p.periodo is not null THEN 'R' ELSE null END as repregunta,
