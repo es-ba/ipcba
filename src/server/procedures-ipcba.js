@@ -359,7 +359,6 @@ function dm2CrearQueries(parameters, context){
                                         FROM prodatrval
                                         WHERE producto=pa.producto
                                         AND atributo=pa.atributo
-                                        AND valido`,
                                     'orden, valor'
                                 )} as x_prodatrval
                                 FROM prodatr pa inner join especificaciones e using(producto)
@@ -403,7 +402,7 @@ function dm2CrearQueries(parameters, context){
             )} as razones
         FROM reltar rt
         WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
-    `;
+        `,'periodo, panel, tarea')} as reltar`;
     var sqlAtributos=`
         SELECT ra.periodo, ra.visita, ra.informante, rp.formulario, ra.producto, ra.observacion, ra.atributo,
                 ra.valor, ra.valor_1 as valoranterior, pa.orden, ba.valor as valoranteriorblanqueado
@@ -1181,7 +1180,7 @@ ProceduresIpcba = [
                     `select pa.*
                       from relvis v join relpre p using(periodo, informante, visita, formulario)
                         join prodatrval pa on p.producto = pa.producto
-                      where periodo = $1 and panel = $2 and tarea = $3 and pa.activo`
+                      where periodo = $1 and panel = $2 and tarea = $3`
                     ,
                     [params.periodo, params.panel, params.tarea]
                 ).fetchAll();
@@ -2654,7 +2653,7 @@ ProceduresIpcba = [
                 join productos o on a.producto = o.producto
                 join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario
                 join personal per on per.persona = vis.recepcionista
-                left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.activo
+                left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
                 left join tipopre t on pre.tipoprecio = t.tipoprecio
                 left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion
                 and a.visita = aa.visita and aa.atributo = p.atributo_2

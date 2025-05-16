@@ -58,7 +58,7 @@ export const relatr = (context:Context):TableDefinition => {
                 validar_con_prodatrval:{ expr: `(exists(
                     select 1
                     from prodatrval pav
-                    where pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.activo and pav.valor = relatr.valor))` },
+                    where pav.producto = relatr.producto and pav.atributo = relatr.atributo and pav.valor = relatr.valor))` },
             },
             from:`(
                 select a.periodo, a.informante, a.visita, a.producto, a.observacion, a.atributo, a.valor, a_1.valor_1 as valoranterior,

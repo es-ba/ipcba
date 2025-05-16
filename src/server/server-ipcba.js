@@ -22,7 +22,7 @@ class AppIpcba extends backendPlus.AppBackend{
         if (be.isAdmin(reqOrContext)) return true;
         let puede = ('can' + what).toLowerCase()
         return reqOrContext?.user?.[puede];
-        
+
     }
     async postConfig(){
         await super.postConfig();
@@ -38,7 +38,7 @@ class AppIpcba extends backendPlus.AppBackend{
             console.log("Campo calculo no definido en la tabla calculos_def se inicializa con 0");
         } else {
             var ultimoCalculo = result.row.calculo;
-        } 
+        }
         var result2 = await client.query(`
         SELECT max(periodo) actperiodo FROM calculos where fechacalculo is not null
         `).fetchOneRowIfExists();
@@ -47,7 +47,7 @@ class AppIpcba extends backendPlus.AppBackend{
             console.log("No hay calculos ejecutados, se inicializa con a2012m07");
         } else {
             var actualperiodo = result2.row.actperiodo;
-        } 
+        }
         be.internalData={
             filterUltimoPeriodo : 'a2012m07',
             filterActualPeriodo : actualperiodo,
@@ -92,7 +92,7 @@ class AppIpcba extends backendPlus.AppBackend{
             activeClausule: usu_activo
             double-dragon: true
             plus:
-              maxAge-5-sec: 5000    
+              maxAge-5-sec: 5000
               maxAge: 864000000
               maxAge-10-day: 864000000
               allowHttpLogin: true
@@ -121,7 +121,7 @@ class AppIpcba extends backendPlus.AppBackend{
             dump:
               skip-content: true
               scripts:
-                prepare: 
+                prepare:
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
@@ -143,7 +143,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calcularunperiodo.sql
                 - fun-calcularvarios.sql
                 - fun-calculo_borrar.sql
-                - fun-calculo_controlarabierto.sql 
+                - fun-calculo_controlarabierto.sql
                 - fun-caldiv_bajar.sql
                 - fun-caldiv_contar.sql
                 - fun-caldiv_impext.sql
@@ -348,7 +348,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-revisor.sql
                 - vw-variaciones_maximas_vw.sql
                 - vw-variaciones_minimas_vw.sql
-          logo: 
+          logo:
             path: client/img
         `);
     }
@@ -518,7 +518,7 @@ class AppIpcba extends backendPlus.AppBackend{
                                 html.meta({charset:"utf-8"}),
                                 html.meta({name:"format-detection", content:"telephone=no"}),
                             ].concat(
-                                html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}), 
+                                html.link({rel:"stylesheet", href:`${baseUrl}/css/planificacion.css`}),
                             )),
                             html.body({},[
                                 html.div({id: "total-layout"},[
@@ -530,7 +530,7 @@ class AppIpcba extends backendPlus.AppBackend{
                                         html.p({class:'titulos-plan'}, 'Fecha Hasta: '),
                                         html.p({class:'container-fecha-2'}, htmlMaxfechavisible),
                                     ]),
-                                    html.div({class:"container-plan"},[                   
+                                    html.div({class:"container-plan"},[
                                         html.p({class:'titulos-plan'}, htmlTituloEncuestador),
                                         html.p({class:'container-encuestador'}, htmlCodigoEncuestador),
                                         html.p(htmlNombreEncuestador),
@@ -604,7 +604,7 @@ class AppIpcba extends backendPlus.AppBackend{
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-        
+
         jsonResult.version = APP_DM_VERSION;
         jsonResult.appName = 'ipcba';
         const especifico=[];
@@ -701,7 +701,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 //{menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta DM 1', showInOfflineMode: true, selectedByDefault: true},
                 //{menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
                 //    {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
-                //    {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},    
+                //    {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
                 //    {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 //]},
                 {menuType:'menu', name:'dm2', label:'DM 2.0', menuContent:[
@@ -743,7 +743,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'table', name:'instalaciones', showInOfflineMode: false},
             ], showInOfflineMode: true},
             {menuType:'menu', name:'administracion', label:'administración', menuContent:[
-                {menuType:'table', name:'prodatrval', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
+                {menuType:'table', name:'prodatrval_edit', label:'atributos seleccionables', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                 //{menuType:'table', name:'cierre_periodos', label:'cierre de períodos'},
                 {menuType:'table', name:'parametros', label:'parametros', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'cuadros', label: 'textos de los cuadros', onlyVisibleFor:[programador,coordinador,analista]},
@@ -783,7 +783,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'proc' , name:'controlvigencias_exportar'               , label:'atributo vigencia exp', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
-                    {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
+                    {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_precios_inconsistentes'         , label:'incompletitud', onlyVisibleFor:[programador,coordinador,analista]},
@@ -878,7 +878,7 @@ class AppIpcba extends backendPlus.AppBackend{
                         {menuType:'table', name:'periodos_relpre_1_sn'                            , label:'tipo de precio sin existencia/no vende'},
                         {menuType:'proc' , name:'relpre_exportar'                                 , label:'relpre exp'},
                         {menuType:'proc' , name:'calobs_ampliado_exportar'                        , label:'calobs ampliado'},
-        
+
                     ]},
                     {menuType:'proc', name:'revisor_exportar'  , label:'revisor'  , onlyVisibleFor:[programador]},
                     //{menuType:'menu', name:'atributos', label:'atributos', onlyVisibleFor:[programador,coordinador,analista], menuContent:[
@@ -890,8 +890,8 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'novdelobs', label:'observaciones'},
                 ]},
                 {menuType:'table', name:'relmon', label:'cotización moneda extranjera', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},                        
-            ], onlyVisibleFor:[programador,coordinador,analista,migracion,recepGabinete]},                
+                {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},
+            ], onlyVisibleFor:[programador,coordinador,analista,migracion,recepGabinete]},
             {menuType:'menu', name:'resultados', menuContent:[
                 {menuType:'table', name:'calgru_base', label:'vista de calgru base'},
                 {menuType:'table', name:'caldiv_base', label:'vista de caldiv base'},
@@ -919,7 +919,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType: 'table', name:'app_grupos_producto',label:'grupos_producto'},
                     {menuType: 'table', name:'app_productos',label:'productos'},
                     {menuType: 'table', name:'app_periodos',label:'periodos'},
-                ]},                
+                ]},
             ], onlyVisibleFor:[programador,coordinador,analista]},
             {menuType:'menu', name:'vista_tablas', label:'vista tablas', menuContent:[
                 {menuType:'table', name:'periodos_matrizresultados', label:'matrizresultados', onlyVisibleFor:[programador]},
@@ -1052,7 +1052,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var processItem = function processItem(item, index, menu){
             var itemExists = true;
             if(item.onlyVisibleFor){
-                var visibilityConfigResult = item.onlyVisibleFor.filter(function findByRole(visibilityConfig) { 
+                var visibilityConfigResult = item.onlyVisibleFor.filter(function findByRole(visibilityConfig) {
                     return visibilityConfig.role == currentUserRole;
                 });
                 if(visibilityConfigResult.length === 0){
@@ -1124,6 +1124,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'prerep', path: __dirname},
             {name: 'prodatr', path: __dirname},
             {name: 'prodatrval', path: __dirname},
+            {name: 'prodatrval_edit', path: __dirname},
             {name: 'divisiones', path: __dirname},
             {name: 'hogares', path: __dirname},
             {name: 'proddiv', path: __dirname},

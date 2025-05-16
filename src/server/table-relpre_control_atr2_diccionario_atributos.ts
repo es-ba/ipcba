@@ -46,7 +46,7 @@ export const relpre_control_atr2_diccionario_atributos = (context:Context):Table
                          join prodatr pa on a.producto = pa.producto and a.atributo = pa.atributo
                          join productos o on a.producto = o.producto
                          join relvis vis on pre.periodo = vis.periodo and pre.informante = vis.informante and pre.visita = vis.visita and pre.formulario = vis.formulario
-                         left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor and p.activo
+                         left join prodatrval p on a.producto = p.producto and a.atributo = p.atributo and a.valor = p.valor
                          left join tipopre t on pre.tipoprecio = t.tipoprecio
                          left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion
                                             and a.visita = aa.visita and aa.atributo = p.atributo_2
