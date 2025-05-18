@@ -358,7 +358,7 @@ function dm2CrearQueries(parameters, context){
                                     `SELECT atributo, valor, orden
                                         FROM prodatrval
                                         WHERE producto=pa.producto
-                                        AND atributo=pa.atributo
+                                        AND atributo=pa.atributo`,
                                     'orden, valor'
                                 )} as x_prodatrval
                                 FROM prodatr pa inner join especificaciones e using(producto)
@@ -402,7 +402,7 @@ function dm2CrearQueries(parameters, context){
             )} as razones
         FROM reltar rt
         WHERE rt.periodo=$1 AND rt.panel=$2 AND rt.tarea=$3
-        `,'periodo, panel, tarea')} as reltar`;
+    `;
     var sqlAtributos=`
         SELECT ra.periodo, ra.visita, ra.informante, rp.formulario, ra.producto, ra.observacion, ra.atributo,
                 ra.valor, ra.valor_1 as valoranterior, pa.orden, ba.valor as valoranteriorblanqueado

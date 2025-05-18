@@ -1,8 +1,10 @@
+set search_path = cvp;
+
 CREATE OR REPLACE FUNCTION validar_ingresando_trg()
     RETURNS trigger AS
 $BODY$
 DECLARE
-  vPeriodo_1     text;
+  vPeriodo_1     text;  
   vingresando_1  character varying(1);
   vIngresando    character varying(1); 
   vabierto       character varying(1);
@@ -18,7 +20,7 @@ DECLARE
   vseleccionadas integer;
   vfechas_visibles text;
   vfechas_seleccionadas text;
-
+  
 BEGIN
 
 SELECT CASE WHEN usu_rol = 'analista' THEN 1 END, CASE WHEN usu_rol in ('coordinador','programador') THEN 1 END INTO vesadministrador, vescoordinacion
@@ -82,7 +84,7 @@ IF OLD.ingresando IS DISTINCT FROM NEW.ingresando THEN
       IF vCantPreciosInconsistentes > 0 THEN
            RAISE EXCEPTION 'ERROR no se puede Cerrar el periodo "%" porque hay % registros de precios inconsistentes. Por ejemplo % ' ,new.periodo, vCantPreciosInconsistentes, vPreciosInconsistentes;
       END IF;
-
+        
       NEW.fecha_cierre_ingreso=CURRENT_TIMESTAMP(3);
       /*Blanquear de reltar al cerrar el periodo*/
       UPDATE cvp.reltar 
@@ -109,7 +111,7 @@ IF OLD.ingresando IS DISTINCT FROM NEW.ingresando THEN
       IF vingresando='N' THEN
         RAISE EXCEPTION 'ERROR no se puede reabrir porque el siguiente periodo "%" esta cerrado', vperiodo_1;
       END IF;
-  ELSE
+  ELSE 
      RAISE EXCEPTION 'ERROR Perfil no autorizado para realizar esta operacion "%" ', current_user;
   END IF;
 END IF;
@@ -117,9 +119,3 @@ RETURN NEW;
 END;
 $BODY$
   LANGUAGE 'plpgsql';
-
-CREATE TRIGGER periodos_controlar_ingresando_trg
-    BEFORE UPDATE
-    ON periodos
-    FOR EACH ROW
-    EXECUTE PROCEDURE validar_ingresando_trg();

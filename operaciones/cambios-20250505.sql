@@ -1,12 +1,22 @@
 set search_path = cvp;
+set role cvpowner;
 
 ALTER TABLE prodatrval
 RENAME TO prodatrval_edit;
 
+DROP TRIGGER prodatrval_modi_trg ON prodatrval_edit;
+
+CREATE OR REPLACE TRIGGER prodatrval_edit_modi_trg
+    BEFORE INSERT OR DELETE OR UPDATE 
+    ON cvp.prodatrval_edit
+    FOR EACH ROW
+    EXECUTE FUNCTION cvp.modi_trg();
+
+DROP TRIGGER hisc_trg ON prodatrval_edit;
+
 alter table prodatrval_edit add column activo boolean;
 
 ALTER TABLE prodatrval_edit DISABLE TRIGGER prodatrval_edit_modi_trg;
-ALTER TABLE prodatrval_edit DISABLE TRIGGER hisc_trg;
 
 UPDATE
     prodatrval_edit
@@ -14,7 +24,6 @@ SET
     activo = true;
 
 ALTER TABLE prodatrval_edit ENABLE TRIGGER prodatrval_edit_modi_trg;
-ALTER TABLE prodatrval_edit ENABLE TRIGGER hisc_trg;
 
 CREATE VIEW prodatrval AS
 SELECT producto, atributo, valor, orden, atributo_2, valor_2, modi_usu usuario, modi_fec::date fecha
@@ -124,3 +133,9 @@ BEGIN
       END IF;
 END;
 $BODY$;
+
+CREATE OR REPLACE TRIGGER hisc_trg
+    BEFORE INSERT OR DELETE OR UPDATE 
+    ON cvp.prodatrval_edit
+    FOR EACH ROW
+    EXECUTE FUNCTION cvp.hisc_prodatrval_edit_trg();
