@@ -6,7 +6,7 @@ RENAME TO prodatrval_edit;
 
 DROP TRIGGER prodatrval_modi_trg ON prodatrval_edit;
 
-CREATE OR REPLACE TRIGGER prodatrval_edit_modi_trg
+CREATE TRIGGER prodatrval_edit_modi_trg
     BEFORE INSERT OR DELETE OR UPDATE 
     ON cvp.prodatrval_edit
     FOR EACH ROW
@@ -134,7 +134,7 @@ BEGIN
 END;
 $BODY$;
 
-CREATE OR REPLACE TRIGGER hisc_trg
+CREATE TRIGGER hisc_trg
     BEFORE INSERT OR DELETE OR UPDATE 
     ON cvp.prodatrval_edit
     FOR EACH ROW

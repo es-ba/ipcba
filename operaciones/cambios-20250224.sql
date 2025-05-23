@@ -4,7 +4,7 @@ ALTER TABLE licencias ADD COLUMN modi_usu character varying(30);
 ALTER TABLE licencias ADD COLUMN modi_fec timestamp without time zone;
 ALTER TABLE licencias ADD COLUMN modi_ope character varying(1);
 
-CREATE OR REPLACE TRIGGER licencias_modi_trg
+CREATE TRIGGER licencias_modi_trg
     BEFORE INSERT OR DELETE OR UPDATE 
     ON cvp.licencias
     FOR EACH ROW
