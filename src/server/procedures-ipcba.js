@@ -1854,7 +1854,7 @@ ProceduresIpcba = [
                         ,[params.current_token]
                     ).fetchAll()
                     if(result.rowCount < params.hoja_de_ruta.informantes[0].formularios.length){
-                        let err = new Error(`Su token (${params.current_token}) ha expirado. Es probable que alguien alguien haya abierto la hoja de ruta desde otro dispositivo.`)
+                        let err = new Error(`Su token (${params.current_token}) ha expirado. Es probable que alguien haya abierto la hoja de ruta desde otro dispositivo.`)
                         err.code = 403;
                         throw err;
                     }
@@ -2151,13 +2151,19 @@ ProceduresIpcba = [
         parameters:[
             {name:'localStorageItem'       , typeName:'jsonb'},
             {name:'localStorageItemKey'    , typeName:'text'},
+            {name:'fileName'               , typeName:'text'},
         ],
         unlogged:true,
         coreFunction:async function(context, params){
-            var {localStorageItemKey, localStorageItem} = params;
+            const {localStorageItemKey, localStorageItem, fileName} = params;
+            const fileNamePartition = fileName.split(' ');
+            const filnamePartitio_0 = fileNamePartition[0];
+            const filnamePartitio_1 = fileNamePartition[1].replace(/:/g,'-');
+            const nombreCarpeta = './local-rescate';
+            const filePath = `${nombreCarpeta}/${filnamePartitio_0}_${filnamePartitio_1}_${context.username || 'unlogged'}.txt`;
             try{
-                console.log(localStorageItem);
-                await fs.appendFile('local-rescate.txt', JSON.stringify({now:new Date(),user:context.username, itemKey: localStorageItemKey, itemData: localStorageItem})+'\n\n', 'utf8');
+                await fs.mkdir(nombreCarpeta, { recursive: true });
+                await fs.appendFile(filePath, `localStorage.setItem("${localStorageItemKey}", ${JSON.stringify(localStorageItem)})\n\n`, 'utf8');
                 return 'ok';
             }catch(err){
                 console.log('ERROR',err);
