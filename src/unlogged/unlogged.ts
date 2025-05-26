@@ -1,4 +1,5 @@
 "use strict";
+import { datetime } from "best-globals";
 import {LOCAL_STORAGE_STATE_NAME, LOCAL_STORAGE_ESTRUCTURA_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 const ServiceWorkerAdmin = require("service-worker-admin");
@@ -11,7 +12,7 @@ var reloadWithoutHash = ()=>{
 window.addEventListener('load', async function(){
     var layout = document.getElementById('total-layout')!;
     if(!layout){
-        console.log('no encuentro el DIV.total-layout')
+        //console.log('no encuentro el DIV.total-layout')
         await myOwn.ready;
         layout = document.getElementById('total-layout')!;
     }
@@ -37,9 +38,9 @@ window.addEventListener('load', async function(){
     var startApp:()=>Promise<void> = async ()=>{};
     if(location.pathname.endsWith('/rescate')){
         try{
+            const fileName = `${datetime.now().toYmdHms()}`;
             for (let x in localStorage){
-                console.log(localStorage[x]);
-                await myOwn.ajax.dm2_rescatar({localStorageItem:localStorage[x], localStorageItemKey:x})
+                await myOwn.ajax.dm2_rescatar({localStorageItem:localStorage[x], localStorageItemKey:x, fileName:fileName})
                 layout.append(
                     html.p(`item "${x}" de localStogage guardado.`).create()
                 )
@@ -72,12 +73,12 @@ window.addEventListener('load', async function(){
                     var version = await swa.getSW('version');
                     myOwn.setLocalVar('ipc2.0-app-cache-version', version);
                     const {periodo, panel, tarea} = myOwn.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
-                    //@ts-ignore existe 
+                    //@ts-ignore existe
                     dmHojaDeRuta({addrParamsHdr:{periodo, panel, tarea}});
                 }
             }else{
                 startApp = async ()=>{
-                    //@ts-ignore existe 
+                    //@ts-ignore existe
                     dmPantallaInicial();
                 }
             }
@@ -96,7 +97,7 @@ window.addEventListener('load', async function(){
             var swa = new ServiceWorkerAdmin();
             swa.installOrActivate({
                 onEachFile: async (url, error)=>{
-                    console.log('file: ',url);
+                    //console.log('file: ',url);
                     document.getElementById('archivos')!.append(
                         html.div(url).create()
                     )

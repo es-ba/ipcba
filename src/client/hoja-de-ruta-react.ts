@@ -75,12 +75,12 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             my.setLocalVar('ipc2.0-vaciado',false);
             mainLayout.appendChild(html.p('Carga completa!, pasando a modo avion...').create());
             // @ts-ignore sabemos que hoja_ruta_2 es función
-            myOwn.wScreens.hoja_ruta_2({}); 
+            myOwn.wScreens.hoja_ruta_2({});
         })
     }
     if(hojaDeRutaEnOtroDispositivo){
         mainLayout.appendChild(html.div({},[
-            html.div({class:'danger'}, `El panel ${panel}, tarea ${tarea} se encuentra cargado en el  dispositivo ${ipad}, 
+            html.div({class:'danger'}, `El panel ${panel}, tarea ${tarea} se encuentra cargado en el  dispositivo ${ipad},
                 en poder de ${nombre} ${apellido} (${encuestador_instalacion}). Si continua no se podrá descargar
                 el dispositivo.`
             )
@@ -105,7 +105,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
             await confirmPromise(`confirma carga del período ${periodo}, panel ${panel}, tarea ${tarea}`);
             cargarFun();
         }catch(err){
-            mainLayout.appendChild(html.p('carga cancelada').create());    
+            mainLayout.appendChild(html.p('carga cancelada').create());
         }
     }
 }
@@ -168,7 +168,7 @@ myOwn.wScreens.sincronizar_dm2=async function(){
                 }catch(err){
                     loadButton.disabled=false;
                 }
-            }  
+            }
         }
     }else{
         mainLayout.appendChild(html.p('No hay token de instalación, por favor instale el dispositivo').create());
@@ -239,8 +239,8 @@ myOwn.wScreens.preparar_instalacion2={
                 if(ipadSinDescargar){
                     divResult.appendChild(
                         html.p({},[
-                            html.span({class:'danger'},'El encuestador ' + ipadSinDescargar.nombre_encuestador + 
-                            ' ' + ipadSinDescargar.apellido_encuestador + ' tiene el ipad ' + 
+                            html.span({class:'danger'},'El encuestador ' + ipadSinDescargar.nombre_encuestador +
+                            ' ' + ipadSinDescargar.apellido_encuestador + ' tiene el ipad ' +
                                 ipadSinDescargar.ipad + ' sin descargar, se perderán los datos del dispositivo!'
                             )
                         ])
@@ -253,8 +253,8 @@ myOwn.wScreens.preparar_instalacion2={
                 if(ipadAnteriorAsignado){
                     divResult.appendChild(
                         html.p({},[
-                            html.span({class:'warning'},'El encuestador ' + ipadAnteriorAsignado.nombre_encuestador + 
-                                ' ' + ipadAnteriorAsignado.apellido_encuestador + ' ya tiene el ipad ' + 
+                            html.span({class:'warning'},'El encuestador ' + ipadAnteriorAsignado.nombre_encuestador +
+                                ' ' + ipadAnteriorAsignado.apellido_encuestador + ' ya tiene el ipad ' +
                                 ipadAnteriorAsignado.ipad + ' asignado.'
                             )
                         ]).create()
@@ -452,7 +452,7 @@ myOwn.clientSides.abrir={
         depot.rowControls[fieldName].button.style.fontWeight = row.usuario ? 'normal' : 'bold';
         var tcolor = row.usuario ? 'white' : 'black';
         // var color = row.usuario ? '-internal-light-dark-color(rgb(255, 229, 229), rgb(74, 74, 74))' : '-internal-light-dark-color(rgb(239, 239, 239), rgb(74, 74, 74))';
-        var color = row.usuario ? 'red' :( 
+        var color = row.usuario ? 'red' :(
             row.cantpreciosinconsistentes>0 ? '#efaf7b' /* naranja */: (
             row.cantformulariosfaltantes==0 && row.cantpreciosfaltantes==0 ? '#8D8' /*verde*/: (
             row.cantformularioscompletos>0 || row.cantprecioscompletos>0 ? '#EE8' /*amarillo*/: (
@@ -491,7 +491,7 @@ myOwn.clientSides.abrir={
                                     return likeAr(filter.row).map((value, colname)=>{
                                         return {value:value, column:colname, operator: filter.rowSymbols[colname]}
                                     }).array()
-                                }) 
+                                })
                                 my.setSessionVar(FILTRO_RELEVAMIENTO, myFilters);
                             }else{
                                 my.removeSessionVar(FILTRO_RELEVAMIENTO);
@@ -510,6 +510,7 @@ myOwn.clientSides.abrir={
                         dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
                     }catch(err){
                         alertPromise(err.message);
+                        borrarDatosRelevamientoLocalStorage();
                         throw new Error(err.message);
                     }finally{
                         restablecerBotonAbrirFun()
@@ -527,7 +528,7 @@ myOwn.clientSides.abrir={
                     var mainDiv = html.div().create()
                     mainDiv.appendChild(
                         html.div({},[
-                            html.div({class:'danger'}, [`El panel ${panel}, tarea ${tarea}, informante ${informante} se encuentra cargado 
+                            html.div({class:'danger'}, [`El panel ${panel}, tarea ${tarea}, informante ${informante} se encuentra cargado
                                 en otro dispositivo. Si continua no se podrá descargar el mismo.`
                             ].concat(
                                 abierto.dispositivosAbiertos.map((openedForm:any)=>
@@ -567,7 +568,7 @@ myOwn.clientSides.abrir={
                 restablecerBotonAbrirFun();
                 throw err;
             }
-            
+
         }
         depot.rowControls[fieldName].button=openButton;
         depot.rowControls[fieldName].button.style.webkitAppearance='button';
