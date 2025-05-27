@@ -155,7 +155,7 @@ my.clientSides.control_rangos = {
         if(my.esValidoAtributo(depot.row)||my.esValorNormal(depot.row)){
             if(depot.rowControls.prodatr__rangodesde){
                 depot.rowControls.prodatr__rangodesde.style.fontWeight='';
-            }            
+            }
             if(depot.rowControls.prodatr__rangohasta){
                 depot.rowControls.prodatr__rangohasta.style.fontWeight='';
             }
@@ -177,13 +177,13 @@ my.clientSides.control_rangos = {
                 //Normalizable sin valor: #FF9333 (naranja)
                 if(my.esNormalizableSinValor(depot.row,precio)){
                     var td = depot.rowControls[fieldName];
-                    td.style.backgroundColor='#FF9333';    
+                    td.style.backgroundColor='#FF9333';
                 }
                 if(my.wait4preciosGridFromAtributos){
                     my.wait4preciosGridFromAtributos.then(function(preciosGrid){
                         var depot = preciosGrid.depots[0];
                         var fieldDef = depot.def.field['precio']
-                        my.clientSides[fieldDef.clientSide].update(depot, fieldDef.name);    
+                        my.clientSides[fieldDef.clientSide].update(depot, fieldDef.name);
                     })
                 }
             })
@@ -192,9 +192,9 @@ my.clientSides.control_rangos = {
                 td.style.backgroundColor='#FF9333';
             }
         }
-	
-        if(!depot.row.validar_con_prodatrval && depot.row.prodatr__validaropciones){  
-			td.style.backgroundColor='#FF9333';					
+
+        if(!depot.row.validar_con_prodatrval && depot.row.prodatr__validaropciones){
+			td.style.backgroundColor='#FF9333';
         }
 
     }
@@ -282,7 +282,7 @@ my.clientSides.control_precio = {
         var td = depot.rowControls[fieldName];
         td.style.backgroundColor='';
         if (depot.row.tipoprecio === 'S' && depot.row.sinpreciohace4meses === 'S'){
-            td.style.backgroundColor='#3399FF'; //azul            
+            td.style.backgroundColor='#3399FF'; //azul
         }
         var normsindato;
         var fueraderango;
@@ -321,7 +321,7 @@ my.clientSides.control_precio = {
             normsindato = depot.row.normsindato;
             fueraderango = depot.row.fueraderango;
         }
-        
+
         myPromise = myPromise.then(function(){
             var tieneAdvertencias;
             if(depot.row.precio &&
@@ -340,9 +340,9 @@ my.clientSides.control_precio = {
                 depot.row['adv'] = tieneAdvertencias;
                 depot.connector.saveRecord(depot,{});
             }
-            
-            if(!depot.row.validar_pav_y_o){  
-			    td.style.backgroundColor='#FF9333';					
+
+            if(!depot.row.validar_pav_y_o && depot.row['tipopre__espositivo'] == 'S'){
+			    td.style.backgroundColor='#FF9333';
             }
         });
     }
@@ -378,20 +378,20 @@ function wScreenExportarAppPrecios(ocasion, titulo){
                     html.div({class:'titulo-form'}, titulo),
                     html.table({class:'table-param-screen'},[
                         html.tr([
-                            html.td(), html.td([botonExportar]), 
+                            html.td(), html.td([botonExportar]),
                         ])
                     ]),
                     resultDiv,
                     progressDiv,
                 ]).create()
             );
-            
+
         },50);
     };
 }
 
-my.wScreens.exporta_precios=wScreenExportarAppPrecios('final', "Exportar precios a la app de precios (también hace copia local)"); 
-my.wScreens.exporta_precios_local=wScreenExportarAppPrecios('local', "Copiar los precios para revisar lo que se exportará a la app de precios"); 
+my.wScreens.exporta_precios=wScreenExportarAppPrecios('final', "Exportar precios a la app de precios (también hace copia local)");
+my.wScreens.exporta_precios_local=wScreenExportarAppPrecios('local', "Copiar los precios para revisar lo que se exportará a la app de precios");
 
 my.wScreens.mostrar_cuadros=function(addrParams){
     setTimeout(function(){
@@ -450,12 +450,12 @@ my.wScreens.mostrar_cuadros=function(addrParams){
                         html.td("agrupacion"), controlAgrupacion, html.td({style:'min-width:200px'})
                     ]),
                     html.tr([
-                        html.td(), html.td([botonVer]), 
+                        html.td(), html.td([botonVer]),
                     ])
                 ]),
                 resultDiv,
             ]).create()
-        );        
+        );
     },50);
 }
 my.wScreens.copia_calculo=function(addrParams){
@@ -471,7 +471,7 @@ my.wScreens.copia_calculo=function(addrParams){
             filterColumns:[
                 {column:'periodo', operator:'>=', value:'a2018m05'.replace(/\d\d\d\d/,function(annio){ return annio-1;})},
                 {column:'calculo', operator:'>' ,value:0},
-            ],        
+            ],
         }})
         botonCopiar.onclick=function(){
             my.ajax.calculo_copiar({
@@ -495,7 +495,7 @@ my.wScreens.copia_calculo=function(addrParams){
                         html.td("motivo de copia"), motivoCopia
                     ]),
                     html.tr([
-                        html.td(), html.td([botonCopiar]), 
+                        html.td(), html.td([botonCopiar]),
                     ])
                 ]),
                 resultDiv,
@@ -518,7 +518,7 @@ my.wScreens.calculo_borrar_copia=function(addrParams){
             filterColumns:[
                 {column:'periodo', operator:'>=', value:'a2018m05'.replace(/\d\d\d\d/,function(annio){ return annio-1;})},
                 {column:'calculo', operator:'>' ,value:0},
-            ],        
+            ],
         }})
         botonBorrar.onclick=function(){
             const miperiodo = controlPeriodo.getTypedValue();
@@ -547,7 +547,7 @@ my.wScreens.calculo_borrar_copia=function(addrParams){
                         html.td("calculo"), controlCalculo
                     ]),
                     html.tr([
-                        html.td(), html.td([botonBorrar]), 
+                        html.td(), html.td([botonBorrar]),
                     ])
                 ]),
                 resultDiv,
@@ -569,7 +569,7 @@ my.wScreens.filtravarios_caldiv=function(addrParams){
         var grid=my.tableGrid("caldiv",divGrilla,{tableDef:{
             filterColumns:[
                 {column:'periodo', operator:'>=', value:'a2018m05'.replace(/\d\d\d\d/,function(annio){ return annio-1;})},
-            ],        
+            ],
         }})
         */
         botonVer.onclick=function(){
@@ -611,7 +611,7 @@ my.wScreens.filtravarios_caldiv=function(addrParams){
                         html.td("hasta periodo"), hastaPeriodoElement, html.td({style:'min-width:200px'})
                     ]),
                     html.tr([
-                        html.td(), html.td([botonVer]), 
+                        html.td(), html.td([botonVer]),
                     ])
                 ]),
                 resultDiv,
@@ -647,7 +647,7 @@ my.wScreens.seleccion_supervision=function(addrParams){
                 if(!result){
                     var grid=my.tableGrid("relsup_a_elegir",divGrilla,{tableDef:{},fixedFields: fixedFields});
                 }else{
-                    var grid=my.tableGrid("relsup",divGrilla,{tableDef:{},fixedFields: fixedFields});                    
+                    var grid=my.tableGrid("relsup",divGrilla,{tableDef:{},fixedFields: fixedFields});
                 }
                 var otherGrid=my.tableGrid("reltar_candidatas",divOtherGrilla,{tableDef:{},fixedFields: fixedFields});
                 grid.refresh();
@@ -664,14 +664,14 @@ my.wScreens.seleccion_supervision=function(addrParams){
                 var fixedFields = [];
                 fixedFields.push({fieldName: 'periodo', value: periodo});
                 fixedFields.push({fieldName: 'panel', value: panel});
-                //console.log("otherResult", result);                    
+                //console.log("otherResult", result);
                 if(!result){
                     otherResultDiv.textContent=null;
                     var grid=my.tableGrid("reltar_candidatas",divOtherGrilla,{tableDef:{},fixedFields: fixedFields});
                     grid.refresh();
                 }else{
                     otherResultDiv.textContent=result;
-                    //console.log("otherResult", result);                    
+                    //console.log("otherResult", result);
                 }
             })
         }
@@ -688,13 +688,13 @@ my.wScreens.seleccion_supervision=function(addrParams){
                         html.td("panel"), supervisionPanelElement
                     ]),
                     html.tr([
-                        html.td(), html.td([botonPreparar]), 
+                        html.td(), html.td([botonPreparar]),
                     ])
                 ]),
                 divGrilla,
                 html.table({class:'table-selec-screen'},[
                     html.tr([
-                        html.td(), html.td([botonSeleccionar]), 
+                        html.td(), html.td([botonSeleccionar]),
                     ])
                 ]),
                 otherResultDiv,
@@ -786,14 +786,14 @@ myOwn.wScreens.matriz_de_un_producto={
         spanArray.push(html.span({id: "periodo"}, 'Periodo: ' + params.periodo));
         spanArray.push(html.span({id: "producto"}, 'Producto: ' + params.producto));
         layout.appendChild(html.div({id: "header-information"},spanArray).create());
-        
+
         var fixedFields = [];
         likeAr(params).forEach(function(value, attrName, object){
             fixedFields.push({fieldName: attrName, value: value});
-        });        
+        });
 
         var gridMatrizDiv = html.div({class: "grid-matriz"}).create();
-        layout.appendChild(gridMatrizDiv);  
+        layout.appendChild(gridMatrizDiv);
 
         var grid=my.tableGrid('matriz_de_un_producto',gridMatrizDiv,{tableDef:{
             hiddenColumns:['informantes__nombreinformante', 'informantes__tipoinformante'],
@@ -948,7 +948,7 @@ my.wScreens.buscar_informante=function(addrParams){
                         html.td("informante"), controlInformante
                     ]),
                     html.tr([
-                        html.td(), html.td([botonBuscar]), 
+                        html.td(), html.td([botonBuscar]),
                     ])
                 ]),
                 divGrilla,
@@ -979,7 +979,7 @@ my.wScreens.correr_periodobase=function(addrParams){
                 html.div({class:'titulo-form'},"Ejecutar Periodo Base"),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td(), html.td([botonCorrerPb]), 
+                        html.td(), html.td([botonCorrerPb]),
                     ])
                 ]),
                 divGrilla,
@@ -1123,7 +1123,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
                 var gridHasta=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
                 gridHasta.refresh();
-            })            
+            })
         }
         botonCambiarHasta.onclick=function(){
             var periodoDesde = controlPeriodoDesde.getTypedValue();
@@ -1156,7 +1156,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
                 var gridHasta=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
                 gridHasta.refresh();
-            })            
+            })
         }
         botonIntercambiar.onclick=function(){
             var periodoDesde = controlPeriodoDesde.getTypedValue();
@@ -1189,7 +1189,7 @@ my.wScreens.cambiar_paneltarea=function(addrParams){
                 fixedFields.push({fieldName: 'otratarea', value: tareaDesde});
                 var gridHasta=my.tableGrid("relvis_pt",divGrillaHasta,{tableDef:{},fixedFields: fixedFields});
                 gridHasta.refresh();
-            })            
+            })
         }
         TypedControls.adaptElement(controlPeriodoDesde   ,{typeName:'text'   , references:'periodos'});
         TypedControls.adaptElement(controlPanelDesde     ,{typeName:'integer'                       });
@@ -1324,8 +1324,8 @@ my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
             result.fecha_backup && result.backup?html.p({},[
                 html.h2({ id:'restaurar-backup-detalle'}, `backup disponible`),
                 html.p({id:RESULTADO_ELEMENT_ID}),
-                backupButton, 
-                waitGif, 
+                backupButton,
+                waitGif,
                 backupDiv,
             ]):html.p({},null),
         ]).create()
@@ -1352,7 +1352,7 @@ my.wScreens.planificar_armado=function(addrParams){
                 html.div({class:'titulo-form'},"planificar"),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td(), html.td([botonArmado]), 
+                        html.td(), html.td([botonArmado]),
                     ]),
                 ]),
                 resultDiv,
@@ -1397,13 +1397,13 @@ my.wScreens.planificar_recepcion=function(addrParams){
                 html.div({class:'titulo-form'},"planificar recepción"),
                 html.table({class:'table-param-screen'},[
                     html.tr([
-                        html.td(), html.td([botonRecepcion]), 
+                        html.td(), html.td([botonRecepcion]),
                     ]),
                     html.tr([
                         html.td("encuestador"), controlEncuestador, html.td({style:'min-width:100px'})
                     ]),
                     html.tr([
-                        html.td(), html.td([botonEnvio]), 
+                        html.td(), html.td([botonEnvio]),
                     ]),
                 ]),
                 resultDiv,
