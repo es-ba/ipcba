@@ -340,8 +340,7 @@ my.clientSides.control_precio = {
                 depot.row['adv'] = tieneAdvertencias;
                 depot.connector.saveRecord(depot,{});
             }
-
-            if(!depot.row.validar_pav_y_o && depot.row['tipopre__espositivo'] == 'S'){
+            if(!depot.row.validar_pav_y_o && depot.row.tipopre__espositivo === 'S'){
 			    td.style.backgroundColor='#FF9333';
             }
         });

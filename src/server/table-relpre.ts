@@ -58,8 +58,9 @@ export const relpre = (context:Context):TableDefinition => {
             {references:'periodos', fields:['periodo']},
             {references:'productos', fields:['producto']},
             {references:'relvis', fields:['periodo', 'informante', 'visita', 'formulario']},
-            {references:'tipopre', fields:['tipoprecio']},
+            {references:'tipopre', fields:['tipoprecio'], displayFields: ['espositivo']},
         ],
+        hiddenColumns:['tipopre__espositivo'],
         sortColumns:[{column:'orden'},{column:'observacion'}],
         detailTables:[
             {table:'relatr', abr:'ATR', label:'atributos', fields:['periodo','producto','observacion','informante','visita'], refreshParent: true},
