@@ -500,6 +500,7 @@ export function hdrEstaDescargada(){
 export async function hacerBackup(hdr:HojaDeRuta){
     var message:string='no hay token, no se envió el backup';
     var token_instalacion = my.getLocalVar('ipc2.0-token_instalacion');
+    var token_instalacion_grilla_relevamiento = my.getLocalVar(TOKEN_LOCALSTORAGE_NAME);
     if(token_instalacion){
         var hoja_de_ruta = hdr;
         try{
@@ -510,6 +511,17 @@ export async function hacerBackup(hdr:HojaDeRuta){
         }catch(err){
             message=err.message;
         }
+    }else{
+        if(token_instalacion_grilla_relevamiento){
+            var hoja_de_ruta = hdr;
+            try{
+                message = await my.ajax.grilla_relevamiento_backup_hacer({
+                    token_instalacion,
+                    hoja_de_ruta,
+                });
+            }catch(err){
+                message=err.message;
+            }
     }
     console.log(message)
     return message;

@@ -2097,6 +2097,44 @@ ProceduresIpcba = [
         }
     },
     {
+        action: 'grilla_relevamiento_backup_hacer',
+        parameters:[
+            {name:'token_instalacion'  , typeName:'text' },
+            {name:'hoja_de_ruta'       , typeName:'jsonb'},
+        ],
+        coreFunction:async function(context, params){
+            var token = params.token_instalacion;
+            try{
+                try{
+                    //validar el token en relvis
+                    //select * from relvis where token = token
+                    
+                }catch(err){
+                    if(err.code=='54011!'){
+                        throw new Error(`No se encuentra el token_instalacion ${token}. Quizas la persona tiene otro dipopsitivo activo`);
+                    }
+                }
+                try{
+                    //primaryKey:['periodo','informante','visita','panel','tarea'],
+                    await context.client.query(
+                        `update relpantarinf
+                            set fecha_backup = current_timestamp, backup = $2
+                            where --pk relpantarinf
+                            returning 'ok'`
+                    ,[params.hoja_de_ruta]).fetchUniqueValue();
+                }catch(err){
+                    if(err.code=='54011!'){
+                        throw new Error(`No se encuentra el el regristro de relpantarinf`);
+                    }
+                }
+                return 'backup completado';
+            }catch(err){
+                console.log('ERROR',err);
+                throw err;
+            }
+        }
+    },
+    {
         action: 'dm2_backup_pre_recuperar',
         parameters:[
             {name:'periodo'  , typeName:'text', references:'periodos' },
