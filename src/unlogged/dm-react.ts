@@ -6,6 +6,12 @@ import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reduc
 import * as JSON4all from "json4all";
 import * as likeAr from "like-ar";
 
+declare global {
+    interface Window {
+        ultimoStore: number;
+    }
+}
+
 var deepFreeze = <T extends any>(x:T)=>x;
 
 var my=myOwn;
@@ -13,6 +19,15 @@ var my=myOwn;
 export const LOCAL_STORAGE_STATE_NAME = 'ipc2.0-store-r1';
 export const LOCAL_STORAGE_DIRTY_NAME = LOCAL_STORAGE_STATE_NAME + '_dirty';
 export const LOCAL_STORAGE_ESTRUCTURA_NAME = 'ipc2.0-estructura';
+export const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
+const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
+const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
+const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
+const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
+export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
+export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
+
+export const getTokenRelevamiento = ():string|null=> my.getLocalVar(TOKEN_LOCALSTORAGE_NAME);
 
 export function hayHojaDeRuta(){
     var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
@@ -29,8 +44,8 @@ type NextID = string | false;
 var estructura:Estructura = null;
 
 var defaultAction = function defaultAction(
-    hdrState:HojaDeRuta, 
-    payload:{nextId:NextID}, 
+    hdrState:HojaDeRuta,
+    payload:{nextId:NextID},
 ){
     return deepFreeze({
         ...hdrState,
@@ -41,8 +56,8 @@ var defaultAction = function defaultAction(
     })
 };
 const surfRelInf = (
-    hdrState:HojaDeRuta, 
-    payload:{forPk:{informante:number}}, 
+    hdrState:HojaDeRuta,
+    payload:{forPk:{informante:number}},
     relInfReducer:(relInfState:RelInf)=>RelInf
 )=>(
     {
@@ -58,8 +73,8 @@ const surfRelInf = (
     }
 );
 const surfRelVis = (
-    hdrState:HojaDeRuta, 
-    payload:{forPk:{informante:number, formulario:number}}, 
+    hdrState:HojaDeRuta,
+    payload:{forPk:{informante:number, formulario:number}},
     relVisReducer:(productoState:RelVis)=>RelVis
 )=>(
     surfRelInf(hdrState, payload, relInf=>({
@@ -72,7 +87,7 @@ const surfRelVis = (
     }))
 );
 const surfRelPre = (
-    hdrState:HojaDeRuta, 
+    hdrState:HojaDeRuta,
     payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     relPreReducer:(productoState:RelPre)=>RelPre
 )=>{
@@ -92,7 +107,7 @@ const surfRelPre = (
     }
     return surfRelInf(hdrState, payload, relInf=>{
         var i = payload.iRelPre;
-        if(i != undefined && 
+        if(i != undefined &&
             (relInf.observaciones[i].producto != payload.forPk.producto || relInf.observaciones[i].observacion != payload.forPk.observacion )
         ){
             throw new Error('iRelPre en una posición no esperada');
@@ -113,7 +128,7 @@ const surfRelPre = (
     })
 };
 var setTP = function setTP(
-    hdrState:HojaDeRuta, 
+    hdrState:HojaDeRuta,
     payload:{forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number},
     tipoPrecioRedux:(relPre:RelPre)=>string|null
 ){
@@ -136,7 +151,7 @@ var calcularListas=function(otrosFormulariosInformanteIdx: {[key: string]: RelVi
 var setDirty = () => my.setLocalVar(LOCAL_STORAGE_DIRTY_NAME, true);
 
 var reducers={
-    SET_OBSERVACION_INFORMANTE: (payload: {forPk:{informante:number}, observaciones_campo:string|null}) => 
+    SET_OBSERVACION_INFORMANTE: (payload: {forPk:{informante:number}, observaciones_campo:string|null}) =>
         function(state: HojaDeRuta){
             return surfRelInf(state, payload, (miRelInf:RelInf)=>{
                 if(miRelInf.observaciones_campo != payload.observaciones_campo){
@@ -148,7 +163,7 @@ var reducers={
                 }
             });
         },
-    SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) => 
+    SET_RAZON            : (payload: {forPk:{informante:number, formulario:number}, razon:number|null}) =>
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 if(miRelVis.razon != payload.razon){
@@ -160,7 +175,7 @@ var reducers={
                 }
             });
         },
-    SET_COMENTARIO_RAZON : (payload: {forPk:{informante:number, formulario:number}, comentarios:string|null}) => 
+    SET_COMENTARIO_RAZON : (payload: {forPk:{informante:number, formulario:number}, comentarios:string|null}) =>
         function(state: HojaDeRuta){
             return surfRelVis(state, payload, (miRelVis:RelVis)=>{
                 if(miRelVis.comentarios != payload.comentarios){
@@ -172,15 +187,15 @@ var reducers={
                 }
             });
         },
-    SET_TP               : (payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) => 
+    SET_TP               : (payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, tipoprecio:string|null}) =>
         function(state: HojaDeRuta){
             return setTP(state, payload, _ => payload.tipoprecio);
         },
-    COPIAR_TP            :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_TP            :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) =>
         function(state: HojaDeRuta){
             return setTP(state, payload, relPre => puedeCopiarTipoPrecio(estructura!, relPre)?relPre.tipoprecioanterior:relPre.tipoprecio)
         },
-    SET_PRECIO           :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) => 
+    SET_PRECIO           :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, precio:number|null}) =>
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 if(miRelPre.precio != payload.precio){
@@ -196,7 +211,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_COMENTARIO_PRECIO:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) => 
+    SET_COMENTARIO_PRECIO:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number, comentario:string|null}) =>
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (miRelPre:RelPre)=>{
                 if(miRelPre.comentariosrelpre != payload.comentario){
@@ -209,7 +224,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS     :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) =>
         function(state: HojaDeRuta){
             setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
@@ -226,7 +241,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    COPIAR_ATRIBUTOS_VACIOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    COPIAR_ATRIBUTOS_VACIOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) =>
         function(state: HojaDeRuta){
             setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
@@ -239,7 +254,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    BLANQUEAR_ATRIBUTOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) => 
+    BLANQUEAR_ATRIBUTOS:(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number}, iRelPre:number}) =>
         function(state: HojaDeRuta){
             setDirty();
             return surfRelPre(state, payload, (relPre:RelPre)=>{
@@ -252,7 +267,7 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) => 
+    SET_ATRIBUTO         :(payload: {forPk:{informante:number, formulario:number, producto:string, observacion:number, atributo:number}, iRelPre:number, valor:string|number|null}) =>
         function(state: HojaDeRuta){
             return surfRelPre(state, payload, (relPre:RelPre)=>{
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){
@@ -273,15 +288,15 @@ var reducers={
                 return nuevoRelPre;
             });
         },
-    SET_FOCUS            :(payload: {nextId: NextID}) => 
+    SET_FOCUS            :(payload: {nextId: NextID}) =>
         function(state: HojaDeRuta){
             return defaultAction(state, payload)
-        },    
-    SET_ZOOMIN           :(payload: {nextId: NextID}) => 
+        },
+    SET_ZOOMIN           :(payload: {nextId: NextID}) =>
         function(state: HojaDeRuta){
             return defaultAction(state, payload)
-        },    
-    UNSET_FOCUS          :(payload: {unfocusing: string}) => 
+        },
+    UNSET_FOCUS          :(payload: {unfocusing: string}) =>
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
@@ -290,8 +305,8 @@ var reducers={
                     idActual:state.opciones.idActual==payload.unfocusing?false:state.opciones.idActual
                 }
             })
-        },    
-    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) => 
+        },
+    SET_FORMULARIO_ACTUAL:(payload: {informante:number, formulario:number}) =>
         function(state: HojaDeRuta){
             window.ultimoStore=0;
             var {queVer} = state.opciones;
@@ -315,7 +330,7 @@ var reducers={
                 }
             })
         },
-    UNSET_FORMULARIO_ACTUAL:(_payload: {}) => 
+    UNSET_FORMULARIO_ACTUAL:(_payload: {}) =>
         function(state: HojaDeRuta){
             window.ultimoStore=0;
             return deepFreeze({
@@ -328,14 +343,14 @@ var reducers={
                 }
             })
         },
-    SET_OPCION:(payload: {variable:string, valor:any}) => 
+    SET_OPCION:(payload: {variable:string, valor:any}) =>
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
                 opciones:{...state.opciones, [payload.variable]:payload.valor}
             })
         },
-    SET_QUE_VER:(payload: {queVer:QueVer, informante: number, formulario: number, searchString:string, allForms:boolean, compactar:boolean}) => 
+    SET_QUE_VER:(payload: {queVer:QueVer, informante: number, formulario: number, searchString:string, allForms:boolean, compactar:boolean}) =>
         function(state: HojaDeRuta){
             var {queVer, searchString, allForms, compactar} = payload;
             var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
@@ -346,7 +361,7 @@ var reducers={
             return deepFreeze({
                 ...state,
                 opciones:{
-                    ...state.opciones, 
+                    ...state.opciones,
                     observacionesFiltradasIdx,
                     observacionesFiltradasEnOtrosIdx,
                     queVer,
@@ -357,7 +372,7 @@ var reducers={
                 }
             })
         },
-    SET_FORM_POSITION:(payload: {formulario:number, position:number}) => 
+    SET_FORM_POSITION:(payload: {formulario:number, position:number}) =>
         function(state: HojaDeRuta){
             var posiciones:{formulario: number, position: number}[] = [
                 ...state.opciones.posFormularios,
@@ -376,7 +391,7 @@ var reducers={
                 }
             })
         },
-    RESET_OPCIONES:(_payload: {}) => 
+    RESET_OPCIONES:(_payload: {}) =>
         function(state: HojaDeRuta){
             return deepFreeze({
                 ...state,
@@ -478,7 +493,7 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
     /* FIN CARGA Y GUARDADO DE STATE */
 
     /* CREACION STORE */
-    const store = createStore(hdrReducer, loadState()); 
+    const store = createStore(hdrReducer, loadState());
     store.subscribe(function(){
         saveState(store.getState());
     });
@@ -486,7 +501,7 @@ export async function dmTraerDatosHdr(optsHdr:OptsHdr){
 
     //HDR CON STORE CREADO
     return {store, estructura:estructura!};
-   
+
 }
 
 export function getCacheVersion(){
@@ -498,32 +513,52 @@ export function hdrEstaDescargada(){
 }
 
 export async function hacerBackup(hdr:HojaDeRuta){
-    var message:string='no hay token, no se envió el backup';
-    var token_instalacion = my.getLocalVar('ipc2.0-token_instalacion');
+    let message:string='no hay token, no se envió el backup';
+    const token_instalacion = my.getLocalVar('ipc2.0-token_instalacion');
+    const token_instalacion_grilla_relevamiento = getTokenRelevamiento();
+
     if(token_instalacion){
-        var hoja_de_ruta = hdr;
+        const hoja_de_ruta = hdr;
         try{
             message = await my.ajax.dm2_backup_hacer({
                 token_instalacion,
                 hoja_de_ruta,
             });
         }catch(err){
-            message=err.message;
+            if (err && typeof err === 'object' && 'message' in err) {
+                message = (err as { message: string }).message;
+            } else {
+                message = String(err);
+            }
+        }
+    }else{
+        if(token_instalacion_grilla_relevamiento){
+            const hoja_de_ruta = hdr;
+            try{
+                message = await my.ajax.grilla_relevamiento_backup_hacer({
+                    token_instalacion_grilla_relevamiento,
+                    hoja_de_ruta,
+                });
+            }catch(err){
+                if (err && typeof err === 'object' && 'message' in err) {
+                    message = (err as { message: string }).message;
+                } else {
+                    message = String(err);
+                }
+            }
         }
     }
-    console.log(message)
     return message;
 }
-
 /*RELEVAMIENTO DIRECTO*/
 
 var redirectIfNotLogged = function redirectIfNotLogged(err:Error){
     if(err.message == my.messages.notLogged){
         setTimeout(()=>{
             history.replaceState(null, '', `${location.origin+location.pathname}/../login#i=relevamiento`);
-            location.reload();   
+            location.reload();
         },1500)
-        
+
     }
 }
 
@@ -544,16 +579,6 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
     }
     return {code, message};
 }
-
-export const HDR_OPENED_LOCALSTORAGE_NAME = 'relevamiento_abierto';
-const HDR_PERIODO_LOCALSTORAGE_NAME = 'relevamiento_periodo_abierto';
-const HDR_PANEL_LOCALSTORAGE_NAME = 'relevamiento_panel_abierto';
-const HDR_TAREA_LOCALSTORAGE_NAME = 'relevamiento_tarea_abierto';
-const HDR_INFORMANTE_LOCALSTORAGE_NAME = 'relevamiento_informante_abierto';
-export const ESTRUCTURA_LOCALSTORAGE_NAME = 'relevamiento_estructura';
-export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
-
-export const getTokenRelevamiento = ():string|null=> my.getLocalVar(TOKEN_LOCALSTORAGE_NAME);
 
 export function registrarRelevamientoAbiertoLocalStorage(periodo: string, panel:number, tarea:number, informante:number, hdr: HojaDeRuta, estructura: Estructura, token:string){
     my.setLocalVar(HDR_OPENED_LOCALSTORAGE_NAME, true);
@@ -588,8 +613,8 @@ export async function borrarDatosRelevamientoLocalStorage(){
 }
 
 export function hayHdrRelevando(){
-    return !!my.getLocalVar(HDR_OPENED_LOCALSTORAGE_NAME) && 
-           !!my.getLocalVar(LOCAL_STORAGE_STATE_NAME) && 
+    return !!my.getLocalVar(HDR_OPENED_LOCALSTORAGE_NAME) &&
+           !!my.getLocalVar(LOCAL_STORAGE_STATE_NAME) &&
            !!my.getLocalVar(ESTRUCTURA_LOCALSTORAGE_NAME);
 }
 
