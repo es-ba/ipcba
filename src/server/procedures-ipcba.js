@@ -1925,7 +1925,6 @@ ProceduresIpcba = [
                     var hoja_de_ruta = params.hoja_de_ruta;
                     for(var informante of hoja_de_ruta.informantes){
                         try{
-                            console.log("informante", informante)
                             await context.client.query(`
                                 update relpantarinf
                                     set observaciones_campo = $1
@@ -2086,7 +2085,7 @@ ProceduresIpcba = [
                     ,[idInstalacion, params.hoja_de_ruta]).fetchUniqueValue();
                 }catch(err){
                     if(err.code=='54011!'){
-                        throw new Error(`No se encuentra el la instalación ${idInstalacion} en reltar`);
+                        throw new Error(`No se encuentra la instalación ${idInstalacion} en reltar`);
                     }
                 }
                 return 'backup completado';
@@ -2099,34 +2098,42 @@ ProceduresIpcba = [
     {
         action: 'grilla_relevamiento_backup_hacer',
         parameters:[
-            {name:'token_instalacion'  , typeName:'text' },
+            {name:'token_instalacion_grilla_relevamiento'  , typeName:'text' },
             {name:'hoja_de_ruta'       , typeName:'jsonb'},
         ],
         coreFunction:async function(context, params){
-            var token = params.token_instalacion;
+            const token = params.token_instalacion_grilla_relevamiento;
             try{
-                try{
-                    //validar el token en relvis
-                    //select * from relvis where token = token
-                    
-                }catch(err){
-                    if(err.code=='54011!'){
-                        throw new Error(`No se encuentra el token_instalacion ${token}. Quizas la persona tiene otro dipopsitivo activo`);
-                    }
+                const relevamientoResult = await context.client.query(
+                    `SELECT * FROM relvis WHERE token_relevamiento = $1`,
+                    [token]
+                ).fetchAll();
+
+                if (relevamientoResult.rows.length === 0) {
+                    throw new Error(`No se encuentra el token ${token}.`);
                 }
-                try{
-                    //primaryKey:['periodo','informante','visita','panel','tarea'],
-                    await context.client.query(
-                        `update relpantarinf
-                            set fecha_backup = current_timestamp, backup = $2
-                            where --pk relpantarinf
-                            returning 'ok'`
-                    ,[params.hoja_de_ruta]).fetchUniqueValue();
-                }catch(err){
-                    if(err.code=='54011!'){
-                        throw new Error(`No se encuentra el el regristro de relpantarinf`);
-                    }
+
+                const relevamiento = relevamientoResult.rows[0];
+
+                const backupResult = await context.client.query(
+                    `UPDATE relpantarinf
+                    SET fecha_backup = current_timestamp, backup = $1
+                    WHERE periodo = $2 AND informante = $3 AND visita = $4 AND panel = $5 AND tarea = $6
+                    RETURNING 'ok'`,
+                    [
+                        params.hoja_de_ruta,
+                        relevamiento.periodo,
+                        relevamiento.informante,
+                        relevamiento.visita,
+                        relevamiento.panel,
+                        relevamiento.tarea
+                    ]
+                ).fetchUniqueValue();
+
+                if (!backupResult?.value) {
+                    throw new Error(`No se encuentra el registro en relpantarinf.`);
                 }
+
                 return 'backup completado';
             }catch(err){
                 console.log('ERROR',err);

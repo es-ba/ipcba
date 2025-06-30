@@ -21,6 +21,8 @@ module.exports = function(context){
             {name:'fechasalidahasta'       , typeName:'date'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'codobservaciones'       , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
             {name:'recuperos'              , typeName:'text'                    , allow:{update:puedeEditar}, inTable:true},
+            {name:'fecha_backup'           , typeName:'timestamp'               , allow:{update:false}},
+            {name:'backup'                 , typeName:'jsonb'                   , allow:{select:false}},
         ],
         primaryKey:['periodo','informante','visita','panel','tarea'],
         foreignKeys:[
