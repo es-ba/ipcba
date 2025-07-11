@@ -786,7 +786,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
-                    {menuType:'table', name:'periodos_precios_inconsistentes'         , label:'incompletitud', onlyVisibleFor:[programador,coordinador,analista]},
+                    {menuType:'table', name:'periodos_precios_inconsistentes'         , label:'incompletitud', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
                     {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_control_comentariosrelpre'      , label:'comentarios por producto', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
                 ], onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,recepGabinete,supervisor]},
