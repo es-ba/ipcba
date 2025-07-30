@@ -11,7 +11,7 @@ var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
 
-const APP_DM_VERSION="#25-04-24";
+const APP_DM_VERSION="#25-06-17";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -799,6 +799,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     {menuType:'table', name:'periodos_reltar', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista,jefeRecepcion]},
                     {menuType:'table', name:'periodos_submod', label:'submodalidad', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,supervisor,recepcionista,jefeRecepcion]},
                     {menuType:'proc' , name:'dm2_backup_pre_recuperar', label:'recuperar backup', onlyVisibleFor:[programador,analista,coordinador]},
+                    {menuType:'proc' , name:'relevamiento_backup_pre_recuperar', label:'recuperar backup relevamiento', onlyVisibleFor:[programador,analista,coordinador]},
                 ]},
                 {menuType:'menu', name:'planificacion', menuContent:[
                     {menuType:'table'     ,  name:'licencias', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,jefeRecepcion]},

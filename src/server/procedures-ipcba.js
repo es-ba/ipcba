@@ -1925,7 +1925,6 @@ ProceduresIpcba = [
                     var hoja_de_ruta = params.hoja_de_ruta;
                     for(var informante of hoja_de_ruta.informantes){
                         try{
-                            console.log("informante", informante)
                             await context.client.query(`
                                 update relpantarinf
                                     set observaciones_campo = $1
@@ -2086,12 +2085,59 @@ ProceduresIpcba = [
                     ,[idInstalacion, params.hoja_de_ruta]).fetchUniqueValue();
                 }catch(err){
                     if(err.code=='54011!'){
-                        throw new Error(`No se encuentra el la instalación ${idInstalacion} en reltar`);
+                        throw new Error(`No se encuentra la instalación ${idInstalacion} en reltar`);
                     }
                 }
                 return 'backup completado';
             }catch(err){
                 console.log('ERROR',err);
+                throw err;
+            }
+        }
+    },
+    {
+        action: 'grilla_relevamiento_backup_hacer',
+        parameters:[
+            {name:'token_instalacion_grilla_relevamiento'  , typeName:'text' },
+            {name:'hoja_de_ruta'       , typeName:'jsonb'},
+        ],
+        coreFunction:async function(context, params){
+            const token = params.token_instalacion_grilla_relevamiento;
+            try{
+                const {row: relevamiento} = await context.client.query(
+                    `SELECT * FROM relvis WHERE token_relevamiento = $1 limit 1`,
+                    [token]
+                ).fetchOneRowIfExists();
+                if(!relevamiento){
+                    throw new Error(`No se encontró un registro en relvis con el token_relevamiento ${token}.`);
+                }
+                else{
+                    try{
+                        await context.client.query(
+                            `UPDATE relpantarinf
+                            SET token_relevamiento_backup = $1, encuestador_backup = $2, fecha_backup = current_timestamp, backup = $3
+                            WHERE periodo = $4 AND panel = $5 AND tarea = $6 AND informante = $7 AND visita = $8
+                            RETURNING 'ok'`,
+                            [
+                                token,
+                                relevamiento.encuestador,
+                                params.hoja_de_ruta,
+                                relevamiento.periodo,
+                                relevamiento.panel,
+                                relevamiento.tarea,
+                                relevamiento.informante,
+                                relevamiento.visita,
+                            ]
+                        ).fetchUniqueValue();
+                    }catch(err){
+                        if(err.code=='54011!'){
+                            throw new Error(`No se encuentra el registro en relpantarinf para el periodo: ${relevamiento.periodo}, informante: ${relevamiento.informante}, visita: ${relevamiento.visita}, panel: ${relevamiento.panel}, tarea: ${relevamiento.tarea}.`);
+                        }
+                        throw err;
+                    }
+                }
+                return 'backup completado';
+            }catch(err){
                 throw err;
             }
         }
@@ -2114,6 +2160,29 @@ ProceduresIpcba = [
                 return reltarRecord;
             }catch(err){
                 throw Error("No se encuentra registro en reltar para ese periodo, panel, tarea. " + err.message)
+            }
+        }
+    },
+    {
+        action: 'relevamiento_backup_pre_recuperar',
+        parameters:[
+            {name:'periodo'   , typeName:'text', references:'periodos' },
+            {name:'panel'     , typeName:'integer' },
+            {name:'tarea'     , typeName:'integer' },
+            {name:'informante', typeName:'integer' },
+            {name:'visita'    , typeName:'integer', defaultValue: 1 },
+        ],
+        resultOk:'mostrar_datos_backup_relevamiento',
+        roles:['programador','analista','coordinador'],
+        coreFunction:async function(context, params){
+            const {periodo, informante, visita, panel, tarea} = params;
+            try{
+                return (await context.client.query(
+                    `select * from relpantarinf where periodo = $1 and informante = $2 and visita = $3 and panel = $4 and tarea = $5`,
+                    [periodo, informante, visita, panel, tarea]
+                ).fetchUniqueRow()).row;
+            }catch(err){
+                throw Error(`No se encuentra registro en relpantarinf para el periodo: ${periodo}, informante: ${informante}, visita: ${visita}, panel: ${panel}, tarea: ${tarea}. ` + err.message)
             }
         }
     },

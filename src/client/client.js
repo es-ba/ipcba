@@ -1331,6 +1331,57 @@ my.wScreens.proc.result.mostrar_datos_backup=function(result, divResult){
     );
     my.agregar_json(backupDiv, result.backup)
 }
+my.wScreens.proc.result.mostrar_datos_backup_relevamiento=function(result, divResult){
+    const RESULTADO_ELEMENT_ID = 'restaurar-backup-resultado';
+    let backupButton = html.button({id:'recuperar-backup'},'recuperar backup').create();
+    let waitGif=html.img({src:'img/loading16.gif'}).create();
+    waitGif.style.display = 'none';
+    backupButton.onclick = function(){
+        let resultadoElement = document.getElementById(RESULTADO_ELEMENT_ID);
+        resultadoElement.innerHTML='';
+        backupButton.disabled=true;
+        waitGif.style.display = 'block';
+        my.ajax.dm2_descargar({
+            token_instalacion: null,
+            hoja_de_ruta: result.backup,
+            custom_data: true,
+            current_token: result.token_relevamiento_backup
+        }).then(function(resultadoBackup){
+            backupButton.disabled=false;
+            waitGif.style.display = 'none';
+            resultadoElement.appendChild(
+                html.p({id:'restaurar-backup-resultado'}, resultadoBackup).create(),
+            )
+        }).catch(function(err){
+            console.log(err.message);
+            resultadoElement.appendChild(
+                html.p({id:'restaurar-backup-resultado'}, err.message).create(),
+            )
+            backupButton.disabled=false;
+            waitGif.style.display = 'none';
+        });
+    }
+    let backupDiv = html.div({id:'backup-div'}).create();
+    divResult.appendChild(
+        html.div({id:'estado-backup'},[
+            html.h2({ id:'restaurar-backup-reltar'}         , `información relpantarinf`),
+            html.div({id:'restaurar-backup-periodo'}        , `periodo: ${result.periodo}`),
+            html.div({id:'restaurar-backup-panel'}          , `panel: ${result.panel}`),
+            html.div({id:'restaurar-backup-tarea'}          , `tarea: ${result.tarea}`),
+            html.div({id:'restaurar-backup-visita'}         , `visita: ${result.visita}`),
+            result.fecha_backup && result.backup?html.div({},[
+                html.h2({ id:'restaurar-backup-detalle'}, `backup disponible`),
+                html.div({id:'restaurar-backup-encuestador'}    , `Nº encuestador/a: ${result.encuestador_backup}`),
+                html.div({id:'restaurar-backup-fecha-bkp'}      , `fecha: ${result.fecha_backup?result.fecha_backup.toYmdHms():'-'}`),
+                html.p({id:RESULTADO_ELEMENT_ID}),
+                backupButton,
+                waitGif,
+                backupDiv,
+            ]):html.p({},'No hay backup disponible.'),
+        ]).create()
+    );
+    my.agregar_json(backupDiv, result.backup)
+}
 
 my.wScreens.planificar_armado=function(addrParams){
     setTimeout(function(){
