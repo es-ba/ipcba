@@ -64,7 +64,7 @@ BEGIN
     elsif tg_table_name='relinf' then
       INSERT INTO his.relinf SELECT vUsuario,vOpe,periodo, informante, visita, observaciones, modi_usu, modi_fec, modi_ope, null as panel, null as tarea, fechasalidadesde, fechasalidahasta FROM cvp.relinf WHERE periodo=OLD.periodo AND informante=OLD.informante and visita=OLD.visita;
     elsif tg_table_name='relpantarinf' then
-      INSERT INTO his.relpantarinf SELECT vUsuario,vOpe,periodo,informante,visita,panel,tarea,observaciones,modi_usu,modi_fec,modi_ope,fechasalidadesde,fechasalidahasta,observaciones_campo,codobservaciones,recuperos,fecha_backup,token_relevamiento_backup,encuestador_backup FROM cvp.relpantarinf WHERE periodo=OLD.periodo AND informante=OLD.informante and visita=OLD.visita and panel=OLD.panel and tarea=OLD.tarea;
+      INSERT INTO his.relpantarinf SELECT vUsuario,vOpe,periodo,informante,visita,panel,tarea,observaciones,modi_usu,modi_fec,modi_ope,fechasalidadesde,fechasalidahasta,observaciones_campo,codobservaciones,recuperos,token_relevamiento_backup,encuestador_backup,fecha_backup FROM cvp.relpantarinf WHERE periodo=OLD.periodo AND informante=OLD.informante and visita=OLD.visita and panel=OLD.panel and tarea=OLD.tarea;
     --else
       --RAISE EXCEPTION 'Auditoria de tabla % no contemplada', tg_table_name ;
     end if;
