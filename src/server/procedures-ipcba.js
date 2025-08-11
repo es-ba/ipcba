@@ -486,13 +486,13 @@ function dm2CrearQueries(parameters, context){
             GROUP BY periodo, informante, visita, nombreinformante, direccion, panel, tarea, maxperiodoinformado, observaciones, observaciones_campo
         `;
     var sqlHdR=`
-        SELECT encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
+        SELECT coalesce(supervisor, encuestador) as encuestador, per.nombre as nombreencuestador, per.apellido as apellidoencuestador,
                 (select ipad from instalaciones where id_instalacion = rt.id_instalacion ) as dispositivo,
                 current_date as fecha_carga,
                 rt.panel, rt.tarea, rt.periodo,
                 rt.modalidad,
                 ${json(sqlInformantes,'direccion, informante')} as informantes
-            FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on encuestador = per.persona
+            FROM reltar rt INNER JOIN periodos p USING (periodo) inner join personal per on coalesce(supervisor, encuestador) = per.persona
             WHERE rt.periodo=$1
                 AND rt.panel=$2
                 AND rt.tarea=$3
@@ -1098,7 +1098,7 @@ ProceduresIpcba = [
                         from reltar r
                         left join instalaciones i using (id_instalacion)
                         left join personal p on p.persona = i.encuestador
-                        where r.encuestador = $1 and
+                        where coalesce(r.supervisor, r.encuestador) = $1 and
                               vencimiento_sincronizacion2 is not null and
                               vencimiento_sincronizacion2 > current_timestamp
                         order by vencimiento_sincronizacion2 desc
