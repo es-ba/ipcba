@@ -42,6 +42,8 @@ export const informantes = (context:Context):TableDefinition => {
             {name:'radio_ant'            , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'manzana_ant'          , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'lado'                 , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
+            {name:'longitud'             , typeName:'double'     , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
+            {name:'latitud'              , typeName:'double'     , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'obs_listador'         , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'nr_listador'          , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'fecha_listado'        , typeName:'date'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },

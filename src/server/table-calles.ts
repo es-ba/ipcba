@@ -15,6 +15,8 @@ export const calles = (context:Context):TableDefinition => {
         fields: [
             {name:'calle'      , typeName:'integer', nullable:false, allow:{update:puedeEditar}},
             {name:'nombrecalle', typeName:'text'   , nullable:false, allow:{update:puedeEditar} , isName:true},
+            {name:'alturadesde', typeName:'integer', allow:{update:puedeEditar}},
+            {name:'alturahasta', typeName:'integer', allow:{update:puedeEditar}},
         ],
         primaryKey: ['calle'],
         constraints:[
