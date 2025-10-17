@@ -123,6 +123,21 @@ my.esNormalizableSinValor = function esNormalizableSinValor(atributo, precio){
     return (atributo.prodatr__valornormal && atributo.prodatr__normalizable==='S' && atributo.valor == null && precio.precio);
 }
 
+my.clientSides.control_altura = {
+    prepare: function (depot, fieldName) {},
+    update: function (depot, fieldName) {
+        let td = depot.rowControls[fieldName];
+        td.style.backgroundColor='';
+        let altura = depot.row.altura;
+        let alturadesde = depot.row.calles__alturadesde;
+        let alturahasta = depot.row.calles__alturahasta;
+        if(altura != null && (alturadesde != null || alturahasta != null) && (altura < alturadesde || altura > alturahasta)){
+            td.style.backgroundColor='#FF9333';
+        }
+    }
+};
+
+
 my.clientSides.control_rangos = {
     prepare: function (depot, fieldName) {
         var td = depot.rowControls[fieldName];

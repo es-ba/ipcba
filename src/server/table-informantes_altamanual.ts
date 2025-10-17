@@ -31,10 +31,10 @@ export const informantes_altamanual = (context:Context):TableDefinition=>{
             {name:'tipoinformante'            , typeName:'text'    , allow:{update:puedeEditar}, title:'TI', postInput:'upperSpanish'},
             {name:'rubro'                     , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'provincia'                 , typeName:'text'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'código provincia'},
-            {name:'direccion'                 , typeName:'text'    , editable:false},           
+            {name:'direccion'                 , typeName:'text'    , editable:false},
             {name:'calle'                     , typeName:'integer' , allow:{update:puedeEditar}, postInput:'upperSpanish'},
             {name:'nombrecalle'               , typeName:'text'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
-            {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}},
+            {name:'altura'                    , typeName:'text'    , allow:{update:puedeEditar}, clientSide:'control_altura', serverSide:true},
             {name:'comuna'                    , typeName:'integer' , allow:{update:puedeEditarMigracion} , visible:puedeEditarMigracion                              },
             {name:'fraccion'                  , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'radio'                     , typeName:'integer' , allow:{update:puedeEditar}},
@@ -46,10 +46,10 @@ export const informantes_altamanual = (context:Context):TableDefinition=>{
             {name:'email'                     , typeName:'text'    , allow:{update:puedeEditar}},
             {name:'cluster'                   , typeName:'integer' , allow:{update:puedeEditar}},
             {name:'altamanualconfirmar'       , typeName:'timestamp', allow:{update:puedeEditar}},
-            {name:'cadena'                    , typeName:'text'     , allow:{update:puedeEditar}},
+            {name:'cadena'                    , typeName:'text'     , allow:{update:puedeEditar}}
         ],
         primaryKey:['informante'],
-        hiddenColumns:['altamanualconfirmar'],
+        hiddenColumns:['altamanualconfirmar','calles__alturadesde','calles__alturahasta'],
         detailTables:[
             {table:'forinf', abr:'FOR', label:'formularios', fields:['informante']},
             {table:'relvis', abr:'VIS', label:'visitas', fields:['periodo','informante']},
@@ -57,24 +57,24 @@ export const informantes_altamanual = (context:Context):TableDefinition=>{
         foreignKeys:[
             {references:'rubros'          , fields:['rubro']           },
             {references:'tipoinf'         , fields:['tipoinformante']  },
-            {references:'calles'          , fields:['calle']            , displayFields:['nombrecalle']     },
+            {references:'calles'          , fields:['calle']            , displayFields:['nombrecalle','alturadesde','alturahasta']},
             {references:'provincias'      , fields:['provincia']        , displayFields:['nombreprovincia'] }
         ],
         sql:{
-            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, calle, comuna, provincia, direccion, rubro, altamanualperiodo, 
-                       altamanualpanel, case when cantpantar = 1 then r.panelselec else null end::integer as ultimopanel, 
+            from:`(select i.informante, nombreinformante, ei.estado, tipoinformante, calle, comuna, provincia, direccion, rubro, altamanualperiodo,
+                       altamanualpanel, case when cantpantar = 1 then r.panelselec else null end::integer as ultimopanel,
                        altamanualtarea, case when cantpantar = 1 then r.tareaselec else null end::integer as ultimatarea,
-                       case when cantpantar > 1 then varias else null end as masdeunpaneltarea, nombrecalle, altura, distrito, fraccion, radio, manzana, contacto, 
+                       case when cantpantar > 1 then varias else null end as masdeunpaneltarea, nombrecalle, altura, distrito, fraccion, radio, manzana, contacto,
                        telcontacto, web, email,  altamanualconfirmar, r.periodo, "cluster", conjuntomuestral, i.cadena
                     from informantes i
-                    left join informantes_estado ei on i.informante = ei.informante 
+                    left join informantes_estado ei on i.informante = ei.informante
                     left join (select periodo, informante, cantpantar, panelselec, tareaselec, varias, dense_rank() OVER (PARTITION BY informante ORDER BY periodo desc) as orden
                                 from
                                 (select periodo, informante, count(distinct panel::text||tarea::text) cantpantar, max(panel) panelselec, max(tarea) tareaselec,
                                         string_agg (distinct 'Panel: '||panel::text||' Tarea:'||tarea::text,chr(10) order by 'Panel: '||panel::text||' Tarea:'||tarea::text) varias
                                 from relvis
                                 group by periodo, informante
-                                order by informante, periodo desc) q) r on i.informante = r.informante 
+                                order by informante, periodo desc) q) r on i.informante = r.informante
                     where coalesce(orden, 0) <= 1)`
         }
 
