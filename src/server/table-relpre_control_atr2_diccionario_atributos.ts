@@ -50,7 +50,7 @@ export const relpre_control_atr2_diccionario_atributos = (context:Context):Table
                          left join tipopre t on pre.tipoprecio = t.tipoprecio
                          left join relatr aa on a.periodo = aa.periodo and a.informante = aa.informante and a.producto = aa.producto and a.observacion = aa.observacion
                                             and a.visita = aa.visita and aa.atributo = p.atributo_2
-                         where coalesce(pa.validaropciones, true) and coalesce(pa.validaropciones_2, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
+                         where coalesce(pa.validaropciones, true) and p.valor is not null and t.activo ='S' and t.espositivo = 'S' and p.atributo_2 is not null and aa.periodo is not null
                          and case when p.valor_2 ~ aa.valor then 1 else 0 end = 0)`,
             },
     };
