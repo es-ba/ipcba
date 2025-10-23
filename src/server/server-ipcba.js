@@ -30,7 +30,7 @@ class AppIpcba extends backendPlus.AppBackend{
             console.log("Campo calculo no definido en la tabla calculos_def se inicializa con 0");
         } else {
             var ultimoCalculo = result.row.calculo;
-        } 
+        }
         be.internalData={
             filterUltimoPeriodo : 'a2018m05',
             filterUltimoCalculo : ultimoCalculo,
@@ -74,7 +74,7 @@ class AppIpcba extends backendPlus.AppBackend{
             activeClausule: usu_activo
             double-dragon: true
             plus:
-              maxAge-5-sec: 5000    
+              maxAge-5-sec: 5000
               maxAge: 864000000
               maxAge-10-day: 864000000
               allowHttpLogin: true
@@ -96,7 +96,6 @@ class AppIpcba extends backendPlus.AppBackend{
             skin: default
             menu: true
             lang: es
-            grid-buffer: wsql
             version: 0.1
             deviceWidthForMobile: 768px
             user-scalable: no
@@ -104,7 +103,7 @@ class AppIpcba extends backendPlus.AppBackend{
             dump:
               skip-content: true
               scripts:
-                prepare: 
+                prepare:
                 - cvp-db-types.sql
                 - cvp-db-domains.sql
                 - schema-comun.sql
@@ -126,7 +125,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calcularunperiodo.sql
                 - fun-calcularvarios.sql
                 - fun-calculo_borrar.sql
-                - fun-calculo_controlarabierto.sql 
+                - fun-calculo_controlarabierto.sql
                 - fun-caldiv_bajar.sql
                 - fun-caldiv_contar.sql
                 - fun-caldiv_impext.sql
@@ -311,7 +310,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-revisor.sql
                 - vw-variaciones_maximas_vw.sql
                 - vw-variaciones_minimas_vw.sql
-          logo: 
+          logo:
             path: client/img
         `);
     }
@@ -327,7 +326,7 @@ class AppIpcba extends backendPlus.AppBackend{
             manifestPath: `carga-dm/${centralPart}_manifest.manifest`,
             estructuraPath: `carga-dm/${centralPart}_estructura.js`,
             hdrPath: `carga-dm/${centralPart}_hdr.json`,
-        }        
+        }
     }
     addSchrödingerServices(mainApp, baseUrl){
         var be=this;
@@ -590,7 +589,7 @@ NETWORK:
     createResourcesForCacheJson(parameters){
         var be = this;
         var jsonResult = {};
-        
+
         jsonResult.version = APP_DM_VERSION;
         jsonResult.appName = 'ipcba';
         if(parameters.periodo){
@@ -693,7 +692,7 @@ NETWORK:
                 //{menuType:'hoja_ruta', name:'hoja_de_ruta', label: 'hoja de ruta DM 1', showInOfflineMode: true, selectedByDefault: true},
                 //{menuType:'menu', name:'dm', label:'D.M.', onlyVisibleFor:asignadores, menuContent:[
                 //    {menuType:'preparar_instalacion', name:'instalar_dm', label: 'instalar', showInOfflineMode: false, onlyVisibleFor:asignadores},
-                //    {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},    
+                //    {menuType:'sincronizar', name:'sincronizar', showInOfflineMode: false},
                 //    {menuType:'vaciar', name:'vaciar_dm', label:'vaciar', showInOfflineMode: false},
                 //]},
                 {menuType:'menu', name:'dm2', label:'DM 2.0', menuContent:[
@@ -765,7 +764,7 @@ NETWORK:
                     {menuType:'table', name:'periodos_control_diccionario_atributos_val', label:'inconsistencia de diccionario (corrección)', onlyVisibleFor:[programador,coordinador,analista,jefeCampo,recepcionista]},
                     {menuType:'table', name:'periodos_control_generacion_formularios' , label:'completitud de visitas', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_controlvigencias'               , label:'atributo vigencia', onlyVisibleFor:[programador,coordinador,analista,recepGabinete]},
-                    {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},                    
+                    {menuType:'table', name:'periodos_control_ingresados_calculo'     , label:'precios ingresados que no entran al cálculo', onlyVisibleFor:[programador,coordinador,analista]},
                     {menuType:'table', name:'periodos_control_sinvariacion'           , label:'precios sin variacion', onlyVisibleFor:[programador,recepcionista,jefeCampo]},
                     {menuType:'table', name:'periodos_control_verificar_precio'       , label:'precios para verificar', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
                     {menuType:'table', name:'periodos_control_comentariosrelvis'      , label:'comentarios por formulario', onlyVisibleFor:[programador,coordinador,jefeCampo,analista,recepcionista]},
@@ -844,7 +843,7 @@ NETWORK:
                         {menuType:'table', name:'periodos_control_tipoprecio'                     , label:'tipos de precios'},
                         {menuType:'table', name:'periodos_control_sinprecio'                      , label:'tipo de precio sin existencia'},
                         {menuType:'table', name:'periodos_relpre_1_sn'                            , label:'tipo de precio sin existencia/no vende'},
-        
+
                     ]},
                     //{menuType:'menu', name:'atributos', label:'atributos', onlyVisibleFor:[programador,coordinador,analista], menuContent:[
                     //    {menuType:'matriz', name:'matriz', onlyVisibleFor:[programador], showInOfflineMode: false},
@@ -855,8 +854,8 @@ NETWORK:
                     {menuType:'table', name:'novdelobs', label:'observaciones'},
                 ]},
                 {menuType:'table', name:'relmon', label:'cotización moneda extranjera', onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},                        
-            ], onlyVisibleFor:[programador,coordinador,analista,migracion,recepGabinete]},                
+                {menuType:'table', name:'calculos_canasta_producto', label:'canasta por producto', onlyVisibleFor:[programador,coordinador,analista]},
+            ], onlyVisibleFor:[programador,coordinador,analista,migracion,recepGabinete]},
             {menuType:'menu', name:'resultados', menuContent:[
                 {menuType:'table', name:'calgru_base', label:'vista de calgru base'},
                 {menuType:'table', name:'caldiv_base', label:'vista de caldiv base'},
@@ -883,7 +882,7 @@ NETWORK:
                     {menuType: 'table', name:'app_grupos_producto',label:'grupos_producto'},
                     {menuType: 'table', name:'app_productos',label:'productos'},
                     {menuType: 'table', name:'app_periodos',label:'periodos'},
-                ]},                
+                ]},
             ], onlyVisibleFor:[programador,coordinador,analista]},
             {menuType:'menu', name:'vista_tablas', label:'vista tablas', menuContent:[
                 {menuType:'table', name:'periodos_matrizresultados', label:'matrizresultados', onlyVisibleFor:[programador]},
@@ -1014,7 +1013,7 @@ NETWORK:
         var processItem = function processItem(item, index, menu){
             var itemExists = true;
             if(item.onlyVisibleFor){
-                var visibilityConfigResult = item.onlyVisibleFor.filter(function findByRole(visibilityConfig) { 
+                var visibilityConfigResult = item.onlyVisibleFor.filter(function findByRole(visibilityConfig) {
                     return visibilityConfig.role == currentUserRole;
                 });
                 if(visibilityConfigResult.length === 0){
