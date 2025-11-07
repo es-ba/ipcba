@@ -80,7 +80,7 @@ class AppIpcba extends backendPlus.AppBackend{
             database: cvp_db
             schema: cvp
             user: cvpowner
-            search_path: [cvp, ipcba, precios_app, his]
+            search_path: [cvp, ccc, ipcba, precios_app, his]
             fkOnUpdate: false
           login:
             schema: ipcba
@@ -714,7 +714,27 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
         }
-
+        if(this.config.server.policy=='canastas'){
+            var asignadores=[programador]
+            return {menu:[
+                {menuType:'menu', name:'resultaddos', menuContent:[
+                    { menuType: 'table', name: 'calgruper', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'calprodperagr', onlyVisibleFor:asignadores }
+                ]},
+                {menuType:'menu', name:'tablas', menuContent:[
+                    { menuType: 'table', name: 'agrupaciones', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'calculos_def', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'calculos', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'productos', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'unidades', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'grupos', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'prodperagr', onlyVisibleFor:asignadores },
+                ]},
+            ]};
+        }
         var subMenuCalculos = [
             {menuType:'table'        , name:'calculos'          , label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
             {menuType:'table'        , name:'calculos_novprod'  , label:'administración de externos', onlyVisibleFor:[programador,coordinador,analista]},
@@ -1340,6 +1360,13 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_control_diccionario_atributos_val', path: __dirname},
             {name: 'periodos_anulanapre', path: __dirname},
             {name: 'anulanapre', path: __dirname},
+            {name: 'agrupaciones_ccc', path: __dirname},
+            {name: 'calgruper', path: __dirname},
+            {name: 'calprodperagr', path: __dirname},
+            {name: 'grupos_ccc', path: __dirname},
+            {name: 'perfiles', path: __dirname},
+            {name: 'prodperagr', path: __dirname},
+            {name: 'productos_ccc', path: __dirname},
         ]);
     }
 }
