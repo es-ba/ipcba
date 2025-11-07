@@ -209,6 +209,16 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-res_cuadro_vc.sql
                 - fun-actualizar_esquema_expo.sql
                 - fun-calculo_borrarcopia.sql
+                - fun-extraer_rango_edad.sql
+                - fun-extraer_edad_desde.sql
+                - fun-extraer_edad_hasta.sql
+                - fun-extraer_unidad_medida.sql
+                - fun-cal_ccc_valorizar.sql
+                - fun-cal_ccc_copiar.sql
+                - fun-cal_ccc_borrar.sql
+                - fun-calcularcccunperiodo.sql
+                - fun-calgru_ccc_valorizar.sql
+                - fun-calprod_ccc_valorizar.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
                 - trg-adm_blanqueo_precios_trg.sql
@@ -348,6 +358,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-revisor.sql
                 - vw-variaciones_maximas_vw.sql
                 - vw-variaciones_minimas_vw.sql
+                - vw-gru_grupos_ccc.sql
+                - seq-perfiles_perfil_seq.sql
           logo:
             path: client/img
         `);
