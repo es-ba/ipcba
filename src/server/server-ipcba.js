@@ -58,6 +58,13 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     configStaticConfig(){
+        this.internalData={
+            filterUltimoPeriodo : '',
+            filterActualPeriodo : '',
+            filterUltimoCalculo : '',
+            filterAgrupacion : '',
+            filterExcluirCluster : 99999
+        }
         super.configStaticConfig();
         this.setStaticConfig(`
           server:
@@ -552,7 +559,7 @@ class AppIpcba extends backendPlus.AppBackend{
     addLoggedServices(opts){
         var be=this;
         super.addLoggedServices();
-        [
+        /*[
             {sufix:`manifest.manifest`     , fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
             {sufix:`estructura.js`         , fieldName:'archivo_estructura', mimeType:'application/javascript'},
             {sufix:`hdr.json`              , fieldName:'archivo_hdr'       , mimeType:'application/json'},
@@ -574,7 +581,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     }
                 });
             })
-        });
+        });*/
         super.addLoggedServices(opts);
     }
     getProcedures(){
