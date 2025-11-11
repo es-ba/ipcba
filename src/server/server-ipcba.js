@@ -734,7 +734,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'calprodperagr', onlyVisibleFor:asignadores }
                 ]},
                 {menuType:'menu', name:'tablas', menuContent:[
-                    { menuType: 'table', name: 'agrupaciones', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'periodos', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'calculos_def', onlyVisibleFor:asignadores },
@@ -742,7 +742,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'productos', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'unidades', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'grupos', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'grupos_ccc', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'prodperagr', onlyVisibleFor:asignadores },
                 ]},
             ]};
