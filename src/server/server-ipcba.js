@@ -727,7 +727,8 @@ class AppIpcba extends backendPlus.AppBackend{
             ]};
         }
         if(this.config.server.policy=='canastas'){
-            var asignadores=[programador]
+            const asignadores=[programador, coordinador]
+            const rolProgramador=[programador]
             return {menu:[
                 {menuType:'menu', name:'resultaddos', menuContent:[
                     { menuType: 'table', name: 'calgruper', onlyVisibleFor:asignadores },
@@ -736,12 +737,12 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'menu', name:'tablas', menuContent:[
                     { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'periodos', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'calculos_def', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'calculos', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'productos', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos', onlyVisibleFor:rolProgramador },
+                    { menuType: 'table', name: 'calculos_def', onlyVisibleFor:rolProgramador },
+                    { menuType: 'table', name: 'calculos', onlyVisibleFor:rolProgramador },
+                    { menuType: 'table', name: 'productos', onlyVisibleFor:rolProgramador },
                     { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'unidades', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'unidades', onlyVisibleFor:rolProgramador },
                     { menuType: 'table', name: 'grupos_ccc', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'prodperagr', onlyVisibleFor:asignadores },
                 ]},
