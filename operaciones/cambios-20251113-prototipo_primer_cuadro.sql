@@ -1,5 +1,12 @@
 set search_path = ccc;
 set role cvpowner;
+drop table cuadros_ccc cascade;
+drop table cuadros_funciones_ccc cascade;
+
+ALTER TABLE perfiles drop COLUMN if exists equivalente;
+ALTER TABLE perfiles ADD COLUMN equivalente boolean;
+UPDATE perfiles set equivalente = true where unidcons = 1;
+
 CREATE TABLE IF NOT EXISTS cuadros_ccc as
 select * from cvp.cuadros where cuadro = '7';
 UPDATE cuadros_ccc
@@ -71,10 +78,11 @@ begin
                     'D.21n' as formato_renglon, p.perfil, p.tipo, p.genero, p.edad, 
                     replace (round(p.energia::decimal,2)::text,'.',p_separador) energia, 
                     replace (round(p.unidcons::decimal,2)::text,'.',p_separador) unidcons, 
-                    replace (round(c.valorgru::decimal,2)::text,'.',p_separador) valor, 
-                    replace (round((c.valorgru * 30)::decimal, 2)::text,'.',p_separador) valor_mensual                    
-                 from perfiles p
-                 left join calgruper c on p.perfil = c.perfil
+                    replace (round((c.valorgru*p.unidcons)::decimal,2)::text,'.',p_separador) valor, 
+                    replace (round(((c.valorgru*p.unidcons) * 30)::decimal, 2)::text,'.',p_separador) valor_mensual
+                 from (select pe.perfil as perfil_equivalente, pp.* 
+                        from perfiles pe join perfiles pp on pe.equivalente and pe.tipo = pp.tipo) p
+                 left join calgruper c on p.perfil_equivalente = c.perfil
                  join cvp.calculos_def cd on c.calculo = cd.calculo
                  where grupo = parametro4
                    and cd.principal
