@@ -1,7 +1,7 @@
 set search_path = ccc;
 set role cvpowner;
-drop table cuadros_ccc cascade;
-drop table cuadros_funciones_ccc cascade;
+drop table IF EXISTS cuadros_ccc cascade;
+drop table IF EXISTS cuadros_funciones_ccc cascade;
 
 ALTER TABLE perfiles drop COLUMN if exists equivalente;
 ALTER TABLE perfiles ADD COLUMN equivalente boolean;
@@ -39,7 +39,7 @@ ALTER TABLE cuadros_funciones_ccc add CONSTRAINT cuadros_funciones_ccc_pkey PRIM
    
 ALTER TABLE cuadros_ccc add CONSTRAINT cuadros_ccc_cuadros_funciones_ccc_fkey FOREIGN KEY (funcion) REFERENCES cuadros_funciones_ccc(funcion);
 
-drop TYPE res_col7 cascade;
+drop TYPE IF EXISTS res_col7 cascade;
 CREATE TYPE res_col7 AS (
     renglon bigint,
     formato_renglon text,
