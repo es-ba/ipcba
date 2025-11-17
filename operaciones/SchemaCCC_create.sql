@@ -496,7 +496,7 @@ EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'CalProd_CCC_Valorizar', pTipo:='comenz
 FOR vcalprod IN
   SELECT a.periodo, a.calculo, a.producto, a.agrupacion, a.perfil, a.peso_neto, a.calorias, p.factor_correccion, p.cantidad, c.promedioredondeado, a.cantidad_ajuste
     FROM CalDiv c
-    INNER JOIN CalProdPerAgr a ON c.producto = a.producto
+    INNER JOIN CalProdPerAgr a ON c.periodo = a.periodo and c.calculo = a.calculo and c.producto = a.producto
     INNER JOIN productos_ccc p ON a.producto = p.producto
     WHERE c.division = '0' and c.periodo=pPeriodo AND c.calculo=pCalculo AND a.agrupacion = pAgrupacion
 LOOP
