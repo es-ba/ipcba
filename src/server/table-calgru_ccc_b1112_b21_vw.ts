@@ -1,6 +1,6 @@
 'use strict'
 
-import { TableDefinition, Context } from "backend-plus";
+import { TableDefinition, Context } from "types-ipcba";
 
 export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
   return {
@@ -23,7 +23,7 @@ export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
     hiddenColumns:['indice'],
     primaryKey:['periodo','calculo','agrupacion','grupo'],
     filterColumns:[
-        {column:'periodo', operator:'=', value:(context.be as any).internalData?.filterActualPeriodo},
+        {column:'periodo', operator:'=', value:context.be.internalData?.filterActualPeriodo},
     ],
     sql:{
         isTable: false,

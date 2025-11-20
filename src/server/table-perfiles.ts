@@ -17,6 +17,8 @@ export const perfiles = (): TableDefinition => {
       { name: 'edad_desde', typeName: 'integer', generatedAs: 'ccc.extraer_edad_desde((edad)::character varying)' },
       { name: 'edad_hasta', typeName: 'integer', generatedAs: 'ccc.extraer_edad_hasta((edad)::character varying)' },
       { name: 'edad_umed', typeName: 'text', generatedAs: 'ccc.extraer_unidad_medida((edad)::character varying)' },
+      { name: 'descripcion', typeName: 'text', generatedAs: "concat(tipo, ' - ', genero, ' - ', edad)", isName: true},
+      { name: 'equivalente', typeName: 'boolean' },
     ],
     primaryKey: ['perfil'],
     constraints: [
