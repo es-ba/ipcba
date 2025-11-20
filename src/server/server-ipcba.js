@@ -733,8 +733,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'menu', name:'resultados', menuContent:[
                     { menuType: 'table', name: 'calgruper', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'calprodperagr', onlyVisibleFor:asignadores },
-                    //{ menuType: 'proc' , name: 'cuadro_canastas', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'calgru_ccc_b1112_b21_vw', onlyVisibleFor:asignadores },
+                    { menuType: 'proc' , name: 'cuadro_canastas', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'calgru_ccc_b1112_b21_vw', label: 'empalme', onlyVisibleFor:asignadores },
                 ]},
                 {menuType:'menu', name:'tablas', menuContent:[
                     { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores },

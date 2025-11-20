@@ -1,11 +1,12 @@
 'use strict'
 
-import { TableDefinition } from "backend-plus";
+import { TableDefinition, Context } from "backend-plus";
 
-export const calgru_ccc_b1112_b21_vw = (): TableDefinition => {
+export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
   return {
     editable: false,
     name: 'calgru_ccc_b1112_b21_vw',
+    title: 'empalme',
     fields:[
         {name:'periodo'                           , typeName:'text'   },
         {name:'calculo'                           , typeName:'integer'},
@@ -21,6 +22,9 @@ export const calgru_ccc_b1112_b21_vw = (): TableDefinition => {
     ],
     hiddenColumns:['indice'],
     primaryKey:['periodo','calculo','agrupacion','grupo'],
+    filterColumns:[
+        {column:'periodo', operator:'=', value:(context.be as any).internalData?.filterActualPeriodo},
+    ],
     sql:{
         isTable: false,
     },

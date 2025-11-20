@@ -2880,6 +2880,32 @@ ProceduresIpcba = [
             };
         }
     },
+    {
+        action:'cuadro_canastas',
+        policy:'canastas',
+        parameters:[
+            {name:'periodo'    , typeName:'text', references:'periodos'},
+            {name:'cuadro'    , typeName:'text', references:'cuadros'},
+            {name:'separador_decimal'    , typeName:'text', options:[',','.']},
+            {name:'periodo_desde'    , typeName:'text', references:'periodos'},
+            {name:'hogar'    , typeName:'text', references:'hogares'},
+            {name:'agrupacion'    , typeName:'text', references:'agrupaciones_ccc'},
+        ],
+        roles:['programador', 'coordinador'],
+        coreFunction: async function(context, parameters){
+            try{
+                let result = await context.client.query(
+                    `SELECT * from periodos where periodo = $1`,
+                    [parameters.periodo]
+                ).fetchAll();
+                return result;
+            }catch(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            };
+        }
+    },
 ];
 
 module.exports = ProceduresIpcba;
