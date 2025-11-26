@@ -98,6 +98,6 @@ GRANT SELECT ON TABLE cuadros_ccc TO cvp_administrador;
 GRANT SELECT ON TABLE cuadros_funciones_ccc TO cvp_administrador;
 
 --test
-SELECT * from ccc_cuadro_up(null, 'a2025m04'::text, 'G1', false, false , 'a2022m02','.');  
---SELECT * from ccc_cuadro_up(null, 'a2025m05'::text, 'G1', false, false , 'a2022m02','.');  
+SELECT * from ccc_cuadro_up(null, 'a2025m04'::text, 'G01', false, false , 'a2022m02','.');  
+--SELECT * from ccc_cuadro_up(null, 'a2025m05'::text, 'G01', false, false , 'a2022m02','.');  
 
