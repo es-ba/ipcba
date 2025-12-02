@@ -2891,7 +2891,7 @@ ProceduresIpcba = [
             {name:'hogar'    , typeName:'text', references:'hogares'},
             {name:'agrupacion'    , typeName:'text', references:'agrupaciones_ccc'},
         ],
-        roles:['programador', 'coordinador'],
+        roles:['programador', 'coordinador', 'analista'],
         coreFunction: async function(context, parameters){
             try{
                 let result = await context.client.query(

@@ -727,7 +727,7 @@ class AppIpcba extends backendPlus.AppBackend{
             ]};
         }
         if(this.config.server.policy=='canastas'){
-            const asignadores=[programador, coordinador]
+            const asignadores=[programador, coordinador, analista]
             const rolProgramador=[programador]
             return {menu:[
                 {menuType:'menu', name:'resultados', menuContent:[
