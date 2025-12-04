@@ -707,6 +707,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var migracion = {role:'migracion'};
         var encuestador = {role:'encuestador'};
         var jefeRecepcion = {role:'jefe_recepcion'};
+        const analistaCanastas = {role:'ccc_analista'};
         if(this.config.server.policy=='web'){
             var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, jefeRecepcion, recepGabinete, supervisor, encuestador]
             return {menu:[
@@ -727,7 +728,7 @@ class AppIpcba extends backendPlus.AppBackend{
             ]};
         }
         if(this.config.server.policy=='canastas'){
-            const asignadores=[programador, coordinador, analista]
+            const asignadores=[programador, coordinador, analista, analistaCanastas]
             const rolProgramador=[programador]
             return {menu:[
                 {menuType:'menu', name:'resultados', menuContent:[
