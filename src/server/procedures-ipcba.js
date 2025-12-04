@@ -2892,13 +2892,14 @@ ProceduresIpcba = [
             {name:'agrupacion'    , typeName:'text', references:'agrupaciones_ccc'},
         ],
         roles:['programador', 'coordinador'],
+        resultOk:'mostrar_cuadro',
         coreFunction: async function(context, parameters){
             try{
                 let result = await context.client.query(
-                    `SELECT * from periodos where periodo = $1`,
-                    [parameters.periodo]
+                    `SELECT * from ccc_cuadro_up(null, $1, 'G01', false, false , $2,$3)`,
+                    [parameters.periodo, parameters.periododesde, parameters.separador_decimal]
                 ).fetchAll();
-                return result;
+                return result.rows;
             }catch(err){
                 console.log(err);
                 console.log(err.code);

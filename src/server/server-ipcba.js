@@ -1047,9 +1047,10 @@ class AppIpcba extends backendPlus.AppBackend{
         var be = this;
         var loggedResources = req && opts && !opts.skipMenu;
         var menuedResources=loggedResources ? [
-            { type:'js' , src: 'client/client.js' },
+            { type: 'js', src: 'client/client.js' },
             { type: 'js', src: 'client/hoja-de-ruta.js' },
             { type: 'js', src: 'client/hoja-de-ruta-react.js' },
+            { type: 'js', src: 'client/cuadros.js' },
             { type: 'js', src: 'client/imp-formularios.js' },
         ]:[
             {type:'js' , src:'unlogged.js' },
