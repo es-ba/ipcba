@@ -2899,7 +2899,7 @@ ProceduresIpcba = [
                     `SELECT * from ccc_cuadro_up(null, $1, 'G01', false, false , $2,$3)`,
                     [parameters.periodo, parameters.periododesde, parameters.separador_decimal]
                 ).fetchAll();
-                return result.rows;
+                return {cuadro:parameters.cuadro, rows: result.rows};
             }catch(err){
                 console.log(err);
                 console.log(err.code);
