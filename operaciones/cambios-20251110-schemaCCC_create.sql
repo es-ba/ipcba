@@ -638,11 +638,20 @@ end;
 $BODY$;
 
 ---------------------------------------
-GRANT USAGE ON SCHEMA ccc TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.agrupaciones_ccc TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.calgruper TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.calprodperagr TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.grupos_ccc TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.perfiles TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.prodperagr TO cvp_administrador;
-GRANT SELECT ON TABLE ccc.productos_ccc TO cvp_administrador;
+GRANT USAGE ON SCHEMA ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.agrupaciones_ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.calgruper TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.calprodperagr TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.grupos_ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.perfiles TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.prodperagr TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE ccc.productos_ccc TO cvp_administrador, ccc_analista;
+GRANT USAGE ON SCHEMA cvp TO ccc_analista;
+GRANT SELECT ON TABLE cvp.periodos TO ccc_analista;
+GRANT SELECT ON TABLE cvp.calculos TO ccc_analista;
+GRANT SELECT ON TABLE cvp.calculos_def TO ccc_analista;
+GRANT SELECT ON TABLE cvp.unidades TO ccc_analista;
+GRANT SELECT ON TABLE cvp.productos TO ccc_analista;
+GRANT SELECT ON TABLE cvp.paraimpresionformulariosenblanco TO ccc_analista;
+GRANT SELECT ON TABLE cvp.cuadros TO ccc_analista;
+GRANT SELECT ON TABLE cvp.hogares TO ccc_analista;
