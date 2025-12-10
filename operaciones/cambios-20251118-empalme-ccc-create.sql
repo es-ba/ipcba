@@ -4,6 +4,8 @@ drop table if exists empalme_ccc_b1112 cascade;
 CREATE TABLE IF NOT EXISTS empalme_ccc_b1112 AS 
 select * from empalme_b1112 where false;
 
+ALTER TABLE empalme_ccc_b1112 ADD COLUMN agrupamiento INTEGER;
+
 ALTER TABLE IF EXISTS empalme_ccc_b1112
     ADD CONSTRAINT empalme_ccc_b1112_agrupacion_b1112_grupo_b1112_fkey FOREIGN KEY (agrupacion_b1112, grupo_b1112)
     REFERENCES cvp.grupos_b1112 (agrupacion, grupo);
