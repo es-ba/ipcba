@@ -1,4 +1,5 @@
 --NUEVAS CANASTAS 2025
+CREATE ROLE ccc_analista WITH NOLOGIN;
 SET role cvpowner;
 
 DROP SCHEMA IF EXISTS ccc  CASCADE; ---canastas de consumo y crianza
