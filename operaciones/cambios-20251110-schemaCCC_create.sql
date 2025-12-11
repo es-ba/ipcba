@@ -1,5 +1,19 @@
 --NUEVAS CANASTAS 2025
-CREATE ROLE ccc_analista WITH NOLOGIN;
+DO
+$$
+BEGIN
+    -- 1. Verifica si el rol 'mi_nuevo_rol' YA existe en el sistema
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   pg_roles
+        WHERE  rolname = 'ccc_analista'
+    ) THEN
+        -- 2. Si NO existe, entonces procede a crearlo
+        CREATE ROLE ccc_analista WITH NOLOGIN;
+    END IF;
+END
+$$;
+--CREATE ROLE ccc_analista WITH NOLOGIN;
 SET role cvpowner;
 
 DROP SCHEMA IF EXISTS ccc  CASCADE; ---canastas de consumo y crianza
@@ -153,15 +167,18 @@ CREATE TABLE IF NOT EXISTS grupos_ccc
 CREATE TABLE IF NOT EXISTS productos_ccc
 (
     producto text NOT NULL,
-    unidad_normal text NOT NULL,
+    nombreproducto text,
+    unidad_normal text,
     cantidad double precision,
     factor_correccion double precision,
     unidad_de_medida text,
+    esproducto_ipc boolean DEFAULT true,
     PRIMARY KEY (producto),
-    CONSTRAINT productos_ccc_productos_fkey FOREIGN KEY (producto)
-        REFERENCES cvp.productos (producto),
     CONSTRAINT productos_ccc_unidades_fkey FOREIGN KEY (unidad_de_medida)
-        REFERENCES cvp.unidades (unidad)
+        REFERENCES cvp.unidades (unidad),
+    CONSTRAINT "Si esproducto_ipc => nombreproducto nulo" CHECK (NOT esproducto_ipc OR nombreproducto IS NULL),
+    CONSTRAINT "Si esproducto_ipc => unidad_normal no nulo" CHECK (NOT esproducto_ipc OR unidad_normal IS NOt NULL),
+    CONSTRAINT "texto invalido en nombreproducto de tabla productos_ccc" CHECK (comun.cadena_valida(nombreproducto, 'castellano'::text))        
 );
 
 CREATE OR REPLACE FUNCTION extraer_rango_edad(rango_edad_str character varying)
