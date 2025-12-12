@@ -9,6 +9,8 @@ export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
     title: 'empalme',
     fields:[
         {name:'periodo'                           , typeName:'text'   },
+        {name:'agrupacion_b1112'                  , typeName:'text'   },
+        {name:'grupo_b1112'                       , typeName:'text'   },
         {name:'calculo'                           , typeName:'integer'},
         {name:'agrupacion'                        , typeName:'text'   },
         {name:'grupo'                             , typeName:'text'   , sortMethod: 'codigo_ipc'},
