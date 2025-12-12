@@ -14,7 +14,7 @@ UPDATE cuadros_ccc
     descripcion='Tabla de equivalencias y unidad consumidora según tipo de canasta alimentaria para varones y mujeres y rango de edades',
     funcion='ccc_cuadro_up',
     parametro1='Tabla de equivalencias',
-    grupo='G1',
+    grupo='G01',
     encabezado='Cuadro 1||| IPCBA. Tabla de equivalencias y unidad consumidora según tipo de canasta alimentaria para varones y mujeres y rango de edades',
     empalmedesde = false
     WHERE cuadro='7';
