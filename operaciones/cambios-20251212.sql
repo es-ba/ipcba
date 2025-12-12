@@ -1,0 +1,1 @@
+ALTER TABLE ipcba.usuarios ADD COLUMN usu_activo_ccc BOOLEAN NOT NULL DEFAULT FALSE;
