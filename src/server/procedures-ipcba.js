@@ -2885,19 +2885,26 @@ ProceduresIpcba = [
         policy:'canastas',
         parameters:[
             {name:'periodo'    , typeName:'text', references:'periodos'},
-            {name:'cuadro'    , typeName:'text', references:'cuadros'},
-            {name:'separador_decimal'    , typeName:'text', options:[',','.']},
+            {name:'cuadro'    , typeName:'text', references:'cuadros_ccc'},
+            //{name:'separador_decimal'    , typeName:'text', options:[',','.']},
             {name:'periodo_desde'    , typeName:'text', references:'periodos'},
-            {name:'hogar'    , typeName:'text', references:'hogares'},
-            {name:'agrupacion'    , typeName:'text', references:'agrupaciones_ccc'},
+            //{name:'hogar'    , typeName:'text', references:'hogares'},
+            //{name:'agrupacion'    , typeName:'text', references:'agrupaciones_ccc'},
         ],
         resultOk:'mostrar_cuadro',
         roles:['programador', 'coordinador', 'analista', 'ccc_analista'],
         coreFunction: async function(context, parameters){
             try{
-                let result = await context.client.query(
-                    `SELECT * from ccc_cuadro_up(null, $1, 'G01', false, false , $2,$3)`,
-                    [parameters.periodo, parameters.periododesde, parameters.separador_decimal]
+                const {row: cuadro} = await context.client.query(
+                    `SELECT * from cuadros_ccc where cuadro = $1`,
+                    [parameters.cuadro]
+                ).fetchOneRowIfExists();
+                if(!cuadro){
+                    throw new Error(`No se encontró un registro en cuadros_ccc con el cuadro ${parameters.cuadro}.`);
+                }
+                const result = await context.client.query(
+                    `SELECT * from ccc_cuadro_up(null, $1, $2, false, false , $3,'.')`,
+                    [parameters.periodo, cuadro.grupo, parameters.periododesde]
                 ).fetchAll();
                 return {cuadro:parameters.cuadro, rows: result.rows};
             }catch(err){
