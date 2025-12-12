@@ -748,6 +748,8 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'unidades', onlyVisibleFor:rolProgramador },
                     { menuType: 'table', name: 'grupos_ccc', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'prodperagr', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'cuadros_ccc', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'cuadros_funciones_ccc', onlyVisibleFor:asignadores },
                 ]},
             ]};
         }
@@ -1385,6 +1387,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'prodperagr', path: __dirname},
             {name: 'productos_ccc', path: __dirname},
             {name: 'calgru_ccc_b1112_b21_vw', path: __dirname},
+            {name: 'cuadros_ccc', path: __dirname},
+            {name: 'cuadros_funciones_ccc', path: __dirname},
         ]);
     }
 }
