@@ -66,7 +66,7 @@ SELECT *
           JOIN empalme_ccc_b1112 e ON c.agrupacion = e.agrupacion and c.grupo = e.grupo
           WHERE cd.principal AND c.periodo > periodo_empalme
         */
-        SELECT c.periodo, c.calculo, c.agrupacion, string_agg(c.grupo,'-') grupo, e.agrupacion_b1112, string_agg(e.grupo_b1112,'-') grupo_b1112, 
+        SELECT c.periodo, c.calculo, c.agrupacion, string_agg(c.grupo,'-' ORDER BY c.grupo) grupo, e.agrupacion_b1112, string_agg(e.grupo_b1112,'-' ORDER BY e.grupo_b1112) grupo_b1112, 
           SUM(c.indice*c.ponderador)/sum(case when c.indice is null then null else c.ponderador end) indice,
           ROUND((SUM(c.indice*c.ponderador)/sum(case when c.indice is null then null else c.ponderador end))::decimal,2) indiceredondeado
           FROM calgru c 
@@ -80,8 +80,8 @@ SELECT *
         SELECT c.periodo, c.calculo, c.agrupacion, c.grupo, agrupacion_b1112, grupo_b1112, c.indice, c.indiceredondeado
           FROM calgru_ccc_b1112_b21 c --ya va a venir agrupada
         */
-        SELECT c.periodo, c.calculo, c.agrupacion, string_agg(c.grupo,'-') grupo, e.agrupacion_b1112, 
-          string_agg(e.grupo_b1112,'-') grupo_b1112, 
+        SELECT c.periodo, c.calculo, c.agrupacion, string_agg(c.grupo,'-' ORDER BY c.grupo) grupo, e.agrupacion_b1112, 
+          string_agg(e.grupo_b1112,'-' ORDER BY e.grupo_b1112) grupo_b1112, 
           SUM(c.indice*cb.ponderador)/sum(case when c.indice is null then null else cb.ponderador end) indice, 
           ROUND((SUM(c.indice*cb.ponderador)/sum(case when c.indice is null then null else cb.ponderador end))::decimal,2) indiceredondeado
           FROM calgru_ccc_b1112_b21 c
