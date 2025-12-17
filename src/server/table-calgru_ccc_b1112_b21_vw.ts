@@ -22,7 +22,7 @@ export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
         {name:'variacionacumuladaanualredondeada' , typeName:'decimal'},
         {name:'variacioninteranualredondeada'     , typeName:'decimal'},
     ],
-    hiddenColumns:['indice'],
+    hiddenColumns:['indice','variacionacumuladaanualredondeada','variacioninteranualredondeada'],
     primaryKey:['periodo','calculo','agrupacion','grupo'],
     filterColumns:[
         {column:'periodo', operator:'=', value:context.be.internalData?.filterActualPeriodo},
