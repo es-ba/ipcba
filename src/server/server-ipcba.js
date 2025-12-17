@@ -732,8 +732,8 @@ class AppIpcba extends backendPlus.AppBackend{
             const rolProgramador=[programador]
             return {menu:[
                 {menuType:'menu', name:'resultados', menuContent:[
-                    { menuType: 'table', name: 'calgruper', onlyVisibleFor:asignadores },
-                    { menuType: 'table', name: 'calprodperagr', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos_calgruper', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos_calprodperagr', onlyVisibleFor:asignadores },
                     { menuType: 'proc' , name: 'cuadro_canastas', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'calgru_ccc_b1112_b21_vw', label: 'empalme', onlyVisibleFor:asignadores },
                 ]},
@@ -1381,7 +1381,9 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'anulanapre', path: __dirname},
             {name: 'agrupaciones_ccc', path: __dirname},
             {name: 'calgruper', path: __dirname},
+            {name: 'periodos_calgruper', path: __dirname},
             {name: 'calprodperagr', path: __dirname},
+            {name: 'periodos_calprodperagr', path: __dirname},
             {name: 'grupos_ccc', path: __dirname},
             {name: 'perfiles', path: __dirname},
             {name: 'prodperagr', path: __dirname},
