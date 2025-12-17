@@ -15,8 +15,8 @@ export const calprodperagr = (): TableDefinition => {
       { name: 'perfil', typeName: 'integer', nullable: false },
       { name: 'peso_neto', typeName: 'double' },
       { name: 'cantidad_ajuste', typeName: 'double' },
-      { name: 'calorias', typeName: 'double' },
-      { name: 'cantidad_canasta', typeName: 'double' },
+      { name: 'calorias', typeName: 'double', title: 'calorías diarias' },
+      { name: 'cantidad_canasta', typeName: 'double', title: 'cantidad diaria canasta' },
       { name: 'peso_bruto', typeName: 'double' },
       { name: 'valorprod', typeName: 'double' }
     ],
