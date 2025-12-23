@@ -41,7 +41,7 @@ FROM
                  join parametros p on unicoregistro and c.periodo = p.periodo_empalme
                  join calculos_def d on c.calculo = d.calculo
                 where d.principal
-            ) cn on e.agrupacion = cn.agrupacion and e.grupo = cn.grupo
+            ) cn on e.agrupacion_b21 = cn.agrupacion and e.grupo_b21 = cn.grupo
        join (select c.*
                from calgru_b1112 c
                join parametros p on unicoregistro and c.periodo = p.periodo_empalme
@@ -54,6 +54,20 @@ group by periodo, calculo, agrupacion, grupo, agrupacion_b1112, grupo_b1112, ind
 order by periodo desc, calculo, agrupacion, grupo, agrupacion_b1112, grupo_b1112;
 
 ---------VISTAS----------------
+DROP VIEW IF EXISTS empalme_ccc_b1112_vw;
+CREATE OR REPLACE VIEW empalme_ccc_b1112_vw AS
+SELECT agrupacion_b1112, string_agg(grupo_b1112,'-' order by grupo_b1112) grupo_b1112 , string_agg(nombre_b1112,' y ' order by grupo_b1112) nombre_b1112,
+   agrupacion_b21, string_agg(grupo_b21,'-' order by grupo_b21) grupo_b21,string_agg(nombre_b21,' y ' order by grupo_b21) nombre_b21, max(nivel_b1112) nivel_b1112,  
+   max(nivel_b21) nivel_b21
+FROM (SELECT agrupamiento, e.agrupacion_b1112, grupo_b1112, coalesce (ga.nombregrupo, p.nombreproducto) nombre_b1112
+        , agrupacion_b21, grupo_b21, coalesce (g.nombregrupo, p.nombreproducto) nombre_b21, g.nivel nivel_b21, ga.nivel nivel_b1112  
+       FROM empalme_ccc_b1112 e
+        LEFT JOIN grupos_b1112 ga on e.agrupacion_b1112 = ga.agrupacion and e.grupo_b1112 = ga.grupo
+        LEFT JOIN grupos g on e.agrupacion_b21 = g.agrupacion and e.grupo_b21 = g.grupo
+        LEFT JOIN productos p on g.grupo = p.producto) x
+GROUP BY agrupamiento, agrupacion_b1112, agrupacion_b21;
+
+GRANT SELECT ON TABLE empalme_ccc_b1112_vw TO cvp_administrador, ccc_analista;
 
 DROP VIEW IF EXISTS calgru_ccc_empalme;
 CREATE OR REPLACE VIEW calgru_ccc_empalme AS --pk: periodo, calculo, agrupacion, grupo verificada
@@ -72,7 +86,7 @@ SELECT *
           FROM calgru c 
           JOIN parametros p ON unicoregistro
           JOIN calculos_def cd ON c.calculo = cd.calculo
-          JOIN empalme_ccc_b1112 e ON c.agrupacion = e.agrupacion and c.grupo = e.grupo
+          JOIN empalme_ccc_b1112 e ON c.agrupacion = e.agrupacion_b21 and c.grupo = e.grupo_b21
           WHERE cd.principal AND c.periodo > periodo_empalme
           GROUP BY c.periodo, c.calculo, c.agrupacion, e.agrupacion_b1112, e.agrupamiento
         UNION
@@ -85,7 +99,7 @@ SELECT *
           SUM(c.indice*cb.ponderador)/sum(case when c.indice is null then null else cb.ponderador end) indice, 
           ROUND((SUM(c.indice*cb.ponderador)/sum(case when c.indice is null then null else cb.ponderador end))::decimal,2) indiceredondeado
           FROM calgru_ccc_b1112_b21 c
-          JOIN empalme_ccc_b1112 e ON c.agrupacion = e.agrupacion and c.grupo = e.grupo 
+          JOIN empalme_ccc_b1112 e ON c.agrupacion = e.agrupacion_b21 and c.grupo = e.grupo_b21 
                                    and c.agrupacion_b1112 = e.agrupacion_b1112 and c.grupo_b1112 = e.grupo_b1112
           JOIN calgru_b1112 cb ON c.periodo = cb.periodo and cb.calculo = 0 --and c.calculo = cb.calculo
             and c.agrupacion_b1112 = cb.agrupacion and c.grupo_b1112 = cb.grupo
@@ -102,11 +116,11 @@ SELECT ce.*,
   CASE WHEN ce_a.Indiceredondeado=0    THEN NULL ELSE ROUND((ce.Indiceredondeado/ce_a.Indiceredondeado*100-100)::decimal,1) END AS variacion,
   CASE WHEN ce_vi.indiceredondeado = 0 THEN NULL ELSE round((ce.indiceredondeado/ce_vi.indiceredondeado*100-100)::decimal,1) END AS variacioninteranualredondeada,
   CASE WHEN ce_va.indiceredondeado = 0 THEN NULL ELSE round((ce.indiceredondeado/ce_va.indiceredondeado*100-100)::decimal,1) END AS variacionacumuladaanualredondeada,
-  coalesce (g.nombregrupo, pr.nombreproducto) as nombre, g.nivel
+  ev.nombre_b21, ev.nivel_b21
   FROM calgru_ccc_empalme ce
   JOIN parametros p ON unicoregistro
-  LEFT JOIN grupos g ON ce.agrupacion = g.agrupacion and ce.grupo = g.grupo
-  LEFT JOIN productos pr ON ce.grupo = pr.producto
+  LEFT JOIN empalme_ccc_b1112_vw ev on ce.agrupacion_b1112 = ev.agrupacion_b1112 and ce.grupo_b1112 = ev.grupo_b1112
+             and ce.agrupacion = ev.agrupacion_b21 and ce.grupo = ev.grupo_b21 
   LEFT JOIN calculos c ON ce.periodo = c.periodo and ce.calculo = c.calculo and c.periodo > p.periodo_empalme
   LEFT JOIN calculos_b1112 cb ON ce.periodo = cb.periodo and ce.calculo = cb.calculoprincipal_b21 and cb.periodo <= p.periodo_empalme
   LEFT JOIN calgru_ccc_empalme ce_a ON ce_a.periodo = coalesce(c.periodoanterior, cb.periodoanterior)
