@@ -13,7 +13,7 @@ export const prodperagr = (): TableDefinition => {
       { name: 'agrupacion', typeName: 'text', nullable: false },
       { name: 'peso_neto', typeName: 'double' },
       { name: 'cantidad_ajuste', typeName: 'double' },
-      { name: 'calorias', typeName: 'double' }
+      { name: 'calorias', typeName: 'double', title: 'calorías diarias' },
     ],
     primaryKey: ['producto', 'perfil', 'agrupacion'],
     foreignKeys: [
