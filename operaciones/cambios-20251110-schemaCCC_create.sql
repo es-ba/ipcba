@@ -673,3 +673,59 @@ GRANT SELECT ON TABLE cvp.productos TO ccc_analista;
 GRANT SELECT ON TABLE cvp.paraimpresionformulariosenblanco TO ccc_analista;
 GRANT SELECT ON TABLE cvp.cuadros TO ccc_analista;
 GRANT SELECT ON TABLE cvp.hogares TO ccc_analista;
+
+CREATE TABLE IF NOT EXISTS hogares_ccc
+(
+    hogar text NOT NULL,
+    nombrehogar text,
+    PRIMARY KEY (hogar),
+    CONSTRAINT "texto invalido en nombrehogar de tabla hogares_ccc" CHECK (comun.cadena_valida(nombrehogar::text, 'castellano'::text))
+);
+
+CREATE TABLE IF NOT EXISTS perfiles_edad
+(
+    perfil_edad INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    edad text NOT NULL,
+    edad_desde integer GENERATED ALWAYS AS (extraer_edad_desde(edad)) stored,
+    edad_hasta integer GENERATED ALWAYS AS (extraer_edad_hasta(edad)) stored,
+    edad_umed text GENERATED ALWAYS AS (extraer_unidad_medida(edad)) stored,
+    CONSTRAINT perfiles_edad_uk UNIQUE (edad),
+    CONSTRAINT "rango de edades válido para perfiles_edad" CHECK (edad  ~ '^(?:1\s+año|(?:[2-9]\d*|\d{2,})\s+años)$' OR edad ~ '^\d+-\d+\s+(?:años|meses)$' OR edad ~ '^≥\s\d+\s+(?:años)$' OR edad ~ '^<\s\d+\s+(?:años)$' OR edad ~ '^>\s\d+\s+(?:años)$')
+);
+
+CREATE TABLE IF NOT EXISTS parametros_ccc
+(
+    parametro INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombreparametro text,
+    perfil_edad INTEGER,
+    cantidad INTEGER,
+    coeficiente double precision NOT NULL,
+    CONSTRAINT parametros_ccc_perfiles_edad_fkey FOREIGN KEY (perfil_edad)
+        REFERENCES ccc.perfiles_edad (perfil_edad)
+);
+
+CREATE TABLE IF NOT EXISTS pargru
+(
+    parametro integer NOT NULL,
+    agrupacion text NOT NULL,
+    grupo text NOT NULL,
+    CONSTRAINT pargru_pkey PRIMARY KEY (parametro, agrupacion, grupo),
+    CONSTRAINT parhoggru_agrupacion_grupo_fkey FOREIGN KEY (agrupacion, grupo)
+        REFERENCES grupos_ccc (agrupacion, grupo),
+    CONSTRAINT pargru_parametro_fkey FOREIGN KEY (parametro)
+        REFERENCES parametros_ccc (parametro)
+);
+
+GRANT SELECT ON TABLE hogares_ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE perfiles_edad TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE parametros_ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE pargru TO cvp_administrador, ccc_analista;
+
+do $SQL_ENANCE$
+ begin
+ PERFORM enance_table('hogares_ccc','hogar');
+ PERFORM enance_table('perfiles_edad','perfil_edad');
+ PERFORM enance_table('parametros_ccc','parametro');
+ PERFORM enance_table('pargru','parametro,agrupacion,grupo');
+ end
+$SQL_ENANCE$;
