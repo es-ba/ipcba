@@ -647,19 +647,23 @@ FOR i IN REVERSE vmaxnivel..1 LOOP
 END LOOP;
 
  FOR vhgru IN --toma los grupos-Hoja de CalHogGru
-   SELECT h.periodo, h.calculo, h.Hogar, h.agrupacion, h.grupo, c.indice, h.coefhoggru 
+   SELECT h.periodo, h.calculo, h.Hogar, h.agrupacion, h.grupo, c.indice/c_18.indice as coef_ajuste, h.coefhoggru, h.monto_may_18 
      FROM CalHogGru_CCC h 
           INNER JOIN Gruemp g ON g.grupo = h.grupo AND g.agrupacion = h.agrupacion  --PK verificada
           INNER JOIN calgru_ccc_b1112_b21_vw c ON c.grupo=g.grupo_b21 AND c.agrupacion = g.agrupacion_b21
                               AND c.agrupacion_b1112 = g.agrupacion_b1112 and c.grupo_b1112 = g.grupo_b1112
                               AND c.periodo = h.periodo AND c.calculo = h.calculo --PK verificada
+          INNER JOIN cvp.parametros p on unicoregistro
+          INNER JOIN calgru_ccc_b1112_b21_vw c_18 ON c_18.grupo=g.grupo_b21 AND c_18.agrupacion = g.agrupacion_b21
+                              AND c_18.agrupacion_b1112 = g.agrupacion_b1112 and c_18.grupo_b1112 = g.grupo_b1112
+                              AND c_18.periodo = p.periodo_ccc AND c_18.calculo = h.calculo --PK verificada
           --
      WHERE h.coefhoggru IS NOT NULL
        AND h.periodo = pperiodo 
        AND h.calculo = pcalculo
        AND h.agrupacion=pAgrupacion
  LOOP
-   UPDATE CalHogGru_CCC x SET valorHogGru = vhgru.indice * vhgru.coefHogGru
+   UPDATE CalHogGru_CCC x SET valorHogGru = vhgru.coef_ajuste * vhgru.monto_may_18
         --ver la cuenta para la valorización
      WHERE periodo = vhgru.periodo 
        AND calculo = vhgru.calculo 
