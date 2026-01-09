@@ -173,6 +173,7 @@ CREATE TABLE IF NOT EXISTS productos_ccc
     factor_correccion double precision,
     unidad_de_medida text,
     esproducto_ipc boolean DEFAULT true,
+    monto_promedio_may_18  double precision,
     PRIMARY KEY (producto),
     CONSTRAINT productos_ccc_unidades_fkey FOREIGN KEY (unidad_de_medida)
         REFERENCES cvp.unidades (unidad),
@@ -623,7 +624,7 @@ EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'CalHog_ccc_Valorizar', pTipo:='comenzo'
 
 INSERT INTO CalHogGru_CCC (periodo, calculo, hogar, agrupacion, grupo, CoefHogGru, monto_may_18)
   (SELECT pPeriodo as Periodo, pcalculo as Calculo, hg.hogar, hg.agrupacion, hg.grupo, 
-     COALESCE(coeficiente, cantidad) coefhoggru, COALESCE(coeficiente, cantidad) * monto_promedio_may_18 monto_may_18
+     sum(COALESCE(coeficiente, hg.cantidad)) coefhoggru, sum(COALESCE(coeficiente, hg.cantidad) * COALESCE(hg.monto_promedio_may_18,p.monto_promedio_may_18)) monto_may_18
      FROM hoggru hg
      JOIN agrupaciones_ccc a ON hg.agrupacion = a.agrupacion 
      LEFT JOIN (SELECT hp.hogar, hp.agrupacion, pg.grupo, p.coeficiente
@@ -631,7 +632,9 @@ INSERT INTO CalHogGru_CCC (periodo, calculo, hogar, agrupacion, grupo, CoefHogGr
                   JOIN pargru pg ON hp.parametro = pg.parametro AND hp.agrupacion = pg.agrupacion
                   JOIN parametros_ccc p ON hp.parametro = p.parametro) hv
      ON hg.hogar = hv.hogar AND hg.agrupacion = hv.agrupacion AND hg.grupo = hv.grupo
+     LEFT JOIN productos_ccc p ON p.producto = hg.grupo
    WHERE a.paravarioshogares
+   GROUP BY periodo, calculo, hg.hogar, hg.agrupacion, hg.grupo
   );
 
 -- sube por niveles
