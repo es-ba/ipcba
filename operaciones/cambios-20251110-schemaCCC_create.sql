@@ -443,7 +443,7 @@ END IF;
 DELETE FROM CalProdPerAgr WHERE periodo=pPeriodo AND calculo=pCalculo;
 DELETE FROM CalGruPer     WHERE periodo=pPeriodo AND calculo=pCalculo;
 --Para ver luego, tablas para HOGARES
-DELETE FROM CalHogGru_CCC  WHERE periodo=pPeriodo AND calculo=pCalculo;
+DELETE FROM CalHogParGru  WHERE periodo=pPeriodo AND calculo=pCalculo;
 --DELETE FROM CalHogSubtotales  WHERE periodo=pPeriodo AND calculo=pCalculo;
 
 EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Borrar', ptipo:='finalizo');
@@ -619,19 +619,17 @@ DECLARE
  vhgru record;
  vhg RECORD;
 BEGIN  
-EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'CalHog_ccc_Valorizar', pTipo:='comenzo'); 
---insercion en CalHogGru
 
-INSERT INTO CalHogGru_CCC (periodo, calculo, hogar, agrupacion, grupo, CoefHogGru, monto_may_18)
+EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'CalHog_ccc_Valorizar', pTipo:='comenzo'); 
+--insercion en calhogpargru
+
+INSERT INTO calhogpargru (periodo, calculo, hogar, agrupacion, grupo, CoefHogGru, monto_may_18)
   (SELECT pPeriodo as Periodo, pcalculo as Calculo, hg.hogar, hg.agrupacion, hg.grupo, 
-     sum(COALESCE(coeficiente, hg.cantidad)) coefhoggru, sum(COALESCE(coeficiente, hg.cantidad) * COALESCE(hg.monto_promedio_may_18,p.monto_promedio_may_18)) monto_may_18
-     FROM hoggru hg
+          sum(coeficiente * hg.cantidad) coefhoggru, 
+          sum(coeficiente * hg.cantidad * COALESCE(pc.monto_promedio_may_18, p.monto_promedio_may_18)) monto_may_18
+     FROM hogpargru hg
+     join parametros_ccc pc on hg.parametro = pc.parametro 
      JOIN agrupaciones_ccc a ON hg.agrupacion = a.agrupacion 
-     LEFT JOIN (SELECT hp.hogar, hp.agrupacion, pg.grupo, p.coeficiente
-                  FROM ccc.hogparagr hp
-                  JOIN pargru pg ON hp.parametro = pg.parametro AND hp.agrupacion = pg.agrupacion
-                  JOIN parametros_ccc p ON hp.parametro = p.parametro) hv
-     ON hg.hogar = hv.hogar AND hg.agrupacion = hv.agrupacion AND hg.grupo = hv.grupo
      LEFT JOIN productos_ccc p ON p.producto = hg.grupo
    WHERE a.paravarioshogares
    GROUP BY periodo, calculo, hg.hogar, hg.agrupacion, hg.grupo
@@ -639,19 +637,19 @@ INSERT INTO CalHogGru_CCC (periodo, calculo, hogar, agrupacion, grupo, CoefHogGr
 
 -- sube por niveles
 SELECT MAX(g.nivel) INTO vmaxnivel 
-  FROM CalHogGru_CCC c, Grupos_CCC g
+  FROM calhogpargru c, Grupos_CCC g
   WHERE c.periodo = pperiodo AND c.calculo = pcalculo AND c.agrupacion = g.agrupacion AND c.grupo = g.grupo AND c.agrupacion=pAgrupacion;
 FOR i IN REVERSE vmaxnivel..1 LOOP
-  INSERT INTO CalHogGru_CCC (periodo, calculo, hogar, agrupacion, grupo)
+  INSERT INTO calhogpargru (periodo, calculo, hogar, agrupacion, grupo)
     (SELECT DISTINCT periodo, calculo, hogar, agrupacion, grupopadre
        FROM (SELECT c.*, g.grupopadre, g.nivel
-               FROM CalHogGru_CCC c, Grupos_CCC g
+               FROM calhogpargru c, Grupos_CCC g
                WHERE c.periodo = pperiodo AND c.calculo = pcalculo AND c.agrupacion = g.agrupacion AND c.grupo = g.grupo AND g.nivel = i AND c.agrupacion=pAgrupacion) AS x);
 END LOOP;
 
  FOR vhgru IN --toma los grupos-Hoja de CalHogGru
    SELECT h.periodo, h.calculo, h.Hogar, h.agrupacion, h.grupo, c.indice/c_18.indice as coef_ajuste, h.coefhoggru, h.monto_may_18 
-     FROM CalHogGru_CCC h 
+     FROM calhogpargru h 
           INNER JOIN Gruemp g ON g.grupo = h.grupo AND g.agrupacion = h.agrupacion  --PK verificada
           INNER JOIN calgru_ccc_b1112_b21_vw c ON c.grupo=g.grupo_b21 AND c.agrupacion = g.agrupacion_b21
                               AND c.agrupacion_b1112 = g.agrupacion_b1112 and c.grupo_b1112 = g.grupo_b1112
@@ -666,7 +664,7 @@ END LOOP;
        AND h.calculo = pcalculo
        AND h.agrupacion=pAgrupacion
  LOOP
-   UPDATE CalHogGru_CCC x SET valorHogGru = vhgru.coef_ajuste * vhgru.monto_may_18
+   UPDATE calhogpargru x SET valorHogGru = vhgru.coef_ajuste * vhgru.monto_may_18
         --ver la cuenta para la valorización
      WHERE periodo = vhgru.periodo 
        AND calculo = vhgru.calculo 
@@ -677,7 +675,7 @@ END LOOP;
  
  SELECT MAX(nivel) INTO vmaxnivel --para los niveles superiores
    FROM Grupos_ccc g 
-        INNER JOIN CalHogGru_ccc h ON g.agrupacion = h.agrupacion AND g.grupo = h.grupo --FK verificada
+        INNER JOIN calhogpargru h ON g.agrupacion = h.agrupacion AND g.grupo = h.grupo --FK verificada
    WHERE h.valorhoggru IS NOT NULL
        AND h.periodo = pperiodo 
        AND h.calculo = pcalculo
@@ -687,17 +685,17 @@ END LOOP;
        FOR vhg IN 
          SELECT h.periodo, h.calculo, h.Hogar, h.agrupacion, h.grupo
            FROM Grupos_ccc g 
-                INNER JOIN CalHogGru_ccc h ON g.agrupacion = h.agrupacion AND g.grupo = h.grupo --FK verificada
+                INNER JOIN calhogpargru h ON g.agrupacion = h.agrupacion AND g.grupo = h.grupo --FK verificada
            WHERE g.nivel = i
              AND h.periodo = pperiodo 
              AND h.calculo = pcalculo
              AND h.ValorHogGru IS NULL
              AND h.agrupacion=pAgrupacion
        LOOP 
-         UPDATE CalHogGru_ccc c SET valorhoggru = 
+         UPDATE calhogpargru c SET valorhoggru = 
            (SELECT SUM(valorhoggru)
               FROM Grupos_ccc g
-                  INNER JOIN CalHogGru_ccc h ON g.agrupacion = h.agrupacion AND g.grupo = h.grupo --FK verificada
+                  INNER JOIN calhogpargru h ON g.agrupacion = h.agrupacion AND g.grupo = h.grupo --FK verificada
               WHERE c.grupo = g.grupopadre
                 AND c.periodo = h.periodo 
                 AND c.calculo = h.calculo
@@ -806,6 +804,7 @@ CREATE TABLE IF NOT EXISTS parametros_propiedades
     usa_ambientes boolean NOT NULL,
     usa_miembros boolean NOT NULL,
     usa_es_jefe boolean NOT NULL,
+    usa_monto_promedio_may_18 boolean NOT NULL,
     PRIMARY KEY (nombreparametro)
 );
 
@@ -817,13 +816,14 @@ CREATE TABLE IF NOT EXISTS parametros_ccc
     ambientes INTEGER,
     miembros INTEGER,
     es_jefe boolean,
+    monto_promedio_may_18 double precision,
     coeficiente double precision NOT NULL,
     CONSTRAINT parametros_ccc_perfiles_edad_fkey FOREIGN KEY (perfil_edad)
         REFERENCES ccc.perfiles_edad (perfil_edad),
     CONSTRAINT parametros_ccc_parametros_propiedades_fkey FOREIGN KEY (nombreparametro)
         REFERENCES ccc.parametros_propiedades (nombreparametro)
 );
-
+/*
 CREATE TABLE IF NOT EXISTS pargru
 (
     parametro integer NOT NULL,
@@ -866,7 +866,23 @@ CREATE TABLE IF NOT EXISTS hoggru
     CONSTRAINT hoggru_perfiles_edad_fkey FOREIGN KEY (perfil_edad)
         REFERENCES perfiles_edad (perfil_edad)
 );
-
+*/
+CREATE TABLE IF NOT EXISTS hogpargru
+(
+    hogar text NOT NULL,
+    parametro integer NOT NULL,
+    agrupacion text NOT NULL,
+    grupo text NOT NULL,
+    cantidad integer,
+    CONSTRAINT hogpargru_pkey PRIMARY KEY (hogar, parametro, agrupacion, grupo),
+    CONSTRAINT hogpargru_agrupacion_grupo_fkey FOREIGN KEY (agrupacion, grupo)
+        REFERENCES grupos_ccc (agrupacion, grupo),
+    CONSTRAINT hogpargru_hogar_fkey FOREIGN KEY (hogar)
+        REFERENCES hogares_ccc (hogar),
+    CONSTRAINT hogpargru_parametros_ccc_fkey FOREIGN KEY (parametro)
+        REFERENCES parametros_ccc (parametro)
+);
+/*
 CREATE TABLE IF NOT EXISTS calhoggru_ccc
 (
     periodo text NOT NULL,
@@ -885,15 +901,38 @@ CREATE TABLE IF NOT EXISTS calhoggru_ccc
     CONSTRAINT calhoggru_ccc_calculos_fkey FOREIGN KEY (periodo, calculo)
         REFERENCES cvp.calculos (periodo, calculo)
 );
+*/
+CREATE TABLE IF NOT EXISTS calhogpargru
+(
+    periodo text NOT NULL,
+    calculo integer NOT NULL,
+    hogar text NOT NULL,
+    --nombreparametro text NOT NULL,
+    agrupacion text NOT NULL,
+    grupo text NOT NULL,
+    cantidad integer,
+    coefhoggru double precision,
+    monto_may_18 double precision,
+    valorhoggru double precision,
+    CONSTRAINT calhogpargru_pkey PRIMARY KEY (periodo, calculo, hogar, agrupacion, grupo),
+    CONSTRAINT calhogpargru_hogar_fkey FOREIGN KEY (hogar)
+        REFERENCES hogares_ccc (hogar),
+    CONSTRAINT calhogpargru_grupos_ccc_fkey FOREIGN KEY (agrupacion, grupo)
+        REFERENCES grupos_ccc (agrupacion, grupo),
+    CONSTRAINT calhoggru_ccc_calculos_fkey FOREIGN KEY (periodo, calculo)
+        REFERENCES cvp.calculos (periodo, calculo)
+);
 
 GRANT SELECT ON TABLE hogares_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE perfiles_edad TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE parametros_propiedades TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE parametros_ccc TO cvp_administrador, ccc_analista;
-GRANT SELECT ON TABLE pargru TO cvp_administrador, ccc_analista;
-GRANT SELECT ON TABLE hogparagr TO cvp_administrador, ccc_analista;
-GRANT SELECT ON TABLE hoggru TO cvp_administrador, ccc_analista;
-GRANT SELECT ON TABLE calhoggru_ccc TO cvp_administrador, ccc_analista;
+--GRANT SELECT ON TABLE pargru TO cvp_administrador, ccc_analista;
+--GRANT SELECT ON TABLE hogparagr TO cvp_administrador, ccc_analista;
+--GRANT SELECT ON TABLE hoggru TO cvp_administrador, ccc_analista;
+--GRANT SELECT ON TABLE calhoggru_ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE hogpargru TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE calhogpargru TO cvp_administrador, ccc_analista;
 
 do $SQL_ENANCE$
  begin
@@ -901,9 +940,11 @@ do $SQL_ENANCE$
  PERFORM enance_table('perfiles_edad','perfil_edad');
  PERFORM enance_table('parametros_propiedades','nombreparametro');
  PERFORM enance_table('parametros_ccc','parametro');
- PERFORM enance_table('pargru','parametro,agrupacion,grupo');
- PERFORM enance_table('hogparagr','hogar,parametro,agrupacion');
- PERFORM enance_table('hoggru','hogar,agrupacion,grupo');
- PERFORM enance_table('calhoggru_ccc','periodo,calculo,hogar,agrupacion,grupo');
+ --PERFORM enance_table('pargru','parametro,agrupacion,grupo');
+ --PERFORM enance_table('hogparagr','hogar,parametro,agrupacion');
+ --PERFORM enance_table('hoggru','hogar,agrupacion,grupo');
+ --PERFORM enance_table('calhoggru_ccc','periodo,calculo,hogar,agrupacion,grupo');
+ PERFORM enance_table('hogpargru','hogar,parametro,agrupacion,grupo');
+ PERFORM enance_table('calhogpargru','periodo,calculo,hogar,agrupacion,grupo');
  end
 $SQL_ENANCE$;
