@@ -146,7 +146,7 @@ begin
         replace(round(h.valorhoggru::numeric,2)::text, '.', p_separador)
         ORDER BY replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric
     )::text as celda
-    FROM CalHogGru_CCC h
+    FROM CalHogParGru h
     LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
     JOIN calculos_def cd on h.calculo = cd.calculo
     WHERE h.agrupacion = parametro4
