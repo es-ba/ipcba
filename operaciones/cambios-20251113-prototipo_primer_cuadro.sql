@@ -108,17 +108,17 @@ select * from cvp.cuadros_funciones where funcion = 'res_cuadro_matriz_hogar';
 update cuadros_funciones_ccc set funcion = 'ccc_cuadro_matriz_hogar' where funcion = 'res_cuadro_matriz_hogar';
 
 INSERT INTO cuadros_ccc
-SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion, 
-    'Valorización de las Canastas de Consumo según las tipologías de hogares.' as parametro1, 
-    periodo, nivel, grupo, agrupacion, encabezado, pie, ponercodigos, agrupacion2, 16 as hogares, 
+SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
+    'Valorización de las Canastas de Consumo según las tipologías de hogares.' as parametro1,
+    periodo, nivel, grupo, agrupacion, encabezado, pie, ponercodigos, agrupacion2, 16 as hogares,
     pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta
     FROM cvp.cuadros
     where cuadro = 'H1';
-    
+
 --ccc_cuadro_matriz_hogar
 --UTF8=Sí
 
-create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text) 
+create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text)
   returns setof res_mat
   language plpgsql
 as
@@ -128,31 +128,36 @@ declare
     v_formato_renglon_cabezal text:='E111'; -- idem
 begin
   return query select 'anchos'::text as formato_renglon,
-                      'auto'::text, 
-                      'auto'::text,
-                      null::text,
-                      100::text;
+    'auto'::text,
+    'auto'::text,
+    null::text,
+    100::text;
   return query select v_formato_renglon_cabezal::text as formato_renglon,
-                      'Valorización'::text, 
-                      'Cód'::text,
-                      null::text,
-                      null::text;
+    'Valorización'::text,
+    'Código'::text,
+    null::text,
+    null::text;
   return query SELECT v_formato_renglon::text as formato_renglon,
-                      g.nombregrupo::text as lateral1,
-                      h.grupo::text as lateral2,
-                      h.hogar::text as cabezal1,
-                      replace(round(h.valorhoggru::numeric,2)::text,'.',p_separador) as celda
-                  FROM CalHogGru_CCC h 
-                  LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
-                  JOIN calculos_def cd on h.calculo = cd.calculo
-                 where h.agrupacion = parametro4
-                   and cd.principal
-                   and h.periodo = p_periodo
-                   and replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric < parametro6
-                   and g.nivel = 2
-                 ORDER BY h.agrupacion,g.nivel DESC NULLS LAST, h.grupo, replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric;
+    g.nombregrupo::text as lateral1,
+    h.grupo::text as lateral2,
+    null::text as cabezal1,
+    jsonb_object_agg(
+        h.hogar,
+        replace(round(h.valorhoggru::numeric,2)::text, '.', p_separador)
+        ORDER BY replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric
+    )::text as celda
+    FROM CalHogGru_CCC h
+    LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
+    JOIN calculos_def cd on h.calculo = cd.calculo
+    WHERE h.agrupacion = parametro4
+      and cd.principal
+      and h.periodo = p_periodo
+      and replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric < parametro6
+      and g.nivel = 2
+    GROUP BY v_formato_renglon, g.nombregrupo, h.grupo
+    ORDER BY h.grupo;
 end;
 $BODY$;
 
---test 
-SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2025m05'::text, 'G'::text, 'H1', 16, ',');  
+--test
+SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2025m05'::text, 'G'::text, 'H1', 16, ',');

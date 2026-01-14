@@ -2902,11 +2902,65 @@ ProceduresIpcba = [
                 if(!cuadro){
                     throw new Error(`No se encontró un registro en cuadros_ccc con el cuadro ${parameters.cuadro}.`);
                 }
-                const result = await context.client.query(
-                    `SELECT * from ccc_cuadro_up(null, $1, $2, false, false , $3,'.')`,
-                    [parameters.periodo, cuadro.grupo, parameters.periododesde]
-                ).fetchAll();
-                return {cuadro:parameters.cuadro, rows: result.rows};
+                let result_rows = []
+                switch (cuadro.cuadro) {
+                  case '1':
+                    result_rows = (await context.client.query(
+                      `SELECT * from ccc_cuadro_up(null, $1, $2, false, false , $3,'.')`,
+                      [parameters.periodo, cuadro.grupo, parameters.periododesde]
+                    ).fetchAll()).rows;
+                    break;
+                  case 'H1':
+                    result_rows = (await context.client.query(
+                      `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, 'G', 'H1', 16, '.')`,
+                      [parameters.periodo]
+                    ).fetchAll()).rows;
+                    const tablaProcesada = result_rows.map(row => {
+                      // 1. Extraemos las columnas base (saltando las que no quieras, ej. renglon/formato)
+                      const { formato_renglon, lateral1, lateral2, celda } = row;
+
+                      // 2. Intentamos parsear el contenido de 'celda'
+                      let columnasHogar = {};
+                      try {
+                          // Si 'celda' es un string JSON como '{"Hogar CCC 1": "28623,42"}'
+                          // Si ya es un objeto (JSONB en Postgres), no hace falta el parse.
+                          columnasHogar = typeof celda === 'string' ? JSON.parse(celda) : (celda || {});
+                      } catch (e) {
+                          // Si no es un JSON válido (como el "100" de la primera fila), lo ignoramos o manejamos
+                          columnasHogar = {};
+                      }
+
+                      // 3. Retornamos un solo objeto combinado
+                      return {
+                          formato_renglon,
+                          lateral2,
+                          lateral1,
+                          ...columnasHogar // Esto expande dinámicamente "Hogar CCC 1", "Hogar CCC 2", etc.
+                      };
+                    });
+                    const todosLosNombresDeColumnas = new Set();
+
+                    tablaProcesada.forEach(fila => {
+                        Object.keys(fila).forEach(key => todosLosNombresDeColumnas.add(key));
+                    });
+
+                    const columnas = Array.from(todosLosNombresDeColumnas);
+                    const columnas_rows = tablaProcesada.map((fila, index) => {
+                      // Si esta es la fila que quieres usar como encabezado (ej. la segunda fila del resultado)
+                      if (index === 1) {
+                          columnas.forEach(col => {
+                              // Si la celda está vacía, le ponemos el nombre de la columna (Hogar 1, etc.)
+                              if (!fila[col]) fila[col] = col;
+                          });
+                      }
+                      return fila;
+                    });
+                    result_rows = columnas_rows;
+                    break;
+                  default:
+                    // Código si no coincide con ninguno de los anteriores
+                }
+              return {cuadro:parameters.cuadro, rows: result_rows};
             }catch(err){
                 console.log(err);
                 console.log(err.code);
