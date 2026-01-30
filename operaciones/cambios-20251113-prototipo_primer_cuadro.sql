@@ -154,6 +154,7 @@ begin
       and h.periodo = p_periodo
       and replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric < parametro6
       and g.nivel = 2
+      and h.hogar like 'Hogar CCC%'
     GROUP BY v_formato_renglon, g.nombregrupo, h.grupo
     ORDER BY h.grupo;
 end;
