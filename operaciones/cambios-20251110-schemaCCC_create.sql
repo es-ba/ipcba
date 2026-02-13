@@ -794,7 +794,7 @@ CREATE TABLE IF NOT EXISTS perfiles_edad
     edad_hasta integer GENERATED ALWAYS AS (extraer_edad_hasta(edad)) stored,
     edad_umed text GENERATED ALWAYS AS (extraer_unidad_medida(edad)) stored,
     CONSTRAINT perfiles_edad_uk UNIQUE (edad),
-    CONSTRAINT "rango de edades válido para perfiles_edad" CHECK (edad  ~ '^(?:1\s+año|(?:[2-9]\d*|\d{2,})\s+años)$' OR edad ~ '^\d+-\d+\s+(?:años|meses)$' OR edad ~ '^≥\s\d+\s+(?:años)$' OR edad ~ '^<\s\d+\s+(?:años)$' OR edad ~ '^>\s\d+\s+(?:años)$')
+    CONSTRAINT "rango de edades válido para perfiles_edad" CHECK (edad  ~ '^(?:1\s+año|(?:[02-9]\d*|\d{2,})\s+años)$' OR edad ~ '^\d+-\d+\s+(?:años|meses)$' OR edad ~ '^≥\s\d+\s+(?:años)$' OR edad ~ '^<\s\d+\s+(?:años)$' OR edad ~ '^>\s\d+\s+(?:años)$')
 );
 
 CREATE TABLE IF NOT EXISTS parametros_propiedades
@@ -805,6 +805,8 @@ CREATE TABLE IF NOT EXISTS parametros_propiedades
     usa_miembros boolean NOT NULL,
     usa_es_jefe boolean NOT NULL,
     usa_monto_promedio_may_18 boolean NOT NULL,
+    usa_horas_diarias boolean not null,
+    usa_es_promedio boolean not null,
     PRIMARY KEY (nombreparametro)
 );
 
@@ -817,6 +819,8 @@ CREATE TABLE IF NOT EXISTS parametros_ccc
     miembros INTEGER,
     es_jefe boolean,
     monto_promedio_may_18 double precision,
+    horas_diarias INTEGER,
+    es_promedio boolean,
     coeficiente double precision NOT NULL,
     CONSTRAINT parametros_ccc_perfiles_edad_fkey FOREIGN KEY (perfil_edad)
         REFERENCES ccc.perfiles_edad (perfil_edad),
@@ -923,6 +927,18 @@ CREATE TABLE IF NOT EXISTS calhogpargru
         REFERENCES cvp.calculos (periodo, calculo)
 );
 
+--costo del servicio doméstico para el personal de cuidados 
+CREATE TABLE IF NOT EXISTS novservdom (
+    periodo text NOT NULL,
+    monto_hora_general double precision,
+    monto_hora_cuidado double precision,
+    monto_mes_cuidado double precision,
+    monto_hora_promedio double precision,
+    CONSTRAINT novservdom_pkey PRIMARY KEY (periodo),
+    CONSTRAINT novservdom_periodos_fkey FOREIGN KEY (periodo)
+        REFERENCES cvp.periodos (periodo)
+);
+
 GRANT SELECT ON TABLE hogares_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE perfiles_edad TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE parametros_propiedades TO cvp_administrador, ccc_analista;
@@ -933,6 +949,7 @@ GRANT SELECT ON TABLE parametros_ccc TO cvp_administrador, ccc_analista;
 --GRANT SELECT ON TABLE calhoggru_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE hogpargru TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE calhogpargru TO cvp_administrador, ccc_analista;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE novservdom TO cvp_administrador, ccc_analista;
 
 do $SQL_ENANCE$
  begin
@@ -946,5 +963,6 @@ do $SQL_ENANCE$
  --PERFORM enance_table('calhoggru_ccc','periodo,calculo,hogar,agrupacion,grupo');
  PERFORM enance_table('hogpargru','hogar,parametro,agrupacion,grupo');
  PERFORM enance_table('calhogpargru','periodo,calculo,hogar,agrupacion,grupo');
+ PERFORM enance_table('novservdom','periodo');
  end
 $SQL_ENANCE$;
