@@ -933,7 +933,13 @@ CREATE TABLE IF NOT EXISTS novservdom (
     monto_hora_general double precision,
     monto_hora_cuidado double precision,
     monto_mes_cuidado double precision,
-    monto_hora_promedio double precision,
+    monto_hora_promedio double precision
+       GENERATED ALWAYS AS (
+          CASE 
+            WHEN monto_hora_general IS NULL OR monto_hora_cuidado IS NULL THEN 0
+            ELSE (monto_hora_general + monto_hora_cuidado) / 2.0
+          END
+       ) STORED,
     CONSTRAINT novservdom_pkey PRIMARY KEY (periodo),
     CONSTRAINT novservdom_periodos_fkey FOREIGN KEY (periodo)
         REFERENCES cvp.periodos (periodo)
@@ -966,3 +972,67 @@ do $SQL_ENANCE$
  PERFORM enance_table('novservdom','periodo');
  end
 $SQL_ENANCE$;
+
+--integridad de las propiedades de los parametros
+CREATE OR REPLACE FUNCTION verificar_usa_propiedad() RETURNS trigger
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = ccc
+AS
+$$
+DECLARE
+  v_parprod record;
+  v_new_json jsonb;
+  v_meta_json jsonb;
+  v_columna_config text;
+  v_valor_config text;
+  v_propiedad_real text;
+  v_errores text[] := '{}';
+BEGIN
+  -- 1. Obtener la fila de configuración
+  SELECT * INTO v_parprod 
+  FROM parametros_propiedades 
+  WHERE nombreparametro = NEW.nombreparametro;
+
+  -- 2. Convertir registros a JSONB
+  v_new_json := to_jsonb(NEW);
+  v_meta_json := to_jsonb(v_parprod);
+
+  -- 3. Recorrer DINÁMICAMENTE todas las columnas de la tabla de configuración
+  -- key (v_columna_config) será el nombre del campo, value (v_valor_config) su valor
+  FOR v_columna_config, v_valor_config IN SELECT * FROM jsonb_each_text(v_meta_json)
+  LOOP
+    -- Filtramos: ¿La columna empieza con 'usa_'?
+    IF v_columna_config LIKE 'usa_%' THEN
+      -- Extraemos el nombre de la propiedad real (quitando el 'usa_')
+      -- Ejemplo: 'usa_perfil_edad' -> 'perfil_edad'
+      v_propiedad_real := substr(v_columna_config, 5);
+      -- verificamos la integridad
+      IF v_valor_config = 'true' THEN
+        IF (v_new_json->>v_propiedad_real) IS NULL THEN
+            v_errores := array_append(v_errores, format('La propiedad "%s" es obligatoria', v_propiedad_real));
+        END IF;
+      ELSIF v_valor_config = 'false' THEN
+        IF (v_new_json->>v_propiedad_real) IS NOT NULL THEN
+            v_errores := array_append(v_errores, format('La propiedad "%s" debe ser nula porque no está habilitada', v_propiedad_real));
+        END IF;
+      END IF;
+    END IF;
+  END LOOP;
+
+  -- 4. Lanzar reporte de errores si existen
+  IF array_length(v_errores, 1) > 0 THEN
+    RAISE EXCEPTION 'Errores de integridad para el parámetro "%": %', 
+      NEW.nombreparametro, 
+      array_to_string(v_errores, ' | ');
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS verificar_usa_propiedad ON parametros_ccc;
+CREATE TRIGGER verificar_usa_propiedad
+    BEFORE INSERT OR UPDATE ON parametros_ccc
+    FOR EACH ROW
+    EXECUTE PROCEDURE verificar_usa_propiedad();
