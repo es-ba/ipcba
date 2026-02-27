@@ -79,7 +79,7 @@ function generateTableHtml(data: any[]) {
 
 function generateActionButtons(cuadro: string) {
     let exportButton = html.button({}, 'exportar').create()
-    exportButton.onclick = () => exportTableToExcel(TABLE_ELEMENT_ID,`cuadro_${cuadro}`) //TODO: parametrizar
+    exportButton.onclick = () => exportTableToExcel(TABLE_ELEMENT_ID,`cuadro_${cuadro}`)
     return html.div({ class: 'actions' }, [
         exportButton
     ]);

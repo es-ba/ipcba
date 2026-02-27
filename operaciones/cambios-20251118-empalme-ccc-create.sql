@@ -1,16 +1,22 @@
 set search_path= ccc,cvp;
 set role cvpowner;
 drop table if exists empalme_ccc_b1112 cascade;
-CREATE TABLE IF NOT EXISTS empalme_ccc_b1112 AS 
+CREATE TABLE IF NOT EXISTS empalme_ccc_b1112 AS
 select * from empalme_b1112 where false;
 
 ALTER TABLE empalme_ccc_b1112 ADD COLUMN agrupamiento INTEGER;
-ALTER TABLE empalme_ccc_b1112 RENAME COLUMN agrupacion TO agrupacion_b21; 
-ALTER TABLE empalme_ccc_b1112 RENAME COLUMN grupo TO grupo_b21; 
+ALTER TABLE empalme_ccc_b1112 RENAME COLUMN agrupacion TO agrupacion_b21;
+ALTER TABLE empalme_ccc_b1112 RENAME COLUMN grupo TO grupo_b21;
 
 ALTER TABLE IF EXISTS empalme_ccc_b1112
     ADD CONSTRAINT empalme_ccc_b1112_agrupacion_b1112_grupo_b1112_fkey FOREIGN KEY (agrupacion_b1112, grupo_b1112)
     REFERENCES cvp.grupos_b1112 (agrupacion, grupo);
+
+GRANT SELECT ON TABLE cvp.grupos_b1112 TO ccc_analista;
+
+GRANT SELECT ON TABLE cvp.grupos_b1112 TO cvp_administrador;
+
+GRANT ALL ON TABLE cvp.grupos_b1112 TO cvpowner;
 
 ALTER TABLE IF EXISTS empalme_ccc_b1112
     ADD CONSTRAINT empalme_ccc_b1112_agrupacion_b21_grupo_b21_fkey FOREIGN KEY (agrupacion_b21, grupo_b21)
@@ -20,7 +26,7 @@ ALTER TABLE IF EXISTS empalme_ccc_b1112
     ADD CONSTRAINT empalme_ccc_b1112_pkey PRIMARY KEY (agrupacion_b1112, grupo_b1112, agrupacion_b21, grupo_b21);
 
 drop table if exists gruemp cascade;
-CREATE TABLE IF NOT EXISTS gruemp AS 
+CREATE TABLE IF NOT EXISTS gruemp AS
 select agrupacion_b1112, grupo_b1112, agrupacion_b21, grupo_b21 from empalme_ccc_b1112 where false;
 
 ALTER TABLE gruemp ADD COLUMN agrupacion text;
@@ -33,6 +39,18 @@ ALTER TABLE IF EXISTS gruemp
 ALTER TABLE IF EXISTS gruemp
     ADD CONSTRAINT gruemp_grupos_ccc FOREIGN KEY (agrupacion, grupo)
     REFERENCES grupos_ccc (agrupacion, grupo);
+
+GRANT SELECT ON TABLE ccc.gruemp TO ccc_analista;
+
+GRANT SELECT ON TABLE ccc.gruemp TO cvp_administrador;
+
+GRANT ALL ON TABLE ccc.gruemp TO cvpowner;
+
+GRANT SELECT ON TABLE ccc.empalme_ccc_b1112 TO ccc_analista;
+
+GRANT SELECT ON TABLE ccc.empalme_ccc_b1112 TO cvp_administrador;
+
+GRANT ALL ON TABLE ccc.empalme_ccc_b1112 TO cvpowner;
 
 do $SQL_ENANCE$
  begin
@@ -53,8 +71,8 @@ AS $BODY$
 DECLARE
   v_operacion text:=substr(TG_OP,1,1);
 BEGIN
-  
-IF v_operacion='I' THEN 
+
+IF v_operacion='I' THEN
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_bool)
          VALUES ('cvp','parametros','unicoregistro','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.unicoregistro),new.unicoregistro);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
@@ -76,11 +94,11 @@ IF v_operacion='I' THEN
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
          VALUES ('cvp','parametros','soloingresaingresador','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.soloingresaingresador),new.soloingresaingresador);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
-         VALUES ('cvp','parametros','pb_desde','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_desde),new.pb_desde);     
+         VALUES ('cvp','parametros','pb_desde','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_desde),new.pb_desde);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
-         VALUES ('cvp','parametros','pb_hasta','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_hasta),new.pb_hasta);          
+         VALUES ('cvp','parametros','pb_hasta','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.pb_hasta),new.pb_hasta);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
-         VALUES ('cvp','parametros','ph_desde','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.ph_desde),new.ph_desde);     
+         VALUES ('cvp','parametros','ph_desde','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.ph_desde),new.ph_desde);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_number)
          VALUES ('cvp','parametros','sup_aleat_prob1','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.sup_aleat_prob1),new.sup_aleat_prob1);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_number)
@@ -110,31 +128,31 @@ IF v_operacion='I' THEN
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,new_text)
          VALUES ('cvp','parametros','periodo_ccc','I',new.unicoregistro,new.unicoregistro,'I:'||comun.a_texto(new.periodo_ccc),new.periodo_ccc);
 END IF;
-IF v_operacion='U' THEN    
+IF v_operacion='U' THEN
     IF new.unicoregistro IS DISTINCT FROM old.unicoregistro THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_bool,new_bool)
              VALUES ('cvp','parametros','unicoregistro','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.unicoregistro)||'->'||comun.a_texto(new.unicoregistro),old.unicoregistro,new.unicoregistro);
-    END IF;    
+    END IF;
     IF new.nombreaplicacion IS DISTINCT FROM old.nombreaplicacion THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','nombreaplicacion','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.nombreaplicacion)||'->'||comun.a_texto(new.nombreaplicacion),old.nombreaplicacion,new.nombreaplicacion);
-    END IF;    
+    END IF;
     IF new.titulo IS DISTINCT FROM old.titulo THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','titulo','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.titulo)||'->'||comun.a_texto(new.titulo),old.titulo,new.titulo);
-    END IF;    
+    END IF;
     IF new.archivologo IS DISTINCT FROM old.archivologo THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','archivologo','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.archivologo)||'->'||comun.a_texto(new.archivologo),old.archivologo,new.archivologo);
-    END IF;    
+    END IF;
     IF new.tamannodesvpre IS DISTINCT FROM old.tamannodesvpre THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','tamannodesvpre','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.tamannodesvpre)||'->'||comun.a_texto(new.tamannodesvpre),old.tamannodesvpre,new.tamannodesvpre);
-    END IF;    
+    END IF;
     IF new.tamannodesvvar IS DISTINCT FROM old.tamannodesvvar THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','tamannodesvvar','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.tamannodesvvar)||'->'||comun.a_texto(new.tamannodesvvar),old.tamannodesvvar,new.tamannodesvvar);
-    END IF;    
+    END IF;
     IF new.codigo IS DISTINCT FROM old.codigo THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','codigo','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.codigo)||'->'||comun.a_texto(new.codigo),old.codigo,new.codigo);
@@ -142,15 +160,15 @@ IF v_operacion='U' THEN
     IF new.formularionumeracionglobal IS DISTINCT FROM old.formularionumeracionglobal THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','formularionumeracionglobal','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.formularionumeracionglobal)||'->'||comun.a_texto(new.formularionumeracionglobal),old.formularionumeracionglobal,new.formularionumeracionglobal);
-    END IF;    
+    END IF;
     IF new.estructuraversioncommit IS DISTINCT FROM old.estructuraversioncommit THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','estructuraversioncommit','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.estructuraversioncommit)||'->'||comun.a_texto(new.estructuraversioncommit),old.estructuraversioncommit,new.estructuraversioncommit);
-    END IF;    
+    END IF;
     IF new.soloingresaingresador IS DISTINCT FROM old.soloingresaingresador THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','soloingresaingresador','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.soloingresaingresador)||'->'||comun.a_texto(new.soloingresaingresador),old.soloingresaingresador,new.soloingresaingresador);
-    END IF;    
+    END IF;
     IF new.pb_desde IS DISTINCT FROM old.pb_desde THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','pb_desde','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.pb_desde)||'->'||comun.a_texto(new.pb_desde),old.pb_desde,new.pb_desde);
@@ -166,61 +184,61 @@ IF v_operacion='U' THEN
     IF new.sup_aleat_prob1 IS DISTINCT FROM old.sup_aleat_prob1 THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','sup_aleat_prob1','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.sup_aleat_prob1)||'->'||comun.a_texto(new.sup_aleat_prob1),old.sup_aleat_prob1,new.sup_aleat_prob1);
-    END IF;    
+    END IF;
     IF new.sup_aleat_prob2 IS DISTINCT FROM old.sup_aleat_prob2 THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','sup_aleat_prob2','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.sup_aleat_prob2)||'->'||comun.a_texto(new.sup_aleat_prob2),old.sup_aleat_prob2,new.sup_aleat_prob2);
-    END IF;    
+    END IF;
     IF new.sup_aleat_prob_per IS DISTINCT FROM old.sup_aleat_prob_per THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','sup_aleat_prob_per','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.sup_aleat_prob_per)||'->'||comun.a_texto(new.sup_aleat_prob_per),old.sup_aleat_prob_per,new.sup_aleat_prob_per);
-    END IF;    
+    END IF;
     IF new.sup_aleat_prob_pantar IS DISTINCT FROM old.sup_aleat_prob_pantar THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','sup_aleat_prob_pantar','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.sup_aleat_prob_pantar)||'->'||comun.a_texto(new.sup_aleat_prob_pantar),old.sup_aleat_prob_pantar,new.sup_aleat_prob_pantar);
-    END IF;    
+    END IF;
     IF new.diferencia_horaria_tolerancia_ipad IS DISTINCT FROM old.diferencia_horaria_tolerancia_ipad THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','diferencia_horaria_tolerancia_ipad','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.diferencia_horaria_tolerancia_ipad)||'->'||comun.a_texto(new.diferencia_horaria_tolerancia_ipad),old.diferencia_horaria_tolerancia_ipad,new.diferencia_horaria_tolerancia_ipad);
-    END IF;    
+    END IF;
     IF new.diferencia_horaria_advertencia_ipad IS DISTINCT FROM old.diferencia_horaria_advertencia_ipad THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','diferencia_horaria_advertencia_ipad','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.diferencia_horaria_advertencia_ipad)||'->'||comun.a_texto(new.diferencia_horaria_advertencia_ipad),old.diferencia_horaria_advertencia_ipad,new.diferencia_horaria_advertencia_ipad);
-    END IF;    
+    END IF;
     IF new.puedeagregarvisita IS DISTINCT FROM old.puedeagregarvisita THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','puedeagregarvisita','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.puedeagregarvisita)||'->'||comun.a_texto(new.puedeagregarvisita),old.puedeagregarvisita,new.puedeagregarvisita);
-    END IF;    
+    END IF;
     IF new.permitir_cualquier_cambio_panel_tarea IS DISTINCT FROM old.permitir_cualquier_cambio_panel_tarea THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_bool,new_bool)
              VALUES ('cvp','parametros','permitir_cualquier_cambio_panel_tarea','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.permitir_cualquier_cambio_panel_tarea)||'->'||comun.a_texto(new.permitir_cualquier_cambio_panel_tarea),old.permitir_cualquier_cambio_panel_tarea,new.permitir_cualquier_cambio_panel_tarea);
-    END IF;    
+    END IF;
     IF new.periodoreferenciaparapaneltarea IS DISTINCT FROM old.periodoreferenciaparapaneltarea THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','periodoreferenciaparapaneltarea','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.periodoreferenciaparapaneltarea)||'->'||comun.a_texto(new.periodoreferenciaparapaneltarea),old.periodoreferenciaparapaneltarea,new.periodoreferenciaparapaneltarea);
-    END IF;    
+    END IF;
     IF new.periodoreferenciaparapreciospositivos IS DISTINCT FROM old.periodoreferenciaparapreciospositivos THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','periodoreferenciaparapreciospositivos','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.periodoreferenciaparapreciospositivos)||'->'||comun.a_texto(new.periodoreferenciaparapreciospositivos),old.periodoreferenciaparapreciospositivos,new.periodoreferenciaparapreciospositivos);
-    END IF;    
+    END IF;
     IF new.solo_cluster IS DISTINCT FROM old.solo_cluster THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','solo_cluster','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.solo_cluster)||'->'||comun.a_texto(new.solo_cluster),old.solo_cluster,new.solo_cluster);
-    END IF;    
+    END IF;
     IF new.umbraligualdad IS DISTINCT FROM old.umbraligualdad THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number,new_number)
              VALUES ('cvp','parametros','umbraligualdad','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.umbraligualdad)||'->'||comun.a_texto(new.umbraligualdad),old.umbraligualdad,new.umbraligualdad);
-    END IF;    
+    END IF;
     IF new.periodo_empalme IS DISTINCT FROM old.periodo_empalme THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','periodo_empalme','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.periodo_empalme)||'->'||comun.a_texto(new.periodo_empalme),old.periodo_empalme,new.periodo_empalme);
-    END IF;    
+    END IF;
     IF new.periodo_ccc IS DISTINCT FROM old.periodo_ccc THEN
         INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text,new_text)
              VALUES ('cvp','parametros','periodo_ccc','U',new.unicoregistro,new.unicoregistro,comun.A_TEXTO(old.periodo_ccc)||'->'||comun.a_texto(new.periodo_ccc),old.periodo_ccc,new.periodo_ccc);
-    END IF;    
+    END IF;
 END IF;
-IF v_operacion='D' THEN  
+IF v_operacion='D' THEN
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_bool)
          VALUES ('cvp','parametros','unicoregistro','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.unicoregistro),old.unicoregistro);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text)
@@ -242,11 +260,11 @@ IF v_operacion='D' THEN
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text)
          VALUES ('cvp','parametros','soloingresaingresador','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.soloingresaingresador),old.soloingresaingresador);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text)
-         VALUES ('cvp','parametros','pb_desde','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_desde),old.pb_desde);          
+         VALUES ('cvp','parametros','pb_desde','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_desde),old.pb_desde);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text)
-         VALUES ('cvp','parametros','pb_hasta','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_hasta),old.pb_hasta);     
+         VALUES ('cvp','parametros','pb_hasta','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.pb_hasta),old.pb_hasta);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_text)
-         VALUES ('cvp','parametros','ph_desde','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.ph_desde),old.ph_desde);          
+         VALUES ('cvp','parametros','ph_desde','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.ph_desde),old.ph_desde);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number)
          VALUES ('cvp','parametros','sup_aleat_prob1','D',old.unicoregistro,old.unicoregistro,'D:'||comun.a_texto(old.sup_aleat_prob1),old.sup_aleat_prob1);
     INSERT INTO his.his_campos_cvp (esquema,tabla,campo,operacion,concated_pk,pk_bool_1,change_value,old_number)
@@ -280,7 +298,7 @@ END IF;
   IF v_operacion<>'D' THEN
     RETURN new;
   ELSE
-    RETURN old;  
+    RETURN old;
   END IF;
 END;
 $BODY$;
