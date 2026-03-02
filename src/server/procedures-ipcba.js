@@ -2886,7 +2886,7 @@ ProceduresIpcba = [
         parameters:[
             {name:'periodo'    , typeName:'text', references:'periodos'},
             {name:'cuadro'    , typeName:'text', references:'cuadros_ccc'},
-            //{name:'separador_decimal'    , typeName:'text', options:[',','.']},
+            {name:'separador_decimal'    , typeName:'text', options:[',','.']},
             {name:'periodo_desde'    , typeName:'text', references:'periodos'},
             //{name:'hogar'    , typeName:'text', references:'hogares'},
             //{name:'agrupacion'    , typeName:'text', references:'agrupaciones_ccc'},
@@ -2906,14 +2906,14 @@ ProceduresIpcba = [
                 switch (cuadro.cuadro) {
                   case '1':
                     result_rows = (await context.client.query(
-                      `SELECT * from ccc_cuadro_up(null, $1, $2, false, false , $3,'.')`,
-                      [parameters.periodo, cuadro.grupo, parameters.periododesde]
+                      `SELECT * from ccc_cuadro_up(null, $1, $2, false, false , $3,$4)`,
+                      [parameters.periodo, cuadro.grupo, parameters.periododesde, parameters.separador_decimal]
                     ).fetchAll()).rows;
                     break;
                   case 'H1':
                     result_rows = (await context.client.query(
-                      `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, 'G', 'H1', 16, '.')`,
-                      [parameters.periodo]
+                      `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, 'G', 'H1', 16, $2)`,
+                      [parameters.periodo, parameters.separador_decimal]
                     ).fetchAll()).rows;
                     const tablaProcesada = result_rows.map(row => {
                       // 1. Extraemos las columnas base (saltando las que no quieras, ej. renglon/formato)
@@ -2960,7 +2960,7 @@ ProceduresIpcba = [
                   default:
                     // Código si no coincide con ninguno de los anteriores
                 }
-              return {cuadro:parameters.cuadro, rows: result_rows};
+              return {cuadro:parameters.cuadro, rows: result_rows, separador_decimal: parameters.separador_decimal};
             }catch(err){
                 console.log(err);
                 console.log(err.code);

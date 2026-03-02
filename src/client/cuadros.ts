@@ -10,8 +10,7 @@ const TABLE_ELEMENT_ID = 'cuadro_resultante';
  * @param tableID El ID del elemento <table> a exportar (ej: 'miTabla').
  * @param filename El nombre base para el archivo de salida.
  */
-function exportTableToExcel(tableID: string, filename: string): void {
-    // 1. Obtener la tabla del DOM
+function exportTableToExcel(tableID: string, filename: string, separador_decimal: string): void {
     const table = document.getElementById(tableID);
 
     if (!table || !(table instanceof HTMLTableElement)) {
@@ -19,20 +18,32 @@ function exportTableToExcel(tableID: string, filename: string): void {
         return;
     }
 
-    // 2. Convertir el elemento HTML <table> a una hoja de cálculo (Workbook Sheet)
-    const ws = XLSX.utils.table_to_sheet(table);
+    let ws = XLSX.utils.table_to_sheet(table, { raw: true });
 
-    // 3. Crear un nuevo libro de trabajo (Workbook)
+    if (ws) {
+        Object.keys(ws).forEach(key => {
+            if (key[0] === '!') return; // Ignorar metadatos de la hoja
+
+            let cell = ws[key];
+            if (cell && cell.t === 's') { // Ahora sí, todas entrarán como String inicialmente
+                let val = cell.v.trim();
+
+                if (separador_decimal === ',') {
+                    let cleanVal = val.replace(',', '.');
+
+                    if (!isNaN(cleanVal as any) && cleanVal !== "") {
+                        cell.v = parseFloat(cleanVal);
+                        cell.t = 'n'; // Cambiamos tipo a 'n' (Number)
+                        cell.z = '0.00'; // Aplicamos formato
+                    }
+                }
+            }
+        });
+    }
+
     const wb = XLSX.utils.book_new();
-
-    // 4. Agregar la hoja de cálculo al libro, nombrándola "Datos"
     XLSX.utils.book_append_sheet(wb, ws, "Datos");
-
-    // 5. Escribir y descargar el archivo XLSX
-    // Esto genera y descarga el archivo usando el nombre especificado.
     XLSX.writeFile(wb, filename + ".xlsx");
-
-    console.log(`Tabla exportada a ${filename}.xlsx`);
 }
 
 function generateTableHtml(data: any[]) {
@@ -67,8 +78,11 @@ function generateTableHtml(data: any[]) {
     const dataRows = data.slice(2);
 
     const tbodyContent = dataRows.map((row: any) => {
-        // IMPORTANTE: Mapeamos cada celda usando las llaves filtradas
-        const rowCells = columnKeys.map(key => html.td(row[key]?.toString() || ""));
+        const rowCells = columnKeys.map(key => {
+            let value = row[key]?.toString() || "";
+            // Eliminamos espacios extra que podrían causar que isNaN falle
+            return html.td(value.trim());
+        });
         return html.tr(rowCells);
     });
 
@@ -77,15 +91,15 @@ function generateTableHtml(data: any[]) {
     return html.table({ id: TABLE_ELEMENT_ID }, [thead, tbody]);
 }
 
-function generateActionButtons(cuadro: string) {
+function generateActionButtons(cuadro: string, separador_decimal: string) {
     let exportButton = html.button({}, 'exportar').create()
-    exportButton.onclick = () => exportTableToExcel(TABLE_ELEMENT_ID,`cuadro_${cuadro}`)
+    exportButton.onclick = () => exportTableToExcel(TABLE_ELEMENT_ID,`cuadro_${cuadro}`, separador_decimal);
     return html.div({ class: 'actions' }, [
         exportButton
     ]);
 }
 
-my.wScreens.proc.result.mostrar_cuadro=function(result, divResult){
+my.wScreens.proc.result.mostrar_cuadro=function(result:any, divResult:any){
     divResult.appendChild(generateTableHtml(result.rows).create());
-    divResult.appendChild(generateActionButtons(result.cuadro).create());
+    divResult.appendChild(generateActionButtons(result.cuadro, result.separador_decimal).create());
 }
