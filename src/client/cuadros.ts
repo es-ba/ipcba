@@ -18,28 +18,7 @@ function exportTableToExcel(tableID: string, filename: string, separador_decimal
         return;
     }
 
-    let ws = XLSX.utils.table_to_sheet(table, { raw: true });
-
-    if (ws) {
-        Object.keys(ws).forEach(key => {
-            if (key[0] === '!') return; // Ignorar metadatos de la hoja
-
-            let cell = ws[key];
-            if (cell && cell.t === 's') { // Ahora sí, todas entrarán como String inicialmente
-                let val = cell.v.trim();
-
-                if (separador_decimal === ',') {
-                    let cleanVal = val.replace(',', '.');
-
-                    if (!isNaN(cleanVal as any) && cleanVal !== "") {
-                        cell.v = parseFloat(cleanVal);
-                        cell.t = 'n'; // Cambiamos tipo a 'n' (Number)
-                        cell.z = '0.00'; // Aplicamos formato
-                    }
-                }
-            }
-        });
-    }
+    let ws = XLSX.utils.table_to_sheet(table, { raw: separador_decimal == ',' });
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Datos");
