@@ -1,5 +1,4 @@
 import {html}  from 'js-to-html';
-declare const XLSX:any;
 const my=myOwn;
 
 const TABLE_ELEMENT_ID = 'cuadro_resultante';
@@ -64,7 +63,7 @@ function generateTableHtml(data: any[]) {
 
     const tbody = html.tbody(tbodyContent);
 
-    return html.table({ id: TABLE_ELEMENT_ID }, [thead, tbody]);
+    return html.table({ id: TABLE_ELEMENT_ID, class: 'tabla-cuadro'}, [thead, tbody]);
 }
 
 function generateActionButtons(cuadro: string) {

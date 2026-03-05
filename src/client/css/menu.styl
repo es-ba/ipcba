@@ -1,5 +1,17 @@
- 
-[placeholder]:empty::before 
+
+[placeholder]:empty::before
     content attr(placeholder)
     color #7bF
 
+.tabla-cuadro
+    all unset
+    display table
+    border-collapse unset !important
+    width 100%
+
+    th, td
+        all unset
+        display table-cell
+        text-align left
+    th
+        font-weight bold
