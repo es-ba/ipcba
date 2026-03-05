@@ -23,7 +23,7 @@ function exportTableToExcel(tableID: string, filename: string): void {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `${filename}.xlsx`);
+    link.setAttribute("download", `${filename}.xls`);
 
     document.body.appendChild(link);
     link.click();
