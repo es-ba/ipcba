@@ -3,9 +3,9 @@ set role cvpowner;
 drop table IF EXISTS cuadros_ccc cascade;
 drop table IF EXISTS cuadros_funciones_ccc cascade;
 
-ALTER TABLE perfiles drop COLUMN if exists equivalente;
-ALTER TABLE perfiles ADD COLUMN equivalente boolean;
-UPDATE perfiles set equivalente = true where unidcons = 1;
+--ALTER TABLE perfiles drop COLUMN if exists equivalente;
+--ALTER TABLE perfiles ADD COLUMN equivalente boolean;
+--UPDATE perfiles set equivalente = true where unidcons = 1;
 
 CREATE TABLE IF NOT EXISTS cuadros_ccc as
 select * from cvp.cuadros where cuadro = '7';
@@ -146,7 +146,7 @@ begin
         replace(round(h.valorhoggru::numeric,2)::text, '.', p_separador)
         ORDER BY replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric
     )::text as celda
-    FROM CalHogParGru h
+    FROM valorizacion_canasta_ccc h
     LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
     JOIN calculos_def cd on h.calculo = cd.calculo
     WHERE h.agrupacion = parametro4

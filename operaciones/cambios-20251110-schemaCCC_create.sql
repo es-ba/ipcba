@@ -295,6 +295,7 @@ CREATE TABLE IF NOT EXISTS perfiles
     edad_hasta integer GENERATED ALWAYS AS (extraer_edad_hasta(edad)) stored,
     edad_umed text GENERATED ALWAYS AS (extraer_unidad_medida(edad)) stored,
     descripcion text GENERATED ALWAYS AS (tipo||' '||genero||' '||edad) stored,
+    equivalente boolean,
     --PRIMARY KEY (perfil),
     CONSTRAINT perfiles_uk UNIQUE (tipo, genero, edad),
     CONSTRAINT "tipo debe ser Lactante, Menor o Adulto" CHECK (tipo IN ('Lactante','Menor','Adulto')),
@@ -945,6 +946,20 @@ CREATE TABLE IF NOT EXISTS novservdom (
         REFERENCES cvp.periodos (periodo)
 );
 
+CREATE TABLE IF NOT EXISTS hogper (
+    hogar text NOT NULL,
+    perfil INTEGER,
+    perfil_equivalente INTEGER,
+    cantidad integer,
+    CONSTRAINT hogper_pkey PRIMARY KEY (hogar, perfil),
+    CONSTRAINT hogper_hogares_ccc_fkey FOREIGN KEY (hogar)
+        REFERENCES hogares_ccc (hogar),
+    CONSTRAINT hogper_perfiles_fkey FOREIGN KEY (perfil)
+        REFERENCES perfiles (perfil),
+    CONSTRAINT hogper_perfiles_equi_fkey FOREIGN KEY (perfil_equivalente)
+        REFERENCES perfiles (perfil)
+);
+
 GRANT SELECT ON TABLE hogares_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE perfiles_edad TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE parametros_propiedades TO cvp_administrador, ccc_analista;
@@ -956,6 +971,7 @@ GRANT SELECT ON TABLE parametros_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE hogpargru TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE calhogpargru TO cvp_administrador, ccc_analista;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE novservdom TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE hogper TO cvp_administrador, ccc_analista;
 
 do $SQL_ENANCE$
  begin
@@ -970,6 +986,7 @@ do $SQL_ENANCE$
  PERFORM enance_table('hogpargru','hogar,parametro,agrupacion,grupo');
  PERFORM enance_table('calhogpargru','periodo,calculo,hogar,agrupacion,grupo');
  PERFORM enance_table('novservdom','periodo');
+ PERFORM enance_table('hogper','hogar,perfil');
  end
 $SQL_ENANCE$;
 
@@ -1036,3 +1053,18 @@ CREATE TRIGGER verificar_usa_propiedad
     BEFORE INSERT OR UPDATE ON parametros_ccc
     FOR EACH ROW
     EXECUTE PROCEDURE verificar_usa_propiedad();
+
+
+CREATE VIEW valorizacion_canasta_ccc AS
+select * from
+(select periodo, calculo, hogar, agrupacion, grupo, valorhoggru 
+from calhogpargru 
+union
+select c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo, sum(c.valorgru*p.unidcons) valorhoggru
+from hogper h 
+left join perfiles p on h.perfil = p.perfil
+left join calgruper c on c.perfil = h.perfil_equivalente
+--where periodo = 'a2025m05'
+group by c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo) Q
+
+GRANT SELECT ON TABLE valorizacion_canasta_ccc TO cvp_administrador, ccc_analista;
