@@ -78,8 +78,8 @@ begin
                     'D.21n' as formato_renglon, p.perfil, p.tipo, p.genero, p.edad,
                     replace (round(p.energia::decimal,2)::text,'.',p_separador) energia,
                     replace (round(p.unidcons::decimal,2)::text,'.',p_separador) unidcons,
-                    replace (round((c.valorgru*p.unidcons)::decimal,2)::text,'.',p_separador) valor,
-                    replace (round(((c.valorgru*p.unidcons) * 30)::decimal, 2)::text,'.',p_separador) valor_mensual
+                    replace (round(((c.valorgru*p.unidcons)/30)::decimal,2)::text,'.',p_separador) valor,
+                    replace (round((c.valorgru*p.unidcons)::decimal, 2)::text,'.',p_separador) valor_mensual
                  from (select pe.perfil as perfil_equivalente, pp.*
                         from perfiles pe join perfiles pp on pe.equivalente and pe.tipo = pp.tipo) p
                  left join calgruper c on p.perfil_equivalente = c.perfil

@@ -525,7 +525,7 @@ LOOP
  UPDATE CalProdPerAgr
    SET peso_bruto       = vcalprod.peso_neto * vcalprod.factor_correccion
    , cantidad_canasta = coalesce(vcalprod.cantidad_ajuste, vcalprod.peso_neto * vcalprod.factor_correccion) / vcalprod.cantidad
-   , valorProd        = vcalprod.PromedioRedondeado * (coalesce(vcalprod.cantidad_ajuste, vcalprod.peso_neto * vcalprod.factor_correccion) / vcalprod.cantidad)
+   , valorProd        = 30*vcalprod.PromedioRedondeado * (coalesce(vcalprod.cantidad_ajuste, vcalprod.peso_neto * vcalprod.factor_correccion) / vcalprod.cantidad)
    WHERE periodo = vcalprod.periodo AND calculo = vcalprod.calculo AND producto = vcalprod.producto AND agrupacion = vcalprod.agrupacion AND perfil = vcalprod.perfil;
 END LOOP;
 
@@ -1065,6 +1065,6 @@ from hogper h
 left join perfiles p on h.perfil = p.perfil
 left join calgruper c on c.perfil = h.perfil_equivalente
 --where periodo = 'a2025m05'
-group by c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo) Q
+group by c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo) Q;
 
 GRANT SELECT ON TABLE valorizacion_canasta_ccc TO cvp_administrador, ccc_analista;
