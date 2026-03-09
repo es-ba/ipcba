@@ -546,6 +546,53 @@ async function paneltarea_mover(context, parameters, intercambiar){
         throw err;
         };
     }
+
+    const procesarCuadroH1 = (rows) => {
+      const tablaProcesada = rows.map(row => {
+        const { formato_renglon, lateral1, lateral2, celda } = row;
+        let columnasHogar = {};
+
+        try {
+          columnasHogar = typeof celda === 'string' ? JSON.parse(celda) : (celda || {});
+        } catch (e) {
+          columnasHogar = {};
+        }
+
+        return { formato_renglon, lateral2, lateral1, ...columnasHogar };
+      });
+
+      const columnas = Array.from(new Set(tablaProcesada.flatMap(Object.keys)));
+
+      return tablaProcesada.map((fila, index) => {
+        if (index === 1) {
+          columnas.forEach(col => {
+            if (!fila[col]) fila[col] = col;
+          });
+        }
+        return fila;
+      });
+    };
+
+    const CuadroHandlers = {
+      '1': async (client, params, cuadroInfo) => {
+        const { rows } = await client.query(
+          `SELECT * from ccc_cuadro_up(null, $1, $2, false, false, $3, $4)`,
+          [params.periodo, cuadroInfo.grupo, params.periododesde, params.separador_decimal]
+        ).fetchAll();
+        return rows;
+      },
+
+      'H1': async (client, params) => {
+        const { rows } = await client.query(
+          `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, 'G', 'H1', 16, $2)`,
+          [params.periodo, params.separador_decimal]
+        ).fetchAll();
+
+        return procesarCuadroH1(rows);
+      }
+    };
+
+
 //----------------------fin FUNCIONES AUXILIARES-----------------------------------------------------------------------
 
 ProceduresIpcba = [
@@ -2892,59 +2939,24 @@ ProceduresIpcba = [
         roles:['programador', 'coordinador', 'analista', 'ccc_analista'],
         coreFunction: async function(context, parameters){
             try{
-                const {row: cuadro} = await context.client.query(
-                    `SELECT * from cuadros_ccc where cuadro = $1`,
-                    [parameters.cuadro]
+                const { row: cuadro } = await context.client.query(
+                  `SELECT * from cuadros_ccc where cuadro = $1`,
+                  [parameters.cuadro]
                 ).fetchOneRowIfExists();
-                if(!cuadro){
-                    throw new Error(`No se encontró un registro en cuadros_ccc con el cuadro ${parameters.cuadro}.`);
+
+                if (!cuadro) {
+                  throw new Error(`No se encontró un registro en cuadros_ccc con el cuadro ${parameters.cuadro}.`);
                 }
-                let result_rows = []
-                switch (cuadro.cuadro) {
-                  case '1':
-                    result_rows = (await context.client.query(
-                      `SELECT * from ccc_cuadro_up(null, $1, $2, false, false , $3,$4)`,
-                      [parameters.periodo, cuadro.grupo, parameters.periododesde, parameters.separador_decimal]
-                    ).fetchAll()).rows;
-                    break;
-                  case 'H1':
-                    result_rows = (await context.client.query(
-                      `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, 'G', 'H1', 16, $2)`,
-                      [parameters.periodo, parameters.separador_decimal]
-                    ).fetchAll()).rows;
-                    const tablaProcesada = result_rows.map(row => {
-                      const { formato_renglon, lateral1, lateral2, celda } = row;
-                      let columnasHogar = {};
-                      try {
-                          columnasHogar = typeof celda === 'string' ? JSON.parse(celda) : (celda || {});
-                      } catch (e) {
-                          columnasHogar = {};
-                      }
-                      return {
-                          formato_renglon,
-                          lateral2,
-                          lateral1,
-                          ...columnasHogar
-                      };
-                    });
-                    const todosLosNombresDeColumnas = new Set();
-                    tablaProcesada.forEach(fila => {
-                        Object.keys(fila).forEach(key => todosLosNombresDeColumnas.add(key));
-                    });
-                    const columnas = Array.from(todosLosNombresDeColumnas);
-                    const columnas_rows = tablaProcesada.map((fila, index) => {
-                      if (index === 1) {
-                          columnas.forEach(col => {
-                              if (!fila[col]) fila[col] = col;
-                          });
-                      }
-                      return fila;
-                    });
-                    result_rows = columnas_rows;
-                    break;
-                  default:
-                }
-              return {cuadro:parameters.cuadro, rows: result_rows};
+
+                const handler = CuadroHandlers[cuadro.cuadro];
+                const result_rows = handler
+                  ? await handler(context.client, parameters, cuadro)
+                  : [];
+
+                return {
+                  cuadro: parameters.cuadro,
+                  rows: result_rows
+                };
             }catch(err){
                 console.log(err);
                 console.log(err.code);
