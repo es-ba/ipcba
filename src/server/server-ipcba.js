@@ -749,7 +749,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'cuadros_ccc', onlyVisibleFor:asignadores, label: 'cuadros'},
                     { menuType: 'table', name: 'cuadros_funciones_ccc', onlyVisibleFor:asignadores, label: 'cuadros funciones'},
                     { menuType: 'table', name: 'hogares_ccc', onlyVisibleFor:asignadores, label: 'hogares'},
-                    { menuType: 'table', name: 'hogper', onlyVisibleFor:asignadores, label: 'hogares personas'},
+                    { menuType: 'table', name: 'hogper', onlyVisibleFor:asignadores, label: 'hogares perfiles'},
                     { menuType: 'table', name: 'periodos_novservdom', onlyVisibleFor:asignadores, label: 'novedad servicio doméstico'},
                     { menuType: 'table', name: 'parametros_ccc', onlyVisibleFor:asignadores, label:'parametros' },
                     { menuType: 'table', name: 'parametros_propiedades', onlyVisibleFor:asignadores },
