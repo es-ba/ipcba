@@ -651,7 +651,9 @@ END LOOP;
  FOR vhgru IN --toma los grupos-Hoja de CalHogGru
    SELECT h.periodo, h.calculo, h.Hogar, h.agrupacion, h.grupo, c.indice/c_18.indice as coef_ajuste, h.coefhoggru, h.monto_may_18 
      FROM calhogpargru h 
-          INNER JOIN Gruemp g ON g.grupo = h.grupo AND g.agrupacion = h.agrupacion  --PK verificada
+          INNER JOIN (SELECT agrupacion_b1112, string_agg(grupo_b1112, '-') as grupo_b1112, agrupacion_b21, string_agg(grupo_b21, '-') as grupo_b21, agrupacion, grupo  
+                        FROM gruemp
+                        GROUP BY agrupacion_b1112, agrupacion_b21, agrupacion, grupo) g ON g.grupo = h.grupo AND g.agrupacion = h.agrupacion  --PK verificada
           INNER JOIN calgru_ccc_b1112_b21_vw c ON c.grupo=g.grupo_b21 AND c.agrupacion = g.agrupacion_b21
                               AND c.agrupacion_b1112 = g.agrupacion_b1112 and c.grupo_b1112 = g.grupo_b1112
                               AND c.periodo = h.periodo AND c.calculo = h.calculo --PK verificada
