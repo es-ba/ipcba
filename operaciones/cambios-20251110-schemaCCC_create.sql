@@ -783,6 +783,7 @@ CREATE TABLE IF NOT EXISTS hogares_ccc
 (
     hogar text NOT NULL,
     nombrehogar text,
+    orden integer,
     PRIMARY KEY (hogar),
     CONSTRAINT "texto invalido en nombrehogar de tabla hogares_ccc" CHECK (comun.cadena_valida(nombrehogar::text, 'castellano'::text))
 );
