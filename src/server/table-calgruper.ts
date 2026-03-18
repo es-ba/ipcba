@@ -18,7 +18,7 @@ export const calgruper = (): TableDefinition => {
       { name: 'ponderador', typeName: 'double' },
       { name: 'grupopadre', typeName: 'text' },
       { name: 'nivel', typeName: 'integer' },
-      { name: 'esproducto', typeName: 'text', defaultValue: 'N' }
+      { name: 'esproducto', typeName: 'text', defaultValue: 'N', title: 'es producto' },
     ],
     primaryKey: ['periodo', 'calculo', 'grupo', 'agrupacion', 'perfil'],
     foreignKeys: [

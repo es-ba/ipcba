@@ -10,11 +10,11 @@ export const grupos_ccc = (): TableDefinition => {
     fields: [
       { name: 'agrupacion', typeName: 'text', nullable: false },
       { name: 'grupo', typeName: 'text', nullable: false },
-      { name: 'nombregrupo', typeName: 'text' },
-      { name: 'grupopadre', typeName: 'text' },
+      { name: 'nombregrupo', typeName: 'text', isName: true, title: 'nombre grupo' },
+      { name: 'grupopadre', typeName: 'text', title: 'grupo padre'},
       { name: 'ponderador', typeName: 'double' },
       { name: 'nivel', typeName: 'integer' },
-      { name: 'esproducto', typeName: 'text', defaultValue: 'N' },
+      { name: 'esproducto', typeName: 'text', defaultValue: 'N', title: 'es producto' },
     ],
     primaryKey: ['agrupacion', 'grupo'],
     foreignKeys: [

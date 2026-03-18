@@ -8,7 +8,7 @@ export function hogares_ccc():TableDefinition{
         name: 'hogares_ccc',
         fields: [
             {name:'hogar', typeName:'text', nullable: false},
-            {name:'nombrehogar', typeName:'text', isName: true},
+            {name:'nombrehogar', typeName:'text', isName: true, title: 'nombre hogar'},
         ],
         primaryKey: ['hogar'],
         constraints: [

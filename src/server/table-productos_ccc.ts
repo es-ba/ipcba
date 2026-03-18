@@ -9,12 +9,12 @@ export const productos_ccc = (): TableDefinition => {
     schema: 'ccc',
     fields: [
       { name: 'producto', typeName: 'text', nullable: false },
-      { name: 'nombreproducto', typeName: 'text', isName: true },
+      { name: 'nombreproducto', typeName: 'text', isName: true, title: 'nombre producto' },
       { name: 'unidad_normal', typeName: 'text' },
       { name: 'cantidad', typeName: 'double' },
       { name: 'factor_correccion', typeName: 'double' },
       { name: 'unidad_de_medida', typeName: 'text' },
-      { name: 'esproducto_ipc', typeName: 'boolean', defaultValue: 'true' },
+      { name: 'esproducto_ipc', typeName: 'boolean', defaultValue: 'true', title: 'es producto IPC' },
     ],
     primaryKey: ['producto'],
     foreignKeys: [

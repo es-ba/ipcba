@@ -7,7 +7,7 @@ export function parametros_propiedades():TableDefinition{
         editable: false,
         name: 'parametros_propiedades',
         fields: [
-            {name:'nombreparametro', typeName:'text', nullable: false},
+            {name:'nombreparametro', typeName:'text', nullable: false, title: 'nombre parametro'},
             {name:'usa_perfil_edad', typeName:'boolean', nullable: false},
             {name:'usa_ambientes', typeName:'boolean', nullable: false},
             {name:'usa_miembros', typeName:'boolean', nullable: false},

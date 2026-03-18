@@ -10,8 +10,8 @@ export const agrupaciones_ccc = (context: TableContext): TableDefinition => {
     schema: 'ccc',
     fields: [
       { name: 'agrupacion', typeName: 'text', nullable: false },
-      { name: 'nombreagrupacion', typeName: 'text', nullable: false },
-      { name: 'paravarioshogares', typeName: 'boolean', defaultDbValue: 'false' },
+      { name: 'nombreagrupacion', typeName: 'text', nullable: false, isName: true, title: 'nombre agrupacion' },
+      { name: 'paravarioshogares', typeName: 'boolean', defaultDbValue: 'false', title: 'para varios hogares' },
       { name: 'calcular_junto_grupo', typeName: 'text', nullable: false },
       { name: 'valoriza', typeName: 'boolean', defaultDbValue: 'false' },
       { name: 'tipo_agrupacion', typeName: 'text', nullable: true },

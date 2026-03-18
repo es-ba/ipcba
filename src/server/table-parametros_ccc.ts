@@ -8,7 +8,7 @@ export function parametros_ccc():TableDefinition{
         name: 'parametros_ccc',
         fields: [
             {name:'parametro', typeName:'integer', generatedAs: 'INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1'},
-            {name:'nombreparametro', typeName:'text'},
+            {name:'nombreparametro', typeName:'text', title: 'nombre parametro'},
             {name:'perfil_edad', typeName:'integer'},
             {name:'ambientes', typeName:'integer'},
             {name:'miembros', typeName:'integer'},
