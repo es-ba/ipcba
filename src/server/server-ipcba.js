@@ -755,6 +755,9 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'parametros_propiedades', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'perfiles_edad', onlyVisibleFor:asignadores },
                 ]},
+                {menuType:'menu', name:'operaciones', menuContent:[
+                  { menuType: 'proc' , name: 'calhogpargru_exportar', onlyVisibleFor:asignadores },
+                ]},
             ]};
         }
         var subMenuCalculos = [

@@ -23,7 +23,7 @@ export function calhogpargru(): TableDefinition {
     foreignKeys: [
       { references: 'calculos', fields: ['periodo', 'calculo'] },
       { references: 'grupos_ccc', fields: ['agrupacion', 'grupo'], displayFields: ['nombregrupo', 'nivel'], alias: 'gru' },
-      { references: 'hogares_ccc', fields: ['hogar'] },
+      { references: 'hogares_ccc', fields: ['hogar'], displayFields: ['nombrehogar','orden'], alias: 'hog' },
     ],
     sql: {
       from: `

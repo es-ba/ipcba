@@ -1,5 +1,5 @@
 "use strict";
-
+const {calhogpargru} = require('./table-calhogpargru');
 const SOLO_PARA_DEMO_DM=false;
 const NO_RESULTS="No se encontraron resultados"
 
@@ -576,8 +576,8 @@ async function paneltarea_mover(context, parameters, intercambiar){
     const CuadroHandlers = {
       '1': async (client, params, cuadroInfo) => {
         const { rows } = await client.query(
-          `SELECT * from ccc_cuadro_up(null, $1, $2, false, false, $3, $4)`,
-          [params.periodo, cuadroInfo.grupo, params.periododesde, params.separador_decimal]
+          `SELECT * from ccc_cuadro_up(null, $1, $2, false, false, null, $3)`,
+          [params.periodo, cuadroInfo.grupo, params.separador_decimal]
         ).fetchAll();
         return rows;
       },
@@ -2962,6 +2962,35 @@ ProceduresIpcba = [
                 console.log(err.code);
                 throw err;
             };
+        }
+    },
+    {
+        action:'calhogpargru_exportar',
+        parameters:[
+            {name:'periodo_desde', typeName:'text'   , references:'periodos'   },
+            {name:'periodo_hasta', typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador', 'coordinador', 'analista', 'ccc_analista'],
+        forExport:{
+        },
+        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            const nombre = 'calhogpargru_' + parameters.periodo_desde + '_' + parameters.periodo_hasta;
+            const calhogpargruTableDef = calhogpargru();
+            const sqlcalhogpargru = calhogpargruTableDef.sql.from;
+            const resultQuery = (
+                await context.client.query(`select * from (${sqlcalhogpargru}) as c
+                WHERE c.periodo >= $1 and c.periodo <= $2`, [parameters.periodo_desde, parameters.periodo_hasta]).fetchAll()
+            ).rows;
+            if(resultQuery.length === 0){
+                throw new Error(NO_RESULTS);
+            }
+            return [
+                {   title:'calculoHogarGrupo',
+                    fileName: nombre  + '.xlsx',
+                    csvFileName: nombre  + '.csv',
+                    rows: resultQuery
+                }
+            ]
         }
     },
 ];
