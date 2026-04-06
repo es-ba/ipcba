@@ -1,9 +1,9 @@
 "use strict"
 
-import { TableDefinition } from "backend-plus";
+import { TableDefinition, Context } from "backend-plus";
 
-export function calhogpargru(): TableDefinition {
-  return {
+export function calhogpargru(_context: Context): TableDefinition {
+  return{
     editable: false,
     name: 'calhogpargru',
     fields: [
@@ -27,11 +27,12 @@ export function calhogpargru(): TableDefinition {
     ],
     sql: {
       from: `
-        (select ch.periodo, ch.calculo, ch.hogar, g.agrupacion, g.grupo, g.grupopadre, gp.nombregrupo as nombre_grupopadre,
+        (select ch.periodo, ch.calculo, ch.hogar, h.nombrehogar, h.orden, g.agrupacion, g.grupo, g.nombregrupo, g.nivel, g.grupopadre, gp.nombregrupo as nombre_grupopadre,
         ch.cantidad, ch.coefhoggru, ch.monto_may_18, ch.valorhoggru
-        from calhogpargru ch
-        inner join grupos_ccc g on g.agrupacion = ch.agrupacion and g.grupo = ch.grupo
-        left join grupos_ccc gp on gp.agrupacion = g.agrupacion and gp.grupo = g.grupopadre)
+        from ccc.calhogpargru ch
+        join ccc.hogares_ccc h on h.hogar = ch.hogar
+        inner join ccc.grupos_ccc g on g.agrupacion = ch.agrupacion and g.grupo = ch.grupo
+        left join ccc.grupos_ccc gp on gp.agrupacion = g.agrupacion and gp.grupo = g.grupopadre)
       `,
     }
   }

@@ -2973,26 +2973,31 @@ ProceduresIpcba = [
         roles:['programador', 'coordinador', 'analista', 'ccc_analista'],
         forExport:{
         },
-        coreFunction:async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
-            const nombre = 'calhogpargru_' + parameters.periodo_desde + '_' + parameters.periodo_hasta;
-            const calhogpargruTableDef = calhogpargru();
-            const sqlcalhogpargru = calhogpargruTableDef.sql.from;
-            const resultQuery = (
-                await context.client.query(`select * from (${sqlcalhogpargru}) as c
-                WHERE c.periodo >= $1 and c.periodo <= $2`, [parameters.periodo_desde, parameters.periodo_hasta]).fetchAll()
-            ).rows;
-            if(resultQuery.length === 0){
+        coreFunction: async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            const { periodo_desde, periodo_hasta } = parameters;
+            const nombre = `calhogpargru_${periodo_desde}_${periodo_hasta}`;
+            
+            const calhogpargruTableDef = context.be.tableDefAdapt(calhogpargru(context), context);
+            const select = calhogpargruTableDef.sql.select.join(', ');
+            const from = calhogpargruTableDef.sql.from;
+            const alias = calhogpargruTableDef.alias;
+
+            const sqlComplete = `SELECT ${select} FROM ${from} WHERE ${alias}.periodo BETWEEN $1 AND $2`;
+            
+            const resultQuery = await context.client.query(sqlComplete, [periodo_desde, periodo_hasta]).fetchAll();
+            
+            if (resultQuery.rows.length === 0) {
                 throw new Error(NO_RESULTS);
             }
-            return [
-                {   title:'calculoHogarGrupo',
-                    fileName: nombre  + '.xlsx',
-                    csvFileName: nombre  + '.csv',
-                    rows: resultQuery
-                }
-            ]
+            
+            return [{
+                title: 'calculoHogarGrupo',
+                fileName: `${nombre}.xlsx`,
+                csvFileName: `${nombre}.csv`,
+                rows: resultQuery.rows
+            }];
         }
-    },
+    }
 ];
 
 module.exports = ProceduresIpcba;
