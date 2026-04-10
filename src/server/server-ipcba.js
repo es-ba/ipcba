@@ -80,7 +80,7 @@ class AppIpcba extends backendPlus.AppBackend{
             database: cvp_db
             schema: cvp
             user: cvpowner
-            search_path: [cvp, ipcba, precios_app, his]
+            search_path: [cvp, ccc, ipcba, precios_app, his]
             fkOnUpdate: false
           login:
             schema: ipcba
@@ -209,6 +209,16 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-res_cuadro_vc.sql
                 - fun-actualizar_esquema_expo.sql
                 - fun-calculo_borrarcopia.sql
+                - fun-extraer_rango_edad.sql
+                - fun-extraer_edad_desde.sql
+                - fun-extraer_edad_hasta.sql
+                - fun-extraer_unidad_medida.sql
+                - fun-cal_ccc_valorizar.sql
+                - fun-cal_ccc_copiar.sql
+                - fun-cal_ccc_borrar.sql
+                - fun-calcularcccunperiodo.sql
+                - fun-calgru_ccc_valorizar.sql
+                - fun-calprod_ccc_valorizar.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
                 - trg-adm_blanqueo_precios_trg.sql
@@ -348,6 +358,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 - vw-revisor.sql
                 - vw-variaciones_maximas_vw.sql
                 - vw-variaciones_minimas_vw.sql
+                - vw-gru_grupos_ccc.sql
+                - seq-perfiles_perfil_seq.sql
           logo:
             path: client/img
         `);
@@ -695,6 +707,7 @@ class AppIpcba extends backendPlus.AppBackend{
         var migracion = {role:'migracion'};
         var encuestador = {role:'encuestador'};
         var jefeRecepcion = {role:'jefe_recepcion'};
+        const analistaCanastas = {role:'ccc_analista'};
         if(this.config.server.policy=='web'){
             var asignadores=[programador, analista, coordinador, jefeCampo, recepcionista, jefeRecepcion, recepGabinete, supervisor, encuestador]
             return {menu:[
@@ -714,7 +727,39 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'instalacion_actual', name:'instalacion_actual', label: 'instalación actual', showInOfflineMode: false, onlyVisibleFor:[programador]},
             ]};
         }
-
+        if(this.config.server.policy=='canastas'){
+            const asignadores=[programador, coordinador, analista, analistaCanastas]
+            const rolProgramador=[programador]
+            return {menu:[
+                {menuType:'menu', name:'resultados', menuContent:[
+                    { menuType: 'table', name: 'periodos_calgruper', label: 'calculo grupo perfil', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos_calprodperagr', label: 'calculo producto perfil agrupacion', onlyVisibleFor:asignadores },
+                    { menuType: 'proc' , name: 'cuadro_canastas', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos_calgru_ccc_b1112_b21_vw', label: 'empalme', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'periodos_calhogpargru', label: 'calhogpargru', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'empalme_ccc_b1112', label: 'empalme b1112', onlyVisibleFor:asignadores },
+                ]},
+                {menuType:'menu', name:'tablas', menuContent:[
+                    { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores, label: 'agrupaciones'},
+                    { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores, label: 'productos'},
+                    { menuType: 'table', name: 'grupos_ccc', onlyVisibleFor:asignadores, label: 'grupos'},
+                    { menuType: 'table', name: 'gruemp', onlyVisibleFor:asignadores, label: 'grupo empalme' },
+                    { menuType: 'table', name: 'prodperagr', onlyVisibleFor:asignadores, label: 'producto perfil agrupacion'},
+                    { menuType: 'table', name: 'cuadros_ccc', onlyVisibleFor:asignadores, label: 'cuadros'},
+                    { menuType: 'table', name: 'cuadros_funciones_ccc', onlyVisibleFor:asignadores, label: 'cuadros funciones'},
+                    { menuType: 'table', name: 'hogares_ccc', onlyVisibleFor:asignadores, label: 'hogares'},
+                    { menuType: 'table', name: 'hogper', onlyVisibleFor:asignadores, label: 'hogares perfiles'},
+                    { menuType: 'table', name: 'periodos_novservdom', onlyVisibleFor:asignadores, label: 'novedad servicio doméstico'},
+                    { menuType: 'table', name: 'parametros_ccc', onlyVisibleFor:asignadores, label:'parametros' },
+                    { menuType: 'table', name: 'parametros_propiedades', onlyVisibleFor:asignadores },
+                    { menuType: 'table', name: 'perfiles_edad', onlyVisibleFor:asignadores },
+                ]},
+                {menuType:'menu', name:'operaciones', menuContent:[
+                  { menuType: 'proc' , name: 'calhogpargru_exportar', onlyVisibleFor:asignadores },
+                ]},
+            ]};
+        }
         var subMenuCalculos = [
             {menuType:'table'        , name:'calculos'          , label:'cálculo', onlyVisibleFor:[programador,coordinador,analista,migracion], selectedByDefault:true},
             {menuType:'table'        , name:'calculos_novprod'  , label:'administración de externos', onlyVisibleFor:[programador,coordinador,analista]},
@@ -1012,9 +1057,10 @@ class AppIpcba extends backendPlus.AppBackend{
         var be = this;
         var loggedResources = req && opts && !opts.skipMenu;
         var menuedResources=loggedResources ? [
-            { type:'js' , src: 'client/client.js' },
+            { type: 'js', src: 'client/client.js' },
             { type: 'js', src: 'client/hoja-de-ruta.js' },
             { type: 'js', src: 'client/hoja-de-ruta-react.js' },
+            { type: 'js', src: 'client/cuadros.js' },
             { type: 'js', src: 'client/imp-formularios.js' },
         ]:[
             {type:'js' , src:'unlogged.js' },
@@ -1340,6 +1386,31 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_control_diccionario_atributos_val', path: __dirname},
             {name: 'periodos_anulanapre', path: __dirname},
             {name: 'anulanapre', path: __dirname},
+            {name: 'agrupaciones_ccc', path: __dirname},
+            {name: 'calgruper', path: __dirname},
+            {name: 'periodos_calgruper', path: __dirname},
+            {name: 'calprodperagr', path: __dirname},
+            {name: 'periodos_calprodperagr', path: __dirname},
+            {name: 'grupos_ccc', path: __dirname},
+            {name: 'perfiles', path: __dirname},
+            {name: 'prodperagr', path: __dirname},
+            {name: 'productos_ccc', path: __dirname},
+            {name: 'calgru_ccc_b1112_b21_vw', path: __dirname},
+            {name: 'cuadros_ccc', path: __dirname},
+            {name: 'cuadros_funciones_ccc', path: __dirname},
+            {name: 'calhogpargru', path: __dirname},
+            {name: 'empalme_ccc_b1112', path: __dirname},
+            {name: 'hogares_ccc', path: __dirname},
+            {name: 'novservdom', path: __dirname},
+            {name: 'parametros_ccc', path: __dirname},
+            {name: 'parametros_propiedades', path: __dirname},
+            {name: 'perfiles_edad', path: __dirname},
+            {name: 'gruemp', path: __dirname},
+            {name: 'grupos_b1112', path: __dirname},
+            {name: 'periodos_calgru_ccc_b1112_b21_vw', path: __dirname},
+            {name: 'periodos_calhogpargru', path: __dirname},
+            {name: 'periodos_novservdom', path: __dirname},
+            {name: 'hogper', path: __dirname},
         ]);
     }
 }

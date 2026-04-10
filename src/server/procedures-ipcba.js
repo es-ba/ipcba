@@ -1,5 +1,5 @@
 "use strict";
-
+const {calhogpargru} = require('./table-calhogpargru');
 const SOLO_PARA_DEMO_DM=false;
 const NO_RESULTS="No se encontraron resultados"
 
@@ -546,6 +546,53 @@ async function paneltarea_mover(context, parameters, intercambiar){
         throw err;
         };
     }
+
+    const procesarCuadroH1 = (rows) => {
+      const tablaProcesada = rows.map(row => {
+        const { formato_renglon, lateral1, lateral2, celda } = row;
+        let columnasHogar = {};
+
+        try {
+          columnasHogar = typeof celda === 'string' ? JSON.parse(celda) : (celda || {});
+        } catch (e) {
+          columnasHogar = {};
+        }
+
+        return { formato_renglon, lateral2, lateral1, ...columnasHogar };
+      });
+
+      const columnas = Array.from(new Set(tablaProcesada.flatMap(Object.keys)));
+
+      return tablaProcesada.map((fila, index) => {
+        if (index === 1) {
+          columnas.forEach(col => {
+            if (!fila[col]) fila[col] = col;
+          });
+        }
+        return fila;
+      });
+    };
+
+    const CuadroHandlers = {
+      '1': async (client, params, cuadroInfo) => {
+        const { rows } = await client.query(
+          `SELECT * from ccc_cuadro_up(null, $1, $2, false, false, null, $3)`,
+          [params.periodo, cuadroInfo.grupo, params.separador_decimal]
+        ).fetchAll();
+        return rows;
+      },
+
+      'H1': async (client, params) => {
+        const { rows } = await client.query(
+          `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, 'G', 'H1', 16, $2)`,
+          [params.periodo, params.separador_decimal]
+        ).fetchAll();
+
+        return procesarCuadroH1(rows);
+      }
+    };
+
+
 //----------------------fin FUNCIONES AUXILIARES-----------------------------------------------------------------------
 
 ProceduresIpcba = [
@@ -2880,6 +2927,77 @@ ProceduresIpcba = [
             };
         }
     },
+    {
+        action:'cuadro_canastas',
+        policy:'canastas',
+        parameters:[
+            {name:'periodo'    , typeName:'text', references:'periodos'},
+            {name:'cuadro'    , typeName:'text', references:'cuadros_ccc'},
+            {name:'separador_decimal'    , typeName:'text', options:[',','.']},
+        ],
+        resultOk:'mostrar_cuadro',
+        roles:['programador', 'coordinador', 'analista', 'ccc_analista'],
+        coreFunction: async function(context, parameters){
+            try{
+                const { row: cuadro } = await context.client.query(
+                  `SELECT * from cuadros_ccc where cuadro = $1`,
+                  [parameters.cuadro]
+                ).fetchOneRowIfExists();
+
+                if (!cuadro) {
+                  throw new Error(`No se encontró un registro en cuadros_ccc con el cuadro ${parameters.cuadro}.`);
+                }
+
+                const handler = CuadroHandlers[cuadro.cuadro];
+                const result_rows = handler
+                  ? await handler(context.client, parameters, cuadro)
+                  : [];
+
+                return {
+                  cuadro: parameters.cuadro,
+                  rows: result_rows
+                };
+            }catch(err){
+                console.log(err);
+                console.log(err.code);
+                throw err;
+            };
+        }
+    },
+    {
+        action:'calhogpargru_exportar',
+        parameters:[
+            {name:'periodo_desde', typeName:'text'   , references:'periodos'   },
+            {name:'periodo_hasta', typeName:'text'   , references:'periodos'   },
+        ],
+        roles:['programador', 'coordinador', 'analista', 'ccc_analista'],
+        forExport:{
+        },
+        coreFunction: async function(context/*:ProcedureContext*/, parameters/*:CoreFunctionParameters*/){
+            const { periodo_desde, periodo_hasta } = parameters;
+            const nombre = `calhogpargru_${periodo_desde}_${periodo_hasta}`;
+            
+            const calhogpargruTableDef = context.be.tableDefAdapt(calhogpargru(context), context);
+            const select = calhogpargruTableDef.sql.select.join(', ');
+            const from = calhogpargruTableDef.sql.from;
+            const alias = calhogpargruTableDef.alias;
+
+            const sqlComplete = `SELECT ${select} FROM ${from} WHERE ${alias}.periodo BETWEEN $1 AND $2`;
+            
+            const resultQuery = await context.client.query(sqlComplete, [periodo_desde, periodo_hasta]).fetchAll();
+            
+            if (resultQuery.rows.length === 0) {
+                throw new Error(NO_RESULTS);
+            }
+            
+            return [{
+                title: 'calculoHogarGrupo',
+                fileName: `${nombre}.xlsx`,
+                csvFileName: `${nombre}.csv`,
+                rows: resultQuery.rows
+            }];
+        }
+    }
 ];
 
 module.exports = ProceduresIpcba;
