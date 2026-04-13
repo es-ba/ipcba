@@ -54,7 +54,7 @@ CREATE TYPE res_col7 AS (
 
 --ccc_cuadro_up
 DROP FUNCTION if exists ccc_cuadro_up(text,text,text,boolean,boolean,text,text);
-create or replace function ccc_cuadro_up(parametro1 text, p_periodo text, parametro4 text, pempalmedesde boolean,
+create or replace function ccc_cuadro_up(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, pempalmedesde boolean,
                                          pempalmehasta boolean, pperiodoempalme text, p_separador text)
   returns setof res_col7
   language plpgsql
@@ -86,7 +86,7 @@ begin
                  join cvp.calculos_def cd on c.calculo = cd.calculo
                  where grupo = parametro4
                    and cd.principal
-                   and periodo=p_Periodo
+                   and periodo between p_periodo_desde and p_periodo_hasta
                    --and ((pempalmehasta and periodo <= pperiodoempalme) or
                    --     (pempalmedesde and periodo >  pperiodoempalme))
                 ) as q
@@ -98,7 +98,7 @@ GRANT SELECT ON TABLE cuadros_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE cuadros_funciones_ccc TO cvp_administrador, ccc_analista;
 
 --test
-SELECT * from ccc_cuadro_up(null, 'a2025m04'::text, 'G01', false, false , 'a2022m02','.');
+SELECT * from ccc_cuadro_up(null, 'a2025m04'::text, 'a2025m04'::text, 'G01', false, false , 'a2022m02','.');
 --SELECT * from ccc_cuadro_up(null, 'a2025m05'::text, 'G01', false, false , 'a2022m02','.');
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
 --ccc_cuadro_matriz_hogar
 --UTF8=Sí
 
-create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text)
+create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text)
   returns setof res_mat
   language plpgsql
 as
@@ -151,7 +151,7 @@ begin
     JOIN calculos_def cd on h.calculo = cd.calculo
     WHERE h.agrupacion = parametro4
       and cd.principal
-      and h.periodo = p_periodo
+      and h.periodo between p_periodo_desde and p_periodo_hasta
       and replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric < parametro6
       and g.nivel = 2
       and h.hogar like 'Hogar CCC%'
@@ -161,4 +161,4 @@ end;
 $BODY$;
 
 --test
-SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2025m05'::text, 'G'::text, 'H1', 16, ',');
+SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2025m05'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',');
