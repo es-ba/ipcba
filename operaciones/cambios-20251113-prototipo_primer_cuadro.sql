@@ -15,6 +15,7 @@ UPDATE cuadros_ccc
     funcion='ccc_cuadro_up',
     parametro1='Tabla de equivalencias',
     grupo='G01',
+    agrupacion='G',
     encabezado='Cuadro 1||| IPCBA. Tabla de equivalencias y unidad consumidora según tipo de canasta alimentaria para varones y mujeres y rango de edades',
     empalmedesde = false
     WHERE cuadro='7';
@@ -132,7 +133,7 @@ update cuadros_funciones_ccc set funcion = 'ccc_cuadro_matriz_hogar' where funci
 INSERT INTO cuadros_ccc
 SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
     'Valorización de las Canastas de Consumo según las tipologías de hogares.' as parametro1,
-    periodo, nivel, grupo, agrupacion, encabezado, pie, ponercodigos, agrupacion2, 16 as hogares,
+    periodo, nivel, grupo, 'G' as agrupacion, encabezado, pie, ponercodigos, agrupacion2, 16 as hogares,
     pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta
     FROM cvp.cuadros
     where cuadro = 'H1';

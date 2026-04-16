@@ -75,6 +75,6 @@ function generateActionButtons(cuadro: string) {
 }
 
 my.wScreens.proc.result.mostrar_cuadro=function(result:any, divResult:any){
-    divResult.appendChild(generateTableHtml(result.rows).create());
-    divResult.appendChild(generateActionButtons(result.cuadro).create());
+  divResult.appendChild(generateActionButtons(result.cuadro).create());
+  divResult.appendChild(generateTableHtml(result.rows).create());
 }

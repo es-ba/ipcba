@@ -549,7 +549,7 @@ async function paneltarea_mover(context, parameters, intercambiar){
 
     const procesarCuadroH1 = (rows) => {
       const tablaProcesada = rows.map(row => {
-        const { formato_renglon, lateral1, lateral2, celda } = row;
+        const { formato_renglon, periodo, lateral1, lateral2, celda } = row;
         let columnasHogar = {};
 
         try {
@@ -558,7 +558,7 @@ async function paneltarea_mover(context, parameters, intercambiar){
           columnasHogar = {};
         }
 
-        return { formato_renglon, lateral2, lateral1, ...columnasHogar };
+        return { formato_renglon, periodo, lateral2, lateral1, ...columnasHogar };
       });
 
       const columnas = Array.from(new Set(tablaProcesada.flatMap(Object.keys)));
@@ -582,10 +582,10 @@ async function paneltarea_mover(context, parameters, intercambiar){
         return rows;
       },
 
-      'H1': async (client, params) => {
+      'H1': async (client, params, cuadroInfo) => {
         const { rows } = await client.query(
           `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, $3, $5, 'H1', $4, $2)`,
-          [params.periodo_desde, params.separador_decimal,params.periodo_hasta, cuadroInfo.hogares, cuadroInfo.agrupaciones]
+          [params.periodo_desde, params.separador_decimal,params.periodo_hasta, cuadroInfo.hogares, cuadroInfo.agrupacion]
         ).fetchAll();
 
         return procesarCuadroH1(rows);
