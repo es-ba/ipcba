@@ -40,17 +40,40 @@ ALTER TABLE cuadros_funciones_ccc add CONSTRAINT cuadros_funciones_ccc_pkey PRIM
 ALTER TABLE cuadros_ccc add CONSTRAINT cuadros_ccc_cuadros_funciones_ccc_fkey FOREIGN KEY (funcion) REFERENCES cuadros_funciones_ccc(funcion);
 
 drop TYPE IF EXISTS res_col7 cascade;
-CREATE TYPE res_col7 AS (
-    renglon bigint,
-    formato_renglon text,
-    columna1 text,
-    columna2 text,
-    columna3 text,
-    columna4 text,
-    columna5 text,
-    columna6 text,
-    columna7 text
+
+DROP TYPE IF EXISTS ccc.type_cuadro_matriz;
+
+CREATE TYPE ccc.type_cuadro_matriz AS
+(
+	formato_renglon text,
+	periodo text,
+	lateral1 text,
+	lateral2 text,
+	cabezal1 text,
+	celda text
 );
+
+ALTER TYPE ccc.type_cuadro_matriz
+    OWNER TO cvpowner;
+
+DROP TYPE IF EXISTS ccc.type_cuadro_up;
+
+CREATE TYPE ccc.type_cuadro_up AS
+(
+	renglon bigint,
+	formato_renglon text,
+	columna1 text,
+	columna2 text,
+	columna3 text,
+	columna4 text,
+	columna5 text,
+	columna6 text,
+	columna7 text,
+	columna8 text
+);
+
+ALTER TYPE ccc.type_cuadro_up
+    OWNER TO cvpowner;
 
 --ccc_cuadro_up
 DROP FUNCTION if exists ccc_cuadro_up(text,text,text,boolean,boolean,text,text);
@@ -61,36 +84,35 @@ create or replace function ccc_cuadro_up(parametro1 text, p_periodo_desde text, 
 as
 $BODY$
 declare
-
-    vAnchoNumeros text:='100';
-
+  vAnchoNumeros text:='100';
 begin
   return query select 0::bigint,'anchos'::text,
-       'auto'::text,'auto'::text,'auto'::text,'auto'::text,'auto'::text,
-       vAnchoNumeros, vAnchoNumeros;
-  return query select 1::bigint, 'U2.LR'::text, 'Tipo_CA'::text, 'Tipo_género'::text, 'Edad'::text,
-   'Energía (kcal)'::text, 'Unidad Consumidora'::text, 'Valorización diaria ($)'::text, 'Valorización mensual ($)'::text;
-  return query select row_number() over (order by q.perfil)+100, formato_renglon
-               , q.tipo, q.genero, q.edad, q.energia, q.unidcons, q.valor, q.valor_mensual
-                 from
-                 (
-                 select
-                    'D.21n' as formato_renglon, p.perfil, p.tipo, p.genero, p.edad,
-                    replace (round(p.energia::decimal,2)::text,'.',p_separador) energia,
-                    replace (round(p.unidcons::decimal,2)::text,'.',p_separador) unidcons,
-                    replace (round(((c.valorgru*p.unidcons)/30)::decimal,2)::text,'.',p_separador) valor,
-                    replace (round((c.valorgru*p.unidcons)::decimal, 2)::text,'.',p_separador) valor_mensual
-                 from (select pe.perfil as perfil_equivalente, pp.*
-                        from perfiles pe join perfiles pp on pe.equivalente and pe.tipo = pp.tipo) p
-                 left join calgruper c on p.perfil_equivalente = c.perfil
-                 join cvp.calculos_def cd on c.calculo = cd.calculo
-                 where grupo = parametro4
-                   and cd.principal
-                   and periodo between p_periodo_desde and p_periodo_hasta
-                   --and ((pempalmehasta and periodo <= pperiodoempalme) or
-                   --     (pempalmedesde and periodo >  pperiodoempalme))
-                ) as q
-               ;
+    'auto'::text,'auto'::text,'auto'::text,'auto'::text,'auto'::text,'auto'::text,
+    vAnchoNumeros, vAnchoNumeros;
+  return query select 1::bigint, 'U2.LR'::text, 'Periodo'::text,'Tipo_CA'::text, 'Tipo_género'::text, 'Edad'::text,
+    'Energía (kcal)'::text, 'Unidad Consumidora'::text, 'Valorización diaria ($)'::text, 'Valorización mensual ($)'::text;
+  return query select row_number() over (order by q.periodo, q.perfil)+100, formato_renglon
+    , q.periodo, q.tipo, q.genero, q.edad, q.energia, q.unidcons, q.valor, q.valor_mensual
+    from
+    (
+    select
+      'D.21n' as formato_renglon, periodo, p.perfil, p.tipo, p.genero, p.edad,
+      replace (round(p.energia::decimal,2)::text,'.',p_separador) energia,
+      replace (round(p.unidcons::decimal,2)::text,'.',p_separador) unidcons,
+      replace (round(((c.valorgru*p.unidcons)/30)::decimal,2)::text,'.',p_separador) valor,
+      replace (round((c.valorgru*p.unidcons)::decimal, 2)::text,'.',p_separador) valor_mensual
+    from (select pe.perfil as perfil_equivalente, pp.*
+        from perfiles pe join perfiles pp on pe.equivalente and pe.tipo = pp.tipo) p
+    left join calgruper c on p.perfil_equivalente = c.perfil
+    join cvp.calculos_def cd on c.calculo = cd.calculo
+    where grupo = parametro4
+      and cd.principal
+      and periodo between p_periodo_desde and p_periodo_hasta
+      --and ((pempalmehasta and periodo <= pperiodoempalme) or
+      --     (pempalmedesde and periodo >  pperiodoempalme))
+    ) as q
+    order by q.periodo, q.perfil
+  ;
 end;
 $BODY$;
 
@@ -98,7 +120,7 @@ GRANT SELECT ON TABLE cuadros_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE cuadros_funciones_ccc TO cvp_administrador, ccc_analista;
 
 --test
-SELECT * from ccc_cuadro_up(null, 'a2025m04'::text, 'a2025m04'::text, 'G01', false, false , 'a2022m02','.');
+SELECT * from ccc_cuadro_up(null, 'a2023m01'::text, 'a2025m04'::text, 'G01', false, false , 'a2022m02','.');
 --SELECT * from ccc_cuadro_up(null, 'a2025m05'::text, 'G01', false, false , 'a2022m02','.');
 
 ---------------------------------------------------------------------------------------------------------------------
@@ -119,7 +141,7 @@ SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
 --UTF8=Sí
 
 create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text)
-  returns setof res_mat
+  returns ccc.type_cuadro_matriz
   language plpgsql
 as
 $BODY$
@@ -129,15 +151,18 @@ declare
 begin
   return query select 'anchos'::text as formato_renglon,
     'auto'::text,
+	'auto'::text,
     'auto'::text,
     null::text,
     100::text;
   return query select v_formato_renglon_cabezal::text as formato_renglon,
+    'Periodo'::text,
     'Valorización'::text,
     'Código'::text,
     null::text,
     null::text;
   return query SELECT v_formato_renglon::text as formato_renglon,
+    h.periodo as periodo,
     g.nombregrupo::text as lateral1,
     h.grupo::text as lateral2,
     null::text as cabezal1,
@@ -155,10 +180,10 @@ begin
       and replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric < parametro6
       and g.nivel = 2
       and h.hogar like 'Hogar CCC%'
-    GROUP BY v_formato_renglon, g.nombregrupo, h.grupo
-    ORDER BY h.grupo;
+    GROUP BY v_formato_renglon, h.periodo, g.nombregrupo, h.grupo
+    ORDER BY h.periodo, h.grupo;
 end;
 $BODY$;
 
 --test
-SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2025m05'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',');
+SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',');

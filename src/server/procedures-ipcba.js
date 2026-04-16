@@ -584,8 +584,8 @@ async function paneltarea_mover(context, parameters, intercambiar){
 
       'H1': async (client, params) => {
         const { rows } = await client.query(
-          `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, $3, 'G', 'H1', 16, $2)`,
-          [params.periodo_desde, params.separador_decimal,params.periodo_hasta]
+          `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, $3, $5, 'H1', $4, $2)`,
+          [params.periodo_desde, params.separador_decimal,params.periodo_hasta, cuadroInfo.hogares, cuadroInfo.agrupaciones]
         ).fetchAll();
 
         return procesarCuadroH1(rows);
