@@ -96,7 +96,7 @@ ALTER TYPE ccc.type_cuadro_up
 DROP FUNCTION if exists ccc_cuadro_up(text,text,text,boolean,boolean,text,text);
 create or replace function ccc_cuadro_up(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, pempalmedesde boolean,
                                          pempalmehasta boolean, pperiodoempalme text, p_separador text)
-  returns setof res_col7
+  returns setof type_cuadro_up
   language plpgsql
 as
 $BODY$
