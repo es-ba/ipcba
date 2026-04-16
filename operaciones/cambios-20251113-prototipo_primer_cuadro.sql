@@ -42,6 +42,22 @@ ALTER TABLE cuadros_ccc add CONSTRAINT cuadros_ccc_cuadros_funciones_ccc_fkey FO
 
 drop TYPE IF EXISTS res_col7 cascade;
 
+CREATE TYPE ccc.res_col7 AS
+(
+	renglon bigint,
+	formato_renglon text,
+	columna1 text,
+	columna2 text,
+	columna3 text,
+	columna4 text,
+	columna5 text,
+	columna6 text,
+	columna7 text
+);
+
+ALTER TYPE ccc.res_col7
+    OWNER TO cvpowner;
+
 DROP TYPE IF EXISTS ccc.type_cuadro_matriz;
 
 CREATE TYPE ccc.type_cuadro_matriz AS
