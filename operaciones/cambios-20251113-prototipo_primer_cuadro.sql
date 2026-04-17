@@ -31,6 +31,8 @@ do $SQL_ENANCE$
  end
 $SQL_ENANCE$;
 
+ALTER TABLE cuadros_ccc ADD COLUMN tipo_hogar character varying(100);
+
 alter table cuadros_ccc add CONSTRAINT cuadros_ccc_pkey PRIMARY KEY (cuadro);
 alter table cuadros_ccc add CONSTRAINT "texto invalido en descripcion de tabla cuadros_ccc" CHECK (comun.cadena_valida(descripcion::text, 'amplio'::text));
 alter table cuadros_ccc add CONSTRAINT "texto invalido en parametro1 de tabla cuadros_ccc" CHECK (comun.cadena_valida(parametro1::text, 'amplio'::text));
@@ -147,21 +149,28 @@ select * from cvp.cuadros_funciones where funcion = 'res_cuadro_matriz_hogar';
 update cuadros_funciones_ccc set funcion = 'ccc_cuadro_matriz_hogar' where funcion = 'res_cuadro_matriz_hogar';
 
 INSERT INTO cuadros_ccc
-SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
+SELECT 'H1_HOGAR' as cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
     'Valorización de las Canastas de Consumo según las tipologías de hogares.' as parametro1,
     periodo, nivel, grupo, 'G' as agrupacion, encabezado, pie, ponercodigos, agrupacion2, 16 as hogares,
-    pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta
+    pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, 'HOGAR CCC' as tipo_hogar
+    FROM cvp.cuadros
+    where cuadro = 'H1';
+
+INSERT INTO cuadros_ccc
+SELECT 'H1_NNYA' as cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
+    'Valorización de las Canastas de Consumo según las tipologías de NNYA.' as parametro1,
+    periodo, nivel, grupo, 'G' as agrupacion, encabezado, pie, ponercodigos, agrupacion2, null as hogares,
+    pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, 'NNYA' as tipo_hogar
     FROM cvp.cuadros
     where cuadro = 'H1';
 
 --ccc_cuadro_matriz_hogar
 --UTF8=Sí
 
-create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text)
+create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text, p_tipo_hogar text)
   returns setof ccc.type_cuadro_matriz
   language plpgsql
-as
-$BODY$
+AS $BODY$
 declare
     v_formato_renglon text:='DW1n'; -- solo pongo letras para: el tipo de renglón, las columas laterales y una más para todos los datos.
     v_formato_renglon_cabezal text:='E111'; -- idem
@@ -186,21 +195,26 @@ begin
     jsonb_object_agg(
         h.hogar,
         replace(round(h.valorhoggru::numeric,2)::text, '.', p_separador)
-        ORDER BY replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric
+        ORDER BY hog.orden
     )::text as celda
     FROM valorizacion_canasta_ccc h
+	join hogares_ccc hog on h.hogar = hog.hogar
     LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
     JOIN calculos_def cd on h.calculo = cd.calculo
     WHERE h.agrupacion = parametro4
       and cd.principal
       and h.periodo between p_periodo_desde and p_periodo_hasta
-      and replace(replace(h.hogar,'5b','5.1'),'Hogar CCC ','')::numeric < parametro6
+      AND (
+	      parametro6 IS NULL
+	      OR
+	      (NULLIF(regexp_replace(REPLACE(h.hogar, '5b', '5.1'), '[^0-9.]', '', 'g'), ''))::numeric < parametro6
+	  )
       and g.nivel = 2
-      and h.hogar like 'Hogar CCC%'
+      and h.hogar like p_tipo_hogar||'%'
     GROUP BY v_formato_renglon, h.periodo, g.nombregrupo, h.grupo
     ORDER BY h.periodo, h.grupo;
 end;
 $BODY$;
 
 --test
-SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',');
+SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',', 'HOGAR CCC');

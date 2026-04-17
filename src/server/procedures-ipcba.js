@@ -573,6 +573,15 @@ async function paneltarea_mover(context, parameters, intercambiar){
       });
     };
 
+    const handleCuadroH1 = async (client, params, cuadroInfo) => {
+      const { rows } = await client.query(
+        `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, $3, $5, 'H1', $4, $2, $6)`,
+        [params.periodo_desde, params.separador_decimal,params.periodo_hasta, cuadroInfo.hogares, cuadroInfo.agrupacion, cuadroInfo.tipo_hogar]
+      ).fetchAll();
+
+      return procesarCuadroH1(rows);
+    };
+
     const CuadroHandlers = {
       '1': async (client, params, cuadroInfo) => {
         const { rows } = await client.query(
@@ -582,14 +591,8 @@ async function paneltarea_mover(context, parameters, intercambiar){
         return rows;
       },
 
-      'H1': async (client, params, cuadroInfo) => {
-        const { rows } = await client.query(
-          `SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', $1, $3, $5, 'H1', $4, $2)`,
-          [params.periodo_desde, params.separador_decimal,params.periodo_hasta, cuadroInfo.hogares, cuadroInfo.agrupacion]
-        ).fetchAll();
-
-        return procesarCuadroH1(rows);
-      }
+      'H1_HOGAR': handleCuadroH1,
+      'H1_NNYA': handleCuadroH1
     };
 
 

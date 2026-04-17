@@ -21,6 +21,7 @@ export const cuadros_ccc = ():TableDefinition =>{
             {name:'ponercodigos'      , typeName:'boolean'    },
             {name:'agrupacion2'       , typeName:'text'       },
             {name:'hogares'           , typeName:'integer'    },
+            {name:'tipo_hogar'        , typeName:'text'       },
             {name:'pie1'              , typeName:'text'       },
             {name:'cantdecimales'     , typeName:'integer'    },
             {name:'desde'             , typeName:'text'       },
