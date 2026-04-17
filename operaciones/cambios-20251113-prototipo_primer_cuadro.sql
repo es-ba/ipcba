@@ -158,7 +158,7 @@ SELECT cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
 --UTF8=Sí
 
 create or replace function ccc_cuadro_matriz_hogar(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, p_cuadro text, parametro6 integer, p_separador text)
-  returns ccc.type_cuadro_matriz
+  returns setof ccc.type_cuadro_matriz
   language plpgsql
 as
 $BODY$
