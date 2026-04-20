@@ -60,7 +60,7 @@ CREATE TYPE ccc.res_col7 AS
 ALTER TYPE ccc.res_col7
     OWNER TO cvpowner;
 
-DROP TYPE IF EXISTS ccc.type_cuadro_matriz;
+DROP TYPE IF EXISTS ccc.type_cuadro_matriz cascade;
 
 CREATE TYPE ccc.type_cuadro_matriz AS
 (
@@ -75,7 +75,7 @@ CREATE TYPE ccc.type_cuadro_matriz AS
 ALTER TYPE ccc.type_cuadro_matriz
     OWNER TO cvpowner;
 
-DROP TYPE IF EXISTS ccc.type_cuadro_up;
+DROP TYPE IF EXISTS ccc.type_cuadro_up cascade;
 
 CREATE TYPE ccc.type_cuadro_up AS
 (
@@ -217,4 +217,4 @@ end;
 $BODY$;
 
 --test
-SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',', 'HOGAR CCC');
+SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',', 'Hogar CCC');
