@@ -152,7 +152,7 @@ INSERT INTO cuadros_ccc
 SELECT 'H1_HOGAR' as cuadro, descripcion, 'ccc_cuadro_matriz_hogar' as funcion,
     'Valorización de las Canastas de Consumo según las tipologías de hogares.' as parametro1,
     periodo, nivel, grupo, 'G' as agrupacion, encabezado, pie, ponercodigos, agrupacion2, 16 as hogares,
-    pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, 'HOGAR CCC' as tipo_hogar
+    pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, 'Hogar CCC' as tipo_hogar
     FROM cvp.cuadros
     where cuadro = 'H1';
 
