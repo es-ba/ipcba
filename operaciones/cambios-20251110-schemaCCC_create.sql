@@ -794,7 +794,7 @@ CREATE TABLE IF NOT EXISTS nnyas
 (
     nnya text NOT NULL,
     nombrennya text,
-    orden integer,
+    --orden integer,
     PRIMARY KEY (nnya),
     CONSTRAINT "texto invalido en nombrennya de tabla nnya" CHECK (comun.cadena_valida(nombrennya::text, 'castellano'::text))
 );
@@ -915,13 +915,17 @@ CREATE TABLE IF NOT EXISTS nnyaper (
     perfil INTEGER,
     perfil_equivalente INTEGER,
     cantidad integer,
+    nombrennyaper text,
+    orden integer,
     CONSTRAINT nnyaper_pkey PRIMARY KEY (nnya, perfil),
     CONSTRAINT nnyaper_nnya_fkey FOREIGN KEY (nnya)
         REFERENCES nnyas (nnya),
     CONSTRAINT nnyaper_perfiles_fkey FOREIGN KEY (perfil)
         REFERENCES perfiles (perfil),
     CONSTRAINT nnyaper_perfiles_equi_fkey FOREIGN KEY (perfil_equivalente)
-        REFERENCES perfiles (perfil)
+        REFERENCES perfiles (perfil),
+     CONSTRAINT nnyaper_uk UNIQUE (nombrennyaper)
+
 );
 
 GRANT SELECT ON TABLE hogares_ccc TO cvp_administrador, ccc_analista;
@@ -1019,16 +1023,31 @@ CREATE TRIGGER verificar_usa_propiedad
     EXECUTE PROCEDURE verificar_usa_propiedad();
 
 
-CREATE VIEW valorizacion_canasta_ccc AS
+CREATE OR REPLACE VIEW valorizacion_canasta_ccc AS
 select * from
-(select periodo, calculo, hogar, agrupacion, grupo, valorhoggru 
-from calhogpargru 
+(
+--NO ALIMENTARIA DE LOS HOGARES
+select periodo, calculo, c.hogar, agrupacion, grupo, valorhoggru 
+from calhogpargru c 
+join hogares_ccc h on c.hogar = h.hogar
 union
+--NO ALIMENTARIA DE LOS NNYA
+select periodo, calculo, coalesce(n.nombrennyaper, n.nnya) as hogar, agrupacion, grupo, valorhoggru 
+from calhogpargru c 
+join nnyaper n on c.hogar = n.nnya
+union
+--ALIMENTARIA DE LOS HOGARES
 select c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo, sum(c.valorgru*p.unidcons) valorhoggru
 from hogper h 
 left join perfiles p on h.perfil = p.perfil
 left join calgruper c on c.perfil = h.perfil_equivalente
---where periodo = 'a2025m05'
-group by c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo) Q;
+group by c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo
+union
+--ALIMENTARIA DE LOS NNYA
+select c.periodo, c.calculo, coalesce(h.nombrennyaper, h.nnya) as hogar, c.agrupacion , c.grupo, c.valorgru*p.unidcons valorhoggru
+from nnyaper h 
+left join perfiles p on h.perfil = p.perfil
+left join calgruper c on c.perfil = h.perfil_equivalente
+) Q;
 
 GRANT SELECT ON TABLE valorizacion_canasta_ccc TO cvp_administrador, ccc_analista;

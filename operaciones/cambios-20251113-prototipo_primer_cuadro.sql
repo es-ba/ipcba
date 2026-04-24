@@ -192,13 +192,14 @@ begin
     g.nombregrupo::text as lateral1,
     h.grupo::text as lateral2,
     null::text as cabezal1,
-    jsonb_object_agg(
+    json_object_agg(
         h.hogar,
         replace(round(h.valorhoggru::numeric,2)::text, '.', p_separador)
-        ORDER BY hog.orden
+        ORDER BY coalesce(hog.orden, n.orden)
     )::text as celda
     FROM valorizacion_canasta_ccc h
-    join hogares_ccc hog on h.hogar = hog.hogar
+    left join hogares_ccc hog on h.hogar = hog.hogar
+    left join nnyaper n on coalesce (n.nombrennyaper, n.nnya) = h.hogar
     LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
     JOIN calculos_def cd on h.calculo = cd.calculo
     WHERE h.agrupacion = parametro4
@@ -218,3 +219,4 @@ $BODY$;
 
 --test
 SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',', 'Hogar CCC');
+SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2026m01'::text, 'a2026m01'::text, 'G'::text, 'H1', null, ',', 'NNYA');
