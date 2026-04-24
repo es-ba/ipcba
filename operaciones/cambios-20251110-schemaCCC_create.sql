@@ -790,6 +790,15 @@ CREATE TABLE IF NOT EXISTS hogares_ccc
     CONSTRAINT "texto invalido en nombrehogar de tabla hogares_ccc" CHECK (comun.cadena_valida(nombrehogar::text, 'castellano'::text))
 );
 
+CREATE TABLE IF NOT EXISTS nnyas
+(
+    nnya text NOT NULL,
+    nombrennya text,
+    orden integer,
+    PRIMARY KEY (nnya),
+    CONSTRAINT "texto invalido en nombrennya de tabla nnya" CHECK (comun.cadena_valida(nombrennya::text, 'castellano'::text))
+);
+
 CREATE TABLE IF NOT EXISTS perfiles_edad
 (
     perfil_edad INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -831,50 +840,7 @@ CREATE TABLE IF NOT EXISTS parametros_ccc
     CONSTRAINT parametros_ccc_parametros_propiedades_fkey FOREIGN KEY (nombreparametro)
         REFERENCES ccc.parametros_propiedades (nombreparametro)
 );
-/*
-CREATE TABLE IF NOT EXISTS pargru
-(
-    parametro integer NOT NULL,
-    agrupacion text NOT NULL,
-    grupo text NOT NULL,
-    CONSTRAINT pargru_pkey PRIMARY KEY (parametro, agrupacion, grupo),
-    CONSTRAINT pargru_agrupacion_grupo_fkey FOREIGN KEY (agrupacion, grupo)
-        REFERENCES grupos_ccc (agrupacion, grupo),
-    CONSTRAINT pargru_parametro_fkey FOREIGN KEY (parametro)
-        REFERENCES parametros_ccc (parametro)
-);
 
-CREATE TABLE IF NOT EXISTS hogparagr
-(
-    hogar text NOT NULL,
-    parametro integer NOT NULL,
-    agrupacion text NOT NULL,
-    CONSTRAINT hogparagr_pkey PRIMARY KEY (hogar, parametro, agrupacion),
-    CONSTRAINT hogparagr_hogar_fkey FOREIGN KEY (hogar)
-        REFERENCES hogares_ccc (hogar),
-    CONSTRAINT hogparagr_agrupacion_fkey FOREIGN KEY (agrupacion)
-        REFERENCES agrupaciones_ccc (agrupacion),
-    CONSTRAINT hogparagr_parametro_fkey FOREIGN KEY (parametro)
-        REFERENCES parametros_ccc (parametro)
-);
-
-CREATE TABLE IF NOT EXISTS hoggru
-(
-    hogar text NOT NULL,
-    agrupacion text NOT NULL,
-    grupo text NOT NULL,
-    perfil_edad INTEGER,
-    cantidad INTEGER,
-    monto_promedio_may_18  double precision,
-    CONSTRAINT hoggru_pkey PRIMARY KEY (hogar, agrupacion, grupo),
-    CONSTRAINT hoggru_agrupacion_grupo_fkey FOREIGN KEY (agrupacion, grupo)
-        REFERENCES grupos_ccc (agrupacion, grupo),
-    CONSTRAINT hoggru_hogar_fkey FOREIGN KEY (hogar)
-        REFERENCES hogares_ccc (hogar),
-    CONSTRAINT hoggru_perfiles_edad_fkey FOREIGN KEY (perfil_edad)
-        REFERENCES perfiles_edad (perfil_edad)
-);
-*/
 CREATE TABLE IF NOT EXISTS hogpargru
 (
     hogar text NOT NULL,
@@ -885,31 +851,12 @@ CREATE TABLE IF NOT EXISTS hogpargru
     CONSTRAINT hogpargru_pkey PRIMARY KEY (hogar, parametro, agrupacion, grupo),
     CONSTRAINT hogpargru_agrupacion_grupo_fkey FOREIGN KEY (agrupacion, grupo)
         REFERENCES grupos_ccc (agrupacion, grupo),
-    CONSTRAINT hogpargru_hogar_fkey FOREIGN KEY (hogar)
-        REFERENCES hogares_ccc (hogar),
+    --CONSTRAINT hogpargru_hogar_fkey FOREIGN KEY (hogar)
+    --    REFERENCES hogares_ccc (hogar),
     CONSTRAINT hogpargru_parametros_ccc_fkey FOREIGN KEY (parametro)
         REFERENCES parametros_ccc (parametro)
 );
-/*
-CREATE TABLE IF NOT EXISTS calhoggru_ccc
-(
-    periodo text NOT NULL,
-    calculo integer NOT NULL,
-    hogar text NOT NULL,
-    agrupacion text NOT NULL,
-    grupo text NOT NULL,
-    coefhoggru double precision,
-    monto_may_18  double precision,
-    valorhoggru double precision,
-    CONSTRAINT calhoggru_ccc_pkey PRIMARY KEY (periodo, calculo, hogar, agrupacion, grupo),
-    CONSTRAINT calhoggru_ccc_hogar_fkey FOREIGN KEY (hogar)
-        REFERENCES hogares_ccc (hogar),
-    CONSTRAINT calhoggru_ccc_hoggru_fkey FOREIGN KEY (agrupacion, grupo)
-        REFERENCES grupos_ccc (agrupacion, grupo),
-    CONSTRAINT calhoggru_ccc_calculos_fkey FOREIGN KEY (periodo, calculo)
-        REFERENCES cvp.calculos (periodo, calculo)
-);
-*/
+
 CREATE TABLE IF NOT EXISTS calhogpargru
 (
     periodo text NOT NULL,
@@ -923,8 +870,8 @@ CREATE TABLE IF NOT EXISTS calhogpargru
     monto_may_18 double precision,
     valorhoggru double precision,
     CONSTRAINT calhogpargru_pkey PRIMARY KEY (periodo, calculo, hogar, agrupacion, grupo),
-    CONSTRAINT calhogpargru_hogar_fkey FOREIGN KEY (hogar)
-        REFERENCES hogares_ccc (hogar),
+    --CONSTRAINT calhogpargru_hogar_fkey FOREIGN KEY (hogar)
+    --    REFERENCES hogares_ccc (hogar),
     CONSTRAINT calhogpargru_grupos_ccc_fkey FOREIGN KEY (agrupacion, grupo)
         REFERENCES grupos_ccc (agrupacion, grupo),
     CONSTRAINT calhoggru_ccc_calculos_fkey FOREIGN KEY (periodo, calculo)
@@ -963,7 +910,22 @@ CREATE TABLE IF NOT EXISTS hogper (
         REFERENCES perfiles (perfil)
 );
 
+CREATE TABLE IF NOT EXISTS nnyaper (
+    nnya text NOT NULL,
+    perfil INTEGER,
+    perfil_equivalente INTEGER,
+    cantidad integer,
+    CONSTRAINT nnyaper_pkey PRIMARY KEY (nnya, perfil),
+    CONSTRAINT nnyaper_nnya_fkey FOREIGN KEY (nnya)
+        REFERENCES nnyas (nnya),
+    CONSTRAINT nnyaper_perfiles_fkey FOREIGN KEY (perfil)
+        REFERENCES perfiles (perfil),
+    CONSTRAINT nnyaper_perfiles_equi_fkey FOREIGN KEY (perfil_equivalente)
+        REFERENCES perfiles (perfil)
+);
+
 GRANT SELECT ON TABLE hogares_ccc TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE nnyas TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE perfiles_edad TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE parametros_propiedades TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE parametros_ccc TO cvp_administrador, ccc_analista;
@@ -975,21 +937,20 @@ GRANT SELECT ON TABLE hogpargru TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE calhogpargru TO cvp_administrador, ccc_analista;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE novservdom TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE hogper TO cvp_administrador, ccc_analista;
+GRANT SELECT ON TABLE nnyaper TO cvp_administrador, ccc_analista;
 
 do $SQL_ENANCE$
  begin
  PERFORM enance_table('hogares_ccc','hogar');
+ PERFORM enance_table('nnyas','nnya');
  PERFORM enance_table('perfiles_edad','perfil_edad');
  PERFORM enance_table('parametros_propiedades','nombreparametro');
  PERFORM enance_table('parametros_ccc','parametro');
- --PERFORM enance_table('pargru','parametro,agrupacion,grupo');
- --PERFORM enance_table('hogparagr','hogar,parametro,agrupacion');
- --PERFORM enance_table('hoggru','hogar,agrupacion,grupo');
- --PERFORM enance_table('calhoggru_ccc','periodo,calculo,hogar,agrupacion,grupo');
  PERFORM enance_table('hogpargru','hogar,parametro,agrupacion,grupo');
  PERFORM enance_table('calhogpargru','periodo,calculo,hogar,agrupacion,grupo');
  PERFORM enance_table('novservdom','periodo');
  PERFORM enance_table('hogper','hogar,perfil');
+ PERFORM enance_table('nnyaper','hogar,perfil');
  end
 $SQL_ENANCE$;
 

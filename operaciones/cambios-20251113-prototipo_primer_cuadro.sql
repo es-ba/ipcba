@@ -46,15 +46,15 @@ drop TYPE IF EXISTS res_col7 cascade;
 
 CREATE TYPE ccc.res_col7 AS
 (
-	renglon bigint,
-	formato_renglon text,
-	columna1 text,
-	columna2 text,
-	columna3 text,
-	columna4 text,
-	columna5 text,
-	columna6 text,
-	columna7 text
+    renglon bigint,
+    formato_renglon text,
+    columna1 text,
+    columna2 text,
+    columna3 text,
+    columna4 text,
+    columna5 text,
+    columna6 text,
+    columna7 text
 );
 
 ALTER TYPE ccc.res_col7
@@ -64,12 +64,12 @@ DROP TYPE IF EXISTS ccc.type_cuadro_matriz cascade;
 
 CREATE TYPE ccc.type_cuadro_matriz AS
 (
-	formato_renglon text,
-	periodo text,
-	lateral1 text,
-	lateral2 text,
-	cabezal1 text,
-	celda text
+    formato_renglon text,
+    periodo text,
+    lateral1 text,
+    lateral2 text,
+    cabezal1 text,
+    celda text
 );
 
 ALTER TYPE ccc.type_cuadro_matriz
@@ -79,16 +79,16 @@ DROP TYPE IF EXISTS ccc.type_cuadro_up cascade;
 
 CREATE TYPE ccc.type_cuadro_up AS
 (
-	renglon bigint,
-	formato_renglon text,
-	columna1 text,
-	columna2 text,
-	columna3 text,
-	columna4 text,
-	columna5 text,
-	columna6 text,
-	columna7 text,
-	columna8 text
+    renglon bigint,
+    formato_renglon text,
+    columna1 text,
+    columna2 text,
+    columna3 text,
+    columna4 text,
+    columna5 text,
+    columna6 text,
+    columna7 text,
+    columna8 text
 );
 
 ALTER TYPE ccc.type_cuadro_up
@@ -177,7 +177,7 @@ declare
 begin
   return query select 'anchos'::text as formato_renglon,
     'auto'::text,
-	'auto'::text,
+    'auto'::text,
     'auto'::text,
     null::text,
     100::text;
@@ -198,17 +198,17 @@ begin
         ORDER BY hog.orden
     )::text as celda
     FROM valorizacion_canasta_ccc h
-	join hogares_ccc hog on h.hogar = hog.hogar
+    join hogares_ccc hog on h.hogar = hog.hogar
     LEFT JOIN grupos_ccc g on h.agrupacion = g.agrupacion and h.grupo = g.grupo
     JOIN calculos_def cd on h.calculo = cd.calculo
     WHERE h.agrupacion = parametro4
       and cd.principal
       and h.periodo between p_periodo_desde and p_periodo_hasta
       AND (
-	      parametro6 IS NULL
-	      OR
-	      (NULLIF(regexp_replace(REPLACE(h.hogar, '5b', '5.1'), '[^0-9.]', '', 'g'), ''))::numeric < parametro6
-	  )
+          parametro6 IS NULL
+          OR
+          (NULLIF(regexp_replace(REPLACE(h.hogar, '5b', '5.1'), '[^0-9.]', '', 'g'), ''))::numeric < parametro6
+      )
       and g.nivel = 2
       and h.hogar like p_tipo_hogar||'%'
     GROUP BY v_formato_renglon, h.periodo, g.nombregrupo, h.grupo
