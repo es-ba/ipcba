@@ -14,7 +14,7 @@ UPDATE cuadros_ccc
     descripcion='Tabla de equivalencias y unidad consumidora según tipo de canasta alimentaria para varones y mujeres y rango de edades',
     funcion='ccc_cuadro_up',
     parametro1='Tabla de equivalencias',
-    grupo='G01',
+    grupo='G1',
     agrupacion='G',
     encabezado='Cuadro 1||| IPCBA. Tabla de equivalencias y unidad consumidora según tipo de canasta alimentaria para varones y mujeres y rango de edades',
     empalmedesde = false
@@ -139,8 +139,8 @@ GRANT SELECT ON TABLE cuadros_ccc TO cvp_administrador, ccc_analista;
 GRANT SELECT ON TABLE cuadros_funciones_ccc TO cvp_administrador, ccc_analista;
 
 --test
-SELECT * from ccc_cuadro_up(null, 'a2023m01'::text, 'a2025m04'::text, 'G01', false, false , 'a2022m02','.');
---SELECT * from ccc_cuadro_up(null, 'a2025m05'::text, 'G01', false, false , 'a2022m02','.');
+SELECT * from ccc_cuadro_up(null, 'a2023m01'::text, 'a2025m04'::text, 'G1', false, false , 'a2022m02','.');
+--SELECT * from ccc_cuadro_up(null, 'a2025m05'::text, 'G1', false, false , 'a2022m02','.');
 
 ---------------------------------------------------------------------------------------------------------------------
 set search_path = ccc, cvp;
