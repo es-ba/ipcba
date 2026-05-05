@@ -63,6 +63,22 @@ function jsono(sql, indexedby){
 }
 
 //----------------------FUNCIONES AUXILIARES-------------------------------------------------------------------------
+
+/**
+ * Convierte un periodo (ej. 'a2026m01') en un rango de fechas SQL.
+ */
+function obtenerRangoDesdePeriodo(periodo) {
+    // Es buena práctica pasar el radix (10) a parseInt
+    const year = parseInt(periodo.substring(1, 5), 10);
+    const month = parseInt(periodo.substring(6, 8), 10);
+
+    const fechaInicio = `${year}-${month.toString().padStart(2, '0')}-01`;
+    const ultimoDia = new Date(year, month, 0).getDate();
+    const fechaFin = `${year}-${month.toString().padStart(2, '0')}-${ultimoDia}`;
+
+    return { fechaInicio, fechaFin };
+}
+
 function elemento_existente(id_elemento){
     "use strict";
     var elemento=document.getElementById(id_elemento);
@@ -625,29 +641,48 @@ ProceduresIpcba = [
         }
     },
     {
-        action:'fechageneracionpanel_touch',
-        parameters:[
-            {name:'periodo', typeName:'text', references:'periodos'},
-            {name:'panel'  , typeName:'integer'                    },
+        action: 'fechageneracionpanel_touch',
+        parameters: [
+            { name: 'periodo', typeName: 'text', references: 'periodos' },
+            { name: 'panel',   typeName: 'integer' }
         ],
-        roles:['programador','coordinador','analista','jefe_campo'],
-        coreFunction:function(context, parameters){
-            return context.client.query(
-                `UPDATE relpan SET fechageneracionpanel = current_timestamp(0)
-                   WHERE periodo=$1
-                     AND panel=$2
-                   RETURNING fechageneracionpanel`,
-                [parameters.periodo,parameters.panel]
-            ).fetchUniqueRow().then(function(result){
-                return 'generado '+result.row.fechageneracionpanel.toHms();
-            }).catch(function(err){
-                if(err.code=='54011!'){
-                    throw new Error('El panel no esta abierto para ingreso');
+        roles: ['programador', 'coordinador', 'analista', 'jefe_campo'],
+        coreFunction: async function(context, parameters) {
+            try {
+                const { periodo, panel } = parameters;
+
+                const result = await context.client.query(
+                    `UPDATE relpan SET fechageneracionpanel = current_timestamp(0)
+                       WHERE periodo = $1 AND panel = $2
+                       RETURNING fechageneracionpanel`,
+                    [periodo, panel]
+                ).fetchUniqueRow();
+
+                const { fechaInicio, fechaFin } = obtenerRangoDesdePeriodo(periodo);
+
+                const queryFechas = `
+                    UPDATE fechas f
+                    SET visible_ingreso = 'N', visible_planificacion = 'N', seleccionada_planificacion = 'N'
+                    WHERE f.fecha BETWEEN $1 AND $2
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM relpan r
+                        WHERE r.fechasalida = f.fecha
+                          AND r.periodo = $3
+                          AND r.fechasalida IS NOT NULL
+                    );
+                `;
+                await context.client.query(queryFechas, [fechaInicio, fechaFin, periodo]).execute();
+
+                return 'generado ' + result.row.fechageneracionpanel.toHms();
+
+            } catch (err) {
+                if (err.code === '54011!') {
+                    throw new Error('El panel no está abierto para ingreso');
                 }
-                console.log(err);
-                console.log(err.code);
+                console.error('Error en fechageneracionpanel_touch:', err);
                 throw err;
-            });
+            }
         }
     },
     {
