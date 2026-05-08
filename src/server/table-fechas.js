@@ -22,12 +22,13 @@ module.exports = function(context){
         //selfRefresh: true,
         sql:{
             isTable: true,
-            from:`(select f.*, string_agg(rp.panel::text,',') panel
-                     from fechas f
-                     left join relpan rp on f.fecha = rp.fechasalida
-                     left join periodos p on rp.periodo = p.periodo
-                     group by fecha, visible_planificacion, seleccionada_planificacion, visible_ingreso
-                   )`
+            from:`(SELECT f.*, string_agg(rp.panel::text, ',') AS panel
+                FROM periodos p
+                INNER JOIN fechas f ON p.periodo = TO_CHAR(f.fecha, '"a"YYYY"m"MM')
+                LEFT JOIN relpan rp ON f.fecha = rp.fechasalida AND rp.periodo = p.periodo
+                WHERE p.ingresando = 'S'
+                GROUP BY f.fecha, f.visible_planificacion, f.seleccionada_planificacion, f.visible_ingreso
+                ORDER BY f.fecha DESC)`,
         }
 
     },context);
