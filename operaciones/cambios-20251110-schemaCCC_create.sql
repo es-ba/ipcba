@@ -624,14 +624,21 @@ BEGIN
 EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'CalHog_ccc_Valorizar', pTipo:='comenzo'); 
 --insercion en calhogpargru
 
-INSERT INTO calhogpargru (periodo, calculo, hogar, agrupacion, grupo, CoefHogGru, monto_may_18)
+INSERT INTO calhogpargru (periodo, calculo, hogar, agrupacion, grupo, CoefHogGru, monto_may_18, valorHogGru)
   (SELECT pPeriodo as Periodo, pcalculo as Calculo, hg.hogar, hg.agrupacion, hg.grupo, 
           sum(coeficiente * hg.cantidad) coefhoggru, 
-          sum(coeficiente * hg.cantidad * COALESCE(pc.monto_promedio_may_18, p.monto_promedio_may_18)) monto_may_18
+          sum(coeficiente * hg.cantidad * COALESCE(pc.monto_promedio_may_18, p.monto_promedio_may_18)) monto_may_18,
+          -- el producto de cuidados ya queda valorizado, en los pasos siguientes sólo se valorizan los que se mueven por coef_ajuste (c.indice/c_18.indice)
+          sum(coeficiente * hg.cantidad * (
+              CASE WHEN n.periodo IS NOT NULL and NOT pc.es_promedio THEN pc.horas_diarias*n.monto_mes_cuidado_valor_hora 
+                   WHEN n.periodo IS NOT NULL and pc.es_promedio THEN pc.horas_diarias*n.monto_hora_promedio
+                   ELSE NULL
+              END))
      FROM hogpargru hg
      join parametros_ccc pc on hg.parametro = pc.parametro 
      JOIN agrupaciones_ccc a ON hg.agrupacion = a.agrupacion 
      LEFT JOIN productos_ccc p ON p.producto = hg.grupo
+     LEFT JOIN novservdom n ON p.producto = n.producto and n.periodo = pPeriodo
    WHERE a.paravarioshogares
    GROUP BY periodo, calculo, hg.hogar, hg.agrupacion, hg.grupo
   );
@@ -648,7 +655,7 @@ FOR i IN REVERSE vmaxnivel..1 LOOP
                WHERE c.periodo = pperiodo AND c.calculo = pcalculo AND c.agrupacion = g.agrupacion AND c.grupo = g.grupo AND g.nivel = i AND c.agrupacion=pAgrupacion) AS x);
 END LOOP;
 
- FOR vhgru IN --toma los grupos-Hoja de CalHogGru
+ FOR vhgru IN --toma los grupos-Hoja de CalHogParGru
    SELECT h.periodo, h.calculo, h.Hogar, h.agrupacion, h.grupo, c.indice/c_18.indice as coef_ajuste, h.coefhoggru, h.monto_may_18 
      FROM calhogpargru h 
           INNER JOIN (SELECT agrupacion_b1112, string_agg(grupo_b1112, '-') as grupo_b1112, agrupacion_b21, string_agg(grupo_b21, '-') as grupo_b21, agrupacion, grupo  
@@ -881,9 +888,18 @@ CREATE TABLE IF NOT EXISTS calhogpargru
 --costo del servicio doméstico para el personal de cuidados 
 CREATE TABLE IF NOT EXISTS novservdom (
     periodo text NOT NULL,
+    producto text NOT NULL,
+    horas_convenio integer NOT NULL default 192,
     monto_hora_general double precision,
     monto_hora_cuidado double precision,
     monto_mes_cuidado double precision,
+    monto_mes_cuidado_valor_hora double precision
+       GENERATED ALWAYS AS (
+          CASE 
+            WHEN monto_mes_cuidado IS NULL THEN 0
+            ELSE monto_mes_cuidado / horas_convenio
+          END
+       ) STORED,
     monto_hora_promedio double precision
        GENERATED ALWAYS AS (
           CASE 
@@ -891,9 +907,11 @@ CREATE TABLE IF NOT EXISTS novservdom (
             ELSE (monto_hora_general + monto_hora_cuidado) / 2.0
           END
        ) STORED,
-    CONSTRAINT novservdom_pkey PRIMARY KEY (periodo),
+    CONSTRAINT novservdom_pkey PRIMARY KEY (periodo, producto),
     CONSTRAINT novservdom_periodos_fkey FOREIGN KEY (periodo)
-        REFERENCES cvp.periodos (periodo)
+        REFERENCES cvp.periodos (periodo),
+    CONSTRAINT novservdom_productos_ccc_fkey FOREIGN KEY (producto)
+        REFERENCES ccc.productos_ccc (producto)
 );
 
 CREATE TABLE IF NOT EXISTS hogper (
@@ -952,7 +970,7 @@ do $SQL_ENANCE$
  PERFORM enance_table('parametros_ccc','parametro');
  PERFORM enance_table('hogpargru','hogar,parametro,agrupacion,grupo');
  PERFORM enance_table('calhogpargru','periodo,calculo,hogar,agrupacion,grupo');
- PERFORM enance_table('novservdom','periodo');
+ PERFORM enance_table('novservdom','periodo,producto');
  PERFORM enance_table('hogper','hogar,perfil');
  PERFORM enance_table('nnyaper','hogar,perfil');
  end
