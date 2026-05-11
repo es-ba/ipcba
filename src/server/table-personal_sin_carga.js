@@ -14,30 +14,38 @@ module.exports = function(context){
         ],
         sortColumns:[{column:'fecha'}, {column:'persona'}],
         sql:{
-            from: `(select per.persona, per.fecha, per.labor 
-                     from (select persona, fecha, labor 
-                            from personal p
-                            join tareas t on p.persona = t.encuestador 
-                            join ipcba.usuarios u on p.username = u.usu_usu 
-                            cross join (select fecha from fechas f 
-                                        join relpan rp on f.fecha = rp.fechasalida 
-                                        where seleccionada_planificacion = 'S') s
-                            where operativo = 'C' and labor in ('E', 'S') and activo = 'S' and usu_activo) per
-                    left join (select fecha, encuestador as persona
-                                 from fechas f
-                                 left join (select rt.periodo, rt.panel, rt.tarea, rt.encuestador, rp.fechasalida, rt.fechasalidadesde, rt.fechasalidahasta 
-                                              from reltar rt 
-                                              join relpan rp on rp.periodo = rt.periodo and rp.panel = rt.panel) e
-                                 on f.fecha = e.fechasalidadesde or f.fecha = e.fechasalidahasta or f.fecha = e.fechasalida
-                                 where f.seleccionada_planificacion = 'S'
-                                union
-                                 select fecha, l.persona
-                                   from fechas f
-                                   join relpan rp on f.fecha = rp.fechasalida
-                                   join licencias l on f.fecha between l.fechadesde and l.fechahasta
-                                   where f.seleccionada_planificacion = 'S') q 
-                    on per.persona = q.persona and per.fecha = q.fecha
-                    where q.fecha is null)`,                  
-        }  
+            from: `(SELECT p.persona, f.fecha, p.labor
+                FROM (
+                    SELECT per.persona, per.labor
+                    FROM personal per
+                    JOIN tareas t ON per.persona = t.encuestador
+                    JOIN ipcba.usuarios u ON per.username = u.usu_usu
+                    WHERE t.operativo = 'C'
+                      AND per.labor IN ('E', 'S')
+                      AND per.activo = 'S'
+                      AND u.usu_activo = true
+                ) p
+                CROSS JOIN (
+                    SELECT DISTINCT f.fecha
+                    FROM fechas f
+                    JOIN relpan rp ON f.fecha = rp.fechasalida
+                    WHERE f.seleccionada_planificacion = 'S'
+                ) f
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM reltar rt
+                    JOIN relpan rp2 ON rp2.periodo = rt.periodo AND rp2.panel = rt.panel
+                    WHERE rt.encuestador = p.persona
+                      AND f.fecha BETWEEN COALESCE(rt.fechasalidadesde, rp2.fechasalida)
+                                      AND COALESCE(rt.fechasalidahasta, rp2.fechasalida)
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM licencias l
+                    WHERE l.persona = p.persona
+                      AND f.fecha BETWEEN l.fechadesde AND l.fechahasta
+                )
+            )`,
+        }
     },context);
 }
