@@ -24,9 +24,6 @@ export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
     ],
     hiddenColumns:['indice','variacionacumuladaanualredondeada','variacioninteranualredondeada'],
     primaryKey:['periodo','calculo','agrupacion','grupo'],
-    filterColumns:[
-        {column:'periodo', operator:'=', value:context.be.internalData?.filterActualPeriodo},
-    ],
     sql:{
         isTable: false,
     },
