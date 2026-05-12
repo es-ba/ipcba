@@ -18,14 +18,14 @@ return {
         sql:{
             from: `(SELECT p.persona, f.fecha, p.labor
                 FROM (
-                    SELECT per.persona, per.labor
+                    SELECT DISTINCT per.persona, per.labor
                     FROM personal per
                     JOIN tareas t ON per.persona = t.encuestador
                     JOIN ipcba.usuarios u ON per.username = u.usu_usu
                     WHERE t.operativo = 'C'
                       AND per.labor IN ('E', 'S')
                       AND per.activo = 'S'
-                      AND u.usu_activo = true
+                      AND u.usu_activo
                 ) p
                 CROSS JOIN (
                     SELECT DISTINCT f.fecha
