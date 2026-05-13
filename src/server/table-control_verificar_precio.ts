@@ -3,7 +3,7 @@
 import { Context, TableDefinition } from "backend-plus";
 
 export const control_verificar_precio = (context:Context):TableDefinition =>{
-    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='recepcionista';
+    var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista' || context.user.usu_rol ==='recepcionista' || context.user.usu_rol ==='coordinador';
     return {
         name:'control_verificar_precio',
         tableName: 'relpre',
