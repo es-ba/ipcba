@@ -1,8 +1,8 @@
 'use strict'
 
-import { TableDefinition, Context } from "types-ipcba";
+import { TableDefinition } from "types-ipcba";
 
-export const calgru_ccc_b1112_b21_vw = (context:Context): TableDefinition => {
+export const calgru_ccc_b1112_b21_vw = (): TableDefinition => {
   return {
     editable: false,
     name: 'calgru_ccc_b1112_b21_vw',
