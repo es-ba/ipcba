@@ -28,7 +28,7 @@ export const control_verificar_precio = (context:Context):TableDefinition =>{
             {name:'precionormalizadoant'         ,typeName:'decimal', allow:{update:false}},
             {name:'variacion'                    ,typeName:'decimal', allow:{update:false}},
             {name:'comentariosrelpre'            ,typeName:'text'   , allow:{update:puedeEditar}},
-            {name:'esvisiblecomentarioendm'      ,typeName:'boolean', allow:{update:false}},
+            {name:'esvisiblecomentarioendm'      ,typeName:'boolean', allow:{update:puedeEditar}},
             {name:'tipoprecioant'                ,typeName:'text'   , allow:{update:false}},
             {name:'comentariosrelpreant'         ,typeName:'text'   , allow:{update:false}},
             {name:'periodoant'                   ,typeName:'text'   , allow:{update:false}},
