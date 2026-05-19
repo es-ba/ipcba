@@ -48,8 +48,8 @@ module.exports = function(context){
             {references:'formularios', fields:['formulario']},
             {references:'informantes', fields:['informante']},
             {references:'periodos'   , fields:['periodo'   ]},
-            {references:'relpan'     , fields:['periodo','panel']},            
-            {references:'razones'    , fields:['razon']},            
+            {references:'relpan'     , fields:['periodo','panel']},
+            {references:'razones'    , fields:['razon']},
             {references:'personal'   , fields:[{source:'encuestador'  , target:'persona'  }]},
             //{references:'personal'   , fields:[{source:'ingresador'   , target:'persona'  }], alias:'pering'},
             {references:'personal'   , fields:[{source:'recepcionista', target:'persona'  }], alias:'perrec'},
@@ -72,25 +72,33 @@ module.exports = function(context){
         ],
         sql:{
             from:`(
-                select v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea, v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador, 
-                  v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor, v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                  v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento,
-                  CASE WHEN rec.labor = 'R' THEN rec.persona 
-                       WHEN per.labor = 'R' THEN per.persona 
-                       ELSE rec.persona END operadorrec, v.codcomentarios, mx.maxperiodoinformado
-                  from relvis v
-                  join informantes i on v.informante = i.informante
-                  left join formularios f on v.formulario=f.formulario
-                  left join personal rec on rec.username = '`+ context.user.usu_usu +`' and rec.activo = 'S'
-                  left join personal per on ((rec.apellido = per.apellido and rec.nombre = per.nombre) or per.username = '`+ context.user.usu_usu +`')  
-                  and per.activo = 'S' and rec.persona is distinct from per.persona
-                  left join (select informante, formulario, max(periodo) maxperiodoinformado 
-                               from relvis r join razones z using(razon) 
-                               where espositivoformulario = 'S' 
-                               group by informante, formulario) as mx 
-                               on v.informante = mx.informante and v.formulario = mx.formulario
+                SELECT
+                v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea,
+                v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador,
+                v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor,
+                v.informantereemplazante, v.ultima_visita, v.verificado_rec,
+                v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento, v.codcomentarios,
+                CASE
+                    WHEN rec.labor = 'R' THEN rec.persona
+                    WHEN per.labor = 'R' THEN per.persona
+                    ELSE rec.persona END operadorrec,
+                (SELECT MAX(r.periodo)
+                FROM relvis r
+                JOIN razones z ON r.razon = z.razon
+                WHERE z.espositivoformulario = 'S'
+                  AND r.informante = v.informante
+                  AND r.formulario = v.formulario
+                ) AS maxperiodoinformado
+
+                FROM relvis v
+                JOIN informantes i ON v.informante = i.informante
+                LEFT JOIN formularios f ON v.formulario = f.formulario
+                LEFT JOIN personal rec ON rec.username = '${context.user.usu_usu}' AND rec.activo = 'S'
+                LEFT JOIN personal per ON ((rec.apellido = per.apellido AND rec.nombre = per.nombre)
+                OR per.username = '${context.user.usu_usu}')
+                       AND per.activo = 'S' AND rec.persona IS DISTINCT FROM per.persona
                   )`,
             isTable:true,
-                }        
+                }
     },context);
 }
