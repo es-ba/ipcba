@@ -72,34 +72,39 @@ module.exports = function(context){
         ],
         sql:{
             from:`(
-                SELECT
-                v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea,
-                v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador,
-                v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor,
-                v.informantereemplazante, v.ultima_visita, v.verificado_rec,
-                v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento, v.codcomentarios,
-                CASE
-                    WHEN rec.labor = 'R' THEN rec.persona
-                    WHEN per.labor = 'R' THEN per.persona
-                    ELSE rec.persona END operadorrec,
-                (SELECT r.periodo
-                FROM relvis r
-                JOIN razones z ON r.razon = z.razon
-                WHERE z.espositivoformulario = 'S'
-                  AND r.informante = v.informante
-                  AND r.formulario = v.formulario
-                ORDER BY r.periodo DESC
-                LIMIT 1
-                ) AS maxperiodoinformado
+                    SELECT
+                    v.periodo, v.informante, v.visita, v.formulario, v.panel, v.tarea,
+                    v.fechasalida, v.fechaingreso, v.encuestador, v.ingresador,
+                    v.recepcionista, v.razon, v.ultimavisita, v.comentarios, v.supervisor,
+                    v.informantereemplazante, v.ultima_visita, v.verificado_rec,
+                    v.fechageneracion, f.orden, i.direccion, v.preciosgenerados, v.token_relevamiento, v.codcomentarios,
 
-                FROM relvis v
-                JOIN informantes i ON v.informante = i.informante
-                LEFT JOIN formularios f ON v.formulario = f.formulario
-                LEFT JOIN personal rec ON rec.username = '${context.user.usu_usu}' AND rec.activo = 'S'
-                LEFT JOIN personal per ON ((rec.apellido = per.apellido AND rec.nombre = per.nombre)
-                OR per.username = '${context.user.usu_usu}')
-                       AND per.activo = 'S' AND rec.persona IS DISTINCT FROM per.persona
-                  )`,
+                    CASE
+                        WHEN rec.labor = 'R' THEN rec.persona
+                        WHEN per.labor = 'R' THEN per.persona
+                        ELSE rec.persona
+                    END AS operadorrec,
+
+                    mx.maxperiodoinformado
+
+                    FROM cvp.relvis v
+                    JOIN cvp.informantes i ON v.informante = i.informante
+                    LEFT JOIN cvp.formularios f ON v.formulario = f.formulario
+                    LEFT JOIN cvp.personal rec ON rec.username = '${context.user.usu_usu}' AND rec.activo = 'S'
+                    LEFT JOIN cvp.personal per ON ((rec.apellido = per.apellido AND rec.nombre = per.nombre)
+                        OR per.username = '${context.user.usu_usu}')
+                        AND per.activo = 'S' AND rec.persona IS DISTINCT FROM per.persona
+                    LEFT JOIN LATERAL (
+                        SELECT r.periodo AS maxperiodoinformado
+                        FROM cvp.relvis r
+                        JOIN cvp.razones z ON r.razon = z.razon
+                        WHERE r.informante = v.informante
+                          AND r.formulario = v.formulario
+                          AND z.espositivoformulario = 'S'
+                        ORDER BY r.periodo DESC
+                        LIMIT 1
+                    ) mx ON true
+                )`,
             isTable:true,
                 }
     },context);
