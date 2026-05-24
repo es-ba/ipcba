@@ -1,13 +1,16 @@
 --empalme
+--En el empalme de canastas se deberían mostrar los índices sin redondear para los períodos anteriores a a2022m02, como se muestra en el empalme de IPCBA
 --paso 1.1
 set search_path= ccc,cvp;
 set role cvpowner;
 DROP TABLE IF EXISTS calgru_ccc_b1112_b21 cascade;
 CREATE TABLE IF NOT EXISTS calgru_ccc_b1112_b21 AS SELECT periodo, calculo, agrupacion, grupo, agrupacion agrupacion_b1112, grupo grupo_b1112, indice, indiceredondeado FROM cvp.calgru WHERE FALSE;
+ALTER TABLE calgru_ccc_b1112_b21 ALTER COLUMN grupo type text;
+ALTER TABLE calgru_ccc_b1112_b21 ALTER COLUMN grupo_b1112 type text;
 ALTER TABLE calgru_ccc_b1112_b21 ADD PRIMARY KEY (periodo, calculo, agrupacion, grupo, agrupacion_b1112, grupo_b1112);
 ALTER TABLE calgru_ccc_b1112_b21 ADD FOREIGN KEY (calculo) REFERENCES calculos_def (calculo);
-ALTER TABLE calgru_ccc_b1112_b21 ADD FOREIGN KEY (agrupacion, grupo) REFERENCES grupos (agrupacion, grupo);
-ALTER TABLE calgru_ccc_b1112_b21 ADD FOREIGN KEY (agrupacion_b1112, grupo_b1112) REFERENCES grupos_b1112 (agrupacion, grupo);
+--ALTER TABLE calgru_ccc_b1112_b21 ADD FOREIGN KEY (agrupacion, grupo) REFERENCES grupos (agrupacion, grupo);
+--ALTER TABLE calgru_ccc_b1112_b21 ADD FOREIGN KEY (agrupacion_b1112, grupo_b1112) REFERENCES grupos_b1112 (agrupacion, grupo);
 ALTER TABLE calgru_ccc_b1112_b21 ADD FOREIGN KEY (periodo) REFERENCES periodos (periodo);
 GRANT SELECT ON TABLE calgru_ccc_b1112_b21 TO cvp_administrador, ccc_analista;
 
@@ -22,19 +25,25 @@ SELECT periodo, calculo, agrupacion, grupo, agrupacion_b1112, grupo_b1112,
        --FORMULA 1:
        --indiceredondeado * sum(indiceredondeado_b1112 * ponderador_b1112) / sum(indiceredondeado_b1112_emp * ponderador_b1112_emp) indice_empalmado,
        --indiceredondeado * sum(indiceredondeado_b1112 * ponderador_b1112) / sum(indiceredondeado_b1112_emp * ponderador_b1112_emp) indice_empalmadoredondeado
-       indiceredondeado * round((sum(producto_b1112)/sum(ponderador_b1112))::decimal,2) / round((sum(producto_b1112_emp)/sum(ponderador_b1112_emp))::decimal,2) indice_empalmado,
-       indiceredondeado * round((sum(producto_b1112)/sum(ponderador_b1112))::decimal,2) / round((sum(producto_b1112_emp)/sum(ponderador_b1112_emp))::decimal,2) indice_empalmadoredondeado
+       indiceredondeado * round((indice_b1112/**ponderador_b1112/ponderador_b1112*/)::decimal,2) / round((indice_b1112_emp/**ponderador_b1112_emp/ponderador_b1112_emp*/)::decimal,2) indice_empalmado,
+       indiceredondeado * round((indice_b1112/**ponderador_b1112/ponderador_b1112*/)::decimal,2) / round((indice_b1112_emp/**ponderador_b1112_emp/ponderador_b1112_emp*/)::decimal,2) indice_empalmadoredondeado
 FROM
-  (SELECT vp.periodo, vp.calculo calculo_b1112, cn.calculo, vp.agrupacion agrupacion_b1112, vp.grupo grupo_b1112,
-          cn.agrupacion as agrupacion, cn.grupo as grupo,
-          cn.indiceredondeado indiceredondeado, vp.indiceredondeado indiceredondeado_b1112, vp.ponderador ponderador_b1112,
-          ve.indiceredondeado indiceredondeado_b1112_emp , ve.ponderador ponderador_b1112_emp,
-          cn.indice indice, vp.indice indice_b1112, ve.indice indice_b1112_emp,
+  (SELECT vp.periodo, vp.calculo calculo_b1112, cn.calculo, vp.agrupacion agrupacion_b1112, cn.agrupacion as agrupacion,
+          string_agg(vp.grupo,'-' ORDER BY vp.grupo) grupo_b1112,
+          string_agg(cn.grupo,'-' ORDER BY vp.grupo) as grupo,
+          round((sum(cn.indice*cn.ponderador)/sum(cn.ponderador))::decimal,2) indiceredondeado, --vp.indiceredondeado indiceredondeado_b1112, vp.ponderador ponderador_b1112,
+          --ve.indiceredondeado indiceredondeado_b1112_emp , ve.ponderador ponderador_b1112_emp,
+          sum(cn.indice*cn.ponderador)/sum(cn.ponderador) indice, 
+          sum(vp.indice*vp.ponderador)/sum(vp.ponderador) indice_b1112, 
+          sum(ve.indice*ve.ponderador)/sum(ve.ponderador) indice_b1112_emp,
+          sum(cn.ponderador) ponderador,
+          sum(vp.ponderador) ponderador_b1112,
+          sum(ve.ponderador) ponderador_b1112_emp
           --
-          vp.indice * vp.ponderador producto_b1112, ve.indice * ve.ponderador producto_b1112_emp
+          --vp.indice * vp.ponderador producto_b1112, ve.indice * ve.ponderador producto_b1112_emp
      FROM calgru_b1112 vp
        join parametros p on unicoregistro
-       join calculos_b1112 cd on vp.calculo = cd.calculo
+       join calculos_b1112 cd on vp.calculo = cd.calculo and vp.periodo = cd.periodo
        join empalme_ccc_b1112 e on vp.agrupacion = e.agrupacion_b1112 and vp.grupo = e.grupo_b1112
        join (select c.*
                from calgru c
@@ -48,9 +57,9 @@ FROM
             ) ve on vp.calculo = ve.calculo and ve.agrupacion = e.agrupacion_b1112 and ve.grupo = e.grupo_b1112
       where vp.calculo = 0 and vp.periodo <= p.periodo_empalme
             and vp.periodo >= 'a2012m07' --primer periodo publicacion base 2011-2012
-      order by vp.periodo desc, vp.calculo, vp.agrupacion, cn.grupo
+      group by vp.periodo, vp.calculo, cn.calculo, vp.agrupacion, cn.agrupacion, e.agrupamiento
+      order by vp.periodo desc, vp.calculo, vp.agrupacion, string_agg(cn.grupo,'-' ORDER BY vp.grupo)
   ) Q
-group by periodo, calculo, agrupacion, grupo, agrupacion_b1112, grupo_b1112, indiceredondeado
 order by periodo desc, calculo, agrupacion, grupo, agrupacion_b1112, grupo_b1112;
 
 ---------VISTAS----------------
@@ -90,10 +99,9 @@ SELECT *
           WHERE cd.principal AND c.periodo > periodo_empalme
           GROUP BY c.periodo, c.calculo, c.agrupacion, e.agrupacion_b1112, e.agrupamiento
         UNION
-        /*
         SELECT c.periodo, c.calculo, c.agrupacion, c.grupo, agrupacion_b1112, grupo_b1112, c.indice, c.indiceredondeado
           FROM calgru_ccc_b1112_b21 c --ya va a venir agrupada
-        */
+        /*
         SELECT c.periodo, c.calculo, c.agrupacion, string_agg(c.grupo,'-' ORDER BY c.grupo) grupo, e.agrupacion_b1112, 
           string_agg(e.grupo_b1112,'-' ORDER BY e.grupo_b1112) grupo_b1112, 
           SUM(c.indice*cb.ponderador)/sum(case when c.indice is null then null else cb.ponderador end) indice, 
@@ -104,6 +112,7 @@ SELECT *
           JOIN calgru_b1112 cb ON c.periodo = cb.periodo and cb.calculo = 0 --and c.calculo = cb.calculo
             and c.agrupacion_b1112 = cb.agrupacion and c.grupo_b1112 = cb.grupo
           GROUP BY c.periodo, c.calculo, c.agrupacion, e.agrupacion_b1112, e.agrupamiento
+        */
        ) Q;
 GRANT SELECT ON TABLE calgru_ccc_empalme TO cvp_administrador, ccc_analista;
 
