@@ -82,14 +82,12 @@ module.exports = function(context){
                     WHEN rec.labor = 'R' THEN rec.persona
                     WHEN per.labor = 'R' THEN per.persona
                     ELSE rec.persona END operadorrec,
-                (SELECT r.periodo
+                (SELECT MAX(r.periodo)
                 FROM relvis r
                 JOIN razones z ON r.razon = z.razon
                 WHERE z.espositivoformulario = 'S'
                   AND r.informante = v.informante
                   AND r.formulario = v.formulario
-                ORDER BY r.periodo DESC
-                LIMIT 1
                 ) AS maxperiodoinformado
 
                 FROM relvis v

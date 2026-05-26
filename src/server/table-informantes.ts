@@ -17,7 +17,7 @@ export const informantes = (context:Context):TableDefinition => {
         fields:[
             {name:'informante'           , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , nullable:false                                            },
             {name:'nombreinformante'     , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , isName:true                                               },
-            {name:'estado'               , typeName:'text'       , allow:{import:false, update:false}               , inTable: false                                            },
+            {name:'estado'               , typeName:'text'       , allow:{import:false, update:false}               , inTable: false},
             {name:'tipoinformante'       , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , nullable:false                , isName:true, title:'TI'   },
             {name:'rubroclanae'          , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cadena'               , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
@@ -83,12 +83,7 @@ export const informantes = (context:Context):TableDefinition => {
             {references:'calles'          , fields:['calle']            , displayFields:['nombrecalle']     },
             {references:'provincias'      , fields:['provincia']        , displayFields:['nombreprovincia'] }
         ],
-        sql:{
-            from:`(select i.*, ie.estado
-                   from informantes i left join informantes_estado ie on i.informante = ie.informante
-                )`,
-                isTable: true,
-            },
+        sql:{fields:{ estado:{ expr: `(select estado from informantes_estado ie where ie.informante = informantes.informante)` } }}
     };
 }
 
