@@ -1412,6 +1412,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_novservdom', path: __dirname},
             {name: 'hogper', path: __dirname},
             {name: 'informantes_grid', path: __dirname},
+            {name: 'personal_supervisores', path: __dirname},
         ]);
     }
 }
