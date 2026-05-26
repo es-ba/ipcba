@@ -23,15 +23,18 @@ export function calhogpargru(_context: Context): TableDefinition {
     foreignKeys: [
       { references: 'calculos', fields: ['periodo', 'calculo'] },
       { references: 'grupos_ccc', fields: ['agrupacion', 'grupo'], displayFields: ['nombregrupo', 'nivel'], alias: 'gru' },
-      { references: 'hogares_ccc', fields: ['hogar'], displayFields: ['nombrehogar','orden'], alias: 'hog' },
+      //{ references: 'hogares_ccc', fields: ['hogar'], displayFields: ['nombrehogar','orden'], alias: 'hog' },
     ],
     sql: {
       from: `
-        (select ch.periodo, ch.calculo, ch.hogar, h.nombrehogar, h.orden, g.agrupacion, g.grupo, g.nombregrupo, g.nivel, g.grupopadre, gp.nombregrupo as nombre_grupopadre,
+        (select ch.periodo, ch.calculo, ch.hogar, coalesce(ny.nombrennya, h.nombrehogar) nombrehogar, coalesce(n.orden, h.orden) orden, 
+        g.agrupacion, g.grupo, g.nombregrupo, g.nivel, g.grupopadre, gp.nombregrupo as nombre_grupopadre,
         ch.cantidad, ch.coefhoggru, ch.monto_may_18, ch.valorhoggru
         from ccc.calhogpargru ch
-        join ccc.hogares_ccc h on h.hogar = ch.hogar
         inner join ccc.grupos_ccc g on g.agrupacion = ch.agrupacion and g.grupo = ch.grupo
+        left join ccc.hogares_ccc h on h.hogar = ch.hogar
+        left join (select nnya, min(orden) as orden from ccc.nnyaper group by nnya order by 2) n on ch.hogar = n.nnya
+        left join nnyas ny on ch.hogar = ny.nnya
         left join ccc.grupos_ccc gp on gp.agrupacion = g.agrupacion and gp.grupo = g.grupopadre)
       `,
     }
