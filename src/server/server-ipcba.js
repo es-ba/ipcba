@@ -880,7 +880,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 ]},
                 {menuType:'table', name:'conjuntomuestral'                      , label:'conjuntos muestrales', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor]},
                 {menuType:'table', name:'calles'                                , onlyVisibleFor:[programador,coordinador,analista]},
-                {menuType:'table', name:'informantes'                           , onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor]},
+                {menuType:'table', name:'informantes_grid'                      , label:'informantes', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor]},
                 {menuType:'table', name:'periodos_informantesactivos'           , label:'activos', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'periodos_informantesaltasbajas'        , label:'altas y bajas', onlyVisibleFor:[programador,coordinador,analista]},
                 {menuType:'table', name:'calculos_novobs_recep'                 , label:'altas y bajas (recep)', onlyVisibleFor:[programador,recepcionista,jefeRecepcion,recepGabinete,coordinador,analista]},
@@ -1411,6 +1411,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'periodos_calhogpargru', path: __dirname},
             {name: 'periodos_novservdom', path: __dirname},
             {name: 'hogper', path: __dirname},
+            {name: 'informantes_grid', path: __dirname},
         ]);
     }
 }
