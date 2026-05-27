@@ -263,7 +263,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION extraer_edad_desde(rango_edad_str character varying)
 RETURNS integer
 AS $$
-SELECT (extraer_rango_edad(rango_edad_str)).edad_desde;
+SELECT (ccc.extraer_rango_edad(rango_edad_str)).edad_desde;
 $$ LANGUAGE sql IMMUTABLE;
 
 
@@ -271,7 +271,7 @@ $$ LANGUAGE sql IMMUTABLE;
 CREATE OR REPLACE FUNCTION extraer_edad_hasta(rango_edad_str character varying)
 RETURNS integer
 AS $$
-SELECT (extraer_rango_edad(rango_edad_str)).edad_hasta;
+SELECT (ccc.extraer_rango_edad(rango_edad_str)).edad_hasta;
 $$ LANGUAGE sql IMMUTABLE;
 
 
@@ -279,7 +279,7 @@ $$ LANGUAGE sql IMMUTABLE;
 CREATE OR REPLACE FUNCTION extraer_unidad_medida(rango_edad_str character varying)
 RETURNS character varying
 AS $$
-SELECT (extraer_rango_edad(rango_edad_str)).unidad_medida;
+SELECT (ccc.extraer_rango_edad(rango_edad_str)).unidad_medida;
 $$ LANGUAGE sql IMMUTABLE;
 
 CREATE TABLE IF NOT EXISTS perfiles
