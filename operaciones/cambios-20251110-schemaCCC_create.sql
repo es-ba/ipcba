@@ -46,8 +46,11 @@ CREATE TABLE IF NOT EXISTS agrupaciones_ccc
     calcular_junto_grupo text,
     valoriza boolean DEFAULT false,
     tipo_agrupacion text,
+    agrupacionorigen text,
     PRIMARY KEY (agrupacion),
-    CONSTRAINT "texto invalido en nombreagrupacion de tabla agrupaciones_ccc" CHECK (comun.cadena_valida(nombreagrupacion::text, 'castellano'::text))
+    CONSTRAINT "texto invalido en nombreagrupacion de tabla agrupaciones_ccc" CHECK (comun.cadena_valida(nombreagrupacion::text, 'castellano'::text)),
+    CONSTRAINT agrupaciones_ccc_agrupaciones_ccc_fkey FOREIGN KEY (agrupacionorigen)
+        REFERENCES ccc.agrupaciones_ccc (agrupacion)
 );
 
 DROP FUNCTION IF EXISTS his.changes_trg() /*CASCADE*/ /* REGEXP SECURE ADDABLE CASCADE */;
@@ -634,7 +637,10 @@ INSERT INTO calhogpargru (periodo, calculo, hogar, agrupacion, grupo, CoefHogGru
                    WHEN n.periodo IS NOT NULL and pc.es_promedio THEN pc.horas_diarias*n.monto_hora_promedio
                    ELSE NULL
               END))
-     FROM hogpargru hg
+     FROM (SELECT gc.agrupacion, h.hogar, h.parametro, h.grupo, h.cantidad 
+           FROM hogpargru h 
+           JOIN grupos_ccc gc on h.grupo = gc.grupo
+           WHERE gc.agrupacion = pAgrupacion) hg
      join parametros_ccc pc on hg.parametro = pc.parametro 
      JOIN agrupaciones_ccc a ON hg.agrupacion = a.agrupacion 
      LEFT JOIN productos_ccc p ON p.producto = hg.grupo
@@ -1054,18 +1060,33 @@ select periodo, calculo, coalesce(n.nombrennyaper, n.nnya) as hogar, agrupacion,
 from calhogpargru c 
 join nnyaper n on c.hogar = n.nnya
 union
---ALIMENTARIA DE LOS HOGARES
+--ALIMENTARIA DE LOS HOGARES inquilinos
 select c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo, sum(c.valorgru*p.unidcons) valorhoggru
 from hogper h 
 left join perfiles p on h.perfil = p.perfil
 left join calgruper c on c.perfil = h.perfil_equivalente
 group by c.periodo, c.calculo, h.hogar, c.agrupacion , c.grupo
 union
---ALIMENTARIA DE LOS NNYA
+--ALIMENTARIA DE LOS NNYA inquilinos
 select c.periodo, c.calculo, coalesce(h.nombrennyaper, h.nnya) as hogar, c.agrupacion , c.grupo, c.valorgru*p.unidcons valorhoggru
 from nnyaper h 
 left join perfiles p on h.perfil = p.perfil
 left join calgruper c on c.perfil = h.perfil_equivalente
+union
+--ALIMENTARIA DE LOS HOGARES propietarios
+select c.periodo, c.calculo, h.hogar, a.agrupacion, replace(c.grupo, a.agrupacionorigen, a.agrupacion) grupo, sum(c.valorgru*p.unidcons) valorhoggru
+from hogper h 
+left join perfiles p on h.perfil = p.perfil
+left join calgruper c on c.perfil = h.perfil_equivalente
+left join agrupaciones_ccc a on c.agrupacion = a.agrupacionorigen
+group by c.periodo, c.calculo, h.hogar, a.agrupacion, replace(c.grupo, a.agrupacionorigen, a.agrupacion)
+union
+--ALIMENTARIA DE LOS NNYA propietarios
+select c.periodo, c.calculo, coalesce(h.nombrennyaper, h.nnya) as hogar, a.agrupacion, replace(c.grupo, a.agrupacionorigen, a.agrupacion) grupo, c.valorgru*p.unidcons valorhoggru
+from nnyaper h 
+left join perfiles p on h.perfil = p.perfil
+left join calgruper c on c.perfil = h.perfil_equivalente
+left join agrupaciones_ccc a on c.agrupacion = a.agrupacionorigen
 ) Q;
 
 GRANT SELECT ON TABLE valorizacion_canasta_ccc TO cvp_administrador, ccc_analista;
