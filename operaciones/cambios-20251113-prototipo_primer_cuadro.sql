@@ -220,3 +220,22 @@ $BODY$;
 --test
 SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2023m01'::text, 'a2025m05'::text, 'G'::text, 'H1', 16, ',', 'Hogar CCC');
 SELECT * from ccc_cuadro_matriz_hogar('Listado de Valorización de la Canasta', 'a2026m01'::text, 'a2026m01'::text, 'G'::text, 'H1', null, ',', 'NNYA');
+
+-----------------------------Ajustes cuadros
+--select * from cuadros_ccc;
+ALTER TABLE cuadros_ccc ALTER COLUMN cuadro TYPE character varying(11);
+do $SQL_ENANCE$
+ begin
+ PERFORM enance_table('cuadros_ccc','cuadro');
+ end
+$SQL_ENANCE$;
+
+INSERT INTO cuadros_ccc 
+SELECT 'H1_NNYA_PRO' cuadro, descripcion, funcion, parametro1, periodo, nivel, grupo, agrupacion, encabezado, pie, ponercodigos, 
+       agrupacion2, hogares, pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, 'NNYA_PRO' tipo_hogar
+    FROM ccc.cuadros_ccc
+    where cuadro = 'H1_NNYA';
+
+UPDATE cuadros_ccc set cuadro = 'H1_NNYA_INQ', tipo_hogar = 'NNYA_INQ' where cuadro = 'H1_NNYA';
+
+analyse cuadros_ccc;
