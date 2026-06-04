@@ -60,7 +60,6 @@ export const informantes = (context:Context):TableDefinition => {
             {name:'email'                , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'modi_fec'             , typeName:'timestamp'  , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'barrio'               , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
-            {name:'comuna'               , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'fraccion'             , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'radio'                , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
             {name:'manzana'              , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , visible:puedeEditarMigracion                              },
@@ -69,6 +68,7 @@ export const informantes = (context:Context):TableDefinition => {
             {name:'grupo_prioridad'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cluster'              , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , isName:true                                               },
             {name:'circunselectoral'     , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'circunscripción electoral'                        },
+            {name:'comuna'               , typeName:'integer'    , allow:{update:puedeEditarMigracion}              ,                                                           },
         ],
         primaryKey:['informante'],
         detailTables:[
