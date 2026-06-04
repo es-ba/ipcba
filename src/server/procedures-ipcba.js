@@ -569,7 +569,8 @@ async function paneltarea_mover(context, parameters, intercambiar){
         let columnasHogar = {};
 
         try {
-          columnasHogar = typeof celda === 'string' ? JSON.parse(celda) : (celda || {});
+          const parsed = typeof celda === 'string' ? JSON.parse(celda) : celda;
+          columnasHogar = (parsed && typeof parsed === 'object') ? parsed : {};
         } catch (e) {
           columnasHogar = {};
         }
@@ -599,16 +600,15 @@ async function paneltarea_mover(context, parameters, intercambiar){
     };
 
     const CuadroHandlers = {
-      '1': async (client, params, cuadroInfo) => {
+      // Handlers genéricos por nombre de función de BD
+      'ccc_cuadro_up': async (client, params, cuadroInfo) => {
         const { rows } = await client.query(
           `SELECT * from ccc_cuadro_up(null, $1, $4, $2, false, false, null, $3)`,
           [params.periodo_desde, cuadroInfo.grupo, params.separador_decimal,params.periodo_hasta]
         ).fetchAll();
         return rows;
       },
-
-      'H1_HOGAR': handleCuadroH1,
-      'H1_NNYA': handleCuadroH1
+      'ccc_cuadro_matriz_hogar': handleCuadroH1,
     };
 
 
@@ -2987,10 +2987,12 @@ ProceduresIpcba = [
                   throw new Error(`No se encontró un registro en cuadros_ccc con el cuadro ${parameters.cuadro}.`);
                 }
 
-                const handler = CuadroHandlers[cuadro.cuadro];
-                const result_rows = handler
-                  ? await handler(context.client, parameters, cuadro)
-                  : [];
+                const handler = CuadroHandlers[cuadro.funcion] || CuadroHandlers[cuadro.cuadro];
+                if (!handler) {
+                  throw new Error(`No se encontró un handler configurado para el cuadro ${parameters.cuadro} (función: ${cuadro.funcion}).`);
+                }
+
+                const result_rows = await handler(context.client, parameters, cuadro);
 
                 return {
                   cuadro: parameters.cuadro,
