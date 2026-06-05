@@ -3,7 +3,7 @@
 import { Context, TableDefinition } from "backend-plus";
 
 export const informantes = (context:Context):TableDefinition => {
-    const puedeEditar = context.user.usu_rol ==='programador'||context.user.usu_rol ==='analista'||context.user.usu_rol ==='coordinador'||context.user.usu_rol ==='migracion';
+    const puedeEditar = context.user.usu_rol ==='programador'||context.user.usu_rol ==='analista'||context.user.usu_rol ==='coordinador';
     const puedeEditarMigracion = context.user.usu_rol ==='programador'||context.user.usu_rol ==='migracion';
     return {
         name:'informantes',
@@ -68,7 +68,7 @@ export const informantes = (context:Context):TableDefinition => {
             {name:'grupo_prioridad'      , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cluster'              , typeName:'integer'    , allow:{update:puedeEditarMigracion}              , isName:true                                               },
             {name:'circunselectoral'     , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , title: 'circunscripción electoral'                        },
-            {name:'comuna'               , typeName:'integer'    , allow:{update:puedeEditarMigracion}              ,                                                           },
+            {name:'comuna'               , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion}              ,                                                           },
         ],
         primaryKey:['informante'],
         detailTables:[

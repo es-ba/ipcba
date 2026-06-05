@@ -35,7 +35,7 @@ export const informantes_altamanual = (context: Context): TableDefinition => {
       { name: 'altura', typeName: 'text', allow: { update: puedeEditar }, clientSide: 'control_altura', serverSide: true },
       { name: 'barrio', typeName: 'integer', allow: { update: puedeEditar || puedeEditarMigracion } },
       { name: 'circunselectoral', typeName: 'integer', allow: { update: puedeEditar || puedeEditarMigracion }, title: 'circunscripción electoral' },
-      { name: 'comuna', typeName: 'integer', allow: { update: puedeEditarMigracion } },
+      { name: 'comuna', typeName: 'integer', allow: { update: puedeEditar || puedeEditarMigracion } },
       { name: 'fraccion', typeName: 'integer', allow: { update: puedeEditar } },
       { name: 'radio', typeName: 'integer', allow: { update: puedeEditar } },
       { name: 'manzana', typeName: 'integer', allow: { update: puedeEditar } },
