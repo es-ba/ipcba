@@ -210,7 +210,7 @@ begin
           OR
           (NULLIF(regexp_replace(REPLACE(h.hogar, '5b', '5.1'), '[^0-9.]', '', 'g'), ''))::numeric < parametro6
       )
-      and g.nivel = 3
+      and (g.nivel = 3 or g.nivel = 1)
       and h.hogar like p_tipo_hogar||'%'
     GROUP BY v_formato_renglon, h.periodo, g.nombregrupo, h.grupo
     ORDER BY h.periodo, h.grupo;
