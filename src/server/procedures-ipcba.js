@@ -1831,6 +1831,20 @@ ProceduresIpcba = [
             }
             try{
                 if(!parameters.demo){
+                    var pendingRegeneration = await context.client.query(`
+                        SELECT 1
+                        FROM cambiopantar_lote l
+                        JOIN cambiopantar_det d ON l.id_lote = d.id_lote
+                        JOIN relpan p ON d.periodo = p.periodo AND (d.panel = p.panel OR d.panel_nuevo = p.panel)
+                        WHERE p.periodo = $1
+                          AND p.panel = $2
+                          AND l.fechaprocesado IS NOT NULL
+                          AND (p.fechageneracionpanel IS NULL OR l.fechaprocesado > p.fechageneracionpanel)
+                        LIMIT 1
+                    `, [parameters.periodo, parameters.panel]).fetchOneRowIfExists();
+                    if(pendingRegeneration.rowCount){
+                        throw new Error('Falta re-generar panel');
+                    }
                     //entro por pantalla de relevamiento
                     if(parameters.informante && parameters.visita){
                         await context.client.query(
