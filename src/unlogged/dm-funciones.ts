@@ -284,9 +284,8 @@ export function simplificateText(text:string):string{
         "ý":"y","ŷ":"y","ÿ":"y","ẏ":"y","ỵ":"y","ỳ":"y","ƴ":"y","ỷ":"y","ỿ":"y","ȳ":"y","ẙ":"y","ɏ":"y","ỹ":"y",
         "ź":"z","ž":"z","ẑ":"z","ʑ":"z","ⱬ":"z","ż":"z","ẓ":"z","ȥ":"z","ẕ":"z","ᵶ":"z","ᶎ":"z","ʐ":"z","ƶ":"z","ɀ":"z",
         "ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st",
-        "ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j","ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"
     };
-    return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return simplificatedChars[a]||a}).replace(/ {2,}/g, ' ');
+    return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return (simplificatedChars as any)[a]||a}).replace(/ {2,}/g, ' ');
 }
 
 export function parseString(value:string, textTransform:'lowercase'|'uppercase'|undefined,simplificateString:boolean){
