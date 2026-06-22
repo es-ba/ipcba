@@ -84,17 +84,18 @@ export const relvis = (context: Context): TableDefinition => {
                     WHEN rec.labor = 'R' THEN rec.persona
                     WHEN per.labor = 'R' THEN per.persona
                     ELSE rec.persona END operadorrec,
-                (SELECT MAX(r.periodo)
-                FROM relvis r
-                JOIN razones z ON r.razon = z.razon
-                WHERE z.espositivoformulario = 'S'
-                  AND r.informante = v.informante
-                  AND r.formulario = v.formulario
-                ) AS maxperiodoinformado
+                m.maxperiodoinformado
 
                 FROM relvis v
                 JOIN informantes i ON v.informante = i.informante
                 LEFT JOIN formularios f ON v.formulario = f.formulario
+                LEFT JOIN (
+                    SELECT r.informante, r.formulario, MAX(r.periodo) AS maxperiodoinformado
+                    FROM relvis r
+                    JOIN razones z ON r.razon = z.razon
+                    WHERE z.espositivoformulario = 'S'
+                    GROUP BY r.informante, r.formulario
+                ) m ON m.informante = v.informante AND m.formulario = v.formulario
                 LEFT JOIN personal rec ON rec.username = '${context.user.usu_usu}' AND rec.activo = 'S'
                 LEFT JOIN personal per ON ((rec.apellido = per.apellido AND rec.nombre = per.nombre)
                 OR per.username = '${context.user.usu_usu}')
