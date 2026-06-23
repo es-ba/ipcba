@@ -18,7 +18,7 @@ import {useState, useEffect, useRef, useLayoutEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
 import * as memoizeBadTyped from "memoize-one";
-import * as likeAr from "like-ar";
+import likeAr from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
@@ -219,7 +219,7 @@ const Chip = (props:{
     style:any,
 })=>{
     var {...other} = props;
-    return <span {...other} className="badge" style={...props.style}>{props.label}</span>
+    return <span {...other} className="badge" style={{...props.style}}>{props.label}</span>
 }
 const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     return <div 
