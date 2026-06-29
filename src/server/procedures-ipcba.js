@@ -1854,10 +1854,11 @@ ProceduresIpcba = [
                         JOIN relpan p ON d.periodo = p.periodo AND (d.panel = p.panel OR d.panel_nuevo = p.panel)
                         WHERE p.periodo = $1
                           AND p.panel = $2
+                          AND (d.tarea = $3 OR d.tarea_nueva = $3)
                           AND l.fechaprocesado IS NOT NULL
                           AND (p.fechageneracionpanel IS NULL OR l.fechaprocesado > p.fechageneracionpanel)
                         LIMIT 1
-                    `, [parameters.periodo, parameters.panel]).fetchOneRowIfExists();
+                    `, [parameters.periodo, parameters.panel, parameters.tarea]).fetchOneRowIfExists();
                     if(pendingRegeneration.rowCount){
                         throw new Error('Falta re-generar panel');
                     }
