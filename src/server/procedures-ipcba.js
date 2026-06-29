@@ -1822,35 +1822,50 @@ ProceduresIpcba = [
                     left join tokens t on r.token_relevamiento = t.token
                     WHERE periodo = $1 AND panel = $2 AND tarea = $3 AND informante = $4 and visita = $5 and token_relevamiento is not null
                     group by t.username, t.useragent`
-        ,
-        [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, parameters.visita]
-      ).fetchAll();
-      return { informanteAbierto: result.rowCount > 0, dispositivosAbiertos: result.rows }
-    }
-  },
-  {
-    action: 'dm2_preparar',
-    parameters: [
-      { name: 'periodo', typeName: 'text', references: 'periodos' },
-      { name: 'panel', typeName: 'integer' },
-      { name: 'tarea', typeName: 'integer' },
-      { name: 'informante', typeName: 'integer' },
-      { name: 'visita', typeName: 'integer' },
-      { name: 'demo', typeName: 'boolean' },
-    ],
-    policy: 'web',
-    coreFunction: async function (context, parameters) {
-      var be = context.be;
-      var fileResult;
-      if (SOLO_PARA_DEMO_DM) {
-        fileResult = JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt', 'utf8'));
-      }
-      try {
-        if (!parameters.demo) {
-          //entro por pantalla de relevamiento
-          if (parameters.informante && parameters.visita) {
-            await context.client.query(
-              `update relvis
+                ,
+                [parameters.periodo, parameters.panel, parameters.tarea, parameters.informante, parameters.visita]
+            ).fetchAll();
+            return {informanteAbierto: result.rowCount > 0, dispositivosAbiertos: result.rows}
+        }
+    },
+    {
+        action:'dm2_preparar',
+        parameters:[
+            {name:'periodo'           , typeName:'text'    , references:'periodos'},
+            {name:'panel'             , typeName:'integer' },
+            {name:'tarea'             , typeName:'integer' },
+            {name:'informante'        , typeName:'integer' },
+            {name:'visita'            , typeName:'integer' },
+            {name:'demo'              , typeName:'boolean' },
+        ],
+        policy:'web',
+        coreFunction: async function(context, parameters){
+            var be = context.be;
+            var fileResult;
+            if(SOLO_PARA_DEMO_DM){
+                fileResult =JSON4all.parse(await fs.readFile('c:/temp/dm_cargar.txt','utf8'));
+            }
+            try{
+                if(!parameters.demo){
+                    const pendingRegeneration = await context.client.query(`
+                        SELECT 1
+                        FROM cambiopantar_lote l
+                        JOIN cambiopantar_det d ON l.id_lote = d.id_lote
+                        JOIN relpan p ON d.periodo = p.periodo AND (d.panel = p.panel OR d.panel_nuevo = p.panel)
+                        WHERE p.periodo = $1
+                          AND p.panel = $2
+                          AND (d.tarea = $3 OR d.tarea_nueva = $3)
+                          AND l.fechaprocesado IS NOT NULL
+                          AND (p.fechageneracionpanel IS NULL OR l.fechaprocesado > p.fechageneracionpanel)
+                        LIMIT 1
+                    `, [parameters.periodo, parameters.panel, parameters.tarea]).fetchOneRowIfExists();
+                    if(pendingRegeneration.rowCount){
+                        throw new Error('Falta re-generar panel');
+                    }
+                    //entro por pantalla de relevamiento
+                    if(parameters.informante && parameters.visita){
+                        await context.client.query(
+                            `update relvis
                                 set preciosgenerados = true , token_relevamiento = null
                                 where periodo = $1 and panel = $2 and tarea = $3 and informante = $4 and visita = $5 /*and not preciosgenerados*/`
               ,
