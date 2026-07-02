@@ -83,7 +83,6 @@ export const informantes = (context:Context):TableDefinition => {
             {references:'calles'          , fields:['calle']            , displayFields:['nombrecalle']     },
             {references:'provincias'      , fields:['provincia']        , displayFields:['nombreprovincia'] }
         ],
-        sql:{fields:{ estado:{ expr: `(select estado from informantes_estado ie where ie.informante = informantes.informante)` } }}
     };
 }
 
