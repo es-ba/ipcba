@@ -17,7 +17,6 @@ export const informantes = (context:Context):TableDefinition => {
         fields:[
             {name:'informante'           , typeName:'integer'    , allow:{update:puedeEditar||puedeEditarMigracion} , nullable:false                                            },
             {name:'nombreinformante'     , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , isName:true                                               },
-            {name:'estado'               , typeName:'text'       , allow:{import:false, update:false}               , inTable: false},
             {name:'tipoinformante'       , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion} , nullable:false                , isName:true, title:'TI'   },
             {name:'rubroclanae'          , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
             {name:'cadena'               , typeName:'text'       , allow:{update:puedeEditar||puedeEditarMigracion}                                                             },
