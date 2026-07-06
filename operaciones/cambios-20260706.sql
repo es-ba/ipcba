@@ -1,0 +1,1 @@
+ALTER TABLE cvp.relpre ADD COLUMN revisados boolean;

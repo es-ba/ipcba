@@ -815,6 +815,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 {menuType:'menu', name:'controles', menuContent:[
                     {menuType:'table', name:'periodos_relpre_control_rangos_recepcion', label:'inconsistencias de precios Rec', onlyVisibleFor:[programador,recepcionista,jefeRecepcion,supervisor,coordinador,analista]},
                     {menuType:'table', name:'periodos_control_anulados_recep'         , label:'anulados en recepción', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor]},
+                    {menuType:'table', name:'periodos_control_anulados_mes_anterior'  , label:'anulados mes anterior', onlyVisibleFor:[programador,coordinador,analista,recepcionista]},
                     {menuType:'table', name:'periodos_hdrexportarefectivossinprecio'  , label:'efectivos sin precio', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_control_normalizables_sindato'  , label:'normalizables sin dato', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion,supervisor,recepGabinete]},
                     {menuType:'table', name:'periodos_precios_positivos'              , label:'precios positivos periodo referente', onlyVisibleFor:[programador,coordinador,analista,recepcionista,jefeRecepcion]},
@@ -1205,6 +1206,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'paneles_unificacion_valores_atributos', path: __dirname},
             {name: 'periodos_control_normalizables_sindato', path: __dirname},
             {name: 'periodos_control_anulados_recep', path: __dirname},
+            {name: 'periodos_control_anulados_mes_anterior', path: __dirname},
             {name: 'periodos_control_sinvariacion', path: __dirname},
             {name: 'periodos_control_ingresados_calculo', path: __dirname},
             {name: 'periodos_control_tipoprecio', path: __dirname},
@@ -1316,6 +1318,7 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'control_hojas_ruta', path: __dirname},
             {name: 'control_grupos_para_cierre', path: __dirname},
             {name: 'control_anulados_recep', path: __dirname},
+            {name: 'control_anulados_mes_anterior', path: __dirname},
             {name: 'control_generacion_formularios', path: __dirname},
             {name: 'control_diccionario_atributos', path: __dirname},
             {name: 'vista_control_diccionario', path: __dirname},
