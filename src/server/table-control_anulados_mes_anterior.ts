@@ -44,7 +44,7 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
             {name: 'panel'                        , typeName: 'integer' , allow: {update: false}},
             {name: 'tarea'                        , typeName: 'integer' , allow: {update: false}},
             {name: 'recepcionista'                , typeName: 'text'    , allow: {update: false}},
-            {name: 'revisados'                    , typeName: 'boolean' , allow: {update: puedeEditar}},
+            {name: 'revisados'                    , typeName: 'text' , allow: {update: puedeEditar}},
         ],
         primaryKey: ['periodo', 'producto', 'informante', 'observacion', 'visita'],
         foreignKeys: [
