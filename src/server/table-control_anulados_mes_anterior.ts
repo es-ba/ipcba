@@ -6,7 +6,6 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
     const puedeEditar = context.user.usu_rol === 'programador' || context.user.usu_rol === 'analista' || context.user.usu_rol === 'coordinador' || context.user.usu_rol === 'recepcionista';
     const serverConfig = context.be.config?.server as any;
     const baseLink: string = serverConfig?.['base-link'] ?? '';
-    const port: number    = serverConfig?.['port'] ?? '';
     const baseUrl: string = serverConfig?.['base-url'] ?? '';
     return {
         name: 'control_anulados_mes_anterior',
@@ -71,7 +70,7 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
                 v_ant.panel as panel_ant, v_ant.tarea as tarea_ant,
                 COALESCE(v_ant.encuestador, v_ant.recepcionista) as responsable_ant,
                 v_act.panel, v_act.tarea, v_act.recepcionista,
-                '${baseLink}:${port}${baseUrl}/menu#w=table&table=relpre&ff={%22periodo%22:%22' || r_act.periodo || '%22,%22informante%22:' || r_act.informante || ',%22producto%22:%22' || r_act.producto || '%22,%22observacion%22:' || r_act.observacion || '}' as relpre,
+                '${baseLink}${baseUrl}/menu#w=table&table=relpre&ff={%22periodo%22:%22' || r_act.periodo || '%22,%22informante%22:' || r_act.informante || ',%22producto%22:%22' || r_act.producto || '%22,%22observacion%22:' || r_act.observacion || '}' as relpre,
                 r_act.revisados,
                 CASE WHEN distanciaperiodos(r_act.periodo,re.ultimoperiodoconprecio)-1>0 THEN distanciaperiodos(r_act.periodo,re.ultimoperiodoconprecio)-1
                 ELSE NULL
