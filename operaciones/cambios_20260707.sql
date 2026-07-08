@@ -1,3 +1,9 @@
+set search_path = cvp;
+GRANT cvp_usuarios TO hvontschirnhaus;
+GRANT cvp_usuarios TO pseivach;
+
+SET role cvpowner;
+
 CREATE OR REPLACE FUNCTION verificar_ingresando()
   RETURNS trigger AS
 $BODY$
@@ -154,73 +160,84 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;
 
-CREATE TRIGGER reltar_abi_trg
-  BEFORE INSERT OR DELETE OR UPDATE OF supervisor, encuestador, realizada, resultado, observaciones, puntos, cargado, descargado, id_instalacion
-  , fechasalidadesde, fechasalidahasta, modalidad, visiblepararelevamiento
-  ON reltar
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
+set search_path = ccc, cvp;
 
-CREATE TRIGGER RelInf_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON RelInf
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE TRIGGER novdelobs_abi_trg 
-  BEFORE INSERT OR DELETE OR UPDATE 
-  ON novdelobs 
-  FOR EACH ROW EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE TRIGGER novdelvis_abi_trg 
-  BEFORE INSERT OR DELETE OR UPDATE 
-  ON novdelvis 
-  FOR EACH ROW EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE TRIGGER relenc_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON relenc
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-  
-CREATE TRIGGER relmon_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON relmon
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-  
-CREATE TRIGGER novobs_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON novobs
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE TRIGGER NovProd_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON NovProd
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE TRIGGER relsup_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON relsup
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-    
-CREATE TRIGGER relatr_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON relatr
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE TRIGGER relpantarinf_abi_trg
-  BEFORE INSERT OR UPDATE OR DELETE
-  ON relpantarinf
-  FOR EACH ROW
-  EXECUTE PROCEDURE verificar_ingresando();
-
-CREATE OR REPLACE TRIGGER ccc.novservdom_abi_trg
+--evita la edición de la tabla con el periodo cerrado
+CREATE OR REPLACE TRIGGER novservdom_abi_trg
     BEFORE INSERT OR DELETE OR UPDATE 
-    ON ccc.novservdom
+    ON novservdom
     FOR EACH ROW
     EXECUTE FUNCTION cvp.verificar_ingresando();
+
+ALTER TABLE calhogpargru ADD COLUMN variacion double precision;
+
+do $SQL_ENANCE$
+ begin
+ PERFORM enance_table('calhogpargru','periodo,calculo,hogar,agrupacion,grupo');
+ end
+$SQL_ENANCE$;
+
+CREATE OR REPLACE FUNCTION Cal_CCC_Variacion(pPeriodo TEXT, pCalculo INTEGER, pAgrupacion TEXT) RETURNS void  
+     LANGUAGE plpgsql SECURITY DEFINER  
+     AS $$      
+ 
+BEGIN   
+  EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Variacion', pTipo:='comenzo');
+ 
+  UPDATE CalGruPer c
+    SET variacion=CASE WHEN c0.valorgru=0 THEN null ELSE round((c.valorgru/c0.valorgru*100-100)::decimal,1) END
+    FROM CalGruPer c0,
+         Calculos p   
+    WHERE p.periodo=pPeriodo AND p.calculo=pCalculo --Pk verificada
+      AND c.periodo=p.periodo AND c.calculo=p.calculo AND c.agrupacion=pAgrupacion
+      AND c0.periodo=p.periodoAnterior AND c0.calculo=p.calculoAnterior AND c0.agrupacion=c.agrupacion AND c0.grupo=c.grupo and c0.perfil = c.perfil; --Pk verificada
+  
+  UPDATE calhogpargru c
+    SET variacion=CASE WHEN c0.valorhoggru=0 THEN null ELSE round((c.valorhoggru/c0.valorhoggru*100-100)::decimal,1) END
+    FROM calhogpargru c0,
+         Calculos p   
+    WHERE p.periodo=pPeriodo AND p.calculo=pCalculo --Pk verificada
+      AND c.periodo=p.periodo AND c.calculo=p.calculo AND c.agrupacion=pAgrupacion
+      AND c0.periodo=p.periodoAnterior AND c0.calculo=p.calculoAnterior AND c0.agrupacion=c.agrupacion AND c0.grupo=c.grupo and c0.hogar = c.hogar; --Pk verificada
+
+  EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Variacion', pTipo:='finalizo');
+END;  
+$$;
+
+------------------
+CREATE OR REPLACE FUNCTION Cal_CCC_Valorizar(pPeriodo Text, pCalculo Integer, pAgrupacion Text) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+vindice double precision;
+vparavariosHogares BOOLEAN;
+BEGIN
+SET search_path = ccc, cvp, comun, public;  --porque se corre suelto
+EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'Cal_CCC_Valorizar', pTipo:='comenzo');
+SELECT indice INTO vindice
+  FROM CalGru
+  WHERE periodo=pPeriodo AND calculo=pCalculo AND agrupacion='Z' and nivel=0 ;
+IF vindice is null THEN
+  EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'Cal_CCC_Valorizar', pTipo:='error', pMensaje:='No está calculado el Indice para el nivel Z0', pAgrupacion:=pAgrupacion);
+ELSE
+  SELECT paravarioshogares INTO vparavariosHogares
+    FROM agrupaciones_ccc
+    WHERE agrupacion=pAgrupacion;
+
+  EXECUTE CalProd_CCC_Valorizar(pPeriodo, pCalculo, pAgrupacion);  --valoriza productos de ccc
+
+  --EXECUTE Cal_Canasta_Borrar(pPeriodo, pCalculo, pAgrupacion);  ya se borró en Cal_CCC_Borrar, falta ver más adelante las tablas de hogares
+
+  EXECUTE CalGru_CCC_Valorizar(pPeriodo, pCalculo, pAgrupacion);
+
+  IF vparavariosHogares THEN      ---- falta ver más adelante las tablas de hogares
+    EXECUTE CalHog_CCC_Valorizar(pPeriodo, pCalculo, pAgrupacion);
+  --  EXECUTE CalHog_Subtotalizar(pPeriodo, pCalculo, pAgrupacion);
+  END IF;
+  
+  EXECUTE Cal_CCC_Variacion(pPeriodo, pCalculo, pAgrupacion);
+
+END IF;
+EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Valorizar', pTipo:='finalizo');
+END;
+$$;
