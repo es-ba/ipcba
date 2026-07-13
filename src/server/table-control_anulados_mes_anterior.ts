@@ -84,7 +84,7 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
                     AND r_ant.informante = r_act.informante
                     AND r_ant.observacion = r_act.observacion
                     AND r_ant.visita = r_act.visita
-                LEFT JOIN relvis v_act ON r_act.periodo = v_act.periodo AND r_act.informante = v_act.informante AND r_act.visita = v_act.visita AND r_act.formulario = v_act.formulario
+                LEFT JOIN relvis v_act ON p_act.periodo = v_act.periodo AND r_ant.informante = v_act.informante AND r_ant.visita = v_act.visita AND r_ant.formulario = v_act.formulario
                 LEFT JOIN personal per ON v_act.recepcionista = per.persona
                 LEFT JOIN grupos g ON g.agrupacion = 'F' AND g.grupo = r_ant.producto
                 LEFT JOIN grupos gp ON g.agrupacion = gp.agrupacion AND g.grupopadre = gp.grupo
