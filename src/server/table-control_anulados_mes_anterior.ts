@@ -25,7 +25,6 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
             {name: 'precio'                       , typeName: 'decimal' , allow: {update: false}},
             {name: 'tipoprecio'                   , typeName: 'text'    , allow: {update: false}},
             {name: 'cambio'                       , typeName: 'text'    , allow: {update: false}},
-            {name: 'repregunta'                   , typeName: 'text'    , allow: {update: false}, inTable: false},
             {name: 'excluido'                     , typeName: 'text'    , allow: {update: false}, inTable: false},
             {name: 'cantidadperiodossinprecio'    , typeName: 'integer' , allow: {update: false}, title: 'cantidad periodo sin precio', inTable: false},
             {name: 'precioanterior'               , typeName: 'decimal' , allow: {update: false}, title: 'precio anterior'},
@@ -38,7 +37,7 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
             {name: 'agregarvisita'                , typeName: 'boolean' , allow: {update: false}, serverSide:true, inTable:false, clientSide: 'agregar_visita', title: 'agregar Visita'},
             {name: 'panel_ant'                    , typeName: 'integer' , allow: {update: false}, title: 'Panel (mes ant)'},
             {name: 'tarea_ant'                    , typeName: 'integer' , allow: {update: false}, title: 'Tarea (mes ant)'},
-            {name: 'responsable_ant'              , typeName: 'text'    , allow: {update: false}, title: 'Responsable (mes ant)'},
+            {name: 'responsable'                  , typeName: 'text'    , allow: {update: false}, title: 'Responsable (mes ant)'},
             {name: 'relpre'                       , typeName: 'text'    , allow: {update: false}, title: 'link a relpre'},
             {name: 'panel'                        , typeName: 'integer' , allow: {update: false}},
             {name: 'tarea'                        , typeName: 'integer' , allow: {update: false}},
@@ -57,40 +56,44 @@ export function control_anulados_mes_anterior(context: Context): TableDefinition
         sql: {
             from: `(
                 SELECT
-                r_act.periodo, r_act.producto, r_act.informante, r_act.observacion, r_act.visita, r_act.formulario,
+                p_act.periodo, r_ant.producto, r_ant.informante, r_ant.observacion, r_ant.visita, r_ant.formulario,
                 r_ant.precio, r_ant.tipoprecio, r_ant.cambio,
                 r_ant.precio_1 as precioanterior, r_ant.tipoprecio_1 as tipoprecioanterior,
                 r_ant.comentariosrelpre, r_ant.comentariosrelpre_1 as comentariosanterior,
-                r_ant.precionormalizado, r_act.esvisiblecomentarioendm,
+                r_ant.precionormalizado, r_ant.esvisiblecomentarioendm,
                 CASE WHEN r_ant.precio_1 > 0 and r_ant.precio_1 <> r_ant.precio THEN round((r_ant.precio/r_ant.precio_1*100-100)::decimal,1)::TEXT||'%'
                     ELSE NULL
                 END AS masdatos,
-                CASE WHEN r_act.periodo is not null THEN 'R' ELSE null END as repregunta,
-                CASE WHEN c.antiguedadexcluido>0 and r_act.precio>0 THEN 'x' ELSE null END as excluido,
+                CASE WHEN c.antiguedadexcluido>0 and r_ant.precio>0 THEN 'x' ELSE null END as excluido,
                 v_ant.panel as panel_ant, v_ant.tarea as tarea_ant,
-                COALESCE(v_ant.encuestador, v_ant.recepcionista) as responsable_ant,
-                v_act.panel, v_act.tarea, v_act.recepcionista,
-                '${baseLink}${baseUrl}/menu#w=table&table=relpre&ff={%22periodo%22:%22' || r_act.periodo || '%22,%22informante%22:' || r_act.informante || ',%22producto%22:%22' || r_act.producto || '%22,%22observacion%22:' || r_act.observacion || '}' as relpre,
+                COALESCE(g.responsable, gp.responsable) as responsable,
+                v_act.panel as panel,
+                v_act.tarea as tarea,
+                per.username as recepcionista,
+                '${baseLink}${baseUrl}/menu#w=table&table=relpre&ff={%22periodo%22:%22' || p_act.periodo || '%22,%22informante%22:' || r_ant.informante || ',%22producto%22:%22' || r_ant.producto || '%22,%22observacion%22:' || r_ant.observacion || '}' as relpre,
                 r_act.revisados,
-                CASE WHEN distanciaperiodos(r_act.periodo,re.ultimoperiodoconprecio)-1>0 THEN distanciaperiodos(r_act.periodo,re.ultimoperiodoconprecio)-1
+                CASE WHEN distanciaperiodos(r_ant.periodo,re.ultimoperiodoconprecio)-1>0 THEN distanciaperiodos(r_ant.periodo,re.ultimoperiodoconprecio)-1
                 ELSE NULL
                 END cantidadperiodossinprecio,
                 case when r_act.ultima_visita is true then null else true end as agregarvisita
-                FROM relpre r_act
-                INNER JOIN periodos p_act ON r_act.periodo = p_act.periodo
-                INNER JOIN relvis v_act ON r_act.periodo = v_act.periodo AND r_act.informante = v_act.informante AND r_act.visita = v_act.visita AND r_act.formulario = v_act.formulario
-                INNER JOIN relpre_1 r_ant ON r_ant.periodo = p_act.periodoanterior
+                FROM relpre_1 r_ant
+                INNER JOIN periodos p_act ON r_ant.periodo = p_act.periodoanterior
+                INNER JOIN relvis v_ant ON r_ant.periodo = v_ant.periodo AND r_ant.informante = v_ant.informante AND r_ant.visita = v_ant.visita AND r_ant.formulario = v_ant.formulario
+                LEFT JOIN relpre r_act ON r_act.periodo = p_act.periodo
                     AND r_ant.producto = r_act.producto
                     AND r_ant.informante = r_act.informante
                     AND r_ant.observacion = r_act.observacion
                     AND r_ant.visita = r_act.visita
-                INNER JOIN relvis v_ant ON r_ant.periodo = v_ant.periodo AND r_ant.informante = v_ant.informante AND r_ant.visita = v_ant.visita AND r_ant.formulario = v_ant.formulario
-                left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r_act.periodo = c.periodo and r_act.producto = c.producto and r_act.informante = c.informante and r_act.observacion = c.observacion
-                left join control_sinprecio s on r_act.periodo =s.periodo and r_act.informante = s.informante and r_act.visita = s.visita and r_act.observacion = s.observacion and r_act.producto = s.producto,
+                LEFT JOIN relvis v_act ON r_act.periodo = v_act.periodo AND r_act.informante = v_act.informante AND r_act.visita = v_act.visita AND r_act.formulario = v_act.formulario
+                LEFT JOIN personal per ON v_act.recepcionista = per.persona
+                LEFT JOIN grupos g ON g.agrupacion = 'F' AND g.grupo = r_ant.producto
+                LEFT JOIN grupos gp ON g.agrupacion = gp.agrupacion AND g.grupopadre = gp.grupo
+                left join (select cobs.* from calobs cobs join calculos_def cdef on cobs.calculo = cdef.calculo where cdef.principal) c on r_ant.periodo = c.periodo and r_ant.producto = c.producto and r_ant.informante = c.informante and r_ant.observacion = c.observacion
+                left join control_sinprecio s on r_ant.periodo =s.periodo and r_ant.informante = s.informante and r_ant.visita = s.visita and r_ant.observacion = s.observacion and r_ant.producto = s.producto,
                 lateral (select max(periodo) ultimoperiodoconprecio
                             from relpre
-                            where precio is not null and r_act.informante = informante and r_act.producto = producto and r_act.observacion = observacion and r_act.visita = visita
-                            and periodo < r_act.periodo
+                            where precio is not null and r_ant.informante = informante and r_ant.producto = producto and r_ant.observacion = observacion and r_ant.visita = visita
+                            and periodo < p_act.periodo
                         ) re
                 WHERE r_ant.tipoprecio IN ('A', 'M')
             )`
