@@ -18,6 +18,7 @@ export function calhogpargru(_context: Context): TableDefinition {
       { name: 'coefhoggru', typeName: 'double' },
       { name: 'monto_may_18', typeName: 'double' },
       { name: 'valorhoggru', typeName: 'double' },
+      { name: 'variacion', typeName: 'double' },
     ],
     primaryKey: ['periodo', 'calculo', 'hogar', 'agrupacion', 'grupo'],
     foreignKeys: [
@@ -29,7 +30,7 @@ export function calhogpargru(_context: Context): TableDefinition {
       from: `
         (select ch.periodo, ch.calculo, ch.hogar, coalesce(ny.nombrennya, h.nombrehogar) nombrehogar, coalesce(n.orden, h.orden) orden, 
         g.agrupacion, g.grupo, g.nombregrupo, g.nivel, g.grupopadre, gp.nombregrupo as nombre_grupopadre,
-        ch.cantidad, ch.coefhoggru, ch.monto_may_18, ch.valorhoggru
+        ch.cantidad, ch.coefhoggru, ch.monto_may_18, ch.valorhoggru, ch.variacion
         from ccc.calhogpargru ch
         inner join ccc.grupos_ccc g on g.agrupacion = ch.agrupacion and g.grupo = ch.grupo
         left join ccc.hogares_ccc h on h.hogar = ch.hogar

@@ -3,13 +3,12 @@
 -- DROP FUNCTION IF EXISTS ccc.calcularcccunperiodo(text, integer);
 
 CREATE OR REPLACE FUNCTION ccc.calcularcccunperiodo(
-	pperiodo text,
-	pcalculo integer)
+    pperiodo text,
+    pcalculo integer)
     RETURNS text
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE SECURITY DEFINER PARALLEL UNSAFE
-AS $BODY$
+    LANGUAGE plpgsql 
+    SECURITY DEFINER
+as $BODY$
 declare
    vEmpezo     time;
    vTermino    time;
@@ -31,7 +30,7 @@ begin
 
   analyze cvp.CalGru;
   vTermino1:=clock_timestamp();
-  Raise Notice '%', 'analyze CalGru: EMPEZO '||cast(vEmpezo1 as text)||' TERMINO '||cast(vTermino1 as text)||' DEMORO '||(vTermino1 - vEmpezo1);
+  
   if pCalculo=20 then
     for vagrup_valorizar_indexar IN
        select agrupacion, valoriza --, case when agrupacion='A' then true else false end AS actcalprod

@@ -219,6 +219,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 - fun-calcularcccunperiodo.sql
                 - fun-calgru_ccc_valorizar.sql
                 - fun-calprod_ccc_valorizar.sql
+                - fun-cal_ccc_variacion.sql
                 - trg-actualizar_periodo_panelrotativo_trg.sql
                 - trg-actualizar_tarea_encuestador_trg.sql
                 - trg-adm_blanqueo_precios_trg.sql

@@ -241,3 +241,107 @@ END IF;
 EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Valorizar', pTipo:='finalizo');
 END;
 $$;
+--------------------------
+CREATE or replace FUNCTION calProd_CCC_valorizar(pperiodo text, pcalculo integer, pAgrupacion text default null) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+  vcalprod RECORD;
+
+BEGIN
+set search_path = ccc, cvp;
+
+EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'CalProd_CCC_Valorizar', pTipo:='comenzo');
+
+FOR vcalprod IN
+  SELECT a.periodo, a.calculo, a.producto, a.agrupacion, a.perfil, a.peso_neto, a.calorias, p.factor_correccion, p.cantidad, c.promedioredondeado, a.cantidad_ajuste
+    FROM CalDiv c
+    INNER JOIN CalProdPerAgr a ON c.periodo = a.periodo and c.calculo = a.calculo and c.producto = a.producto
+    INNER JOIN productos_ccc p ON a.producto = p.producto
+    WHERE c.division = '0' and c.periodo=pPeriodo AND c.calculo=pCalculo AND a.agrupacion = pAgrupacion
+LOOP
+   --Raise Notice '--------------- COMIENZA VALORIZACION DE LA CANASTA CCC % %',pPeriodo,pCalculo;
+ UPDATE CalProdPerAgr
+   SET peso_bruto       = vcalprod.peso_neto * vcalprod.factor_correccion
+   , cantidad_canasta = coalesce(vcalprod.cantidad_ajuste, vcalprod.peso_neto * vcalprod.factor_correccion) / vcalprod.cantidad
+   , valorProd        = 30*vcalprod.PromedioRedondeado * (coalesce(vcalprod.cantidad_ajuste, vcalprod.peso_neto * vcalprod.factor_correccion) / vcalprod.cantidad)
+   WHERE periodo = vcalprod.periodo AND calculo = vcalprod.calculo AND producto = vcalprod.producto AND agrupacion = vcalprod.agrupacion AND perfil = vcalprod.perfil;
+END LOOP;
+
+EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'CalProd_CCC_Valorizar', pTipo:='finalizo', pagrupacion:=pagrupacion);
+END;
+$$;
+
+------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION CalcularCCCUnPeriodo(pPeriodo text, pCalculo integer) returns text
+    LANGUAGE plpgsql SECURITY DEFINER
+as
+$BODY$
+declare
+   vEmpezo     time;
+   vTermino    time;
+   vEmpezo1    time;
+   vTermino1   time;
+  vError text; -- periodo anterior del cálculo
+  vagrup_valorizar_indexar record;
+
+begin
+  vEmpezo:=clock_timestamp();
+  set search_path = ccc, cvp, comun, public;
+  Raise Notice '--------------- COMIENZA VALORIZACION DE LA CANASTA CCC % %',pPeriodo,pCalculo;
+  select Calculo_ControlarAbierto(pPeriodo, pCalculo) into vError;
+  if vError is not null then
+      return vError;
+  end if;
+  execute Cal_CCC_Borrar(pPeriodo, pCalculo);
+  execute Cal_CCC_Copiar(pPeriodo, pCalculo);
+
+  analyze cvp.CalGru;
+  vTermino1:=clock_timestamp();
+  
+  if pCalculo=20 then
+    for vagrup_valorizar_indexar IN
+       select agrupacion, valoriza --, case when agrupacion='A' then true else false end AS actcalprod
+         from agrupaciones_ccc
+         where calcular_junto_grupo='Z'
+         order by agrupacion
+    loop
+      if vagrup_valorizar_indexar.valoriza then
+        execute Cal_CCC_Valorizar(pPeriodo, pCalculo, vagrup_valorizar_indexar.agrupacion/*, vagrup_valorizar_indexar.actcalprod*/);
+      end if;
+    end loop;
+  end if;
+
+  vTermino:=clock_timestamp();
+  Raise Notice '%', 'CALCULO CCC COMPLETO: EMPEZO '||cast(vEmpezo as text)||' TERMINO '||cast(vTermino as text)||' DEMORO '||(vTermino - vEmpezo);
+  return 'Calculo completo en '||(vTermino - vEmpezo);
+end;
+$BODY$;
+
+--------------------------
+CREATE OR REPLACE FUNCTION cvp.verificar_lanzamiento_calculo() RETURNS trigger
+    LANGUAGE plpgsql SECURITY DEFINER
+    AS $$
+DECLARE
+  -- V080907
+  dummy text;
+  cccdummy text;
+BEGIN
+  set search_path = cvp, ccc;
+  if TG_OP='UPDATE' then
+    if OLD.fechacalculo is null and NEW.fechacalculo is not null
+       or OLD.fechacalculo<>NEW.fechacalculo
+    then
+       dummy:=cvp.CalcularUnPeriodo(new.periodo,new.calculo); 
+       cccdummy:=ccc.CalcularCCCUnPeriodo(new.periodo,new.calculo); 
+    end if;
+  end if;
+  RETURN NEW;
+END;
+$$;
+
+-------------------
+--calculo tradicional y cálculo de canasta juntos, julio 2026
+update cvp.calculos set fechacalculo = current_timestamp::timestamp without time zone
+where periodo = 'a2026m07' and calculo = 20;
+--------------

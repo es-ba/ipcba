@@ -2,15 +2,14 @@
 
 -- DROP FUNCTION IF EXISTS ccc.cal_ccc_valorizar(text, integer, text);
 
-CREATE OR REPLACE FUNCTION ccc.cal_ccc_valorizar(
-	pperiodo text,
-	pcalculo integer,
-	pagrupacion text)
+CREATE OR REPLACE FUNCTION Cal_CCC_Valorizar(
+    pPeriodo Text, 
+    pCalculo Integer, 
+    pAgrupacion Text)
     RETURNS void
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE SECURITY DEFINER PARALLEL UNSAFE
-AS $BODY$
+    LANGUAGE plpgsql 
+    SECURITY DEFINER
+AS $$
 DECLARE
 vindice double precision;
 vparavariosHogares BOOLEAN;
@@ -33,13 +32,14 @@ ELSE
 
   EXECUTE CalGru_CCC_Valorizar(pPeriodo, pCalculo, pAgrupacion);
 
-  --EXECUTE CalGru_Canasta_Variacion(pPeriodo, pCalculo, pAgrupacion); falta ver más adelante el cálculo de la variacion
-
-  --IF vparavariosHogares THEN      ---- falta ver más adelante las tablas de hogares
-  --  EXECUTE CalHog_Valorizar(pPeriodo, pCalculo, pAgrupacion);
+  IF vparavariosHogares THEN      ---- falta ver más adelante las tablas de hogares
+    EXECUTE CalHog_CCC_Valorizar(pPeriodo, pCalculo, pAgrupacion);
   --  EXECUTE CalHog_Subtotalizar(pPeriodo, pCalculo, pAgrupacion);
-  --END IF;
+  END IF;
+  
+  EXECUTE Cal_CCC_Variacion(pPeriodo, pCalculo, pAgrupacion);
+
 END IF;
 EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Valorizar', pTipo:='finalizo');
 END;
-$BODY$;
+$$;
