@@ -29,7 +29,7 @@ export const reltar = (context: Context):TableDefinition => {
             {name:'descargado'                 , typeName:'timestamp', title: 'descargado de dm' , allow:{update:puedeEditarMigracion}},
             {name:'vencimiento_sincronizacion' , typeName:'timestamp', allow:{update:puedeEditarMigracion}, visible:false},
             {name:'vencimiento_sincronizacion2', typeName:'timestamp'                            , title:"vencimiento sincro", allow:{update:puedeEditarMigracion}},
-            {name:'preparar_dm'                , typeName:'text'     , editable:false            , visible: puedeEditarProgramador, clientSide:'prepararDM'},
+            {name:'preparar_dm'                , typeName:'text'     , editable:false            , clientSide:'prepararDM'},
             {name:'blanquear_dm'               , typeName:'text'     , editable:false                                                       , clientSide:'blanquearDM'},
             {name:'fecha_backup'               , typeName:'timestamp'                            , allow:{update:false}},
             {name:'backup'                     , typeName:'jsonb'                                , allow:{select:false}},
