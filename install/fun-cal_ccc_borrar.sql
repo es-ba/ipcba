@@ -32,8 +32,7 @@ END IF;
 DELETE FROM CalProdPerAgr WHERE periodo=pPeriodo AND calculo=pCalculo;
 DELETE FROM CalGruPer     WHERE periodo=pPeriodo AND calculo=pCalculo;
 --Para ver luego, tablas para HOGARES
---DELETE FROM CalHogGru  WHERE periodo=pPeriodo AND calculo=pCalculo;
---DELETE FROM CalHogSubtotales  WHERE periodo=pPeriodo AND calculo=pCalculo;
+DELETE FROM CalHogParGru  WHERE periodo=pPeriodo AND calculo=pCalculo;
 
 EXECUTE Cal_Mensajes(pPeriodo, pCalculo, 'Cal_CCC_Borrar', ptipo:='finalizo');
 
