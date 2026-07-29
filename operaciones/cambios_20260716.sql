@@ -1,4 +1,5 @@
 set search_path = ccc, cvp;
+set role cvpowner;
 
 INSERT INTO agrupaciones_ccc(
     agrupacion, nombreagrupacion, paravarioshogares, calcular_junto_grupo, valoriza, tipo_agrupacion)
@@ -57,6 +58,42 @@ GRANT SELECT ON TABLE valorizacion_canasta_totales_var_ccc TO cvp_administrador,
 UPDATE cuadros_ccc SET agrupacion = 'H' where funcion = 'ccc_cuadro_matriz_perfil';
 UPDATE cuadros_ccc SET tipo_hogar = 'Hogar' where cuadro = 'H1_HOGAR';
 
+ALTER TABLE cuadros_ccc ALTER COLUMN cuadro TYPE character varying(13);
+
+do $SQL_ENANCE$
+ begin
+ PERFORM enance_table('cuadros_ccc','cuadro');
+ end
+$SQL_ENANCE$;
+
+insert into cuadros_ccc
+SELECT 
+replace (cuadro,'_NNYA','v'||'_NNYA') cuadro, descripcion, funcion, parametro1, periodo, nivel, grupo, agrupacion, encabezado, pie, ponercodigos, 
+agrupacion2, hogares, pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, tipo_hogar
+FROM ccc.cuadros_ccc
+where cuadro like 'C%'
+union
+SELECT 
+replace (cuadro,'_NNYA','vi'||'_NNYA') cuadro, descripcion, funcion, parametro1, periodo, nivel, grupo, agrupacion, encabezado, pie, ponercodigos, 
+agrupacion2, hogares, pie1, cantdecimales, desde, orden, encabezado2, activo, empalmedesde, empalmehasta, tipo_hogar
+FROM ccc.cuadros_ccc
+where cuadro like 'C%';
+
+update cuadros_ccc SET descripcion = 'Valorización de las Canastas de bienes y servicios y sus componentes para un niño, niña o adolescente según su edad. Inquilinos.' where cuadro = 'C1_NNYA_INQ';
+update cuadros_ccc SET descripcion = 'Valorización de las Canastas de bienes y servicios y sus componentes para un niño, niña o adolescente según su edad. Propietarios.' where cuadro = 'C1_NNYA_PRO';
+update cuadros_ccc SET descripcion = 'Variación interanual de las Canastas de bienes y servicios y sus componentes para un niño, niña o adolescente según su edad (%) Inquilinos.' where cuadro = 'C1vi_NNYA_INQ';
+update cuadros_ccc SET descripcion = 'Variación interanual de las Canastas de bienes y servicios y sus componentes para un niño, niña o adolescente según su edad (%) Propietarios.' where cuadro = 'C1vi_NNYA_PRO';
+update cuadros_ccc SET descripcion = 'Variación intermensual de las Canastas de bienes y servicios y sus componentes para un niño, niña o adolescente según su edad (%) Inquilinos.' where cuadro = 'C1v_NNYA_INQ';
+update cuadros_ccc SET descripcion = 'Variación intermensual de las Canastas de bienes y servicios y sus componentes para un niño, niña o adolescente según su edad (%) Propietarios.' where cuadro = 'C1v_NNYA_PRO';
+update cuadros_ccc SET descripcion = 'Valorización de las Canastas de crianza y sus componentes para un niño, niña o adolescente según su edad. Inquilinos.' where cuadro = 'C2_NNYA_INQ';
+update cuadros_ccc SET descripcion = 'Valorización de las Canastas de crianza y sus componentes para un niño, niña o adolescente según su edad. Propietarios.' where cuadro = 'C2_NNYA_PRO';
+update cuadros_ccc SET descripcion = 'Variación interanual de las Canastas de crianza y sus componentes para un niño, niña o adolescente según su edad (%). Inquilinos.' where cuadro = 'C2vi_NNYA_INQ';
+update cuadros_ccc SET descripcion = 'Variación interanual de las Canastas de crianza y sus componentes para un niño, niña o adolescente según su edad (%). Propietarios.' where cuadro = 'C2vi_NNYA_PRO';
+update cuadros_ccc SET descripcion = 'Variación intermensual de las Canastas de crianza y sus componentes para un niño, niña o adolescente según su edad (%) Inquilinos.' where cuadro = 'C2v_NNYA_INQ';
+update cuadros_ccc SET descripcion = 'Variación intermensual de las Canastas de crianza y sus componentes para un niño, niña o adolescente según su edad (%) Propietarios.' where cuadro = 'C2v_NNYA_PRO';
+
+DROP FUNCTION IF EXISTS ccc_cuadro_matriz_perfil(text, text, text, text, text, text, text);
+
 create or replace function ccc_cuadro_matriz_perfil(parametro1 text, p_periodo_desde text, p_periodo_hasta text, parametro4 text, p_cuadro text, 
   p_separador text, p_tipo_hogar text)
   returns setof ccc.type_cuadro_matriz_perfil
@@ -82,24 +119,26 @@ begin
     'edad'::text,
     null::text;  
   return query select v_formato_renglon::text as formato_renglon, periodo, genero, c.hogar, edad
-    , json_object_agg(
-    c.nombregrupo,
-    replace(round(c.valorhoggru::numeric,2)::text, '.', p_separador) 
-    ORDER BY c.nivel DESC, c.grupo
-    )::text as celda
-
-    --, json_object_agg(
-    --c.nombregrupo||' %', 
-    --replace(c.variacionredondeada::text, '.', p_separador)
-    --ORDER BY c.nivel DESC, c.grupo
-    --)::text as celda
-
-    --, json_object_agg(
-    --c.nombregrupo||' % interanual', 
-    --replace(c.variacioninteranualredondeada::text, '.', p_separador)
-    --ORDER BY c.nivel DESC, c.grupo
-    --)::text as celda
-
+    , CASE 
+      WHEN p_cuadro like 'C%vi%' THEN
+       json_object_agg(
+       c.nombregrupo||' % interanual', 
+       replace(c.variacioninteranualredondeada::text, '.', p_separador)
+       ORDER BY c.nivel DESC, c.grupo
+       )::text
+      WHEN p_cuadro like 'C%v_%' THEN
+      json_object_agg(
+      c.nombregrupo||' %', 
+      replace(c.variacionredondeada::text, '.', p_separador)
+      ORDER BY c.nivel DESC, c.grupo
+      )::text
+      ELSE 
+        json_object_agg(
+        c.nombregrupo,
+        replace(round(c.valorhoggru::numeric,2)::text, '.', p_separador) 
+        ORDER BY c.nivel DESC, c.grupo
+        )::text
+      END as celda
     from (select pe.perfil as perfil_equivalente, COALESCE(n.nombrennyaper, n.nnya) AS hogar, n.orden, pp.*
         from perfiles pe join perfiles pp on pe.equivalente and pe.tipo = pp.tipo
         join nnyaper n on pp.perfil = n.perfil and pe.perfil = n.perfil_equivalente) p
@@ -118,4 +157,6 @@ end;
 $BODY$;
 -- test
 SELECT * from ccc_cuadro_matriz_perfil('Listado de Valorización de la Canasta', 'a2026m04'::text, 'a2026m04'::text, 'H'::text, 'C1', ',', 'NNYA_INQ');
+SELECT * from ccc_cuadro_matriz_perfil('Listado de Valorización de la Canasta', 'a2026m04'::text, 'a2026m04'::text, 'H'::text, 'C1v_', ',', 'NNYA_INQ'); --variacion mensual
 SELECT * from ccc_cuadro_matriz_perfil('Listado de Valorización de la Canasta', 'a2026m01'::text, 'a2026m04'::text, 'H'::text, 'C2', ',', 'NNYA_PRO');
+SELECT * from ccc_cuadro_matriz_perfil('Listado de Valorización de la Canasta', 'a2026m01'::text, 'a2026m04'::text, 'H'::text, 'C2vi', ',', 'NNYA_PRO');  --variacion interanual
