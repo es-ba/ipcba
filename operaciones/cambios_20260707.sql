@@ -343,5 +343,5 @@ $$;
 -------------------
 --calculo tradicional y cálculo de canasta juntos, julio 2026
 update cvp.calculos set fechacalculo = current_timestamp::timestamp without time zone
-where periodo = 'a2026m07' and calculo = 20;
+where periodo = 'a2026m08' and calculo = 20;
 --------------

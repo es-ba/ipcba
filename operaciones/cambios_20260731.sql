@@ -11,12 +11,16 @@ CREATE TABLE IF NOT EXISTS tipos_tenencia
 
 GRANT SELECT ON TABLE tipos_tenencia TO cvp_administrador, ccc_analista;
 
+DROP TABLE IF EXISTS indicadores;
+
 CREATE TABLE IF NOT EXISTS indicadores
 (
     indicador text NOT NULL,
     descripcion text,
+    abreviatura text,
     PRIMARY KEY (indicador),
-    CONSTRAINT "texto invalido en descripcion de tabla indicadores" CHECK (comun.cadena_valida(descripcion::text, 'castellano'::text))
+    CONSTRAINT "texto invalido en descripcion de tabla indicadores" CHECK (comun.cadena_valida(descripcion::text, 'castellano'::text)),
+    CONSTRAINT "texto invalido en abreviatura de tabla indicadores" CHECK (comun.cadena_valida(abreviatura::text, 'castellano'::text))
 );
 
 GRANT SELECT ON TABLE indicadores TO cvp_administrador, ccc_analista;
