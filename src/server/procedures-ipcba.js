@@ -607,8 +607,8 @@ const handleCuadroH1 = async (client, params, cuadroInfo) => {
 const handleCuadroMP = async (client, params, cuadroInfo) => {
   const cuadro = cuadroInfo.cuadro.substring(0, 4);
   const { rows } = await client.query(
-    `SELECT * from ccc_cuadro_matriz_perfil('Listado de Valorización de la Canasta', $1, $2, $3, $4, $5, $6)`,
-    [params.periodo_desde, params.periodo_hasta, cuadroInfo.agrupacion, cuadro, params.separador_decimal, cuadroInfo.tipo_hogar]
+    `SELECT * from ccc_cuadro_matriz_perfil('Listado de Valorización de la Canasta', $1, $2, $3, $4, $5, $6, $7, $8)`,
+    [params.periodo_desde, params.periodo_hasta, cuadroInfo.agrupacion, cuadro, params.separador_decimal, cuadroInfo.tipo_hogar, params.indicador || null, params.genero || null]
   ).fetchAll();
 
   return procesarCuadro(rows);
@@ -3012,6 +3012,9 @@ ProceduresIpcba = [
       { name: 'periodo_hasta', typeName: 'text', references: 'periodos' },
       { name: 'cuadro', typeName: 'text', references: 'cuadros_ccc' },
       { name: 'separador_decimal', typeName: 'text', options: [',', '.'] },
+      { name: 'indicador', typeName: 'text', references: 'indicadores', defaultValue: null },
+      { name: 'genero', typeName: 'text', references: 'generos', defaultValue: null },
+
     ],
     resultOk: 'mostrar_cuadro',
     roles: ['programador', 'coordinador', 'analista', 'ccc_analista'],
