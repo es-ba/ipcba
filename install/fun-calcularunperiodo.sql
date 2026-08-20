@@ -1,4 +1,8 @@
-CREATE OR REPLACE FUNCTION CalcularUnPeriodo(pPeriodo text, pCalculo integer) returns text
+CREATE OR REPLACE FUNCTION CalcularUnPeriodo(
+    pPeriodo text,
+    pCalculo integer)
+    RETURNS text
+    LANGUAGE plpgsql SECURITY DEFINER
 as
 $BODY$
 declare
@@ -92,7 +96,7 @@ begin
   -- execute CalGru_Valorizar(pPeriodo, pCalculo);
   execute CalGru_Info(pPeriodo, pCalculo);
    
-  if pCalculo=0 then
+  if pCalculo= 20 and vEsPeriodobase = 'N' /*0*/ then
     for vagrup_valorizar_indexar IN
        select agrupacion, valoriza, case when agrupacion='A' then true else false end AS actcalprod
          from agrupaciones
@@ -108,11 +112,10 @@ begin
     end loop;    
   
   end if;
+  execute ccc.CalcularCCCUnPeriodo(pPeriodo, pCalculo);
   execute Cal_Control(pPeriodo, pCalculo);
-  
   vTermino:=clock_timestamp();  
   Raise Notice '%', 'CALCULO COMPLETO: EMPEZO '||cast(vEmpezo as text)||' TERMINO '||cast(vTermino as text)||' DEMORO '||(vTermino - vEmpezo);  
   return 'Calculo completo en '||(vTermino - vEmpezo);
 end;
 $BODY$;
-  language plpgsql security definer;
