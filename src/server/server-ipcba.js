@@ -741,6 +741,7 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'empalme_ccc_b1112', label: 'empalme b1112', onlyVisibleFor:asignadores },
                 ]},
                 {menuType:'menu', name:'tablas', menuContent:[
+                    { menuType: 'table', name: 'calculos_ccc', onlyVisibleFor:asignadores, label: 'calculos'},
                     { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores, label: 'agrupaciones'},
                     { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores, label: 'productos'},
@@ -1419,6 +1420,8 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'personal_supervisores', path: __dirname},
             {name: 'indicadores', path: __dirname},
             {name: 'generos', path: __dirname},
+            {name: 'calculos_ccc', path: __dirname},
+            {name: 'valorizacion_canasta_ccc', path: __dirname},
         ]);
     }
 }
