@@ -1,6 +1,6 @@
 "use strict";
 import { datetime } from "best-globals";
-import {LOCAL_STORAGE_STATE_NAME, LOCAL_STORAGE_ESTRUCTURA_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
+import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
 const ServiceWorkerAdmin = require("service-worker-admin");
 
