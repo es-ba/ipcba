@@ -2,7 +2,7 @@
 import { datetime } from "best-globals";
 import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
-const ServiceWorkerAdmin = require("service-worker-admin");
+import ServiceWorkerAdmin = require("service-worker-admin");
 
 var reloadWithoutHash = ()=>{
     history.replaceState(null, '', `${location.origin+location.pathname}/../dm`);
@@ -82,7 +82,7 @@ window.addEventListener('load', async function(){
                     dmPantallaInicial();
                 }
             }
-            var refrescarStatus=async function(showScreen, newVersionAvaiable, installing){
+            var refrescarStatus=async function(showScreen: string, newVersionAvaiable: string, _installing: any){
                 var buscandoActualizacion = location.href.endsWith('#inst=1');
                 document.getElementById('nueva-version-instalada')!.style.display=newVersionAvaiable=='yes'?'':'none';
                 document.getElementById('volver-de-instalacion')!.style.display=newVersionAvaiable=='yes'?'none':'';
@@ -96,14 +96,14 @@ window.addEventListener('load', async function(){
             };
             var swa = new ServiceWorkerAdmin();
             swa.installOrActivate({
-                onEachFile: async (url, error)=>{
+                onEachFile: async (url: string, _error: Error | null)=>{
                     //console.log('file: ',url);
                     document.getElementById('archivos')!.append(
                         html.div(url).create()
                     )
                 },
-                onInfoMessage: (m)=>console.log('message: ', m),
-                onError: async (err, context)=>{
+                onInfoMessage: (m?: string)=>console.log('message: ', m),
+                onError: async (err: Error, context: string)=>{
                     console.log('error: '+(context?` en (${context})`:''), err);
                     console.log(context, err, 'error-console')
                     console.log('error al descargar cache', err.message)

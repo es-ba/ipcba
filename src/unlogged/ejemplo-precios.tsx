@@ -18,7 +18,7 @@ import {useState, useEffect, useRef, useLayoutEffect} from "react";
 import { Provider, useSelector, useDispatch } from "react-redux"; 
 import {areEqual} from "react-window";
 import * as memoizeBadTyped from "memoize-one";
-import * as likeAr from "like-ar";
+import {LikeAr as likeAr} from "like-ar";
 import * as clsxx from 'clsx';
 //@ts-ignore el módulo clsx no tiene bien puesto los tipos en su .d.ts
 var clsx: (<T>(a1:string|T, a2?:T)=> string) = clsxx;
@@ -696,7 +696,6 @@ const OpenedDialog = (props:{
     onClose?:()=>void,
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, /*open,*/ onClose, ...other} = props;
     useLockBodyScroll();
     //useEffect(() => {
     //    document.body.style.overflow=open?'hidden':'unset'
@@ -719,7 +718,7 @@ const OpenedDialog = (props:{
                     role="document"
                     style={{ ...{
                         zIndex: 99999,
-                    },...(style || {})}}
+                    },...(props.style || {})}}
                 >
                     <div className="modal-content">
                         {props.children}
@@ -732,7 +731,7 @@ const OpenedDialog = (props:{
 const DialogTitle = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <div id={id}
         style={{ ...{
 
@@ -746,7 +745,7 @@ const DialogTitle = (props:{
 const DialogContent = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <div id={id}
         style={{ ...{
 
@@ -759,7 +758,7 @@ const DialogContent = (props:{
 const DialogContentText = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <p id={id}
         style={{ ...{
 
@@ -772,7 +771,7 @@ const DialogContentText = (props:{
 const DialogActions = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <div id={id}
         style={{ ...{
 
@@ -818,7 +817,7 @@ export const materialIoIconsSvgPath={
     Repregunta:"M19.9,13.3c0,4.4-3.6,7.9-7.9,7.9s-7.9-3.6-7.9-7.9S7.6,5.4,12,5.4V8l5.3-4l-5.3-4v2.6C6.1,2.7,1.4,7.5,1.4,13.3 S6.1,23.9,12,23.9s10.6-4.7,10.6-10.6H19.9z M8.9,17.8v-7.6h3.2c0.8,0,1.4,0.1,1.8,0.2c0.4,0.1,0.7,0.4,0.9,0.7 c0.2,0.4,0.3,0.7,0.3,1.2c0,0.6-0.2,1-0.5,1.4c-0.3,0.4-0.8,0.6-1.5,0.7c0.3,0.2,0.6,0.4,0.8,0.6c0.2,0.2,0.5,0.6,0.9,1.2l0.9,1.5 h-1.8l-1.1-1.7c-0.4-0.6-0.7-1-0.8-1.1c-0.1-0.2-0.3-0.3-0.5-0.3c-0.2-0.1-0.4-0.1-0.8-0.1h-0.3v3.2H8.9z M10.4,13.4h1.1 c0.7,0,1.2,0,1.4-0.1c0.2-0.1,0.3-0.2,0.4-0.3c0.1-0.2,0.2-0.3,0.2-0.6c0-0.3-0.1-0.5-0.2-0.6c-0.1-0.2-0.3-0.3-0.6-0.3 c-0.1,0-0.5,0-1.1,0h-1.2V13.4z",
 }
 
-const ICON = likeAr(materialIoIconsSvgPath).map(svgText=> () =>
+const ICON = likeAr(materialIoIconsSvgPath).map((svgText: string)=> () =>
     <SvgIcon><path d={svgText}/></SvgIcon>
 ).plain();
 
@@ -1987,7 +1986,7 @@ function RazonFormulario(props:{relVis:RelVis, relInf:RelInf}){
             <Menu id="simple-menu-razon" open={Boolean(menuRazon)} anchorEl={menuRazon} onClose={()=>setMenuRazon(null)}>
                 {likeAr(estructura.razones)
                     .filter((razon:Razon)=>razon.visibleparaencuestador)
-                    .map((razon:Razon,index)=>{
+                    .map((razon:Razon, index: number)=>{
                         var color=estructura.razones[index].espositivoformulario?PRIMARY_COLOR:SECONDARY_COLOR;
                         return(
                         <MenuItem key={razon.nombrerazon} onClick={()=>{
@@ -2877,7 +2876,7 @@ function loadCSS(cssURL:string):Promise<void>{
             resolve(); 
             console.log(`trae ${cssURL}`);
         };
-        link.onerror=(err)=>{
+        link.onerror=()=>{
             reject(new Error(`problema cargando estilo ${cssURL}`))
         }
     });
@@ -2942,7 +2941,7 @@ function loadInstance(){
             allOpenedTabs[ev.data.id]=1;
             bc.postMessage({que:'soy',id:myId});
         }
-        infoOpenedTabs.otherTabsNames=likeAr(allOpenedTabs).filter((_,id)=>id!=myId).join(',');
+        infoOpenedTabs.otherTabsNames=likeAr(allOpenedTabs).filter((_: number, id: string | number)=>id!=myId).join(',');
         window.dispatchEvent(event);
     };
     bc.postMessage({que:'load',id:myId});

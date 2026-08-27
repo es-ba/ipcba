@@ -3,8 +3,8 @@ import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, Addr
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio, getObservacionesFiltradas} from "./dm-funciones";
 // import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
-import * as JSON4all from "json4all";
-import * as likeAr from "like-ar";
+import JSON4all = require("json4all");
+import {LikeAr as likeAr} from "like-ar";
 
 declare global {
     interface Window {

@@ -3,7 +3,7 @@
         "outDir": "../../dist/client",
         "rootDir": "..",
         "target": "es2020",
-        "module": "commonjs",
+        "module": "umd",
         "typeRoots" : ["node_modules/@types", "../../node_modules/types.d.ts/modules"],
         "lib": ["es2020", "dom"],
         "useUnknownInCatchVariables": false,

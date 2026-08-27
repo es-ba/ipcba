@@ -1,10 +1,11 @@
+import { datetime } from "best-globals";
 import {html}  from 'js-to-html';
 import {HDR_OPENED_LOCALSTORAGE_NAME, LOCAL_STORAGE_STATE_NAME, ESTRUCTURA_LOCALSTORAGE_NAME, LOCAL_STORAGE_ESTRUCTURA_NAME,
        registrarRelevamientoAbiertoLocalStorage, borrarDatosRelevamientoLocalStorage,
        hayHdrRelevando, rescatarLocalStorage, hayHojaDeRuta } from "../unlogged/dm-react";
 import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
-import * as likeAr from "like-ar";
+import {LikeAr as likeAr} from "like-ar";
 
 var my=myOwn;
 
@@ -93,7 +94,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         mainLayout.appendChild(clearButton);
         clearButton.onclick = async function(){
             if(inputForzar.value=='forzar'){
-                await confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton});
+                await confirmPromise('¿confirma carga de D.M.?', {underElement:clearButton} as any);
                 clearButton.disabled=true;
                 cargarFun()
             }else{
@@ -202,7 +203,7 @@ myOwn.wScreens.vaciar_dm2=async function(){
             mainLayout.appendChild(clearButton);
             clearButton.onclick = async function(){
                 if(fueDescargadoAntes || inputForzar.value=='forzar'){
-                    var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton});
+                    var confirma = await confirmPromise('¿confirma vaciado de D.M.?', {underElement:clearButton} as any);
                     if(confirma){
                         clearButton.disabled=true;
                         my.setLocalVar('ipc2.0-vaciado',true);
@@ -218,7 +219,6 @@ myOwn.wScreens.vaciar_dm2=async function(){
     }
 };
 
-var { datetime } = require('best-globals');
 
 myOwn.wScreens.preparar_instalacion2={
     parameters:[
@@ -332,7 +332,6 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
 }
 
 myOwn.clientSides.prepararDM={
-    update: false,
     prepare: function(depot, fieldName){
         var td = depot.rowControls[fieldName];
         var boton = html.button({class:'boton-sincronizacion'},'preparar').create();
@@ -366,7 +365,6 @@ myOwn.clientSides.prepararDM={
 }
 
 myOwn.clientSides.blanquearDM={
-    update: false,
     prepare: function(depot, fieldName){
         var td = depot.rowControls[fieldName];
         var boton = html.button({class:'boton-sincronizacion'},'blanquear').create();
@@ -392,12 +390,13 @@ myOwn.clientSides.blanquearDM={
                     {label:'forzar blanqueo', value:true},
                     {label:'cancelar blanqueo', value:false}
                 ]
-            });
+            } as any);
             if(forzar){
                 if(inputForzar.value=='forzar'){
+                    var waitGif: HTMLElement | null = null;
                     try{
                         boton.disabled=true;
-                        var waitGif=html.img({src:'img/loading16.gif'}).create()
+                        waitGif=html.img({src:'img/loading16.gif'}).create()
                         td.appendChild(waitGif);
                         await my.ajax.dm2_carga_blanquear({
                             periodo: periodo,
@@ -410,7 +409,7 @@ myOwn.clientSides.blanquearDM={
                         my.alertError(err);
                     }finally{
                         boton.disabled=false;
-                        waitGif.style.display = 'none';
+                        if(waitGif) waitGif.style.display = 'none';
                     };
                 }else{
                     alertPromise('si necesita blanquear escriba forzar.')
@@ -425,7 +424,7 @@ myOwn.clientSides.blanquearDM={
 const FILTRO_RELEVAMIENTO = "filtro_relevamiento";
 const SORT_COLUMNS_RELEVAMIENTO = "sort_columns_relevamiento";
 
-myOwn.wScreens.relevamiento=function(_addrParams){
+myOwn.wScreens.relevamiento=async function(_addrParams){
     //PROVISORIO
     if(!my.existsLocalVar(HDR_OPENED_LOCALSTORAGE_NAME) && localStorage[HDR_OPENED_LOCALSTORAGE_NAME]=='true'){
         rescatarLocalStorage()
@@ -441,7 +440,7 @@ myOwn.wScreens.relevamiento=function(_addrParams){
         var sortColumns = my.getSessionVar(SORT_COLUMNS_RELEVAMIENTO) || [];
         my.removeSessionVar(FILTRO_RELEVAMIENTO);
         my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO);
-        return my.tableGrid('relevamiento',mainLayout,{tableDef:{filterColumns, sortColumns}});
+        my.tableGrid('relevamiento',mainLayout,{tableDef:{filterColumns, sortColumns}} as any);
     }
 };
 
@@ -487,8 +486,8 @@ myOwn.clientSides.abrir={
                         try{
                             if(depot.manager.view.filter){
                                 //value, column,  operator
-                                var myFilters = depot.manager.view.filter.map(filter=>{
-                                    return likeAr(filter.row).map((value, colname)=>{
+                                var myFilters = depot.manager.view.filter.map((filter: any)=>{
+                                    return likeAr(filter.row).map((value: any, colname: any)=>{
                                         return {value:value, column:colname, operator: filter.rowSymbols[colname]}
                                     }).array()
                                 })
@@ -496,8 +495,8 @@ myOwn.clientSides.abrir={
                             }else{
                                 my.removeSessionVar(FILTRO_RELEVAMIENTO);
                             }
-                            if(depot.manager.view.sortColumns){
-                                my.setSessionVar(SORT_COLUMNS_RELEVAMIENTO, depot.manager.view.sortColumns.map(sortColumn=>{return {column:sortColumn.column, order: sortColumn.order}}));
+                            if((depot.manager.view as any).sortColumns){
+                                my.setSessionVar(SORT_COLUMNS_RELEVAMIENTO, (depot.manager.view as any).sortColumns.map((sortColumn: any)=>{return {column:sortColumn.column, order: sortColumn.order}}));
                             }else{
                                 my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO)
                             }
@@ -548,7 +547,7 @@ myOwn.clientSides.abrir={
                             {label:'forzar carga', value:true},
                             {label:'cancelar carga', value:false}
                         ]
-                    });
+                    } as any);
                     if(forzar){
                         if(inputForzar.value=='forzar'){
                             relevarFun();

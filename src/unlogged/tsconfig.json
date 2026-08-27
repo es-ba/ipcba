@@ -3,7 +3,7 @@
         "outDir": "../../dist/unlogged",
         "rootDir": ".",
         "target": "es2020",
-        "module": "commonjs",
+        "module": "umd",
         "inlineSourceMap": true,
         "inlineSources": true,
         "typeRoots" : ["node_modules/@types", "../../node_modules/types.d.ts/modules"],
