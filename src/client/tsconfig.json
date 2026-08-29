@@ -1,8 +1,12 @@
 {
     "compilerOptions": {
-        "outDir": "../../dist",
+        "outDir": "../../dist/client",
+        "rootDir": "..",
+        "target": "es2020",
+        "module": "umd",
         "typeRoots" : ["node_modules/@types", "../../node_modules/types.d.ts/modules"],
-        "lib": ["es5", "dom"],
+        "lib": ["es2020", "dom"],
+        "useUnknownInCatchVariables": false,
         "jsx": "react"
     },
     "include":[

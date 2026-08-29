@@ -1,10 +1,14 @@
 {
     "compilerOptions": {
         "outDir": "../../dist/unlogged",
+        "rootDir": ".",
+        "target": "es2020",
+        "module": "umd",
         "inlineSourceMap": true,
         "inlineSources": true,
         "typeRoots" : ["node_modules/@types", "../../node_modules/types.d.ts/modules"],
-        "lib": ["es5", "dom"],
+        "lib": ["es2020", "dom"],
+        "useUnknownInCatchVariables": false,
         "jsx": "react"
     },
     "include":[
