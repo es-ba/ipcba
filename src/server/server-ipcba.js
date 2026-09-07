@@ -11,7 +11,7 @@ var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
 
-const APP_DM_VERSION="#25-06-17";
+const APP_DM_VERSION="#26-09-07";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -628,8 +628,9 @@ class AppIpcba extends backendPlus.AppBackend{
             "dm-react.js",
             "ejemplo-precios.js",
             "unlogged.js",
-            "lib/js-yaml.js",
-            "lib/xlsx.core.min.js",
+            "lib/js-yaml.umd.min.js",
+            "lib/xlsx-now.umd.js",
+            "lib/xlsx-now-browser.umd.js",
             "lib/lazy-some.js",
             "lib/sql-tools.js",
             "dialog-promise/dialog-promise.js",
