@@ -2,10 +2,13 @@
 
 -- DROP FUNCTION IF EXISTS ccc.calcularcccunperiodo(text, integer);
 
-CREATE OR REPLACE FUNCTION ccc.CalcularCCCUnPeriodo(pPeriodo text, pCalculo integer) RETURNS void
-    LANGUAGE plpgsql SECURITY DEFINER
-as
-$BODY$
+CREATE OR REPLACE FUNCTION ccc.calcularcccunperiodo(
+    pperiodo text,
+    pcalculo integer)
+    RETURNS text
+    LANGUAGE plpgsql 
+    SECURITY DEFINER
+as $BODY$
 declare
    vEmpezo     time;
    vTermino    time;
@@ -18,7 +21,10 @@ begin
   vEmpezo:=clock_timestamp();
   set search_path = ccc, cvp, comun, public;
   Raise Notice '--------------- COMIENZA VALORIZACION DE LA CANASTA CCC % %',pPeriodo,pCalculo;
-  EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'CalcularCCCUnPeriodo', pTipo:='comenzo');
+  select Calculo_ControlarAbierto(pPeriodo, pCalculo) into vError;
+  if vError is not null then
+      return vError;
+  end if;
   execute Cal_CCC_Borrar(pPeriodo, pCalculo);
   execute Cal_CCC_Copiar(pPeriodo, pCalculo);
 
@@ -40,6 +46,6 @@ begin
 
   vTermino:=clock_timestamp();
   Raise Notice '%', 'CALCULO CCC COMPLETO: EMPEZO '||cast(vEmpezo as text)||' TERMINO '||cast(vTermino as text)||' DEMORO '||(vTermino - vEmpezo);
-  EXECUTE Cal_Mensajes(pPeriodo, pCalculo,'CalcularCCCUnPeriodo', pTipo:='finalizo');
+  return 'Calculo completo en '||(vTermino - vEmpezo);
 end;
 $BODY$;

@@ -58,6 +58,13 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     configStaticConfig(){
+        this.internalData={
+            filterUltimoPeriodo : '',
+            filterActualPeriodo : '',
+            filterUltimoCalculo : '',
+            filterAgrupacion : '',
+            filterExcluirCluster : 99999
+        }
         super.configStaticConfig();
         this.setStaticConfig(`
           server:
@@ -564,30 +571,6 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     addLoggedServices(opts){
         var be=this;
-        super.addLoggedServices();
-        [
-            {sufix:`manifest.manifest`     , fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
-            {sufix:`estructura.js`         , fieldName:'archivo_estructura', mimeType:'application/javascript'},
-            {sufix:`hdr.json`              , fieldName:'archivo_hdr'       , mimeType:'application/json'},
-            {sufix:`resources_cache.json`  , fieldName:'archivo_cache'     , mimeType:'application/js'}
-        ].forEach(function(def){
-            be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
-                await be.inDbClient(req, async function(client){
-                    try{
-                        const {value} = await client.query(`
-                            SELECT ${be.db.quoteIdent(def.fieldName)}
-                                FROM reltar
-                                WHERE periodo = $1 AND panel = $2 AND tarea = $3
-                            `, [req.params.periodo, req.params.panel, req.params.tarea]
-                        ).fetchUniqueValue();
-                        MiniTools.serveText(value, def.mimeType)(req,res);
-                    }catch(err){
-                        console.log(err);
-                        MiniTools.serveErr(req, res, next)(err);
-                    }
-                });
-            })
-        });
         super.addLoggedServices(opts);
     }
     getProcedures(){
@@ -741,7 +724,6 @@ class AppIpcba extends backendPlus.AppBackend{
                     { menuType: 'table', name: 'empalme_ccc_b1112', label: 'empalme b1112', onlyVisibleFor:asignadores },
                 ]},
                 {menuType:'menu', name:'tablas', menuContent:[
-                    { menuType: 'table', name: 'calculos_ccc', onlyVisibleFor:asignadores, label: 'calculos'},
                     { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores, label: 'agrupaciones'},
                     { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores, label: 'productos'},
@@ -1420,8 +1402,6 @@ class AppIpcba extends backendPlus.AppBackend{
             {name: 'personal_supervisores', path: __dirname},
             {name: 'indicadores', path: __dirname},
             {name: 'generos', path: __dirname},
-            {name: 'calculos_ccc', path: __dirname},
-            {name: 'valorizacion_canasta_ccc', path: __dirname},
         ]);
     }
 }
