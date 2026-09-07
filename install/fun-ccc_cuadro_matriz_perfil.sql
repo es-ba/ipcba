@@ -42,7 +42,7 @@ begin
        END, 
        CASE WHEN p_indicador = 'VIA' THEN replace(c.variacioninteranualredondeada::text, '.', p_separador)
             WHEN p_indicador = 'VAR' THEN replace(c.variacionredondeada::text, '.', p_separador)
-            ELSE replace(c.valorhoggru::text, '.', p_separador)
+            ELSE replace(round(c.valorhoggru::numeric,2)::text, '.', p_separador)
        END
        ORDER BY c.nivel DESC, c.grupo
        )::text as celda
