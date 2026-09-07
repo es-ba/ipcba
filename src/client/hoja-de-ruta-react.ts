@@ -6,6 +6,8 @@ import {dmHojaDeRuta} from "../unlogged/ejemplo-precios";
 import { HojaDeRuta, Estructura } from '../unlogged/dm-tipos';
 import * as likeAr from "like-ar";
 
+declare var require: any;
+
 var my=myOwn;
 
 function getVersionSistema(){
@@ -34,7 +36,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         var reltarHabilitada = await my.ajax.hojaderuta_traer2({
             token_instalacion: tokenInstalacion
         })
-    }catch(err){
+    }catch(err: any){
         var m=html.p('La sincronización se encuentra deshabilitada o vencida para el encuestador '+ encuestador+ '. E:'+err.message).create();
         mainLayout.appendChild(m);
         m.onclick=function(){
@@ -93,7 +95,7 @@ async function cargarDispositivo2(tokenInstalacion:string, encuestador:string){
         mainLayout.appendChild(clearButton);
         clearButton.onclick = async function(){
             if(inputForzar.value=='forzar'){
-                await confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton});
+                await confirmPromise('¿confirma carga de D.M.?',{underElement:clearButton} as any);
                 clearButton.disabled=true;
                 cargarFun()
             }else{
@@ -145,7 +147,7 @@ myOwn.wScreens.sincronizar_dm2=async function(){
                     downloadButton.disabled=true;
                     try{
                         await descargarDispositivo2(tokenInstalacion||'no debería perderse el TOKEN si está el botón aún');
-                    }catch(err){
+                    }catch(err: any){
                         alertPromise(err.message);
                     }finally{
                         downloadButton.disabled=false;
@@ -202,7 +204,7 @@ myOwn.wScreens.vaciar_dm2=async function(){
             mainLayout.appendChild(clearButton);
             clearButton.onclick = async function(){
                 if(fueDescargadoAntes || inputForzar.value=='forzar'){
-                    var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton});
+                    var confirma = await confirmPromise('¿confirma vaciado de D.M.?',{underElement:clearButton} as any);
                     if(confirma){
                         clearButton.disabled=true;
                         my.setLocalVar('ipc2.0-vaciado',true);
@@ -332,7 +334,7 @@ function install2(numeroEncuestador:string, numeroIpad:string, divResult:HTMLDiv
 }
 
 myOwn.clientSides.prepararDM={
-    update: false,
+    update: false as any,
     prepare: function(depot, fieldName){
         var td = depot.rowControls[fieldName];
         var boton = html.button({class:'boton-sincronizacion'},'preparar').create();
@@ -355,7 +357,7 @@ myOwn.clientSides.prepararDM={
                 }
                 var grid=depot.manager;
                 grid.retrieveRowAndRefresh(depot)
-            }catch(err){
+            }catch(err: any){
                 my.alertError(err);
             }finally{
                 boton.disabled=false;
@@ -366,7 +368,7 @@ myOwn.clientSides.prepararDM={
 }
 
 myOwn.clientSides.blanquearDM={
-    update: false,
+    update: false as any,
     prepare: function(depot, fieldName){
         var td = depot.rowControls[fieldName];
         var boton = html.button({class:'boton-sincronizacion'},'blanquear').create();
@@ -392,12 +394,13 @@ myOwn.clientSides.blanquearDM={
                     {label:'forzar blanqueo', value:true},
                     {label:'cancelar blanqueo', value:false}
                 ]
-            });
+            } as any);
             if(forzar){
                 if(inputForzar.value=='forzar'){
+                    var waitGif: HTMLImageElement | undefined;
                     try{
                         boton.disabled=true;
-                        var waitGif=html.img({src:'img/loading16.gif'}).create()
+                        waitGif=html.img({src:'img/loading16.gif'}).create()
                         td.appendChild(waitGif);
                         await my.ajax.dm2_carga_blanquear({
                             periodo: periodo,
@@ -406,11 +409,13 @@ myOwn.clientSides.blanquearDM={
                         });
                         var grid=depot.manager;
                         grid.retrieveRowAndRefresh(depot)
-                    }catch(err){
+                    }catch(err: any){
                         my.alertError(err);
                     }finally{
                         boton.disabled=false;
-                        waitGif.style.display = 'none';
+                        if(waitGif){
+                            waitGif.style.display = 'none';
+                        }
                     };
                 }else{
                     alertPromise('si necesita blanquear escriba forzar.')
@@ -434,14 +439,14 @@ myOwn.wScreens.relevamiento=function(_addrParams){
     if(hayHdrRelevando()){
         var estructura:Estructura = my.getLocalVar(ESTRUCTURA_LOCALSTORAGE_NAME)!;
         var hdr:HojaDeRuta = my.getLocalVar(LOCAL_STORAGE_STATE_NAME)!;
-        dmHojaDeRuta({customData: {estructura, hdr}});
+        return dmHojaDeRuta({customData: {estructura, hdr}}) as any;
     }else{
         var mainLayout = document.getElementById('main_layout')!;
         var filterColumns = my.getSessionVar(FILTRO_RELEVAMIENTO) || [];
         var sortColumns = my.getSessionVar(SORT_COLUMNS_RELEVAMIENTO) || [];
         my.removeSessionVar(FILTRO_RELEVAMIENTO);
         my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO);
-        return my.tableGrid('relevamiento',mainLayout,{tableDef:{filterColumns, sortColumns}});
+        return my.tableGrid('relevamiento',mainLayout,{tableDef:{filterColumns, sortColumns} as any}) as any;
     }
 };
 
@@ -489,15 +494,15 @@ myOwn.clientSides.abrir={
                                 //value, column,  operator
                                 var myFilters = depot.manager.view.filter.map(filter=>{
                                     return likeAr(filter.row).map((value, colname)=>{
-                                        return {value:value, column:colname, operator: filter.rowSymbols[colname]}
+                                        return {value:value, column:colname, operator: (filter as any).rowSymbols[colname]}
                                     }).array()
                                 })
                                 my.setSessionVar(FILTRO_RELEVAMIENTO, myFilters);
                             }else{
                                 my.removeSessionVar(FILTRO_RELEVAMIENTO);
                             }
-                            if(depot.manager.view.sortColumns){
-                                my.setSessionVar(SORT_COLUMNS_RELEVAMIENTO, depot.manager.view.sortColumns.map(sortColumn=>{return {column:sortColumn.column, order: sortColumn.order}}));
+                            if((depot.manager.view as any).sortColumns){
+                                my.setSessionVar(SORT_COLUMNS_RELEVAMIENTO, (depot.manager.view as any).sortColumns.map((sortColumn: any)=>{return {column:sortColumn.column, order: sortColumn.order}}));
                             }else{
                                 my.removeSessionVar(SORT_COLUMNS_RELEVAMIENTO)
                             }
@@ -508,7 +513,7 @@ myOwn.clientSides.abrir={
                         }
                         registrarRelevamientoAbiertoLocalStorage(periodo, panel, tarea, informante, result.hdr, result.estructura, result.token)
                         dmHojaDeRuta({customData: {estructura:result.estructura, hdr:result.hdr}});
-                    }catch(err){
+                    }catch(err: any){
                         alertPromise(err.message);
                         borrarDatosRelevamientoLocalStorage();
                         throw new Error(err.message);
@@ -548,7 +553,7 @@ myOwn.clientSides.abrir={
                             {label:'forzar carga', value:true},
                             {label:'cancelar carga', value:false}
                         ]
-                    });
+                    } as any);
                     if(forzar){
                         if(inputForzar.value=='forzar'){
                             relevarFun();
@@ -562,7 +567,7 @@ myOwn.clientSides.abrir={
                 }else{
                     relevarFun();
                 }
-            }catch(err){
+            }catch(err: any){
                 borrarDatosRelevamientoLocalStorage()
                 alertPromise(err.message);
                 restablecerBotonAbrirFun();

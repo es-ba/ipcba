@@ -1,7 +1,8 @@
 "use strict";
 import { datetime } from "best-globals";
-import {LOCAL_STORAGE_STATE_NAME, LOCAL_STORAGE_ESTRUCTURA_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
+import {LOCAL_STORAGE_STATE_NAME, hayHojaDeRuta} from "../unlogged/dm-react";
 import {html}  from 'js-to-html';
+declare var require: any;
 const ServiceWorkerAdmin = require("service-worker-admin");
 
 var reloadWithoutHash = ()=>{
@@ -82,7 +83,7 @@ window.addEventListener('load', async function(){
                     dmPantallaInicial();
                 }
             }
-            var refrescarStatus=async function(showScreen, newVersionAvaiable, installing){
+            var refrescarStatus=async function(showScreen: string, newVersionAvaiable: string, _installing?: any){
                 var buscandoActualizacion = location.href.endsWith('#inst=1');
                 document.getElementById('nueva-version-instalada')!.style.display=newVersionAvaiable=='yes'?'':'none';
                 document.getElementById('volver-de-instalacion')!.style.display=newVersionAvaiable=='yes'?'none':'';
@@ -96,14 +97,14 @@ window.addEventListener('load', async function(){
             };
             var swa = new ServiceWorkerAdmin();
             swa.installOrActivate({
-                onEachFile: async (url, error)=>{
+                onEachFile: async (url: string, _error: any)=>{
                     //console.log('file: ',url);
                     document.getElementById('archivos')!.append(
                         html.div(url).create()
                     )
                 },
-                onInfoMessage: (m)=>console.log('message: ', m),
-                onError: async (err, context)=>{
+                onInfoMessage: (m: any)=>console.log('message: ', m),
+                onError: async (err: any, context: any)=>{
                     console.log('error: '+(context?` en (${context})`:''), err);
                     console.log(context, err, 'error-console')
                     console.log('error al descargar cache', err.message)
@@ -134,7 +135,7 @@ window.addEventListener('load', async function(){
 })
 
 var awaitForCacheLayout = async function prepareLayoutForCache(){
-    await new Promise(function(resolve, _reject){
+    await new Promise(function(resolve: (value?: any) => void, _reject: any){
         window.addEventListener('load',resolve);
     });
     var layout=(document.getElementById('cache-layout')||document.createElement('div'));
