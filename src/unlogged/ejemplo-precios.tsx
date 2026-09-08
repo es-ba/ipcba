@@ -2947,10 +2947,11 @@ function loadInstance(){
     };
     bc.postMessage({que:'load',id:myId});
     window.dispatchEvent(event);
-    window.addEventListener('unload',function(){
+    var notifyUnload = function(){
         bc.postMessage({que:'unload',id:myId});
-        window.dispatchEvent(event);
-    })
+    };
+    window.addEventListener('beforeunload', notifyUnload);
+    window.addEventListener('pagehide', notifyUnload);
     //mostrarQuienesSomos();
 }
 
