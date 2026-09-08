@@ -30,10 +30,10 @@ export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
 export const getTokenRelevamiento = ():string|null=> my.getLocalVar(TOKEN_LOCALSTORAGE_NAME);
 
 export function hayHojaDeRuta(){
-    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
-    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME)
-    return storage && vaciado !==null && !(vaciado) ||
-        storage && vaciado===null;
+    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado');
+    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME);
+    var struct:any|null=my.getLocalVar(LOCAL_STORAGE_ESTRUCTURA_NAME);
+    return !!(storage && struct && (vaciado === null || !vaciado));
 }
 
 /* REDUCERS */
