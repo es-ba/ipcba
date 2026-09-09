@@ -11,7 +11,7 @@ var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
 
-const APP_DM_VERSION="#26-09-07";
+const APP_DM_VERSION="#26-09-09";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -78,6 +78,8 @@ class AppIpcba extends backendPlus.AppBackend{
                 local-path: node_modules/backend-skins/dist/
               default:
                 local-path: node_modules/backend-skins/dist/
+              modern:
+                local-path: node_modules/backend-skins/dist/
             session-store: memory-saved
             keep-alive: true
             bitacoraTableName: bp_bitacora
@@ -118,7 +120,7 @@ class AppIpcba extends backendPlus.AppBackend{
             lockedClausule: current_timestamp>=locked_since
           client-setup:
             cursors: true
-            skin: default
+            skin: modern
             menu: true
             lang: es
             version: 0.1
@@ -640,7 +642,16 @@ class AppIpcba extends backendPlus.AppBackend{
             "lib/material-styles.production.min.js",
             "lib/clsx.min.js",
             "lib/redux.min.js",
+            "lib/index.js",
+            "lib/cast-error.js",
+            "client/menu.js",
+            "carga-dm/web-manifest.webmanifest",
             "lib/react-redux.min.js",
+            "lib/material-ui.development.js",
+            "lib/material-styles.development.js",
+            "lib/redux.js",
+            "lib/react-redux.js",
+            "lib/index-dev.umd.js",
             "lib/index-prod.umd.js",
             "lib/memoize-one.js",
             "lib/require-bro.js",
@@ -699,7 +710,7 @@ class AppIpcba extends backendPlus.AppBackend{
             //"default/css/my-menu.css",
             "css/ejemplo-precios.css",
             "css/bootstrap.min.css",
-            "default/css/ejemplo-precios.css",
+            //"default/css/ejemplo-precios.css",
             //"img/logo.png",
             //"img/logo-dm.png",
             "img/main-loading.gif",
