@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { RelInf, RelVis, RelPre, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, OptsHdr, QueVer } from "./dm-tipos";
+import { RelInf, RelVis, RelPre, RelAtr, HojaDeRuta, Estructura, getDefaultOptions, AddrParamsHdr, OptsHdr, QueVer } from "./dm-tipos";
 import { puedeCopiarTipoPrecio, puedeCopiarAtributos, puedeCambiarPrecioYAtributos, calcularCambioAtributosEnPrecio, normalizarPrecio, controlarPrecio, getObservacionesFiltradas} from "./dm-funciones";
 // import { deepFreeze } from "best-globals";
 import { createReducer, createDispatchers, ActionsFrom } from "redux-typed-reducer";
@@ -30,10 +30,10 @@ export const TOKEN_LOCALSTORAGE_NAME = 'relevamiento_token';
 export const getTokenRelevamiento = ():string|null=> my.getLocalVar(TOKEN_LOCALSTORAGE_NAME);
 
 export function hayHojaDeRuta(){
-    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado')
-    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME)
-    return storage && vaciado !==null && !(vaciado) ||
-        storage && vaciado===null;
+    var vaciado:boolean|null=my.getLocalVar('ipc2.0-vaciado');
+    var storage:any|null=my.getLocalVar(LOCAL_STORAGE_STATE_NAME);
+    var struct:any|null=my.getLocalVar(LOCAL_STORAGE_ESTRUCTURA_NAME);
+    return !!(storage && struct && (vaciado === null || !vaciado));
 }
 
 /* REDUCERS */
@@ -273,7 +273,7 @@ var reducers={
                 if(!puedeCambiarPrecioYAtributos(estructura!, relPre)){
                     return relPre;
                 }
-                if(relPre.atributos.find(relAtr=>relAtr.atributo==payload.forPk.atributo && relAtr.valor != payload.valor)){
+                if(relPre.atributos.find((relAtr: RelAtr)=>relAtr.atributo==payload.forPk.atributo && relAtr.valor != payload.valor)){
                     setDirty();
                 }
                 var nuevoRelPre:RelPre = {
@@ -312,10 +312,10 @@ var reducers={
             var {queVer} = state.opciones;
             var searchString = '';
             var allForms = false;
-            var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
+            var informante: RelInf = state.informantes.find((informante: RelInf)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
-            var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var formulariosIdx = likeAr.createIndex(informante.formularios, 'formulario');
+            var relVis: RelVis = informante!.formularios.find((formulario: RelVis)=>formulario.formulario == payload.formulario)!;
+            var formulariosIdx = likeAr.createIndex<RelVis, 'formulario'>(informante.formularios, 'formulario');
             var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(formulariosIdx, observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
@@ -353,10 +353,10 @@ var reducers={
     SET_QUE_VER:(payload: {queVer:QueVer, informante: number, formulario: number, searchString:string, allForms:boolean, compactar:boolean}) =>
         function(state: HojaDeRuta){
             var {queVer, searchString, allForms, compactar} = payload;
-            var informante = state.informantes.find((informante)=>informante.informante == payload.informante)!;
+            var informante: RelInf = state.informantes.find((informante: RelInf)=>informante.informante == payload.informante)!;
             var observaciones=informante.observaciones;
-            var relVis = informante!.formularios.find((formulario)=>formulario.formulario == payload.formulario)!;
-            var formulariosIdx = likeAr.createIndex(informante.formularios, 'formulario');
+            var relVis: RelVis = informante!.formularios.find((formulario: RelVis)=>formulario.formulario == payload.formulario)!;
+            var formulariosIdx = likeAr.createIndex<RelVis, 'formulario'>(informante.formularios, 'formulario');
             var {observacionesFiltradasIdx, observacionesFiltradasEnOtrosIdx}=calcularListas(formulariosIdx, observaciones, relVis, allForms, searchString, queVer);
             return deepFreeze({
                 ...state,
@@ -377,7 +377,7 @@ var reducers={
             var posiciones:{formulario: number, position: number}[] = [
                 ...state.opciones.posFormularios,
             ];
-            var pos = posiciones.findIndex((position)=>position.formulario==payload.formulario);
+            var pos = posiciones.findIndex((position: {formulario: number, position: number})=>position.formulario==payload.formulario);
             if(pos==-1){
                 posiciones.push({...payload});
             }else{
@@ -572,7 +572,7 @@ export async function devolverHojaDeRuta(hdr:HojaDeRuta){
             custom_data: true,
             current_token: my.getLocalVar(TOKEN_LOCALSTORAGE_NAME)
         });
-    }catch(err){
+    }catch(err: any){
         redirectIfNotLogged(err);
         message=err.message;
         code=err.code;
@@ -606,7 +606,7 @@ export async function borrarDatosRelevamientoLocalStorage(){
         my.removeLocalVar(LOCAL_STORAGE_DIRTY_NAME);
         my.removeLocalVar(TOKEN_LOCALSTORAGE_NAME);
         return 'ok'
-    }catch(err){
+    }catch(err: any){
         redirectIfNotLogged(err);
         return err.message;
     }

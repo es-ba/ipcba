@@ -3,8 +3,9 @@ CACHE MANIFEST
 
 CACHE:
 #--------------------------- JS -----------------------------------
-../lib/js-yaml.js
-../lib/xlsx.core.min.js
+../lib/js-yaml.umd.min.js
+../lib/xlsx-now.umd.js
+../lib/xlsx-now-browser.umd.js
 ../lib/lazy-some.js
 ../lib/like-ar.js
 ../lib/best-globals.js

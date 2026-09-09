@@ -219,7 +219,7 @@ const Chip = (props:{
     style:any,
 })=>{
     var {...other} = props;
-    return <span {...other} className="badge" style={...props.style}>{props.label}</span>
+    return <span {...other} className="badge" style={{...props.style}}>{props.label}</span>
 }
 const ButtonGroup = (props:{children:any}&CommonAttributes)=>{
     return <div 
@@ -696,7 +696,7 @@ const OpenedDialog = (props:{
     onClose?:()=>void,
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, /*open,*/ onClose, ...other} = props;
+    const {style} = props;
     useLockBodyScroll();
     //useEffect(() => {
     //    document.body.style.overflow=open?'hidden':'unset'
@@ -732,7 +732,7 @@ const OpenedDialog = (props:{
 const DialogTitle = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <div id={id}
         style={{ ...{
 
@@ -746,7 +746,7 @@ const DialogTitle = (props:{
 const DialogContent = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <div id={id}
         style={{ ...{
 
@@ -759,7 +759,7 @@ const DialogContent = (props:{
 const DialogContentText = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <p id={id}
         style={{ ...{
 
@@ -772,7 +772,7 @@ const DialogContentText = (props:{
 const DialogActions = (props:{
     children:any,
 }&CommonAttributes)=>{
-    const {id, className, style, children, ...other} = props;
+    const {id, className, style, children} = props;
     return <div id={id}
         style={{ ...{
 
@@ -1808,7 +1808,7 @@ function VariableSizeList(props:{
 }){
     var rowFun=props.children;
     var heightSum=0;
-    var lista:{style:Style4Render, isScrolling:boolean}[] = new Array(props.itemCount).fill(true).map((_, i:number)=>{
+    var lista:{style:Style4Render, isScrolling:boolean}[] = new Array(props.itemCount).fill(true).map((_: any, i:number)=>{
         var height = props.itemSize(i);
         var top = heightSum;
         heightSum+=height;
@@ -2051,9 +2051,9 @@ function FormularioVisitaWrapper(props:{relVisPk: RelVisPk}){
     const {queVer, searchString, compactar, allForms, letraGrandeFormulario} = useSelector((hdr:HojaDeRuta)=>hdr.opciones);
     const dispatch = useDispatch();
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
-    const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
-    const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
-    const formularios = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!.formularios;
+    const relInf = hdr.informantes.find((relInf: RelInf)=>relInf.informante==props.relVisPk.informante)!;
+    const relVis = relInf.formularios.find((relVis: RelVis)=>relVis.formulario==props.relVisPk.formulario)!;
+    const formularios = hdr.informantes.find((relInf: RelInf)=>relInf.informante==props.relVisPk.informante)!.formularios;
     const [open, setOpen] = React.useState<boolean>(false);
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -2185,8 +2185,8 @@ function FormularioVisita(props:{relVisPk: RelVisPk}){
         }
     }, [idActual]);
     const hdr = useSelector((hdr:HojaDeRuta)=>hdr);
-    const relInf = hdr.informantes.find(relInf=>relInf.informante==props.relVisPk.informante)!;
-    const relVis = relInf.formularios.find(relVis=>relVis.formulario==props.relVisPk.formulario)!;
+    const relInf = hdr.informantes.find((relInf: RelInf)=>relInf.informante==props.relVisPk.informante)!;
+    const relVis = relInf.formularios.find((relVis: RelVis)=>relVis.formulario==props.relVisPk.formulario)!;
     return (
         <div id="formulario-visita" className="menu-informante-visita" es-positivo={relVis.razon && estructura.razones[relVis.razon].espositivoformulario?'si':'no'}>
             <div style={{display:'flex'}}>
@@ -2868,7 +2868,7 @@ export function mostrarHdr(store:Store<HojaDeRuta, ActionHdr>, miEstructura:Estr
 }
 
 function loadCSS(cssURL:string):Promise<void>{
-    return new Promise(( resolve, reject )=>{
+    return new Promise(( resolve: (value?: any) => void, reject: (reason?: any) => void )=>{
         var link = document.createElement( 'link' );
         link.rel  = 'stylesheet';
         link.href = cssURL;
@@ -2877,7 +2877,7 @@ function loadCSS(cssURL:string):Promise<void>{
             resolve(); 
             console.log(`trae ${cssURL}`);
         };
-        link.onerror=(err)=>{
+        link.onerror=(_err)=>{
             reject(new Error(`problema cargando estilo ${cssURL}`))
         }
     });
@@ -2947,10 +2947,11 @@ function loadInstance(){
     };
     bc.postMessage({que:'load',id:myId});
     window.dispatchEvent(event);
-    window.addEventListener('unload',function(){
+    var notifyUnload = function(){
         bc.postMessage({que:'unload',id:myId});
-        window.dispatchEvent(event);
-    })
+    };
+    window.addEventListener('beforeunload', notifyUnload);
+    window.addEventListener('pagehide', notifyUnload);
     //mostrarQuienesSomos();
 }
 

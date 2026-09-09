@@ -118,7 +118,7 @@ export function normalizarPrecio(relPre:RelPre, estructura:Estructura){
 export function controlarAtributo(relAtr:RelAtr, relPre:RelPre, estructura:Estructura){
     var prodAtr = estructura.productos[relPre.producto].atributos[relAtr.atributo];
     var enListaDeValores = function enListaDeValores(relAtr:RelAtr, prodAtr:ProdAtr){
-        return relAtr.valor == prodAtr.lista_prodatrval.find(function (elemento){return elemento == relAtr.valor})
+        return relAtr.valor == prodAtr.lista_prodatrval.find(function (elemento: string){return elemento == relAtr.valor})
     }
     var esValidoAtributoPorListaDeValores = !prodAtr.validaropciones || enListaDeValores(relAtr,prodAtr) || !relAtr.valor; 
     var esValidoAtributo = function esValidoAtributo(relAtr:RelAtr, prodAtr:ProdAtr){
@@ -286,7 +286,7 @@ export function simplificateText(text:string):string{
         "ﬀ":"ff","ﬃ":"ffi","ﬄ":"ffl","ﬁ":"fi","ﬂ":"fl","ĳ":"ij","œ":"oe","ﬆ":"st",
         "ₐ":"a","ₑ":"e","ᵢ":"i","ⱼ":"j","ₒ":"o","ᵣ":"r","ᵤ":"u","ᵥ":"v","ₓ":"x"
     };
-    return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return simplificatedChars[a]||a}).replace(/ {2,}/g, ' ');
+    return text.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return (simplificatedChars as Record<string, string>)[a]||a}).replace(/ {2,}/g, ' ');
 }
 
 export function parseString(value:string, textTransform:'lowercase'|'uppercase'|undefined,simplificateString:boolean){

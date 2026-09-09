@@ -11,7 +11,7 @@ var {changing, datetime} = require('best-globals');
 const { json } = require('backend-plus');
 var html = require('js-to-html').html;
 
-const APP_DM_VERSION="#25-06-17";
+const APP_DM_VERSION="#26-09-07";
 class AppIpcba extends backendPlus.AppBackend{
     isAdmin(reqOrContext){
         var be = this;
@@ -58,6 +58,13 @@ class AppIpcba extends backendPlus.AppBackend{
         });
     }
     configStaticConfig(){
+        this.internalData={
+            filterUltimoPeriodo : '',
+            filterActualPeriodo : '',
+            filterUltimoCalculo : '',
+            filterAgrupacion : '',
+            filterExcluirCluster : 99999
+        }
         super.configStaticConfig();
         this.setStaticConfig(`
           server:
@@ -419,6 +426,9 @@ class AppIpcba extends backendPlus.AppBackend{
                 MiniTools.serveErr(req,res,next)(err);
             }
         });
+        mainApp.get(baseUrl+`/client/menu.js`, function(req, res){
+            MiniTools.serveText('// empty menu.js for ipcba', 'application/javascript')(req, res);
+        });
         mainApp.get(baseUrl+`/carga-dm/web-manifest.webmanifest`, async function(req, res, next){
             console.log("be", be);
             let pwaVersion = be.config.server.pwaVersion || '';
@@ -564,14 +574,14 @@ class AppIpcba extends backendPlus.AppBackend{
     }
     addLoggedServices(opts){
         var be=this;
-        super.addLoggedServices();
         [
             {sufix:`manifest.manifest`     , fieldName:'archivo_manifiesto', mimeType:'text/cache-manifest'},
             {sufix:`estructura.js`         , fieldName:'archivo_estructura', mimeType:'application/javascript'},
             {sufix:`hdr.json`              , fieldName:'archivo_hdr'       , mimeType:'application/json'},
-            {sufix:`resources_cache.json`  , fieldName:'archivo_cache'     , mimeType:'application/js'}
+            {sufix:`resources_cache.json`  , fieldName:'archivo_cache'     , mimeType:'application/json'}
         ].forEach(function(def){
-            be.app.get(`/carga-dm/:periodo(a\\d\\d\\d\\dm\\d\\d)p:panel(\\d{1,2})t:tarea(\\d{1,4})_${def.sufix}`, async function(req, res, next){
+            var routeRegExp = new RegExp(`^/carga-dm/(?<periodo>a\\d{4}m\\d{2})p(?<panel>\\d+)t(?<tarea>\\d+)_${def.sufix.replace('.', '\\.')}$`);
+            be.app.get(routeRegExp, async function(req, res, next){
                 await be.inDbClient(req, async function(client){
                     try{
                         const {value} = await client.query(`
@@ -645,8 +655,9 @@ class AppIpcba extends backendPlus.AppBackend{
             "dm-react.js",
             "ejemplo-precios.js",
             "unlogged.js",
-            "lib/js-yaml.js",
-            "lib/xlsx.core.min.js",
+            "lib/js-yaml.umd.min.js",
+            "lib/xlsx-now.umd.js",
+            "lib/xlsx-now-browser.umd.js",
             "lib/lazy-some.js",
             "lib/sql-tools.js",
             "dialog-promise/dialog-promise.js",
