@@ -14,7 +14,7 @@
     "@material-ui/icons": "~4.11.2",
     "@material-ui/lab": "4.0.0-alpha.58",
     "ajax-best-promise": "^0.3.7",
-    "backend-plus": "^2.7.0",
+    "backend-plus": "^2.7.1",
     "best-globals": "^2.2.2",
     "like-ar": "^0.5.4",
     "pg-triggers": "^0.4.6",
