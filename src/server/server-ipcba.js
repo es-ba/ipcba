@@ -126,6 +126,7 @@ class AppIpcba extends backendPlus.AppBackend{
             version: 0.1
             deviceWidthForMobile: 768px
             user-scalable: no
+            unfreeze-excel-columns: true
           install:
             dump:
               skip-content: true
