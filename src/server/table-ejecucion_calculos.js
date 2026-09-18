@@ -4,6 +4,7 @@ var changing = require('best-globals').changing;
 var definnerBitacora = require('../../node_modules/backend-plus/lib/tables/table-bitacora.js');
 
 const CALCULO_ACTION = 'fechacalculo_touch';
+const CALCULO_CCC_ACTION = 'fechacalculo_ccc_touch';
 const PERIODO_BASE_CORRER_ACTION = 'periodobase_correr';
 
 module.exports = function(context){
@@ -37,6 +38,7 @@ module.exports = function(context){
                 where procedure_name in 
                     (
                         ${context.be.db.quoteLiteral(CALCULO_ACTION)},
+                        ${context.be.db.quoteLiteral(CALCULO_CCC_ACTION)},
                         ${context.be.db.quoteLiteral(PERIODO_BASE_CORRER_ACTION)}
                     )
                     and (end_date is null or end_date >= current_date)

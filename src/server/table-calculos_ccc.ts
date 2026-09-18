@@ -1,22 +1,31 @@
 'use strict'
 
-import {TableDefinition } from "backend-plus";
+import {Context, TableDefinition} from "backend-plus";
 
-export function calculos_ccc(): TableDefinition{
+export function calculos_ccc(context: Context): TableDefinition{
+  var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista_ccc';
   return {
-    editable: false,
+    editable:puedeEditar,
+    allow:{
+        insert:false,
+        delete:false,
+        update:puedeEditar,
+    },
     name: 'calculos_ccc',
     tableName: 'calculos',
         fields:[
-            {name:'periodo'                      , typeName:'text'     },
-            {name:'calculo'                      , typeName:'integer'  },
-            {name:'estimacion'                   , typeName:'integer'  },
-            {name:'abierto'                      , typeName:'text'     },
-            {name:'fechacalculo'                 , typeName:'timestamp'},
-            {name:'esperiodobase'                , typeName:'text'     },
-            {name:'periodoanterior'              , typeName:'text'     },
-            {name:'calculoanterior'              , typeName:'integer'  },
-            {name:'hasta_panel'                  , typeName:'integer'  },
+            {name: "calcular_ccc"                , typeName: "bigint", editable:false, clientSide:'calcular_ccc'},
+            {name:'periodo'                      , typeName:'text'   , allow:{update:false}},
+            {name:'calculo'                      , typeName:'integer', allow:{update:false}},
+            {name:'estimacion'                   , typeName:'integer', allow:{update:false}},
+            {name:'abierto'                      , typeName:'text'   , allow:{update:false}},
+            {name:'fechacalculo'                 , typeName:'timestamp', allow:{update:false}},
+            {name:'abierto_ccc'                  , typeName:'text', nullable:false, postInput:'upperSpanish', defaultValue:'S', allow:{update:puedeEditar}},
+            {name:'fechacalculo_ccc'             , typeName:'timestamp', allow:{update:false}},
+            {name:'esperiodobase'                , typeName:'text'     , allow:{update:false}},
+            {name:'periodoanterior'              , typeName:'text'     , allow:{update:false}},
+            {name:'calculoanterior'              , typeName:'integer'  , allow:{update:false}},
+            {name:'hasta_panel'                  , typeName:'integer'  , allow:{update:false}},
         ],
     primaryKey:['periodo','calculo'],
     detailTables:[
@@ -29,7 +38,8 @@ export function calculos_ccc(): TableDefinition{
     //],
     sql: {
         isTable: false,
-        from: `(SELECT periodo, c.calculo, estimacion, abierto, fechacalculo, esperiodobase, periodoanterior, calculoanterior, hasta_panel 
+        from: `(SELECT periodo, c.calculo, estimacion, abierto, fechacalculo, esperiodobase, periodoanterior, calculoanterior, hasta_panel, 
+                abierto_ccc, fechacalculo_ccc 
                 FROM calculos c 
                 JOIN calculos_def d on c.calculo = d.calculo 
                 WHERE principal
