@@ -719,8 +719,8 @@ ProceduresIpcba = [
         `select *
                     from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
                     where procedure_name = $1 and end_date is null or
-                        procedure_name = $2 and parameters = $3 and end_date is null`,
-        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, JSON.stringify(parameters)]
+                        procedure_name IN ($2,$3) and parameters = $4 and end_date is null`,
+        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, CALCULO_CCC_ACTION, JSON.stringify(parameters)]
       ).fetchAll();
       if (result.rowCount > 1) {
         throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')
@@ -754,7 +754,7 @@ ProceduresIpcba = [
       { name: 'calculo', typeName: 'integer' },
     ],
     bitacora: { error: true, always: true },
-    roles: ['programador', 'analista_ccc'],
+    roles: ['programador', 'coordinador', 'ccc_analista'],
     progress: true,
     coreFunction: async function (context, parameters) {
       //context.informProgress({message:'cálculo lanzado'});
@@ -764,8 +764,7 @@ ProceduresIpcba = [
         `select *
                     from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
                     where procedure_name = $1 and end_date is null or
-                        procedure_name = $2 and parameters = $4 and end_date is null or
-                        procedure_name = $3 and parameters = $4 and end_date is null`,
+                        procedure_name IN ($2,$3) and parameters = $4 and end_date is null`,
         [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, CALCULO_CCC_ACTION, JSON.stringify(parameters)]
       ).fetchAll();
       if (result.rowCount > 1) {
@@ -1684,8 +1683,8 @@ ProceduresIpcba = [
       var result = await context.client.query(
         `select *
                     from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
-                    where procedure_name in ($1,$2) and end_date is null`,
-        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION]
+                    where procedure_name in ($1,$2,$3) and end_date is null`,
+        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, CALCULO_CCC_ACTION]
       ).fetchAll();
       if (result.rowCount > 1) {
         throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')

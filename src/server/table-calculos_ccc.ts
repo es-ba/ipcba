@@ -3,7 +3,7 @@
 import {Context, TableDefinition} from "backend-plus";
 
 export function calculos_ccc(context: Context): TableDefinition{
-  var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='analista_ccc';
+  var puedeEditar = context.user.usu_rol ==='programador' || context.user.usu_rol ==='ccc_analista';
   return {
     editable:puedeEditar,
     allow:{
