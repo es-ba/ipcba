@@ -80,6 +80,6 @@ CREATE OR REPLACE TRIGGER novservdom_abi_trg
 ------------------------------------------------------------------
 set search_path = cvp;
 
-UPDATE calculos c SET c.abierto_ccc = cc.abierto
+UPDATE calculos c SET abierto_ccc = cc.abierto
 FROM calculos cc 
 WHERE c.calculo = cc.calculo and c.periodo = cc.periodo;
