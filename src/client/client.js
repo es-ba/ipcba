@@ -98,6 +98,16 @@ my.clientSides.calcular = botonClientSideEnGrilla({
     }
 });
 
+my.clientSides.calcular_ccc = botonClientSideEnGrilla({
+    nombreBoton:'calcular_ccc',
+    llamada:function(depot){
+        return my.ajax.fechacalculo_ccc_touch({
+            periodo: depot.row.periodo,
+            calculo: depot.row.calculo,
+        });
+    }
+});
+
 my.clientSides.recuperar = botonClientSideEnGrilla({
     nombreBoton:'recuperar',
     llamada:function(depot){

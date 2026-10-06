@@ -25,6 +25,7 @@ const periodo_inicial = 'a2012m07';
 const agrupacion = 'E';
 
 const CALCULO_ACTION = 'fechacalculo_touch';
+const CALCULO_CCC_ACTION = 'fechacalculo_ccc_touch';
 const PERIODO_BASE_CORRER_ACTION = 'periodobase_correr';
 
 const ESPECIFICACION_COMPLETA = `
@@ -718,8 +719,8 @@ ProceduresIpcba = [
         `select *
                     from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
                     where procedure_name = $1 and end_date is null or
-                        procedure_name = $2 and parameters = $3 and end_date is null`,
-        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, JSON.stringify(parameters)]
+                        procedure_name IN ($2,$3) and parameters = $4 and end_date is null`,
+        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, CALCULO_CCC_ACTION, JSON.stringify(parameters)]
       ).fetchAll();
       if (result.rowCount > 1) {
         throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')
@@ -735,6 +736,51 @@ ProceduresIpcba = [
           context.informProgress(progressInfo);
         }).fetchUniqueRow().then(function (result) {
           return 'calculado ' + result.row.fechacalculo.toHms();
+        }).catch(function (err) {
+          if (err.code == '54011!') {
+            throw new Error('El calculo no esta abierto');
+          }
+          console.log(err);
+          console.log(err.code);
+          throw err;
+        });
+      }
+    }
+  },
+  {
+    action: CALCULO_CCC_ACTION,
+    parameters: [
+      { name: 'periodo', typeName: 'text', references: 'periodos' },
+      { name: 'calculo', typeName: 'integer' },
+    ],
+    bitacora: { error: true, always: true },
+    roles: ['programador', 'coordinador', 'ccc_analista'],
+    progress: true,
+    coreFunction: async function (context, parameters) {
+      //context.informProgress({message:'cálculo lanzado'});
+      const BITACORA_TABLENAME = context.be.config.server.bitacoraTableName || 'bitacora';
+      //preguntar si hay alguien corriendo 'periodobase_correr' o mismo periodo dentro del calculo actual
+      var result = await context.client.query(
+        `select *
+                    from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
+                    where procedure_name = $1 and end_date is null or
+                        procedure_name IN ($2,$3) and parameters = $4 and end_date is null`,
+        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, CALCULO_CCC_ACTION, JSON.stringify(parameters)]
+      ).fetchAll();
+      if (result.rowCount > 1) {
+        throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')
+      } else {
+        return context.client.query(
+          `UPDATE calculos SET fechacalculo_ccc = current_timestamp
+                    WHERE periodo=$1
+                        AND calculo=$2 AND abierto_ccc='S'
+                    RETURNING fechacalculo_ccc`,
+          [parameters.periodo, parameters.calculo]
+        ).onNotice(function (progressInfo) {
+          progressInfo.message = progressInfo.message.replace(/comenzo.*finalizo.*demoro.*$/g, '');
+          context.informProgress(progressInfo);
+        }).fetchUniqueRow().then(function (result) {
+          return 'calculado ' + result.row.fechacalculo_ccc.toHms();
         }).catch(function (err) {
           if (err.code == '54011!') {
             throw new Error('El calculo no esta abierto');
@@ -1637,8 +1683,8 @@ ProceduresIpcba = [
       var result = await context.client.query(
         `select *
                     from ${context.be.db.quoteIdent(BITACORA_TABLENAME)}
-                    where procedure_name in ($1,$2) and end_date is null`,
-        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION]
+                    where procedure_name in ($1,$2,$3) and end_date is null`,
+        [PERIODO_BASE_CORRER_ACTION, CALCULO_ACTION, CALCULO_CCC_ACTION]
       ).fetchAll();
       if (result.rowCount > 1) {
         throw Error('Hay otra persona ejecutando el calculo, por favor aguarde un momento y vuelva a intentarlo')

@@ -765,6 +765,7 @@ class AppIpcba extends backendPlus.AppBackend{
                 ]},
                 {menuType:'menu', name:'tablas', menuContent:[
                     { menuType: 'table', name: 'calculos_ccc', onlyVisibleFor:asignadores, label: 'calculos'},
+                    { menuType:'table' , name: 'ejecucion_calculos', onlyVisibleFor:asignadores, label:'cálculos ejecutados'},
                     { menuType: 'table', name: 'agrupaciones_ccc', onlyVisibleFor:asignadores, label: 'agrupaciones'},
                     { menuType: 'table', name: 'perfiles', onlyVisibleFor:asignadores },
                     { menuType: 'table', name: 'productos_ccc', onlyVisibleFor:asignadores, label: 'productos'},
