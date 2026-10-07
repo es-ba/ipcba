@@ -83,3 +83,59 @@ set search_path = cvp;
 UPDATE calculos c SET abierto_ccc = cc.abierto
 FROM calculos cc 
 WHERE c.calculo = cc.calculo and c.periodo = cc.periodo;
+
+-----------------------------------------------------------------
+CREATE OR REPLACE FUNCTION validar_abrir_cerrar_calculo_ccc_trg()
+  RETURNS trigger AS
+$BODY$
+DECLARE
+  vPeriodo_1  text;  
+  vCalculo_1  integer;
+  vAbierto_1  character varying(1);
+  vrecsig     record;
+
+BEGIN
+
+IF OLD.abierto_ccc IS DISTINCT FROM NEW.abierto_ccc AND NEW.abierto_ccc='N' THEN
+      SELECT periodoanterior, calculoanterior INTO vPeriodo_1, vCalculo_1
+        FROM cvp.Calculos
+        WHERE periodo=NEW.periodo AND calculo=NEW.calculo ;
+      IF (vPeriodo_1 IS NULL AND vCalculo_1 IS NULL) OR (vPeriodo_1=NEW.periodo AND vCalculo_1=NEW.calculo) THEN -- periodo inicial
+        vAbierto_1='N';
+      ELSE 
+        SELECT abierto_ccc INTO vAbierto_1
+          FROM cvp.Calculos
+          WHERE periodo=vPeriodo_1 AND calculo=vCalculo_1;
+      END IF;
+      IF vAbierto_1 ='S' THEN
+        RAISE EXCEPTION 'ERROR no se puede cerrar un calculo ccc si no esta cerrado el anterior';
+      END IF;
+      IF NEW.abierto='S'  THEN
+        RAISE EXCEPTION 'ERROR no se puede cerrar un calculo ccc si no esta cerrado el calculo ipc correspondinete';
+      END IF;
+END IF;
+IF OLD.abierto_ccc IS DISTINCT FROM NEW.abierto_ccc AND NEW.abierto_ccc='S' THEN 
+      FOR vrecsig in
+        SELECT periodo, calculo, abierto_ccc 
+          FROM cvp.Calculos
+          WHERE periodoanterior=NEW.Periodo AND calculoanterior=NEW.Calculo 
+            AND (periodoanterior<>Periodo OR calculoanterior<>Calculo)
+      LOOP
+          IF vrecsig.abierto_ccc='N' THEN
+            RAISE EXCEPTION 'ERROR no se puede reabrir porque el siguiente periodo "%" esta cerrado', vrecsig.periodo;
+          END IF;
+      END LOOP;   
+END IF;
+RETURN NEW;
+END;
+
+$BODY$
+  LANGUAGE plpgsql;
+  
+ALTER FUNCTION validar_abrir_cerrar_calculo_ccc_trg()
+    OWNER TO cvpowner;
+
+CREATE TRIGGER calculos_controlar_abrir_cerrar_calculo_ccc_trg 
+   BEFORE UPDATE 
+   ON calculos 
+   FOR EACH ROW EXECUTE PROCEDURE validar_abrir_cerrar_calculo_ccc_trg();

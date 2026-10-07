@@ -728,7 +728,7 @@ ProceduresIpcba = [
         return context.client.query(
           `UPDATE calculos SET fechageneracionexternos = COALESCE(fechageneracionexternos,current_timestamp), fechacalculo = current_timestamp
                     WHERE periodo=$1
-                        AND calculo=$2 AND abierto='S'
+                        AND calculo=$2 AND abierto='S' AND abierto_ccc='S'
                     RETURNING fechageneracionexternos, fechacalculo`,
           [parameters.periodo, parameters.calculo]
         ).onNotice(function (progressInfo) {
@@ -738,7 +738,7 @@ ProceduresIpcba = [
           return 'calculado ' + result.row.fechacalculo.toHms();
         }).catch(function (err) {
           if (err.code == '54011!') {
-            throw new Error('El calculo no esta abierto');
+            throw new Error('El calculo ipc o ccc no esta abierto');
           }
           console.log(err);
           console.log(err.code);
@@ -783,7 +783,7 @@ ProceduresIpcba = [
           return 'calculado ' + result.row.fechacalculo_ccc.toHms();
         }).catch(function (err) {
           if (err.code == '54011!') {
-            throw new Error('El calculo no esta abierto');
+            throw new Error('El calculo ccc no esta abierto');
           }
           console.log(err);
           console.log(err.code);
