@@ -88,6 +88,9 @@ IF OLD.abierto IS DISTINCT FROM NEW.abierto AND NEW.abierto='S' THEN
             RAISE EXCEPTION 'ERROR no se puede reabrir porque el siguiente periodo "%" esta cerrado', vrecsig.periodo;
           END IF;
       END LOOP;   
+      IF NEW.abierto_ccc='N'  THEN
+        RAISE EXCEPTION 'ERROR no se puede reabrir un calculo cuando el cálculo ccc está cerrado';
+      END IF;
   ELSE
      RAISE EXCEPTION 'ERROR Perfil no autorizado para realizar esta operacion "%" ', current_user;
   END IF;
