@@ -3,7 +3,7 @@
 import { Context, TableDefinition } from "backend-plus";
 
 export function control_anulados_mes_anterior(context: Context): TableDefinition {
-    const puedeEditar = context.user.usu_rol === 'programador' || context.user.usu_rol === 'analista' || context.user.usu_rol === 'coordinador' || context.user.usu_rol === 'recepcionista';
+    const puedeEditar = context.user.usu_rol === 'programador' || context.user.usu_rol === 'analista' || context.user.usu_rol === 'coordinador' || context.user.usu_rol === 'recepcionista' || context.user.usu_rol === 'jefe_recepcion';
     const serverConfig = context.be.config?.server as any;
     const baseLink: string = serverConfig?.['base-link'] ?? '';
     const baseUrl: string = serverConfig?.['base-url'] ?? '';

@@ -663,7 +663,7 @@ ProceduresIpcba = [
       { name: 'periodo', typeName: 'text', references: 'periodos' },
       { name: 'panel', typeName: 'integer' }
     ],
-    roles: ['programador', 'coordinador', 'analista', 'jefe_campo'],
+    roles: ['programador', 'coordinador', 'analista', 'jefe_campo', 'jefe_recepcion'],
     coreFunction: async function (context, parameters) {
       try {
         const { periodo, panel } = parameters;
