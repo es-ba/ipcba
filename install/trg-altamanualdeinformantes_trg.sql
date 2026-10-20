@@ -1,10 +1,14 @@
-CREATE OR REPLACE FUNCTION altamanualdeinformantes_trg()
+CREATE OR REPLACE FUNCTION cvp.altamanualdeinformantes_trg()
   RETURNS trigger AS 
 $BODY$
 DECLARE
 vseguir boolean:= true;
 vcantfilasgeneradas integer:= 0;
-vesactiva integer:= 0;
+vesactiva integer:= 0; --es tarea activa? (en tabla tareas)
+vesptactiva integer:= 0;  --es panel-tarea activo? (tabla tabla pantar)
+vproducto character varying(8);
+vformularios text;
+vcantrepetidos integer:= 0;
 begin
   IF NEW.AltaManualConfirmar is distinct from OLD.AltaManualConfirmar then
     vseguir := true;
@@ -31,6 +35,14 @@ begin
        vseguir := false;
        RETURN NULL;
     END IF;
+    SELECT count(*) INTO vesptactiva 
+    FROM cvp.pantar 
+    WHERE panel = NEW.altamanualpanel AND tarea = NEW.altamanualtarea AND activa = 'S';
+    IF vesptactiva = 0 THEN
+       RAISE EXCEPTION 'El panel-tarea en la cual se generará no está activo (pantar)';
+       vseguir := false;
+       RETURN NULL;
+    END IF;
     select count(*) INTO vcantfilasgeneradas--new.altamanualperiodo, 1, new.informante, fi.formulario, new.altamanualPanel, new.AltaManualTarea, 
       from cvp.ForInf fi
       where fi.informante=new.informante and fi.altamanualperiodo = new.altamanualperiodo
@@ -39,6 +51,20 @@ begin
                        AND v.formulario=fi.formulario);
     IF vcantfilasgeneradas = 0 THEN
        RAISE EXCEPTION 'Falta especificar periodo de alta para el formulario a generar (no se generarán filas)';
+       vseguir := false;
+       RETURN NULL;
+    END IF;
+    select fp.producto, count(*), string_agg (concat_ws(', ','formulario: '||fi.formulario::text,'altamanaulaperiodo: '||fi.altamanualperiodo), '; ' order by concat_ws(', ',fi.formulario::text,fi.altamanualperiodo)) formularios
+      INTO vproducto, vcantrepetidos, vformularios
+      from cvp.forinf fi 
+      join cvp.forprod fp on fi.formulario = fp.formulario
+      join cvp.formularios f on fp.formulario = f.formulario
+      where f.activo = 'S' and fi.informante = new.informante
+      group by fi.informante, fp.producto
+      having count(*) > 1
+      limit 1;
+    IF vcantrepetidos > 0 THEN
+       RAISE EXCEPTION 'El producto % se encuentra en más de un formulario a generar, % (solicitar baja del formulario de más: eliminarlo de forinf)', vproducto, vformularios;
        vseguir := false;
        RETURN NULL;
     END IF;
