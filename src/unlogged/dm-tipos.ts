@@ -220,6 +220,7 @@ export type HojaDeRuta={
     encuestador:string,
     nombreencuestador:string,
     apellidoencuestador:string,
+    periodo: string,
     panel: number,
     tarea: number,
     dispositivo:string,

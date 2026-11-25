@@ -2417,7 +2417,7 @@ function PantallaHojaDeRuta(_props:{}){
         }
     });
     const hdr = useSelector((hdr:HojaDeRuta)=>(hdr));
-    const {informantes, panel, tarea, encuestador, nombreencuestador, apellidoencuestador, modalidad} = useSelector((hdr:HojaDeRuta)=>(hdr));
+    const {informantes, periodo, panel, tarea, encuestador, nombreencuestador, apellidoencuestador, modalidad} = useSelector((hdr:HojaDeRuta)=>(hdr));
     const {letraGrandeFormulario, mostrarColumnasFaltantesYAdvertencias, posHdr, customDataMode} = useSelector((hdr:HojaDeRuta)=>(hdr.opciones));
     const classes = useStylesTable();
     const classesButton = useStylesButton();
@@ -2571,7 +2571,7 @@ function PantallaHojaDeRuta(_props:{}){
                 <Paper className={classes.root}>
                     {hdrEstaDescargada()?<Chip label={'Tablet descargada, para hacer una nueva carga comuníquese con su recepcionista'} style={{backgroundColor: 'red', fontSize: '1.5em'}}></Chip>:null}
                     <Typography component="p" style={{fontSize:"1.2rem", fontWeight:600, padding: "5px 10px"}}>
-                        Panel: {panel} Tarea: {tarea} Enc: {apellidoencuestador}, {nombreencuestador} ({encuestador}) Modalidad: {modalidad ||'-'}
+                        Período: {periodo} Panel: {panel} Tarea: {tarea} Enc: {apellidoencuestador}, {nombreencuestador} ({encuestador}) Modalidad: {modalidad ||'-'}
                     </Typography>
                     <Table className="hoja-ruta" style={{borderTopStyle: "groove"}}>
                         <colgroup>
