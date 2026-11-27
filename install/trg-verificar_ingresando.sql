@@ -49,7 +49,7 @@ BEGIN
         FROM cvp.periodos where Periodo=vPeriodo;
     --RAISE EXCEPTION 'Vconpermiso %',vconpermiso;
     IF vIngresando = 'N' OR (vhabilitado = 'N' and not vconpermiso) then
-        RAISE EXCEPTION 'Periodo Cerrado. Actualizacion no permitida en tabla %',vtabla;
+        RAISE EXCEPTION 'Periodo % Cerrado. Actualizacion no permitida en tabla %',vPeriodo,vtabla;
         RETURN NULL;
     ELSE
         CASE vtabla

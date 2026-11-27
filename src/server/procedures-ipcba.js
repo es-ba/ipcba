@@ -2207,12 +2207,16 @@ ProceduresIpcba = [
           };
           return 'descarga completa';
         } else {
-          return `No se pudo descargar.
+          return `No se pudo descargar la hoja de ruta del periodo ${params.hoja_de_ruta.periodo}, panel ${params.hoja_de_ruta.panel}, tarea ${params.hoja_de_ruta.tarea}.
                         Quizás haya sido descargado anteriormente o se le haya cargado otro dispositivo.
                         ${params.custom_data ? 'Token: ' + params.current_token : 'ID instalacion: ' + idInstalacion.value}`
         }
       } catch (err) {
         console.log('ERROR', err);
+        var hdr = params.hoja_de_ruta;
+        if (hdr && hdr.periodo) {
+          err.message = `Hoja de ruta del periodo ${hdr.periodo}, panel ${hdr.panel}, tarea ${hdr.tarea}. ` + err.message;
+        }
         throw err;
       }
     }
